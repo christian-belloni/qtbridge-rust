@@ -251,13 +251,6 @@ mod backend {
             false
         }
     }
-
-    impl Drop for Backend {
-        fn drop(&mut self) {
-            self.detach_qobject()
-        }
-    }
-
 }
 
 use backend::Backend;

@@ -71,12 +71,6 @@ mod backend {
         #[qsignal]
         fn duplicate_found(&self, duplicate: &str);
     }
-
-    impl Drop for Backend {
-        fn drop(&mut self) {
-            self.detach_qobject();
-        }
-    }
 }
 
 fn main() {

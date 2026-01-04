@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 #![cfg(test)]
-use proc_macro2::TokenStream;
 use qt_gen_impl::QObjectModuleBuilder;
 use quote::{ToTokens, quote};
 use crate::tst_assert::assert_tokens_eq;

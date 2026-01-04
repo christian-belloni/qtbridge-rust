@@ -18,12 +18,6 @@ mod backend {
             println!("Hello World!")
         }
     }
-
-    impl Drop for Backend {
-        fn drop(&mut self) {
-            self.detach_qobject();
-        }
-    }
 }
 
 fn main() {

@@ -5,6 +5,8 @@ use proc_macro2::{TokenStream, TokenTree};
 use quote::ToTokens;
 use syn::{buffer::Cursor, parse::{Parse, ParseBuffer, StepCursor}};
 
+use crate::type_utils::is_same_path;
+
 struct NameEqValue<Name, Value> {
     pub name: Name,
     pub value: Value,
@@ -60,10 +62,25 @@ pub fn is_two_segment_path_outer_attribute(attr: &syn::Attribute, seg0_str: &str
         return false;
     }
 
-    let segs = &attr.path().segments;
-    let result = segs.get(0).is_some_and(|seg| seg.ident == seg0_str) &&
-                 segs.get(1).is_some_and(|seg| seg.ident == seg1_str);
-    result
+    is_path_with_segments_array(attr.path(), [seg0_str, seg1_str])
+}
+
+pub fn is_path_with_segments_array<const N: usize>(path: &syn::Path, expected_segments: [&str; N]) -> bool {
+    if path.segments.len() != N {
+        return false
+    }
+
+    is_same_path(path, expected_segments.iter())
+}
+
+pub fn is_path_with_segments_str(path: &syn::Path, expected: &str) -> bool {
+    if expected.split("::").count() != path.segments.len() {
+        return false
+    }
+
+    path.segments.iter()
+        .zip(expected.split("::"))
+        .all(|(path_seg, token)| path_seg.ident == token)
 }
 
 pub fn is_cxx_bridge_attribute(attr: &syn::Attribute) -> bool {

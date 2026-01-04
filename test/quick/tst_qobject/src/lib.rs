@@ -76,12 +76,6 @@ mod test_qobject {
         #[qsignal(qml_name = "floatPropChanged")]
         fn float_prop_changed(&mut self);
     }
-
-    impl Drop for TestQObject {
-        fn drop(&mut self) {
-            self.detach_qobject();
-        }
-    }
 }
 
 #[run_quick_test(Class = test_qobject::TestQObject, Name = "testObject", Input = "qml")]

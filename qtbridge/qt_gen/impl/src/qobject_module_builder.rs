@@ -1,11 +1,13 @@
 use proc_macro2::TokenStream;
 use qt_gen_common::type_qualified_mapping::CallOrigin;
-use quote::{ToTokens, format_ident};
+use quote::{ToTokens, format_ident, quote};
 use syn::Generics;
 use syn::spanned::Spanned;
 
 use qt_gen_common::function_with_attributes::FunctionWithAttributes;
 use qt_iface_gen_lib::{InterfaceDesc, InterfaceImpl, MethodOverride};
+use qt_gen_common::parse_utils::is_path_with_segments_str;
+use qt_gen_common::type_utils::get_ident_of_last_path_segment;
 use qt_meta_gen::generate_meta::{QMetaInfoContext, generate_qmetainfo_trait_impl};
 use qt_meta_gen::generate_qmetatype_interface_get::generate_qmeta_type_interface_get;
 use qt_meta_gen::traits::{QmlName, find_duplicate_by_qml_name};
@@ -25,6 +27,7 @@ pub struct QObjectModuleBuilder {
     overrides: Vec<MethodOverride>,
     class_infos: Vec<QClassInfo>,
     other_methods: Vec<syn::Signature>,
+    is_drop_found: bool,
 }
 
 
@@ -39,7 +42,8 @@ impl QObjectModuleBuilder {
             properties: Vec::new(),
             overrides: Vec::new(),
             class_infos: Vec::new(),
-            other_methods: Vec::new()
+            other_methods: Vec::new(),
+            is_drop_found: false,
         }
     }
 
@@ -79,16 +83,18 @@ impl QObjectModuleBuilder {
         let iface_name = iface_desc.get_ident().to_string();
 
         // Generate the implementation of the interface.
-        let iface_impl = InterfaceImpl::new(self.struct_ident.clone(), self.struct_generics.clone(), self.overrides.clone(), iface_desc, self.origin.clone())?;
+        let struct_ident = &self.struct_ident;
+        let iface_impl = InterfaceImpl::new(struct_ident.clone(), self.struct_generics.clone(), self.overrides.clone(), iface_desc, self.origin.clone())?;
         let unimpl_methods = iface_impl.get_unimplemented_pure_methods()?;
         if !unimpl_methods.is_empty() {
             // TODO: Check if suitable methods are in 'other_methods' but not marked as #[overridden]?
             return Err(syn::Error::new(iface_name.span(),
                 format!("Some of pure virtual methods of interface '{iface_name}' are not overridden in '{}':\n{}",
-                    self.struct_ident, unimpl_methods.join(", "))));
+                    struct_ident, unimpl_methods.join(", "))));
         }
 
         // Generate blocks of code that will be added to expanded code.
+        let drop_impl = self.generate_drop_trait_if_missing()?;
         let impl_details = iface_impl.generate_impl_details()
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation details block.\nError:{err}")))?;
         let qobject_funcs = iface_impl.generate_qobject_funcs()
@@ -124,13 +130,16 @@ impl QObjectModuleBuilder {
         // Generate traits code.
         let qmeta_info_impl_tokens = generate_qmetainfo_trait_impl(&ctx, &self.origin)
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaInfo trait.\nError: {}", err)))?;
-        let qmetatype_iface_get_impl_tokens = generate_qmeta_type_interface_get(&self.struct_ident, &self.struct_generics, &self.origin)
+        let qmetatype_iface_get_impl_tokens = generate_qmeta_type_interface_get(struct_ident, &self.struct_generics, &self.origin)
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaTypeInterfaceGet trait.\nError: {}", err)))?;
 
         // Concat additional items to the source items processed
         output_module_items.push(iface_base_impl.into());                  // impl block with the base functions
         output_module_items.push(iface_trait.into());                      // Rust implementation of C++ interface methods
         output_module_items.push(qobject_funcs.into());                    // Impl block with functions needed to attach, detach and reference QObject
+        if let Some(drop) = drop_impl {
+            output_module_items.push(drop.into());
+        }
         // TODO: return items below as high level AST but not TokenStreams
         output_module_items.push(syn::parse2(qmeta_info_impl_tokens)?);             // impl qtbridge::bridge::QMetaInfo
         output_module_items.push(syn::parse2(qmetatype_iface_get_impl_tokens)?);    // impl qtbridge::qt_type_lib::QMetaTypeInterfaceGet
@@ -190,8 +199,56 @@ impl QObjectModuleBuilder {
     /// Handle block
     /// impl SomeTrait for SomeStruct
     fn handle_item_impl_trait(&mut self, input: &syn::ItemImpl) -> syn::Result<syn::ItemImpl> {
+
+        let path = &input.trait_.as_ref().unwrap().1;
+        let last_seg_ident = get_ident_of_last_path_segment(path)
+            .ok_or_else(|| syn::Error::new(path.span(), "Failed to get path segment"))?;
+
+        match last_seg_ident.to_string().as_str() {
+            "Drop" => {
+                if path.is_ident("Drop") ||
+                   is_path_with_segments_str(path, "std::ops::Drop") ||
+                   is_path_with_segments_str(path, "core::ops::Drop")
+                {
+                    return self.handle_impl_drop_trait(input)
+                }
+            },
+            _ => {},
+        }
+
         // Will be handled later
         Ok(input.clone())
+    }
+
+    fn handle_impl_drop_trait(&mut self, input: &syn::ItemImpl) -> syn::Result<syn::ItemImpl> {
+        self.is_drop_found = true;
+
+        let items = &input.items;
+        if items.len() != 1 {
+            return Err(syn::Error::new(input.span(), "Drop traits expected to have one item"))
+        }
+        let item = &input.items[0];
+        let syn::ImplItem::Fn(item_fn) = item else {
+            return Err(syn::Error::new(input.span(), format!("Expected drop() function. Found: {}", item.to_token_stream())))
+        };
+
+        let mut new_item_fn = item_fn.clone();
+
+        // Make sure the last expression has trailing semicolon
+        if let Some(last_stmt) = new_item_fn.block.stmts.last_mut() &&
+           let syn::Stmt::Expr(_expr, semi) = last_stmt {
+            *semi = Some(Default::default());
+        }
+
+        let drop_expr: syn::Expr = syn::parse2(quote!{
+            self.detach_qobject()
+        })?;
+        new_item_fn.block.stmts.push(syn::Stmt::Expr(drop_expr, Some(Default::default())));
+
+        Ok(syn::ItemImpl {
+            items: vec![new_item_fn.into()],
+            ..input.clone()
+        })
     }
 
     /// Handle block
@@ -299,6 +356,27 @@ impl QObjectModuleBuilder {
         }
 
         Ok(Some(input.clone()))
+    }
+
+    /// Generate impl Drop for given struct in which we delete attached qobject.
+    fn generate_drop_trait_if_missing(&self) -> syn::Result<Option<syn::ItemImpl>> {
+        if self.is_drop_found {
+            return Ok(None)
+        }
+
+        let struct_ident = &self.struct_ident;
+        let (impl_generics, type_generics, where_clause) = self.struct_generics.split_for_impl();
+
+        let drop = syn::parse2::<syn::ItemImpl>(quote! {
+            impl #impl_generics Drop for #struct_ident #type_generics
+            #where_clause
+            {
+                fn drop(&mut self) {
+                    self.detach_qobject();
+                }
+            }
+        })?;
+        Ok(Some(drop))
     }
 
     fn get_meta_attribute(input: &[syn::Attribute]) -> syn::Result<Option<&syn::Attribute>> {

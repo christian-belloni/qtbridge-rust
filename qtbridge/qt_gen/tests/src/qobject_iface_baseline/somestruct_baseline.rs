@@ -194,6 +194,11 @@ mod some_module {
             qobj_ptr.into()
         }
     }
+    impl Drop for SomeStruct {
+        fn drop(&mut self) {
+            self.detach_qobject();
+        }
+    }
     impl qtbridge::bridge::QMetaInfo for SomeStruct {
         fn class_name() -> &'static str {
             ::std::any::type_name::<SomeStruct>()
