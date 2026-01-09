@@ -3,58 +3,68 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use qtbridge::{qobject_impl, QApp};
-use qtbridge::qt_type_lib::{QVariant, QModelIndex};
+use qtbridge::{qobject, QApp};
 
-#[derive(Default)]
-pub struct Backend<T> {
-    data: Vec<T>,
-}
-impl<T> Backend<T> {
-    fn new(data: Vec<T>) -> Self {
-        Self {
-            data: data
-         }
+#[qobject(Base = QAbstractItemModel)]
+mod backend {
+    use qtbridge::qt_type_lib::{QVariant, QModelIndex};
+
+    #[derive(Default)]
+    pub struct Backend<T>
+    where T: 'static + Default,
+        for<'a> qtbridge::qt_type_lib::QVariant: From<&'a T>, // TODO: make it work without fully qualified path for QVariant
+    {
+        data: Vec<T>,
     }
-}
-#[qobject_impl(Base = QAbstractItemModel)]
-impl<T> Backend<T>
-    where
-    T: 'static + Default,
-    for<'a> qtbridge::qt_type_lib::QVariant: From<&'a T>,
-{
-    #[overridden]
-    fn index(&self, row: i32, column: i32, _parent: &QModelIndex) -> QModelIndex {
-        self.create_index(row, column, 0)
-    }
-    #[overridden]
-    fn parent(&self, _child: &QModelIndex) -> QModelIndex {
-        QModelIndex::default()
-    }
-    #[overridden]
-    fn row_count(&self, parent: &QModelIndex) -> i32 {
-        if !parent.is_valid() {
-            self.data.len() as i32
-        } else {
-            0
+    impl<T> Backend<T>
+    where T: 'static + Default,
+        for<'a> QVariant: From<&'a T>,
+    {
+        pub fn new(data: Vec<T>) -> Self {
+            Self {
+                data: data
+            }
         }
     }
-    #[overridden]
-    fn column_count(&self, _parent: &QModelIndex) -> i32 {
-        1
+
+    impl<T> Backend<T>
+        where
+        T: 'static + Default,
+        for<'a> qtbridge::qt_type_lib::QVariant: From<&'a T>,
+    {
+        #[overridden]
+        fn index(&self, row: i32, column: i32, _parent: &QModelIndex) -> QModelIndex {
+            self.create_index(row, column, 0)
+        }
+        #[overridden]
+        fn parent(&self, _child: &QModelIndex) -> QModelIndex {
+            QModelIndex::default()
+        }
+        #[overridden]
+        fn row_count(&self, parent: &QModelIndex) -> i32 {
+            if !parent.is_valid() {
+                self.data.len() as i32
+            } else {
+                0
+            }
+        }
+        #[overridden]
+        fn column_count(&self, _parent: &QModelIndex) -> i32 {
+            1
+        }
+        #[overridden]
+        fn data(&self, index: &QModelIndex, _role: i32) -> QVariant {
+            QVariant::from(&self.data[index.row() as usize])
+        }
+        #[overridden]
+        fn set_data(&mut self, _index: &QModelIndex, _value: &QVariant, _role: i32) -> bool {
+            false
+        }
     }
-    #[overridden]
-    fn data(&self, index: &QModelIndex, _role: i32) -> QVariant {
-        QVariant::from(&self.data[index.row() as usize])
-    }
-    #[overridden]
-    fn set_data(&mut self, _index: &QModelIndex, _value: &QVariant, _role: i32) -> bool {
-        false
-    }
+
 }
 
-// TODO: implement Drop
-// when the implementation is less spoiled by trait bounds.
+use backend::Backend;
 
 #[test]
 fn test_qabstractitemmodel() {

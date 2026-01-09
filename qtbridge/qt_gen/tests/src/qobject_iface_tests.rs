@@ -2,34 +2,47 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 #![cfg(test)]
-use quote::quote;
-use qt_gen_impl::qobject_impl::qobject_impl;
+use proc_macro2::TokenStream;
+use qt_gen_impl::QObjectModuleBuilder;
+use quote::{ToTokens, quote};
 use crate::tst_assert::assert_tokens_eq;
 use qt_gen_common::type_qualified_mapping::CallOrigin;
 
 #[test]
-pub fn require_that_qobject_impl_macro_generates_interface_impl_code_that_agrees_with_reference() {
+pub fn require_that_qobject_macro_generates_interface_impl_code_that_agrees_with_reference() {
     let input = quote! {
-        impl SomeStruct {
-            #[overridden]
-            fn set_data(&mut self, index: &QModelIndex, value: &QVariant, role: i32 ) -> bool {
-                false
+        mod some_module {
+            #[derive(Default)]
+            struct SomeStruct {
             }
 
-            #[overridden(cpp_name="data")]
-            fn d_data_(&self, index: &QModelIndex, role: i32) -> QVariant {
-                //QVariant::default()
-            }
+            impl SomeStruct {
+                #[overridden]
+                fn set_data(&mut self, index: &QModelIndex, value: &QVariant, role: i32 ) -> bool {
+                    false
+                }
 
-            #[overridden]
-            fn row_count(&self, parent: &QModelIndex) -> i32 {
-                1
+                #[overridden(cpp_name="data")]
+                fn d_data_(&self, index: &QModelIndex, role: i32) -> QVariant {
+                    //QVariant::default()
+                }
+
+                #[overridden]
+                fn row_count(&self, parent: &QModelIndex) -> i32 {
+                    1
+                }
             }
         }
     };
 
     let input_params = quote!{
         Base = QAbstractListModel
+    };
+
+    let expected_struct = quote!{
+        #[derive(Default)]
+        struct SomeStruct {
+        }
     };
 
     let expected_new_impl = quote!{
@@ -237,7 +250,6 @@ pub fn require_that_qobject_impl_macro_generates_interface_impl_code_that_agrees
             }
         }
     };
-
 
     let expected_qmeta_info_impl = quote! {
         impl qtbridge::bridge::QMetaInfo for SomeStruct {
@@ -464,13 +476,25 @@ pub fn require_that_qobject_impl_macro_generates_interface_impl_code_that_agrees
         }
     };
 
-    let output = qobject_impl(input, input_params, &CallOrigin::External).unwrap();
-    assert_tokens_eq(&output.new_impl, &expected_new_impl);
-    assert_tokens_eq(&output.iface_base_impl, &expected_iface_base_impl);
-    assert_tokens_eq(&output.iface_trait, &expected_iface_trait);
-    assert_tokens_eq(&output.qobject_funcs, &expected_qobject_funcs);
-    assert_tokens_eq(&output.qmeta_info_impl, &expected_qmeta_info_impl);
-    assert_tokens_eq(&output.qmetatype_iface_get_impl, &expected_qmetatype_iface_get_impl);
-    assert_tokens_eq(&output.impl_details, &expected_impl_details);
-
+    let mut builder = QObjectModuleBuilder::new(CallOrigin::External);
+    let output = builder.build(input, input_params).unwrap();
+    let items: Vec<TokenStream> = output.content.unwrap().1.iter()
+        .map(ToTokens::to_token_stream)
+        .collect();
+    let new_struct = &items[0];
+    let new_impl = &items[1];
+    let iface_base_impl = &items[2];
+    let iface_trait = &items[3];
+    let qobject_funcs = &items[4];
+    let qmeta_info_impl = &items[5];
+    let qmetatype_iface_get_impl = &items[6];
+    let impl_details = &items[7];
+    assert_tokens_eq(new_struct, &expected_struct);
+    assert_tokens_eq(new_impl, &expected_new_impl);
+    assert_tokens_eq(iface_base_impl, &expected_iface_base_impl);
+    assert_tokens_eq(iface_trait, &expected_iface_trait);
+    assert_tokens_eq(qobject_funcs, &expected_qobject_funcs);
+    assert_tokens_eq(qmeta_info_impl, &expected_qmeta_info_impl);
+    assert_tokens_eq(qmetatype_iface_get_impl, &expected_qmetatype_iface_get_impl);
+    assert_tokens_eq(impl_details, &expected_impl_details);
 }

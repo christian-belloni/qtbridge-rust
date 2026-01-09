@@ -1,8 +1,8 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use qtbridge::{qobject_impl, run_quick_test, QApp};
-use qtbridge::qt_type_lib::{QVariant, QModelIndex};
+use qtbridge::{qobject, run_quick_test, QApp};
+use qtbridge::qt_type_lib::QVariant;
 
 #[derive(Clone)]
 pub struct Cell {
@@ -108,164 +108,159 @@ impl Row {
     }
 }
 
-pub struct Backend {
-    root: Row,
-}
+#[qobject(Base = QAbstractItemModel)]
+mod backend {
 
-impl Default for Backend {
-    fn default() -> Self {
+    use super::Row;
+    use qtbridge::qt_type_lib::{QVariant, QModelIndex};
 
-        let mut row0 = Row::new(5);
-        let mut row1 = Row::new(5);
-        let mut row10 = Row::new(5);
-        let mut row11 = Row::new(5);
-        let mut row110 = Row::new(5);
-        let mut row111 = Row::new(5);
-        let mut row2 = Row::new(5);
-
-        for col in 0..=4 {
-            if let Some(cell) = row0.columns.get_mut(col) {
-                let value = format!("Row0, Column {}", col);
-                cell.set(0, QVariant::from(value));
-            }
-            if let Some(cell) = row1.columns.get_mut(col) {
-                let value = format!("Row1, Column {}", col);
-                cell.set(0, QVariant::from(value));
-            }
-            if let Some(cell) = row10.columns.get_mut(col) {
-                let value = format!("Row1-0, Column {}", col);
-                cell.set(0, QVariant::from(value));
-            }
-            if let Some(cell) = row11.columns.get_mut(col) {
-                let value = format!("Row1-1, Column {}", col);
-                cell.set(0, QVariant::from(value));
-            }
-            if let Some(cell) = row110.columns.get_mut(col) {
-                let value = format!("Row1-1-0, Column {}", col);
-                cell.set(0, QVariant::from(value));
-            }
-            if let Some(cell) = row111.columns.get_mut(col) {
-                let value = format!("Row1-1-1, Column {}", col);
-                cell.set(0, QVariant::from(value));
-            }
-            if let Some(cell) = row2.columns.get_mut(col) {
-                let value = format!("Row2, Column {}", col);
-                cell.set(0, QVariant::from(value));
-            }
-        }
-
-        row1.add_child(row10);
-        row11.add_child(row110);
-        row11.add_child(row111);
-        row1.add_child(row11);
-        Self {
-            root: Row::from_children(vec![row0, row1, row2]),
-        }
-    }
-}
-
-#[qobject_impl(Base = QAbstractItemModel)]
-impl Backend {
-
-    pub fn add_child(&mut self, row: Row) {
-        self.root.add_child(row);
+    pub struct Backend {
+        root: Row,
     }
 
-    pub fn insert_child(&mut self, index: usize, row: Row) {
-        self.root.insert_child(index, row);
-    }
+    impl Default for Backend {
+        fn default() -> Self {
 
-    pub fn get_row(&self, index: usize) -> Option<&Row> {
-        self.root.get_child(index)
-    }
+            let mut row0 = Row::new(5);
+            let mut row1 = Row::new(5);
+            let mut row10 = Row::new(5);
+            let mut row11 = Row::new(5);
+            let mut row110 = Row::new(5);
+            let mut row111 = Row::new(5);
+            let mut row2 = Row::new(5);
 
-    #[overridden]
-    fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex {
-        if parent.is_valid() {
-            let parent_ptr = parent.internal_pointer() as *const Row;
-            if !parent_ptr.is_null() {
-                let parent_row_ref = unsafe { &*parent_ptr };
-                let maybe_row_ref = parent_row_ref.get_child(row as usize);
-                if let Some(row_ref) = maybe_row_ref {
-                    let ptr = row_ref as *const Row as usize;
-                    return self.create_index(row, column, ptr);
+            for col in 0..=4 {
+                if let Some(cell) = row0.columns.get_mut(col) {
+                    let value = format!("Row0, Column {}", col);
+                    cell.set(0, QVariant::from(value));
+                }
+                if let Some(cell) = row1.columns.get_mut(col) {
+                    let value = format!("Row1, Column {}", col);
+                    cell.set(0, QVariant::from(value));
+                }
+                if let Some(cell) = row10.columns.get_mut(col) {
+                    let value = format!("Row1-0, Column {}", col);
+                    cell.set(0, QVariant::from(value));
+                }
+                if let Some(cell) = row11.columns.get_mut(col) {
+                    let value = format!("Row1-1, Column {}", col);
+                    cell.set(0, QVariant::from(value));
+                }
+                if let Some(cell) = row110.columns.get_mut(col) {
+                    let value = format!("Row1-1-0, Column {}", col);
+                    cell.set(0, QVariant::from(value));
+                }
+                if let Some(cell) = row111.columns.get_mut(col) {
+                    let value = format!("Row1-1-1, Column {}", col);
+                    cell.set(0, QVariant::from(value));
+                }
+                if let Some(cell) = row2.columns.get_mut(col) {
+                    let value = format!("Row2, Column {}", col);
+                    cell.set(0, QVariant::from(value));
                 }
             }
-        } else {
-            if (row as usize) < self.root.row_count() {
-                let row_ref = &self.root.children[row as usize];
-                let ptr = row_ref as *const Row as usize;
-                return self.create_index(row, column, ptr)
+
+            row1.add_child(row10);
+            row11.add_child(row110);
+            row11.add_child(row111);
+            row1.add_child(row11);
+            Self {
+                root: Row::from_children(vec![row0, row1, row2]),
             }
         }
-        return QModelIndex::default();
     }
 
-    #[overridden]
-    fn parent(&self, child: &QModelIndex) -> QModelIndex {
-        if child.is_valid() {
-            let child_ptr: *const Row = child.internal_pointer() as *const Row;
-            if let Some(child_row_ref) = unsafe { child_ptr.as_ref() } {
-                if let Some(parent_ref) = self.root.parent_of(child_row_ref) {
-                    if let Some(grandparent_ref) = self.root.parent_of(parent_ref) {
-                        if let Some(row_index) = grandparent_ref.index_of(parent_ref) {
-                            let ptr = parent_ref as *const Row as usize;
-                            return self.create_index(row_index as i32, 0, ptr);
+    impl Backend {
+        #[overridden]
+        fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex {
+            if parent.is_valid() {
+                let parent_ptr = parent.internal_pointer() as *const Row;
+                if !parent_ptr.is_null() {
+                    let parent_row_ref = unsafe { &*parent_ptr };
+                    let maybe_row_ref = parent_row_ref.get_child(row as usize);
+                    if let Some(row_ref) = maybe_row_ref {
+                        let ptr = row_ref as *const Row as usize;
+                        return self.create_index(row, column, ptr);
+                    }
+                }
+            } else {
+                if (row as usize) < self.root.row_count() {
+                    let row_ref = &self.root.children[row as usize];
+                    let ptr = row_ref as *const Row as usize;
+                    return self.create_index(row, column, ptr)
+                }
+            }
+            return QModelIndex::default();
+        }
+
+        #[overridden]
+        fn parent(&self, child: &QModelIndex) -> QModelIndex {
+            if child.is_valid() {
+                let child_ptr: *const Row = child.internal_pointer() as *const Row;
+                if let Some(child_row_ref) = unsafe { child_ptr.as_ref() } {
+                    if let Some(parent_ref) = self.root.parent_of(child_row_ref) {
+                        if let Some(grandparent_ref) = self.root.parent_of(parent_ref) {
+                            if let Some(row_index) = grandparent_ref.index_of(parent_ref) {
+                                let ptr = parent_ref as *const Row as usize;
+                                return self.create_index(row_index as i32, 0, ptr);
+                            }
                         }
                     }
                 }
             }
+            return QModelIndex::default();
         }
-        return QModelIndex::default();
-    }
 
-    #[overridden]
-    fn row_count(&self, parent: &QModelIndex) -> i32 {
-        let parent_ptr: *const Row = parent.internal_pointer() as *const Row;
-        if !parent_ptr.is_null() {
-            let parent_ref: &Row = unsafe { &*parent_ptr };
-            return parent_ref.row_count() as i32;
+        #[overridden]
+        fn row_count(&self, parent: &QModelIndex) -> i32 {
+            let parent_ptr: *const Row = parent.internal_pointer() as *const Row;
+            if !parent_ptr.is_null() {
+                let parent_ref: &Row = unsafe { &*parent_ptr };
+                return parent_ref.row_count() as i32;
+            }
+            return self.root.row_count() as i32;
         }
-        return self.root.row_count() as i32;
-    }
 
-    #[overridden]
-    fn column_count(&self, parent: &QModelIndex) -> i32 {
-        // columns are usually the same for all rows. At least that is what the views expect
-        let parent_ptr: *const Row = parent.internal_pointer() as *const Row;
-        if !parent_ptr.is_null() {
-            let parent_ref: &Row = unsafe { &*parent_ptr };
-            return parent_ref.column_count() as i32;
+        #[overridden]
+        fn column_count(&self, parent: &QModelIndex) -> i32 {
+            // columns are usually the same for all rows. At least that is what the views expect
+            let parent_ptr: *const Row = parent.internal_pointer() as *const Row;
+            if !parent_ptr.is_null() {
+                let parent_ref: &Row = unsafe { &*parent_ptr };
+                return parent_ref.column_count() as i32;
+            }
+            return self.root.column_count() as i32;
         }
-        return self.root.column_count() as i32;
-    }
 
-    #[overridden]
-    fn data(&self, index: &QModelIndex, role: i32) -> QVariant {
-        if index.is_valid() {
-            let ptr = index.internal_pointer() as *const Row;
-            if !ptr.is_null() {
-                let row_ref: &Row = unsafe { &*ptr };
-                if let Some(cell) = row_ref.get_cell(index.column() as usize) {
-                    return cell.get(role as usize);
+        #[overridden]
+        fn data(&self, index: &QModelIndex, role: i32) -> QVariant {
+            if index.is_valid() {
+                let ptr = index.internal_pointer() as *const Row;
+                if !ptr.is_null() {
+                    let row_ref: &Row = unsafe { &*ptr };
+                    if let Some(cell) = row_ref.get_cell(index.column() as usize) {
+                        return cell.get(role as usize);
+                    }
                 }
             }
+            return QVariant::default();
         }
-        return QVariant::default();
+
+        #[overridden]
+        fn set_data(&mut self, _index: &QModelIndex, _value: &QVariant, _role: i32) -> bool {
+            false
+        }
     }
 
-    #[overridden]
-    fn set_data(&mut self, _index: &QModelIndex, _value: &QVariant, _role: i32) -> bool {
-        false
+    impl Drop for Backend {
+        fn drop(&mut self) {
+            self.detach_qobject()
+        }
     }
+
 }
 
-impl Drop for Backend {
-    fn drop(&mut self) {
-        self.detach_qobject()
-    }
-}
-
+use backend::Backend;
 #[run_quick_test(Class = Backend, Name = "model", Input = "qml")]
 fn test_qabstractitemmodel() {}
 

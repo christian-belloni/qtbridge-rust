@@ -8,7 +8,7 @@ use quote::quote;
 use qt_gen_common::parse_utils::parse_name_value;
 
 struct QObjectTestData {
-    class: Option<syn::Ident>,
+    class: Option<syn::Path>,
     name: Option<syn::LitStr>,
     input_folder: Option<syn::LitStr>,
 }
@@ -28,7 +28,7 @@ impl syn::parse::Parse for QObjectTestData {
         while !input.is_empty() {
             match () {
                 _ if input.peek(qobject_test_data_keywords::Class) => {
-                    class = Some(parse_name_value::<Ident, Ident>(input)?.1);
+                    class = Some(parse_name_value::<Ident, syn::Path>(input)?.1);
                 }
                 _ if input.peek(qobject_test_data_keywords::Name) => {
                     name = Some(parse_name_value::<Ident, LitStr>(input)?.1);

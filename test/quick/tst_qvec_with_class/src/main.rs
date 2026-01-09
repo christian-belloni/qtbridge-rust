@@ -1,12 +1,13 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use qtbridge::qobject_impl;
+use qtbridge::qobject;
 use qtbridge::qt_type_lib::{QVariant};
 use qtbridge::{QVec, QModelItem, QApp};
 
 use std::collections::HashMap;
-use std::{rc::Rc, cell::RefCell};
+use std::cell::RefCell;
+use std::rc::Rc;
 
 #[derive(Clone, Debug, Default, QModelItem)]
 struct MyClass {
@@ -26,55 +27,64 @@ impl MyClass {
     }
 }
 
-#[derive(Default)]
-pub struct VectorChanger {
-    data: Rc<RefCell<QVec<MyClass>>>,
-}
+#[qobject]
+mod vector_changer {
 
-impl VectorChanger {
-    fn new(shared: &Rc<RefCell<QVec<MyClass>>>) -> Self {
-        Self { data: shared.clone() }
-    }
-}
+    use super::{RefCell, Rc};
+    use super::QVec;
+    use super::MyClass;
 
-#[qobject_impl]
-impl VectorChanger {
-    #[qslot]
-    fn append(&mut self) {
-        self.data.borrow_mut().push(
-            MyClass {
-                value: 50,
-                decoration: "orange".to_string(),
-                display: "50".to_string(),
-            });
+    #[derive(Default)]
+    pub struct VectorChanger {
+        data: Rc<RefCell<QVec<MyClass>>>,
     }
 
-    #[qslot]
-    fn remove_last(&mut self) {
-
-        if (*self.data.borrow()).len() > 0 {
-            (*self.data.borrow_mut()).pop();
+    impl VectorChanger {
+        pub fn new(shared: &Rc<RefCell<QVec<MyClass>>>) -> Self {
+            Self { data: shared.clone() }
         }
     }
 
-    #[qslot]
-    fn change_all(&mut self) {
-        let mut vec= self.data.borrow_mut();
-        let len = vec.len();
-        for i in 0..len {
-            let mut display = vec.get(i).unwrap().display.clone();
-            let decoration = vec.get(i).unwrap().decoration.clone();
-            let value = vec.get(i).unwrap().value * 2;
-            display = display.repeat(2);
-            vec.set(i,
+    impl VectorChanger {
+        #[qslot]
+        fn append(&mut self) {
+            self.data.borrow_mut().push(
                 MyClass {
-                value: value,
-                decoration: decoration,
-                display: display,
-            });
+                    value: 50,
+                    decoration: "orange".to_string(),
+                    display: "50".to_string(),
+                });
+        }
+
+        #[qslot]
+        fn remove_last(&mut self) {
+
+            if (*self.data.borrow()).len() > 0 {
+                (*self.data.borrow_mut()).pop();
+            }
+        }
+
+        #[qslot]
+        fn change_all(&mut self) {
+            let mut vec= self.data.borrow_mut();
+            let len = vec.len();
+            for i in 0..len {
+                let mut display = vec.get(i).unwrap().display.clone();
+                let decoration = vec.get(i).unwrap().decoration.clone();
+                let value = vec.get(i).unwrap().value * 2;
+                display = display.repeat(2);
+                vec.set(i,
+                    MyClass {
+                    value: value,
+                    decoration: decoration,
+                    display: display,
+                });
+            }
         }
     }
 }
+
+use vector_changer::VectorChanger;
 
 #[test]
 fn test_qvec() {
