@@ -3,6 +3,9 @@
 
 pub mod qml_element;
 pub mod qobject_impl;
+pub mod qobject_module_builder;
+pub mod qobject_module_params;
 
 pub use qml_element::qml_element;
+pub use qobject_module_builder::QObjectModuleBuilder;
 pub use qobject_impl::qobject_impl;

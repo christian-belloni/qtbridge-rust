@@ -5,7 +5,7 @@
 name = "qt_gen_impl"
 version = "0.1.0"
 edition.workspace = true
-description = "Package containing implementation of procedural macro #[qobject_impl] and code generation needed to implement Qt item model on the Rust side"
+description = "Package containing implementation of procedural macros #[qobject], #[qml_element] and code generation needed to implement Qt item model on the Rust side"
 
 [dependencies]
 proc-macro2.workspace = true

@@ -92,6 +92,6 @@ pub use qt_container_macro::*;
 #[doc(hidden)]
 pub use quicktest;
 
-pub use qt_gen::{qobject_impl, qml_element};
+pub use qt_gen::{qobject, qobject_impl, qml_element};
 pub use bridge::{QApp, run_simple_app, qresource};
 

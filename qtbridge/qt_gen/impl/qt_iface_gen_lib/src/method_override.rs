@@ -10,12 +10,13 @@ use qt_gen_common::parse_utils::{parse_name_value, partition_attr_by};
 use qt_gen_common::signature_utils::check_method_signature;
 use quote::ToTokens;
 
-#[derive(Default)]
+#[derive(Clone, Default)]
 struct MethodOverrideMetaParams {
     cpp_name: Option<syn::LitStr>,         // Name of method declared on cpp side
 }
 
 // Override of method (used for both virtual and non-virtual function)
+#[derive(Clone)]
 pub struct MethodOverride {
     meta_params: MethodOverrideMetaParams, // Meta params (cpp_name)
     pub func: syn::ImplItemFn,             // Function itself

@@ -9,16 +9,16 @@ use syn::spanned::Spanned;
 pub(crate) fn deduce_type_from_getter<'a>(getter_ident: &syn::Ident, methods: &'a[syn::Signature]) -> syn::Result<RustTypeInfo<'a>> {
     let getter = methods.iter()
         .find(|g| g.ident == *getter_ident)
-        .ok_or_else(|| syn::Error::new(getter_ident.span(), format!("Property getter with name {getter_ident} not found")))?;
+        .ok_or_else(|| syn::Error::new(getter_ident.span(), format!("Property getter '{getter_ident}' not found")))?;
 
     get_property_getter_type(getter)
-        .map_err(|err| syn::Error::new(err.span(), format!("Function {getter_ident} is not suitable to be property getter.\nReason: {err}")))
+        .map_err(|err| syn::Error::new(err.span(), format!("Function '{getter_ident}' is not suitable to be property getter.\nReason: {err}")))
 }
 
 pub(crate)fn deduce_type_from_setter<'a>(setter_ident: &syn::Ident, methods: &'a[syn::Signature]) -> syn::Result<RustTypeInfo<'a>> {
     let setter = methods.iter()
         .find(|s| s.ident == *setter_ident)
-        .ok_or_else(||syn::Error::new(setter_ident.span(), format!("Property setter with name {setter_ident} not found")))?;
+        .ok_or_else(||syn::Error::new(setter_ident.span(), format!("Property setter '{setter_ident}' not found")))?;
 
     get_property_setter_type(setter)
         .map_err(|err| syn::Error::new(err.span(), format!("Function {setter_ident} is not suitable to be property setter. Reason: {err}")))

@@ -123,6 +123,7 @@ impl QPropertyInfo {
         Ok(())
     }
 
+    // TODO: pass struct fields for deducing types of 'Member' properties
     pub fn set_type(&mut self, struct_methods: &[syn::Signature]) -> syn::Result<()> {
 
         let getter_type = match &self.read_method {

@@ -308,8 +308,6 @@ pub fn require_that_qobject_impl_macro_generates_interface_impl_code_that_agrees
                 pub extern "C" fn meta_object_fn(
                     _iface: *const qtbridge::qt_type_lib::QMetaTypeInterface,
                 ) -> *mut qtbridge::qt_type_lib::QMetaObject
-                where
-                    SomeStruct: qtbridge::bridge::QMetaInfo,
                 {
                     let meta_obj_data =
                         <SomeStruct as qtbridge::bridge::QMetaInfo>::get_shared_dynamic_meta_object_data();
@@ -352,7 +350,7 @@ pub fn require_that_qobject_impl_macro_generates_interface_impl_code_that_agrees
         mod some_struct_impl_details {
             use std::cell::{BorrowError, BorrowMutError, RefCell};
             use std::rc::Rc;
-            /// Alias for the user-defined struct annotated with `#[qobject_impl]` for which this module is generated.
+            /// Alias for the user-defined struct annotated with `#[qobject]` for which this module is generated.
             type RustObj = super::SomeStruct;
             /// Alias for the Rust proxy type corresponding to the user-defined type.
             /// The Rust proxy is an intermediate layer between the Rust object and the C++ proxy,

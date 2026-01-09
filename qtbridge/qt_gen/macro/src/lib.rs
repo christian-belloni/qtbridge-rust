@@ -5,6 +5,28 @@ use proc_macro::TokenStream;
 
 use qt_gen_common::type_qualified_mapping::CallOrigin;
 
+// TODO: add documentation here.
+#[doc(hidden)]
+#[proc_macro_attribute]
+pub fn qobject(args: TokenStream, input: TokenStream) -> TokenStream {
+    let mut builder = qt_gen_impl::QObjectModuleBuilder::new(CallOrigin::External);
+    let output = match builder.build_token_stream(input.into(), args.into()) {
+        Ok(tokens) => tokens,
+        Err(err) => err.to_compile_error(),
+    };
+    output.into()
+}
+
+#[proc_macro_attribute]
+pub fn qobject_internal(args: TokenStream, input: TokenStream) -> TokenStream {
+    let mut builder = qt_gen_impl::QObjectModuleBuilder::new(CallOrigin::Internal);
+    let output = match builder.build_token_stream(input.into(), args.into()) {
+        Ok(tokens) => tokens,
+        Err(err) => err.to_compile_error(),
+    };
+    output.into()
+}
+
 /// The macro that enables Qt meta-object features, allowing a Rust `struct` to be exposed to QML.
 ///
 /// This macro makes it possible to declare the following items within the `impl` block:

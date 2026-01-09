@@ -325,7 +325,7 @@ fn check_duplicates(signals: &[QSignalInfo], slots: &[QSlotInfo], properties: &[
     Ok(())
 }
 
-fn check_if_generated_functions_conflict_wth_client_code<'a>(
+pub(crate) fn check_if_generated_functions_conflict_wth_client_code<'a>(
     generated_names: impl Iterator<Item = &'a String>,
     client_funcs: &Vec<syn::Signature>
 ) -> Option<&syn::Ident> {

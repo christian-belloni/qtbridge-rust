@@ -268,7 +268,7 @@ impl InterfaceImpl {
                 use std::cell::{BorrowError, BorrowMutError, RefCell};
                 use std::rc::Rc;
 
-                /// Alias for the user-defined struct annotated with `#[qobject_impl]` for which this module is generated.
+                /// Alias for the user-defined struct annotated with `#[qobject]` for which this module is generated.
                 type RustObj #type_generics = super::#struct_ident #type_generics;
 
                 /// Alias for the Rust proxy type corresponding to the user-defined type.
@@ -325,7 +325,9 @@ impl InterfaceImpl {
                 }
 
                 /// Return a Result wrapping mutable reference to the Rust proxy associated with the specified object.
-                pub(in super) fn try_get_rust_proxy_mut #impl_generics(rust_obj_ref: &RustObj #type_generics) -> Option<&mut ProxyRust> {
+                pub(in super) fn try_get_rust_proxy_mut #impl_generics(rust_obj_ref: &RustObj #type_generics) -> Option<&mut ProxyRust>
+                #where_clause
+                {
                     let ptr = try_borrow_mut_proxies_map(|proxies| {
                         let rust_obj_ptr = std::ptr::from_ref(rust_obj_ref).cast();
                         match proxies.get(&rust_obj_ptr) {
