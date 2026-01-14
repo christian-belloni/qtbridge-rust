@@ -1,0 +1,15 @@
+# Copyright (C) 2025 The Qt Company Ltd.
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
+
+[package]
+name = "qt_iface_gen"
+version = "0.1.0"
+edition.workspace = true
+description = "Build script performing generation of code for qt_ifaces library (containing QObject/QAIM implementations) using qt_iface_gen_lib"
+
+[build-dependencies]
+syn.workspace = true
+build_common = { path = "../../../build_common" }
+qt_gen_common = { path = "../qt_gen_common" }
+qt_iface_gen_lib = { path = "../qt_iface_gen_lib" }
+qt_type_gen = { path = "../qt_type_gen" }

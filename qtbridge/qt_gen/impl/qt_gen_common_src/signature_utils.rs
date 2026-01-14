@@ -1,0 +1,341 @@
+// Copyright (C) 2025 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
+
+use quote::ToTokens;
+use syn::punctuated::Punctuated;
+use syn::spanned::Spanned;
+use syn::visit_mut::VisitMut;
+
+use crate::case_conv;
+use crate::qt_alias_mapping::QtAliasMapping;
+use crate::qt_generic_mapping::QtGenericMapping;
+use crate::rust_type_info::RustTypeInfo;
+use crate::type_qualified_mapping::{CallOrigin, TypeQualifiedMapping};
+use crate::type_to_cpp::is_type_mapped_to_cpp;
+use crate::type_utils::{is_rust_type_mapped_to_qmetatype, rust_type_to_qmetatype};
+
+#[derive(PartialEq)]
+pub enum ExpectSelfRef {
+    Yes,
+    No,
+    Maybe
+}
+
+pub fn check_meta_call_signature(sign: &syn::Signature) -> syn::Result<()> {
+    check_signature(sign, ExpectSelfRef::Yes, true)
+}
+
+pub fn check_method_signature(sign: &syn::Signature) -> syn::Result<()> {
+    check_signature(sign, ExpectSelfRef::Yes, false)
+}
+
+pub fn check_signature(sign: &syn::Signature, expect_self: ExpectSelfRef, is_meta_call: bool) -> syn::Result<()> {
+    let inputs = &sign.inputs;
+
+    match expect_self {
+        ExpectSelfRef::Yes => {
+            let first_arg = inputs.first()
+                .ok_or_else(|| syn::Error::new(sign.ident.span(), "Expected to have &self argument"))?;
+            if !is_arg_self_ref(first_arg, None) {
+                return Err(syn::Error::new(first_arg.span(), "First argument must be &self"));
+            }
+        },
+        ExpectSelfRef::No => {
+            if let Some(first_arg) = inputs.first() {
+                if is_arg_self_ref(first_arg, None) {
+                    return Err(syn::Error::new(first_arg.span(), "First argument must not be &self"));
+                }
+            };
+        },
+        _ => {},
+    }
+
+    let typed_args = skip_arg_if_self_ref(inputs);
+
+    for arg in typed_args {
+        let syn::FnArg::Typed(typed_arg) = arg else {
+            return Err(syn::Error::new(arg.span(), format!("Argument '{}' is not typed", arg.to_token_stream())));
+        };
+
+        let arg_type = get_typed_arg_type_info(typed_arg);
+        let type_str = arg_type
+            .unwrapped_ref_to_str()?;
+
+        if is_meta_call {
+            // if it's signal, slot, or property accessor then all the arguments
+            // must be named
+            // must be convertible to/from QVariant
+            let syn::Pat::Ident(_arg_ident) = typed_arg.pat.as_ref() else {
+                return Err(syn::Error::new(typed_arg.span(), format!("Failed to get argument name from {}", typed_arg.pat.to_token_stream())));
+            };
+            if !is_rust_type_mapped_to_qmetatype(&type_str) {
+                return Err(syn::Error::new(typed_arg.ty.span(), format!("Type '{}' of argument is currently unsupported for meta calls", type_str)));
+            }
+        }
+        else {
+            if !is_type_mapped_to_cpp(arg_type.get_type()) {
+                return Err(syn::Error::new(typed_arg.ty.span(), format!("Type '{}' of argument is not supported by bridge", type_str)));
+            }
+        }
+    }
+
+    Ok(())
+}
+
+pub fn is_arg_self_ref(arg: &syn::FnArg, expected_mut: Option<bool>) -> bool {
+    let syn::FnArg::Receiver(receiver) = arg else {
+        return false;
+    };
+
+    let syn::Type::Reference(_) = receiver.ty.as_ref() else {
+        return false;
+    };
+
+    let Some(expected_mut) = expected_mut else {
+        return true;
+    };
+
+    expected_mut == receiver.mutability.is_some()
+}
+
+pub fn is_self_mut(sig: &syn::Signature) -> bool {
+    let Some(first_arg) = sig.inputs.first() else {
+        return false;
+    };
+
+    is_arg_self_ref(first_arg, Some(true))
+}
+
+pub fn is_first_arg_self_ref(args: &Punctuated<syn::FnArg, syn::Token![,]>) -> bool {
+    let Some(first_arg) = args.first() else {
+        return false;
+    };
+    is_arg_self_ref(first_arg, None)
+}
+
+pub fn skip_arg_if_self_ref(args: &Punctuated<syn::FnArg, syn::Token![,]>) -> syn::punctuated::Iter<'_, syn::FnArg> {
+    let mut result = args.iter();
+    if is_first_arg_self_ref(args) {
+        result.next();
+    }
+
+    result
+}
+
+pub fn change_first_arg<P: Default>(new_arg: syn::FnArg, src: &Punctuated<syn::FnArg, P>) -> Punctuated<syn::FnArg, P> {
+    let mut args = Punctuated::new();
+    args.push(new_arg);
+    args.extend(src.iter()
+        .skip(1)
+        .cloned());
+    args
+}
+
+pub fn get_arg_type_info(arg: &syn::FnArg) -> syn::Result<RustTypeInfo<'_>> {
+    let syn::FnArg::Typed(typed_arg) = arg else {
+        return Err(syn::Error::new(arg.span(), format!("Argument '{}'is not a typed argument", arg.to_token_stream())));
+    };
+
+    Ok(get_typed_arg_type_info(typed_arg))
+}
+
+pub(crate) fn get_typed_arg_type_info(arg: &syn::PatType) -> RustTypeInfo<'_> {
+
+    RustTypeInfo::new(arg.ty.as_ref())
+}
+
+pub fn get_return_type_info(return_type: &syn::ReturnType) -> Option<RustTypeInfo<'_>> {
+    if let syn::ReturnType::Type(_, ty) = &return_type {
+        Some(RustTypeInfo::new(ty.as_ref()))
+    }
+    else {
+        None
+    }
+}
+
+pub fn get_arg_type_qmeta_type(arg: &syn::FnArg) -> syn::Result<&str> {
+    let type_info = get_arg_type_info(arg)?;
+    let rust_type_str = type_info.unwrapped_ref_to_str()?;
+    rust_type_to_qmetatype(&rust_type_str)
+        .ok_or_else(|| syn::Error::new(arg.span(), format!("Failed to map type {} to QMetaType", rust_type_str)))
+}
+
+pub fn get_arg_ident(arg: &syn::FnArg) -> syn::Result<syn::Ident> {
+    match arg {
+        syn::FnArg::Receiver(receiver) => Ok(get_receiver_arg_ident(receiver)),
+        syn::FnArg::Typed(pat_type) => get_typed_arg_ident(pat_type),
+    }
+}
+
+pub fn get_ident_in_snake_case(src: &syn::Ident) -> syn::Ident {
+    let name_in_cc = case_conv::camel_to_snake(&src.to_string());
+    if *src == name_in_cc {
+        src.clone()
+    }
+    else {
+        syn::Ident::new(&name_in_cc, src.span())
+    }
+}
+
+pub(crate) fn get_receiver_arg_ident(arg: &syn::Receiver) -> syn::Ident {
+    arg.self_token.into()
+}
+
+pub(crate) fn get_typed_arg_ident(arg: &syn::PatType) -> syn::Result<syn::Ident> {
+    let syn::Pat::Ident(pat_ident) = arg.pat.as_ref() else {
+        return Err(syn::Error::new(arg.span(), format!("Failed to get argument name from {}", arg.pat.to_token_stream())));
+    };
+
+    Ok(pat_ident.ident.clone())
+}
+
+pub fn change_arg_ident_to_camel_case<P: Default>(src: &Punctuated<syn::FnArg, P>) -> syn::Result<Punctuated<syn::FnArg, P>> {
+    let mut result = Punctuated::new();
+    for arg in src.iter() {
+        let new_arg = match arg {
+            syn::FnArg::Receiver(receiver) => receiver.clone().into(),
+            syn::FnArg::Typed(pat_type) => {
+                match pat_type.pat.as_ref() {
+                    syn::Pat::Ident(pat_ident) => {
+                        let new_pat_ident = syn::PatIdent {
+                            ident: get_ident_in_snake_case(&pat_ident.ident),
+                            ..pat_ident.clone()
+                        };
+                        let new_pat_type = syn::PatType {
+                            pat: Box::new(new_pat_ident.into()),
+                            ..pat_type.clone()
+                        };
+                        new_pat_type.into()
+                    },
+                    _ => return Err(syn::Error::new(pat_type.span(), format!("Failed to get argument name from '{}'", pat_type.to_token_stream())))
+                }
+            },
+        };
+        result.push(new_arg);
+    }
+
+    Ok(result)
+}
+
+pub fn change_arg_idents_in_signature_to_camel_case(src: &syn::Signature) -> syn::Result<syn::Signature> {
+    Ok(syn::Signature {
+        inputs: change_arg_ident_to_camel_case(&src.inputs)?,
+        ..src.clone()
+    })
+}
+
+pub fn change_types_in_signature_to_monomorphed(src: &mut syn::Signature) -> syn::Result<()> {
+    QtGenericMapping::map_signature(src)
+}
+
+pub fn signature_eq(sign: &syn::Signature, reference: &syn::Signature) -> syn::Result<()> {
+    let args = &sign.inputs;
+
+    let args_ref = &reference.inputs;
+    if args.len() != args_ref.len() {
+        if args.len() < args_ref.len() {
+            return Err(syn::Error::new(args.span(), format!("Too few function arguments ({} instead of {})", args.len(), args_ref.len())));
+        }
+        return Err(syn::Error::new(args[args_ref.len()].span(), format!("Too many function arguments ({} instead of {})", args.len(), args_ref.len())));
+    }
+
+    for idx in 1..args.len() {
+        let syn::FnArg::Typed(lhs) = &args[idx] else {
+            return Err(syn::Error::new(args[idx].span(), "Method argument is not typed"));
+        };
+
+        let syn::FnArg::Typed(rhs) = &args_ref[idx] else {
+            return Err(syn::Error::new(args_ref[idx].span(), "Method argument is not typed in the interface declaration"));
+        };
+
+        if *lhs.ty != *rhs.ty {
+            let lhs_str = lhs.ty.to_token_stream().to_string();
+            let rhs_str = rhs.ty.to_token_stream().to_string();
+            return Err(syn::Error::new(lhs.ty.span(), format!("Type of a method argument does not match interface ({:?} vs {:?})", lhs_str, rhs_str)));
+        }
+    }
+
+    if sign.output != reference.output {
+        let span = if let syn::ReturnType::Type(_arrow, ty) = &sign.output {
+            ty.span()
+        } else {
+            sign.ident.span()
+        };
+        return Err(syn::Error::new(span, format!("Method return type does not match interface ({:?} vs {:?})", return_type_to_str(&sign.output), return_type_to_str(&reference.output))));
+    }
+
+    Ok(())
+}
+
+fn return_type_to_str(return_ty: &syn::ReturnType) -> String {
+    match return_ty {
+        syn::ReturnType::Default => "()".into(),
+        syn::ReturnType::Type(_arrow, ty) => ty.to_token_stream().to_string(),
+    }
+}
+
+
+pub fn get_qualified_args<'a>(args: impl Iterator<Item = &'a syn::FnArg>, type_mapping: CallOrigin) -> syn::Result<Vec<syn::FnArg>> {
+    let mut map = TypeQualifiedMapping::new(type_mapping);
+    let result = args
+        .cloned()
+        .map(|mut arg| {
+            map.visit_fn_arg_mut(&mut arg);
+            arg
+        })
+        .collect();
+    map.result().map(|_| result)
+}
+
+pub fn get_qualified_return_type(ret: &syn::ReturnType, type_mapping: CallOrigin) -> syn::Result<syn::ReturnType> {
+    let syn::ReturnType::Type(arrow, ty) = ret else {
+        return Ok(syn::ReturnType::Default)
+    };
+
+    let mut map = TypeQualifiedMapping::new(type_mapping);
+    let mut result = ty.as_ref().clone();
+    map.visit_type_mut(&mut result);
+    map.result().map(|_| syn::ReturnType::Type(*arrow, Box::new(result)))
+}
+
+pub fn get_qualified_types_in_signature(src: &mut syn::Signature, type_mapping: CallOrigin) -> syn::Result<()> {
+    let inputs = get_qualified_args(src.inputs.iter(), type_mapping.clone())?
+        .into_iter()
+        .collect();
+    let output = get_qualified_return_type(&src.output, type_mapping)?;
+
+    src.inputs = inputs;
+    src.output = output;
+
+    Ok(())
+}
+
+pub fn substitute_qt_aliases_in_signature(src: &mut syn::Signature) -> syn::Result<()> {
+    let mut map = QtAliasMapping::new();
+
+    let inputs = src.inputs.iter()
+        .cloned()
+        .map(|mut arg| {
+            map.visit_fn_arg_mut(&mut arg);
+            arg
+        })
+        .collect();
+
+    let mut output = src.output
+        .clone();
+    map.visit_return_type_mut(&mut output);
+
+    map.result()?;
+
+    src.inputs = inputs;
+    src.output = output;
+
+    Ok(())
+}
+
+pub fn is_unsafe(sign: &syn::Signature) -> bool {
+    sign.inputs.iter()
+        .filter_map(|arg| get_arg_type_info(arg).ok())
+        .chain(get_return_type_info(&sign.output))
+        .any(|t| t.is_ptr())
+}

@@ -1,0 +1,13 @@
+[package]
+name = "quicktest_macro"
+version = "0.1.0"
+edition.workspace = true
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = "2.0"
+quote = "1.0"
+proc-macro2 = "1"
+qt_gen_common = { path = "../../qt_gen/impl/qt_gen_common" }

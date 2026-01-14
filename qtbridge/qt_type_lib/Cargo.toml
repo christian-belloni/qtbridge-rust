@@ -1,0 +1,17 @@
+# Copyright (C) 2025 The Qt Company Ltd.
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
+
+[package]
+name = "qt_type_lib"
+version = "0.1.0"
+edition.workspace = true
+description = "Basic Qt types library"
+
+[dependencies]
+cxx.workspace = true
+linkme.workspace = true
+
+[build-dependencies]
+cxx-build.workspace = true
+build_common = { path = "../build_common" }
+qt_type_gen = { path = "../qt_gen/impl/qt_type_gen" }

@@ -1,0 +1,154 @@
+// Copyright (C) 2025 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
+
+use std::collections::BTreeMap;
+
+use proc_macro2::TokenStream;
+
+use quote::{format_ident, quote};
+use syn::parse::discouraged::Speculative;
+use syn::Token;
+
+use qt_gen_common_no_types::case_conv;
+use qt_gen_common_no_types::cpp_fn_sign::CppFnSign;
+use qt_gen_common_no_types::format_code::token_stream_to_code;
+use qt_gen_common_no_types::multi_type_mapping::MultiTypeMapping;
+use qt_gen_common_no_types::parse_utils::replace_idents_in_token_stream;
+use qt_gen_common_no_types::qt_generic_mapping::QtGenericMapping;
+use qt_gen_common_no_types::signature_utils::{is_unsafe, ExpectSelfRef};
+use qt_gen_common_no_types::type_mapping_nested::TypeMappingNested;
+use qt_gen_common_no_types::type_to_cpp::path_to_cpp;
+
+use crate::self_type_mapping::SelfTypeMapping;
+
+#[derive(Clone)]
+pub struct CppFun {
+    rust_sign: syn::Signature,
+    cpp_name: String,
+    cpp_func_code: TokenStream,
+}
+
+impl CppFun {
+    pub fn new(cpp_name: String, tokens: TokenStream) -> syn::Result<Self> {
+        let mut fun: CppFun = syn::parse2(tokens)?;
+        fun.set_cpp_name(cpp_name);
+
+        Ok(fun)
+    }
+
+    pub fn signature(&self) -> &syn::Signature {
+        &self.rust_sign
+    }
+
+    pub fn get_code(&self, cpp_name: &str) -> syn::Result<(String, String)> {
+        let rust_sign = self.signature();
+        let cpp_sign = CppFnSign::new_from_rust_sig(&rust_sign, Some(cpp_name.to_owned()), ExpectSelfRef::Maybe)?;
+        let mut decl = cpp_sign.to_declaration_string(true);
+        let def = format!("{decl}\n{{\n{}\n}}\n", token_stream_to_code(&self.cpp_func_code));
+        decl.push(';');
+
+        Ok((decl, def))
+    }
+
+    /// Replace generic idents with concrete types
+    /// E.g., T -> i32
+    pub fn substitute_types(&self, type_map: &TypeMappingNested<MultiTypeMapping>, self_type: &syn::Path) -> Self {
+        let src_sign = &self.rust_sign;
+        let mut new_sign = type_map.map_signature(src_sign);
+
+        let self_map = TypeMappingNested::new(SelfTypeMapping::new(self_type.clone()));
+        new_sign = self_map.map_signature(&new_sign);
+
+        // Substitute types in C++ code
+        let cpp_type_map = type_map.get_impl().iter()
+            .filter_map(|(from, to)| {
+                if let Ok(to_cpp) = path_to_cpp(to) {
+                    return Some((from.clone(), to_cpp));
+                }
+                None
+            }).collect::<BTreeMap<_, _>>();
+
+        let new_cpp_code = if cpp_type_map.is_empty() {
+            self.cpp_func_code.clone()
+        }
+        else {
+            replace_idents_in_token_stream(self.cpp_func_code.clone(), &|ident|
+                cpp_type_map.get(&ident)
+                    .map(|new_ident| syn::Ident::new(&new_ident, ident.span())))
+        };
+
+        Self {
+            rust_sign: new_sign,
+            cpp_func_code: new_cpp_code,
+            ..self.clone()
+        }
+    }
+
+    /// Replace generic QtTypes with argument with the concrete type
+    /// E.g., QHash<i32, f64> => QHash_i32_f64
+    pub fn substitute_generic_qt_types(&mut self) -> syn::Result<()> {
+        QtGenericMapping::map_signature(&mut self.rust_sign)
+    }
+
+    fn set_cpp_name(&mut self, name: String) {
+        self.rust_sign.ident = format_ident!("{}", case_conv::camel_to_snake(&name));
+        self.cpp_name = name;
+    }
+}
+
+impl syn::parse::Parse for CppFun {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+
+        let line1: syn::Token![|] = input.parse()?;
+
+        let receiver = {
+            let fork = input.fork();
+            match fork.parse::<syn::Receiver>() {
+                Ok(r) => {
+                    let _delim = fork.parse::<Option<syn::Token![,]>>()?;
+                    input.advance_to(&fork);
+                    Some(r)
+                },
+                Err(_) => None,
+            }
+        };
+
+        let mut typed_args = Vec::new();
+        loop {
+            if input.peek(syn::Token![|]) {
+                break;
+            }
+            typed_args.push(input.parse::<syn::PatType>()?);
+            let _delim = input.parse::<Option<syn::Token![,]>>()?;
+        }
+        let _line2: syn::Token![|] = input.parse()?;
+        let output: syn::ReturnType = input.parse()?;
+
+        let mut fn_args = Vec::<syn::FnArg>::new();
+        if let Some(receiver) = receiver {
+            fn_args.push(receiver.into());
+        };
+        fn_args.extend(typed_args.into_iter()
+            .map(|arg| arg.into()));
+
+        let mut rust_sign: syn::Signature = syn::parse2(quote!{
+            fn tbd(#(#fn_args),*) #output
+        })?;
+
+        if is_unsafe(&rust_sign) {
+            rust_sign.unsafety = Some(Token![unsafe](line1.span));
+        }
+
+        let cpp_func_code = input.step(|cursor| {
+            let tt = cursor.group(proc_macro2::Delimiter::Brace)
+                .ok_or_else(|| cursor.error("Expected braces with some code (C++) inside"))?;
+            Ok((tt.0.token_stream(), tt.2))
+        })?;
+
+        Ok(CppFun {
+            rust_sign,
+            cpp_func_code,
+            cpp_name: "tbd".to_owned(),
+        })
+    }
+}

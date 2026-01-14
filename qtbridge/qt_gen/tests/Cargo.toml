@@ -1,0 +1,19 @@
+# Copyright (C) 2025 The Qt Company Ltd.
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
+
+[package]
+name = "qt_gen_impl_tests"
+version = "0.1.0"
+edition.workspace = true
+description = "Tests for code defined in qt_gen folder"
+
+[dependencies]
+proc-macro2.workspace = true
+qt_gen_common = { path = "../impl/qt_gen_common" }
+qt_gen_impl = { path = "../impl" }
+quote.workspace = true
+syn.workspace = true
+
+[dev-dependencies]
+pretty_assertions = "1"
+

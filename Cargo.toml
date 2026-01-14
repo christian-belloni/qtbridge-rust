@@ -1,0 +1,56 @@
+# Copyright (C) 2025 The Qt Company Ltd.
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
+
+[workspace.package]
+edition = "2024"
+rust-version = "1.87.0"
+version = "0.1.0"
+repository = "ssh://codereview.qt-project.org:29418/qt/tqtc-qtbridges"
+
+[workspace.dependencies]
+cxx = { version = "1.0.158", features = ["c++17", "std"] }
+cxx-build = { version = "1.0.158", features = [ "parallel" ] }
+linkme = "0.3"
+proc-macro2 = "1.0.95"
+quote = "1.0.40"
+syn = { version = "2.0.103", features = ["extra-traits", "full"] }
+
+[workspace]
+resolver = "2"
+
+members = [
+    "qtbridge/build_common",
+    "qtbridge/qt_gen/macro",
+    "qtbridge/qt_gen/quicktest_macro",
+    "qtbridge/qt_gen/qt_container_macro",
+    "qtbridge/qt_gen/qresource_macro",
+    "qtbridge/qt_gen/impl",
+    "qtbridge/qt_gen/impl/qt_gen_common",
+    "qtbridge/qt_gen/impl/qt_gen_common_no_types",
+    "qtbridge/qt_gen/impl/qt_iface_gen",
+    "qtbridge/qt_gen/impl/qt_iface_gen_lib",
+    "qtbridge/qt_gen/impl/qt_meta_gen",
+    "qtbridge/qt_gen/impl/qt_type_gen",
+    "qtbridge/qt_gen/impl/qt_type_gen_lib",
+    "qtbridge/qt_gen/tests",
+    "qtbridge/qt_type_lib",
+    "qtbridge/qt_ifaces",
+    "qtbridge/qt_container",
+    "qtbridge/bridge",
+    "apps/hello_world",
+    "apps/minimal_app",
+    "test/tst_qt_ifaces",
+    "test/quick/tst_qobject",
+    "test/quick/tst_qabstractitemmodel",
+    "test/quick/tst_generic_itemmodel",
+    "test/quick/tst_qvec",
+    "test/quick/tst_qvec_with_class",
+    "test/quick/tst_qvec_with_tupleclass",
+    "test/quick/tst_qresource",
+]
+
+[profile.release.build-override]
+# In release mode build script may be running twice (unlike debug)
+# because a package being dependency is built twice with different optimization settings.
+# Hardcode optimization level to help cargo deduplicate dependencies and run build script only once.
+opt-level = 3

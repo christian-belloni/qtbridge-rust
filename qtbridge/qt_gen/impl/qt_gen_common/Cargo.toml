@@ -1,0 +1,18 @@
+# Copyright (C) 2025 The Qt Company Ltd.
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
+
+[package]
+name = "qt_gen_common"
+version = "0.1.0"
+edition.workspace = true
+description = "Common code reused from different subprojects of qt_gen"
+
+[dependencies]
+proc-macro2.workspace = true
+quote.workspace = true
+syn = { workspace = true, features = ["extra-traits", "full", "visit", "visit-mut"] }
+build_common = { path = "../../../build_common" }
+qt_type_gen ={ path = "../qt_type_gen"}
+
+[lib]
+path = "../qt_gen_common_src/lib.rs"

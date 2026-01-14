@@ -1,0 +1,13 @@
+# Copyright (C) 2025 The Qt Company Ltd.
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
+
+[package]
+name = "qt_type_gen"
+version = "0.1.0"
+edition.workspace = true
+description = "Build script performing generation of basic type library using qt_type_gen_lib"
+
+[build-dependencies]
+build_common = { path = "../../../build_common" }
+qt_gen_common_no_types = { path = "../qt_gen_common_no_types" }
+qt_type_gen_lib = { path = "../qt_type_gen_lib" }
