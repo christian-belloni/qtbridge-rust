@@ -1,0 +1,34 @@
+type: Group
+instructions:
+  - type: EnvironmentVariable
+    variableName: QTEST_ENVIRONMENT
+    variableValue: "ci"
+  - type: EnvironmentVariable
+    variableName: CARGO_PATH
+    variableValue: "/home/qt/.cargo/bin/"
+    enable_if:
+      condition: property
+      property: host.os
+      equals_value: Linux
+  - type: EnvironmentVariable
+    variableName: CARGO_PATH
+    variableValue: "/Users/qt/.cargo/bin/"
+    enable_if:
+      condition: property
+      property: host.os
+      equals_value: MacOS
+  - type: AppendToEnvironmentVariable
+    variableName: PATH
+    variableValue: ":{{.AgentWorkingDir}}/install/bin/"
+    disable_if:
+      condition: property
+      property: host.os
+      equals_value: Windows
+  - type: AppendToEnvironmentVariable
+    variableName: PATH
+    variableValue: ";{{.AgentWorkingDir}}\\install\\bin"
+    enable_if:
+      condition: property
+      property: host.os
+      equals_value: Windows
+

@@ -1,0 +1,19 @@
+version: 2
+tags: [git]
+accept_configuration:
+  condition: property
+  property: features
+  not_contains_value: Disable
+
+instructions:
+  Build:
+    - type: Group
+      instructions:
+        - !include "{{qt/qtbridge-rust}}/common_env.yaml"
+        - !include "{{qt/qtbridge-rust}}/build_rust.yaml"
+      enable_if:
+        condition: property
+        property: features
+        contains_value: RunAsPlatformDependency
+#  Test:
+#    - !include "{{qt/qtbase}}/run_license_check.yaml"

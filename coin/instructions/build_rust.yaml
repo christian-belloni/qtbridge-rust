@@ -1,0 +1,109 @@
+type: Group
+instructions:
+  # Download and install of rust, should go into qt5 provisioning
+  - type: ExecuteCommand
+    command: "curl https://sh.rustup.rs -o rustup.rs -o rustup.rs"
+    maxTimeInSeconds: 6000
+    maxTimeBetweenOutput: 1200
+    userMessageOnFailure: >
+      Failed to download rustup script.
+    disable_if:
+      condition: property
+      property: host.os
+      equals_value: Windows
+  - type: ExecuteCommand
+    command: "chmod 755 rustup.rs"
+    maxTimeInSeconds: 6000
+    maxTimeBetweenOutput: 1200
+    disable_if:
+      condition: property
+      property: host.os
+      equals_value: Windows
+    userMessageOnFailure: >
+      Failed to change file permission.
+
+  - type: ExecuteCommand
+    command: "sh ./rustup.rs -y"
+    maxTimeInSeconds: 6000
+    maxTimeBetweenOutput: 1200
+    disable_if:
+      condition: property
+      property: host.os
+      equals_value: Windows
+    userMessageOnFailure: >
+      Failed to install rust.
+
+  - type: ExecuteCommand
+    command: "curl https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe -o C:\\utils\\rustup-init.exe "
+    maxTimeInSeconds: 6000
+    maxTimeBetweenOutput: 1200
+    enable_if:
+      condition: property
+      property: host.os
+      equals_value: Windows
+    userMessageOnFailure: >
+      Failed to download rust installer.
+  - type: ExecuteCommand
+    command: "C:\\utils\\rustup-init.exe -q -y"
+    maxTimeInSeconds: 6000
+    maxTimeBetweenOutput: 1200
+    enable_if:
+      condition: property
+      property: host.os
+      equals_value: Windows
+    userMessageOnFailure: >
+      Failed toinstall rust.
+
+  - type: AppendToEnvironmentVariable
+    variableName: PATH
+    variableValue: ":{{.Env.CARGO_PATH}}"
+    disable_if:
+      condition: property
+      property: host.os
+      equals_value: Windows
+  - type: AppendToEnvironmentVariable
+    variableName: PATH
+    variableValue: ";C:\\Users\\qt\\.cargo\\bin"
+    enable_if:
+      condition: property
+      property: host.os
+      equals_value: Windows
+
+  - type: EnvironmentVariable
+    variableName: RUST_BACKTRACE
+    variableValue: 1
+
+  - type: ChangeDirectory
+    directory: "{{.AgentWorkingDir}}/qt/qtbridge-rust"
+    maxTimeInSeconds: 300
+    maxTimeBetweenOutput: 120
+    userMessageOnFailure: >
+      Failed to change to rust dir
+
+  - type: ExecuteCommand
+    command: "cargo build"
+    maxTimeInSeconds: 6000
+    maxTimeBetweenOutput: 1200
+    userMessageOnFailure: >
+      Failed to build rust.
+
+  - type: PrependToEnvironmentVariable
+    variableName: LD_LIBRARY_PATH
+    variableValue: "{{.AgentWorkingDir}}/install/lib:"
+    enable_if:
+      condition: property
+      property: host.os
+      equals_value: Linux
+
+  - type: ExecuteCommand
+    command: "cargo test"
+    maxTimeInSeconds: 6000
+    maxTimeBetweenOutput: 1200
+    userMessageOnFailure: >
+      Failed to run test.
+
+  - type: UploadArtifact
+    archiveDirectory: "{{.AgentWorkingDir}}/qt/qtbridge-rust/"
+    transferType: UploadModuleBuildArtifact
+    maxTimeInSeconds: 1200
+    maxTimeBetweenOutput: 1200
