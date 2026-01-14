@@ -58,6 +58,15 @@ pub fn ident_to_path(src: syn::Ident) -> syn::Path {
     src.into()
 }
 
+pub fn path_to_type(src: syn::Path) -> syn::Type {
+    let type_path = syn::TypePath {
+        qself: None,
+        path: src,
+    };
+    type_path.into()
+}
+
+
 // TODO: switch to using where applicable
 pub fn get_ident_of_last_path_segment(src: &syn::Path) -> Option<&syn::Ident> {
     let last_seg = src.segments.last()?;

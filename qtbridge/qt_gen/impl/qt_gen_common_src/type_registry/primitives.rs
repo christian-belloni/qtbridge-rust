@@ -134,12 +134,20 @@ impl StaticTypeGroup for IntType {
             IntType::new("i32",   "int32_t",   2),
             IntType::new("i64",   "int64_t",   4),
             IntType::new("i8",    "int8_t",    40),
-            IntType::new("isize", "ptrdiff_t", 0),
             IntType::new("u16",   "uint16_t",  36),
             IntType::new("u32",   "uint32_t",  3),
             IntType::new("u64",   "uint64_t",  5),
             IntType::new("u8",    "uint8_t",   37),
-            IntType::new("usize", "size_t",    0),
+
+            #[cfg(target_pointer_width = "64")]
+            IntType::new("isize", "ptrdiff_t", 4),
+            #[cfg(target_pointer_width = "64")]
+            IntType::new("usize", "size_t", 5),
+
+            #[cfg(target_pointer_width = "32")]
+            IntType::new("isize", "ptrdiff_t", 2),
+            #[cfg(target_pointer_width = "32")]
+            IntType::new("usize", "size_t", 3),
         ];
 
         &LIST

@@ -4,6 +4,7 @@
 mod containers;
 pub mod cxx_types;
 mod holders;
+pub mod meta_types;
 mod pointers;
 mod primitives;
 pub mod qt;
@@ -14,7 +15,9 @@ pub mod types;
 
 pub use cxx_types::CxxType;
 pub use type_traits::{TypeCategory, TypesEnum};
+pub use containers::StandardContainer;
 pub use primitives::PrimitiveType;
 pub use standards::StandardType;
+pub use strings::StringType;
 pub use qt::{QtType, QtTypeSpanned};
 pub use types::Type;

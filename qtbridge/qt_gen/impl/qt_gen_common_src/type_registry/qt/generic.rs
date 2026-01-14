@@ -6,6 +6,7 @@ use quote::format_ident;
 use syn::spanned::Spanned;
 
 use crate::type_registry;
+use crate::type_registry::StandardType;
 use type_registry::Type;
 use type_registry::TypeCategory;
 use type_registry::type_traits::{FindType, TypeName, TypeInfo};
@@ -308,6 +309,23 @@ impl From<PrimitiveType> for QtGenericArg {
 impl From<QtNonGenericType> for QtGenericArg {
     fn from(value: QtNonGenericType) -> Self {
         Self::Qt(value)
+    }
+}
+
+impl TryFrom<&Type> for QtGenericArg {
+    type Error = ();
+
+    fn try_from(value: &Type) -> Result<Self, ()> {
+        match value {
+            Type::Standard(StandardType::Primitive(primitive)) => {
+                return Ok((*primitive).clone().into())
+            },
+            Type::Qt(QtType::NonGeneric(qt_non_generic)) => {
+                return Ok(qt_non_generic.clone().into())
+            },
+            _ => {},
+        }
+        Err(())
     }
 }
 
