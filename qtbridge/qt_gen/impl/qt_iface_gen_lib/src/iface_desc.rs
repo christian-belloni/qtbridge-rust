@@ -62,7 +62,7 @@ impl InterfaceDesc {
             return Err(syn::Error::new(func_sig.ident.span(), "Virtual method should have at least one argument (for &self)"));
         }
 
-        signature_eq(&func_sig, &desc_methods.get_signature())
+        signature_eq(func_sig, desc_methods.get_signature())
     }
 
     pub fn find_method_by_cpp_name(&self, cpp_name: &str) -> Option<&IfaceMethodDesc> {
@@ -130,13 +130,13 @@ impl syn::parse::Parse for InterfaceDesc {
                         .ok_or_else(|| syn::Error::new(attr.span(), "Invalid attribute format"))?;
 
                     match ident.to_string().as_str() {
-                        "pure"   => MethodKind::PureVirtual,
-                        "impl"   => MethodKind::ImplVirtual,
+                        "pure"   => MethodKind::Pure,
+                        "impl"   => MethodKind::Implemented,
                         "novirt" => MethodKind::NonVirtual,
                         _ => return Err(syn::Error::new(ident.span(), "Unsupported annotation token")),
                     }
                 } else {
-                    MethodKind::ImplVirtual
+                    MethodKind::Implemented
                 };
 
                 let sig = func.sig;
@@ -148,7 +148,7 @@ impl syn::parse::Parse for InterfaceDesc {
 
                 methods.push(IfaceMethodDesc::new(kind, sig, cpp_name));
             } else {
-                return Err(input.error(format!("Unknown token type: {}", input.to_string())));
+                return Err(input.error(format!("Unknown token type: {input}")));
             }
         }
 

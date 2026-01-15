@@ -154,8 +154,7 @@ impl<'a> RustProxyGenerator<'a> {
             let args_sig = std::iter::once(syn::FnArg::from(receiver))
                 .chain(sig.inputs.iter()
                     .skip(1)
-                    .cloned()
-                    .map(syn::FnArg::from))
+                    .cloned())
                 .collect::<Vec<_>>();
             let args_names = args_sig.iter()
                 .skip(1)

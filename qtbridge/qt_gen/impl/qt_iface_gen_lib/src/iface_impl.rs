@@ -42,7 +42,7 @@ impl InterfaceImpl {
                 &mut impl_virt
             };
             if dst_map.insert(cpp_name, o).is_some() {
-                return Err(syn::Error::new(cpp_name_ident.span(), format!("Method '{}' was already overridden in struct", cpp_name_ident.to_string())));
+                return Err(syn::Error::new(cpp_name_ident.span(), format!("Method '{cpp_name_ident}' was already overridden in struct")));
             }
         }
 
@@ -123,7 +123,7 @@ impl InterfaceImpl {
             get_qualified_types_in_signature(&mut method_sig, self.origin.clone())?;
             let method_cpp_name = method.get_cpp_name();
 
-            let method_ident = match self.find_override_by_cpp_name(&method_cpp_name) {
+            let method_ident = match self.find_override_by_cpp_name(method_cpp_name) {
                 Some(overridden) => &overridden.func.sig.ident,
                 None => &method_sig.ident,
             };

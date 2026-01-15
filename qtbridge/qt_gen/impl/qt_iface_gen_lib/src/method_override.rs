@@ -73,7 +73,7 @@ impl MethodOverride {
     }
 
     fn check_signature(sign: &syn::Signature) -> syn::Result<()> {
-        check_method_signature(&sign)
+        check_method_signature(sign)
     }
 
 }

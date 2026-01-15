@@ -105,7 +105,7 @@ namespace {namespace} {{
     fn get_proxy_includes(&self) -> syn::Result<String> {
         // Includes from interface declaration
         let mut includes = self.iface.get_includes().iter()
-            .map(|i| i.clone())
+            .cloned()
             .collect::<BTreeSet<_>>();
 
         // Includes obtained from methods of interfaces
@@ -193,7 +193,7 @@ private:
             let (decl, def) = self.generate_cpp_to_rust_forwarding_virtual_method(sig, &proxy_name.to_string())?;
 
             declarations.push_str(&format!("    {decl}\n"));
-            definitions.push_str(&format!("{def}"));
+            definitions.push_str(&def);
         }
 
         Ok((declarations, definitions))
@@ -233,7 +233,7 @@ r#"{def_sign}
             }
             let (decl, def) = self.generate_implemented_function(method)?;
             decls.push_str(&format!("    {decl}\n"));
-            defs.push_str(&format!("{def}"));
+            defs.push_str(&def);
         }
 
         Ok((decls, defs))

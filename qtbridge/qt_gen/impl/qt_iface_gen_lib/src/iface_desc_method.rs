@@ -3,9 +3,14 @@
 
 #[derive(Copy, Clone, PartialEq)]
 pub(crate) enum MethodKind {
-    PureVirtual,
-    ImplVirtual,
-    NonVirtual,  // Non virtual function defined on C++ side that we want to call from our Rust code
+    /// A pure virtual function.
+    Pure,
+
+    /// A virtual function with an implementation.
+    Implemented,
+
+    /// A non-virtual function defined on the C++ side that is called from Rust.
+    NonVirtual,
 }
 
 // TODO: move MethodDesc to dedicated file
@@ -16,26 +21,20 @@ pub struct IfaceMethodDesc {
 }
 
 impl IfaceMethodDesc {
-    pub(crate) fn new(kind: MethodKind, sig: syn::Signature, cpp_name: String,) -> Self {
+    pub(crate) fn new(kind: MethodKind, sig: syn::Signature, cpp_name: String) -> Self {
         Self{ kind, sig, cpp_name }
     }
 
     pub fn is_virtual(&self) -> bool {
-        match self.kind {
-            MethodKind::PureVirtual | MethodKind::ImplVirtual => true,
-            _ => false,
-        }
+        matches!(self.kind, MethodKind::Pure | MethodKind::Implemented)
     }
 
     pub fn is_pure_virtual(&self) -> bool {
-        self.kind == MethodKind::PureVirtual
+        self.kind == MethodKind::Pure
     }
 
     pub fn has_base_implementation(&self) -> bool {
-        match self.kind {
-            MethodKind::ImplVirtual | MethodKind::NonVirtual => true,
-            _ => false,
-        }
+        matches!(self.kind, MethodKind::Implemented | MethodKind::NonVirtual)
     }
 
     pub fn get_cpp_name(&self) -> &str {
