@@ -77,7 +77,7 @@ cargo build
 ### Run using cargo
 
 ```
-cargo run -- bin <binary_name>
+cargo run --bin <binary_name>
 ```
 
 ### Run tests:
