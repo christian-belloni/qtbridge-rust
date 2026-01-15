@@ -34,6 +34,9 @@ as well as application examples in `apps`.
 
 To build this project, you’ll need:
 
+- One of the supported plaforms:
+   - Linux (`x86_64`)
+   - Windows (`x64`)
 - **Rust** (stable, version >= 1.87)
    - Visit https://rustup.rs to install
 - **Cargo and rustfmt** (comes with Rust)
