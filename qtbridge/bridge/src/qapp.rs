@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use cxx::UniquePtr;
-use qt_type_lib::{QGuiApplication, QQmlApplicationEngine, QVariant};
+use qt_type_lib::{QGuiApplication, QQmlApplicationEngine, QString, QVariant, QVariantMap};
 
 /// Runs a minimal application from an embedded QML file.
 ///
@@ -74,6 +74,7 @@ pub struct QApp {
     engine: UniquePtr<QQmlApplicationEngine>, // engine must be first field so its dropped before app
     #[allow(dead_code)]
     app: UniquePtr<QGuiApplication>,
+    initial_properties: QVariantMap,
 }
 
 impl QApp {
@@ -84,7 +85,11 @@ impl QApp {
     pub fn new() -> Self {
         let app = QGuiApplication::new();
         let engine = QQmlApplicationEngine::new();
-        Self { app, engine }
+         Self {
+            engine: engine,
+            app: app,
+            initial_properties: QVariantMap::default(),
+        }
     }
 
     /// Enters the Qt main event loop.
@@ -98,6 +103,44 @@ impl QApp {
     /// The application exit code.
     pub fn run(&mut self) -> i32 {
         QGuiApplication::exec()
+    }
+
+    /// Add an initial property to the root object of the QML application.
+    ///
+    /// This method takes a string slice for the property name and a reference to a [`QVariant`]
+    /// as the property value. The property is stored internally and applied when [`QApp::load_qml`]
+    /// is called.
+    ///
+    /// ### Arguments
+    ///
+    /// * `id` - The name of the property to add to the root QML object.
+    /// * `value` - The value of the property.
+    ///
+    /// ### Example
+    ///
+    /// ```rust
+    ///# use bridge::QApp;
+    /// let prop = 42;
+    ///
+    /// QApp::new()
+    /// .add_initial_property("answer", &prop.into())
+    /// .load_qml(br#"
+    ///     import QtQuick
+    ///     import QtQuick.Controls
+    ///     ApplicationWindow {
+    ///         required property var answer
+    ///#        Component.onCompleted: closeTimer.start()
+    ///#        Timer {
+    ///#            id: closeTimer
+    ///#            interval: 1
+    ///#            onTriggered: Qt.quit()
+    ///#        }
+    ///     }"#)
+    /// .run();
+    /// ```
+    pub fn add_initial_property(&mut self, id: &str, value: &QVariant) -> &mut Self {
+        self.initial_properties.insert(&QString::from(id), value);
+        self
     }
 
     /// Sets the initial properties of the root object in the QML application.
@@ -155,6 +198,9 @@ impl QApp {
     ///
     /// A mutable reference to `self`, allowing method chaining.
     pub fn load_qml(&mut self, code: &[u8]) -> &mut Self {
+        if !self.initial_properties.is_empty() {
+            self.engine.pin_mut().set_initial_properties(&self.initial_properties);
+        }
         self.engine.pin_mut().load_data(code);
         self
     }
