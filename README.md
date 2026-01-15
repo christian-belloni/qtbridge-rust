@@ -1,4 +1,4 @@
-# Qt Bridge - Rust
+# Qt Bridge - Rust - Pre Release
 
 > Copyright (C) 2025 The Qt Company Ltd.
 > SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
@@ -278,18 +278,23 @@ you can use the macro `include_bytes_qml!` or the function `qresource::register_
 
 ## Terms and Conditions
 
-This is a pre-release implementation of Qt Bridges for Rust.  By installing
-this package, you agree to the terms and conditions stated in
-https://www.qt.io/terms-conditions.  These terms and conditions also apply to
-the Qt Framework, which is used as a major dependency in this package.
+If you, your employer, or the legal entity you act on behalf of hold commercial license(s) with a Qt
+Group entity, Qt Bridges constitutes Pre-Release Code under the Qt License/Frame Agreement governing
+those licenses, and that agreement's terms and conditions relating to Pre-Release Code apply to your
+use of Qt Bridges as found in this repo.
+This Qt Bridges repo may provide links or access to third-party libraries or code (collectively
+"Third-Party Software") to implement various functions. Use or distribution of Third-Party Software
+is discretionary and in all respects subject to applicable license terms of applicable third-party
+right holders.
 
-The Qt Bridge for Rust is built using the Rust language and SDK, which is
-maintained by the Rust Foundation
+### Additional Terms and Conditions
 
-Qt Bridge for Rust resides on top of Rust and does not modify it in any form.
-Rust is a trademark of the Rust Foundation. This project is not affiliated with
-or endorsed by the Rust Foundation.
+The Qt Bridge for Rust is built using the Rust language and SDK, which is maintained by the Rust
+Foundation.
 
-An application built with Qt Bridge for Rust will include code from other
-crates. The main dependency is CXX, "Safe interop between Rust and C++",
-licensed under Apache 2.0 License or MIT license.
+Qt Bridge for Rust resides on top of Rust and does not modify it in any form. Rust is a trademark of
+the Rust Foundation. This project is not affiliated with or endorsed by the Rust Foundation.
+
+An application built with Qt Bridge for Rust will include code from other crates.
+The main dependency is CXX, "Safe interop between Rust and C++", licensed under the Apache Version
+2.0 License or MIT license.
