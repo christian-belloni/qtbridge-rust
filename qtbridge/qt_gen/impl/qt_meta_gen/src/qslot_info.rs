@@ -110,9 +110,12 @@ fn get_qslot_meta_params(attr: &syn::Attribute) -> syn::Result<QSlotMetaParams> 
 }
 
 fn get_arg_getter_func(mut arg_type: &str) -> syn::Ident {
-    if arg_type == "str" {
-        arg_type = "string";
-    }
+    arg_type = match arg_type {
+        "str" | "String" => "string",
+        "Vec<String>" => "string_list",
+        _ => arg_type,
+    };
+
     format_ident!("get_{}", arg_type)
 }
 

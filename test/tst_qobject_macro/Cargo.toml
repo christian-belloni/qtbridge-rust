@@ -1,0 +1,16 @@
+# Copyright (C) 2026 The Qt Company Ltd.
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
+
+[package]
+name = "tst_qobject_macro"
+version.workspace = true
+edition.workspace = true
+description = "Tests for objects annotated with the `#[qobject]` macro."
+
+[dependencies]
+qtbridge = { path = "../../qtbridge" }
+
+[[test]]
+name = "slot_tests"
+path = "tests/slot_tests.rs"
+harness = false

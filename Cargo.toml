@@ -39,6 +39,7 @@ members = [
     "qtbridge/bridge",
     "apps/hello_world",
     "apps/minimal_app",
+    "test/tst_qobject_macro",
     "test/tst_qt_ifaces",
     "test/quick/tst_qobject",
     "test/quick/tst_qabstractitemmodel",

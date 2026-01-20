@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use std::mem::MaybeUninit;
+use crate::QVariant;
 
 #[qt_gen::bridge]
 mod qobject {
@@ -28,5 +29,34 @@ mod qobject {
             obj->~QObject();
         });
         unsafe { cpp(obj) }
+    }
+
+    /// Returns a [QVariant][crate::QVariant] containing the value of the object's property with the given name.
+    ///
+    /// If this property does not exist, the returned `QVariant` is invalid.
+    pub fn property(&self, name: &str) -> QVariant {
+        let cpp = cpp_fn!(|&self, name: &[u8]| -> QVariant {
+            return self.property(reinterpret_cast<const char*>(name.data()));
+        });
+        let cstr = std::ffi::CString::new(name)
+            .expect("CString::new() failed");
+        cpp(self, cstr.as_bytes())
+    }
+
+    /// Sets the value of the object's property with the given name.
+    ///
+    /// If the property is defined in the object,
+    /// the function returns `true` on success and `false` otherwise.
+    ///
+    /// If the property is not defined,
+    /// and therefore is not listed in the meta-object,
+    /// it is added as a dynamic property and `false` is returned.
+    pub fn set_property(&mut self, name: &str, value: QVariant) -> bool {
+        let cpp = cpp_fn!(|&mut self, name: &[u8], value: QVariant| -> bool {
+            return self.setProperty(reinterpret_cast<const char*>(name.data()), value);
+        });
+        let cstr = std::ffi::CString::new(name)
+            .expect("CString::new() failed");
+        cpp(self, cstr.as_bytes(), value)
     }
 }

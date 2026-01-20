@@ -39,6 +39,23 @@ mod qvariant {
         _content: MaybeUninit<[u8; 32]>,
     }
 
+    /// Returns `true` if this object holds some value or false otherwise.
+    ///
+    /// # Examples
+    /// ```
+    /// # use qt_type_lib::QVariant;
+    /// let var_default = QVariant::default();
+    /// assert!(!var_default.is_valid());
+    /// let var_int = QVariant::from(42);
+    /// assert!(var_int.is_valid());
+    /// ```
+    pub fn is_valid(&self) -> bool {
+        let cpp = cpp_fn!(|&self| -> bool {
+            return self.isValid();
+        });
+        cpp(self)
+    }
+
     impl ToString for QVariant {
         fn to_string(&self) -> String {
             let conv_fn = cpp_fn!(|&self| -> String {
@@ -59,12 +76,6 @@ mod qvariant {
 
     impl From<&String> for QVariant {
         fn from(value: &String) -> Self {
-            QVariant::from(value.as_str())
-        }
-    }
-
-    impl From<String> for QVariant {
-        fn from(value: String) -> Self {
             QVariant::from(value.as_str())
         }
     }
@@ -144,7 +155,7 @@ mod qvariant {
         }
     }
 
-    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, f32, f64]]
+    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, f32, f64, String, Vec<String>]]
     impl<T> From<T> for QVariant {
         fn from(value: T) -> Self {
             QVariant::from(&value)
@@ -172,7 +183,7 @@ mod qvariant {
         }
     }
 
-    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, f32, f64]]
+    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, f32, f64, String, Vec<String>]]
     impl<T> TryFrom<QVariant> for T {
         type Error = ();
 
