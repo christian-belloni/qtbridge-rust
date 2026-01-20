@@ -19,7 +19,7 @@ fn main() {
             builder.file(file);
         });
 
-    let qt_modules = ["Core", "Gui", "Qml"];
+    let qt_modules = ["Core", "Gui", "Qml", "Test"];
     for include_dir in qt_include_dirs(&qt_modules, true) {
         builder.include(include_dir);
     }

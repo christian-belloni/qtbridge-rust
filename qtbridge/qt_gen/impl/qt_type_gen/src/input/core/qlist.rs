@@ -190,6 +190,33 @@ mod qlist {
         self.size() as usize
     }
 
+    /// Returns a const reference to the first item in the list. This function assumes that the list isn't empty.
+    /// # Examples
+    /// ```
+    /// # use qt_type_lib::QList;
+    /// let list = QList::from([1, 2, 3]);
+    /// assert_eq!(*list.first(), 1);
+    /// ```
+    pub fn first(&self) -> &T {
+        let cpp = cpp_fn!(|&self| -> &T {
+            return self.constFirst();
+        });
+        cpp(self)
+    }
+
+    /// Returns a const reference to the last item in the list. This function assumes that the list isn't empty.
+    /// # Examples
+    /// ```
+    /// # use qt_type_lib::QList;
+    /// let list = QList::from([1, 2, 3]);
+    /// assert_eq!(*list.last(), 3);
+    pub fn last(&self) -> &T {
+        let cpp = cpp_fn!(|&self| -> &T {
+            return self.constLast();
+        });
+        cpp(self)
+    }
+
     #[exclude_if_struct_instantiation[QByteArray, QString, QVariant]]
     impl From<&[T]> for QList<T> {
         fn from(value: &[T]) -> Self {
