@@ -7,8 +7,9 @@ use syn::{spanned::Spanned, Ident, LitStr};
 use qt_gen_common::case_conv;
 use qt_gen_common::function_with_attributes::{BlockOrSemi, FunctionWithAttributes};
 use qt_gen_common::parse_utils::{parse_name_value, partition_attr_by};
-use qt_gen_common::signature_utils::{check_meta_call_signature, get_arg_type_info};
-use qt_gen_common::type_utils::get_take_value_code;
+use qt_gen_common::signature_utils::{check_meta_call_signature, get_typed_args, get_typed_args_types};
+use qt_gen_common::type_utils::{get_take_value_code, get_type_pass, unwrapped_ref_to_string};
+use qt_gen_common::type_registry::meta_types::get_qmetatype_support_for_type;
 
 use crate::traits::{ExpandTokens, QmlName};
 
@@ -54,6 +55,11 @@ impl QSlotInfo {
         attr.style == syn::AttrStyle::Outer && attr.path().is_ident("qslot")
     }
 
+    /// Get count of arguments after &self
+    pub fn get_typed_arg_count(&self) -> usize {
+        get_typed_args(&self.func.sig).count()
+    }
+
     pub fn get_meta_registration_code(&self, struct_ident: &syn::Ident) -> syn::Result<TokenStream> {
         let name = self.get_qml_name_span().0;
         let sig = &self.func.sig;
@@ -63,21 +69,22 @@ impl QSlotInfo {
         let mut arg_types_qt = Vec::with_capacity(arg_count);
         let mut arg_unpack   = Vec::with_capacity(arg_count);
         let mut arg_list     = Vec::with_capacity(arg_count);
-        for (idx, arg) in sig.inputs.iter().skip(1).enumerate() {
-            let arg_type = get_arg_type_info(arg)?;
-            let arg_type_qt = arg_type.to_qmeta_type()?.unwrap();
 
-            let arg_var = format_ident!("arg_{}", idx);
-            let pass_arg_var = get_take_value_code(&arg_var, arg_type.get_value_pass());
-            let arg_getter = get_arg_getter_func(&arg_type.unwrapped_ref_to_str()?);
+        for (idx, arg_type) in get_typed_args_types(sig).enumerate() {
+            let meta_type = get_qmetatype_support_for_type(arg_type)?
+                .unwrap_or_else(|| arg_type.clone());
+            let var_name = format_ident!("arg_{}", idx);
+            let pass = get_type_pass(arg_type);
+            let pass_var = get_take_value_code(&var_name, pass);
+            let getter = get_arg_getter_func(&unwrapped_ref_to_string(arg_type)?);
 
-            arg_types_qt.push(format_ident!("{}", arg_type_qt));
-            arg_unpack.push(quote!{ let #arg_var = params.#arg_getter( #idx ); });
-            arg_list.push(pass_arg_var);
+            arg_types_qt.push(meta_type);
+            arg_unpack.push(quote!{ let #var_name = params.#getter( #idx ); });
+            arg_list.push(pass_var);
         }
 
         let register_slot = quote!(
-            meta_obj.as_mut().register_slot(#name, &[#(QMetaType::new(QMetaTypeId::#arg_types_qt as i32)),*],
+            meta_obj.as_mut().register_slot(#name, &[#(#arg_types_qt::get_qmetatype()),*],
                 slot_callback_for::<#struct_ident>(|this, params| {
                     #(#arg_unpack)*
                     this.#method_ident(#(#arg_list),*);

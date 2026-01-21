@@ -121,6 +121,8 @@ fn generate_meta_reg_use_block(signals: &[QSignalInfo], slots: &[QSlotInfo], pro
 
     let is_typed_arg_present =
         signals.iter()
+            .any(|s| s.get_typed_arg_count() > 0) ||
+        slots.iter()
             .any(|s| s.get_typed_arg_count() > 0);
     let import_qmeta_type_get = is_typed_arg_present
         .then(|| quote! { use qt_type_lib::QMetaTypeGet; });

@@ -79,7 +79,7 @@ fn require_that_qobject_impl_macro_handles_signals_slots_and_properties() {
                 .register_signal("thatStringValueChangedByValue", &[qt_type_lib::QString::get_qmetatype()]);
             meta_obj.as_mut().register_slot(
                 "onThatValueChanged",
-                &[QMetaType::new(QMetaTypeId::QString as i32)],
+                &[qt_type_lib::QString::get_qmetatype()],
                 slot_callback_for::<SomeStruct>(|this, params| {
                     let arg_0 = params.get_String(0usize);
                     this.on_that_value_changed(&arg_0);
