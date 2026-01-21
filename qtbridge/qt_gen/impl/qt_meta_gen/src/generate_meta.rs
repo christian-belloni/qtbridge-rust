@@ -1,7 +1,6 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use qt_gen_common::naming;
 use qt_gen_common::type_qualified_mapping::CallOrigin;
 
 use quote::{quote, ToTokens};
@@ -21,7 +20,6 @@ pub struct QMetaInfoContext<'a> {
 }
 
 pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext, origin: &CallOrigin) -> syn::Result<TokenStream> {
-    let struct_ident = &ctx.struct_ident;
     let generics = &ctx.generics;
     let use_block = generate_meta_reg_use_block(ctx.signals, ctx.slots, ctx.properties, origin);
     let signals_meta_reg = generate_signals_meta_registration(ctx.signals)?;
@@ -29,12 +27,11 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext, origin: &CallOrigin
     let properties_meta_reg = generate_properties_meta_registration(ctx.struct_ident, ctx.properties, ctx.signals)?;
     let class_infos_reg = generate_class_infos_meta_registration(ctx.class_infos)?;
 
-    let impl_details_name = naming::rust::module::impl_details(&struct_ident);
-
     let struct_ident = &ctx.struct_ident;
     let (impl_generics, type_generics, where_clause) = generics.split_for_impl();
 
     let type_library = origin.type_module();
+    let trait_library = origin.trait_module();
     let bridge_library = origin.bridge_module();
 
     Ok(quote! {
@@ -44,7 +41,7 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext, origin: &CallOrigin
             }
 
             fn get_static_meta_object() -> &'static #type_library::QMetaObject {
-                #impl_details_name::ProxyRust::get_static_meta_object()
+                <Self as #trait_library::QObjectHolder>::ProxyRust::get_static_meta_object()
             }
 
             fn register_meta(mut meta_obj: std::pin::Pin<&mut #bridge_library::DynamicMetaObjectData_Rust>) {
@@ -88,7 +85,7 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext, origin: &CallOrigin
             }
 
             fn get_list_meta_type() -> #type_library::QMetaType {
-                #impl_details_name::ProxyRust::get_qmetatype_list_of_cpp_proxy()
+                <Self as #trait_library::QObjectHolder>::ProxyRust::get_qmetatype_list_of_cpp_proxy()
             }
         }
     })

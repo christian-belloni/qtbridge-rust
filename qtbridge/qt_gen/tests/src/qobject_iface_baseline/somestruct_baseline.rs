@@ -17,13 +17,13 @@ mod some_module {
             column: i32,
             parent: &qtbridge::qt_type_lib::QModelIndex,
         ) -> qtbridge::qt_type_lib::QModelIndex {
-            let proxy = some_struct_impl_details::get_rust_proxy(self);
+            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy(self);
             proxy.base_index(row, column, parent)
         }
         fn role_names(
             &self,
         ) -> qtbridge::qt_type_lib::QHash<i32, qtbridge::qt_type_lib::QByteArray> {
-            let proxy = some_struct_impl_details::get_rust_proxy(self);
+            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy(self);
             proxy.base_role_names()
         }
         fn base_set_data(
@@ -32,7 +32,7 @@ mod some_module {
             value: &qtbridge::qt_type_lib::QVariant,
             role: i32,
         ) -> bool {
-            let proxy = some_struct_impl_details::get_rust_proxy_mut(self);
+            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy_mut(self);
             proxy.base_set_data(index, value, role)
         }
         fn remove_rows(
@@ -41,7 +41,7 @@ mod some_module {
             count: i32,
             parent: &qtbridge::qt_type_lib::QModelIndex,
         ) -> bool {
-            let proxy = some_struct_impl_details::get_rust_proxy_mut(self);
+            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy_mut(self);
             proxy.base_remove_rows(first, count, parent)
         }
         fn sibling(
@@ -50,7 +50,7 @@ mod some_module {
             column: i32,
             idx: &qtbridge::qt_type_lib::QModelIndex,
         ) -> qtbridge::qt_type_lib::QModelIndex {
-            let proxy = some_struct_impl_details::get_rust_proxy(self);
+            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy(self);
             proxy.base_sibling(row, column, idx)
         }
         fn data_changed(
@@ -58,7 +58,7 @@ mod some_module {
             topLeft: &qtbridge::qt_type_lib::QModelIndex,
             bottomRight: &qtbridge::qt_type_lib::QModelIndex,
         ) {
-            let proxy = some_struct_impl_details::get_rust_proxy_mut(self);
+            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy_mut(self);
             proxy.base_data_changed(topLeft, bottomRight)
         }
         fn begin_insert_rows(
@@ -67,11 +67,11 @@ mod some_module {
             first: i32,
             last: i32,
         ) {
-            let proxy = some_struct_impl_details::get_rust_proxy_mut(self);
+            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy_mut(self);
             proxy.base_begin_insert_rows(parent, first, last)
         }
         fn end_insert_rows(&mut self) {
-            let proxy = some_struct_impl_details::get_rust_proxy_mut(self);
+            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy_mut(self);
             proxy.base_end_insert_rows()
         }
         fn begin_move_rows(
@@ -82,7 +82,7 @@ mod some_module {
             destinationParent: &qtbridge::qt_type_lib::QModelIndex,
             destinationChild: i32,
         ) {
-            let proxy = some_struct_impl_details::get_rust_proxy_mut(self);
+            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy_mut(self);
             proxy.base_begin_move_rows(
                 sourceParent,
                 sourceFirst,
@@ -92,7 +92,7 @@ mod some_module {
             )
         }
         fn end_move_rows(&mut self) {
-            let proxy = some_struct_impl_details::get_rust_proxy_mut(self);
+            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy_mut(self);
             proxy.base_end_move_rows()
         }
         fn begin_remove_rows(
@@ -101,19 +101,19 @@ mod some_module {
             first: i32,
             last: i32,
         ) {
-            let proxy = some_struct_impl_details::get_rust_proxy_mut(self);
+            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy_mut(self);
             proxy.base_begin_remove_rows(parent, first, last)
         }
         fn end_remove_rows(&mut self) {
-            let proxy = some_struct_impl_details::get_rust_proxy_mut(self);
+            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy_mut(self);
             proxy.base_end_remove_rows()
         }
         fn begin_reset_model(&mut self) {
-            let proxy = some_struct_impl_details::get_rust_proxy_mut(self);
+            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy_mut(self);
             proxy.base_begin_reset_model()
         }
         fn end_reset_model(&mut self) {
-            let proxy = some_struct_impl_details::get_rust_proxy_mut(self);
+            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy_mut(self);
             proxy.base_end_reset_model()
         }
     }
@@ -173,19 +173,23 @@ mod some_module {
             instance
         }
         pub fn attach_qobject(instance: &std::rc::Rc<std::cell::RefCell<Self>>) {
-            some_struct_impl_details::register_instance_in_map(instance.clone(), false);
-            some_struct_impl_details::set_dynamic_meta(instance);
+            <Self as qtbridge::qt_traits::QObjectHolder>::register_instance_in_map(
+                instance.clone(),
+                false,
+            );
+            <Self as qtbridge::qt_traits::QObjectHolder>::set_dynamic_meta(instance);
         }
         pub fn detach_qobject(&self) {
-            if let Some(qobj) = some_struct_impl_details::try_get_qobject(self) {
+            if let Some(qobj) = <Self as qtbridge::qt_traits::QObjectHolder>::try_get_qobject(self)
+            {
                 qtbridge::qt_type_lib::QObject::delete(std::ptr::from_mut(qobj));
             }
         }
         pub fn get_qobject(&self) -> &mut qtbridge::qt_type_lib::QObject {
-            some_struct_impl_details::get_qobject(self)
+            <Self as qtbridge::qt_traits::QObjectHolder>::get_qobject(self)
         }
         pub fn as_qvariant(&self) -> qtbridge::qt_type_lib::QVariant {
-            let qobj_ref = some_struct_impl_details::get_qobject(self);
+            let qobj_ref = <Self as qtbridge::qt_traits::QObjectHolder>::get_qobject(self);
             let qobj_ptr = std::ptr::from_mut(qobj_ref);
             qobj_ptr.into()
         }
@@ -195,7 +199,7 @@ mod some_module {
             ::std::any::type_name::<SomeStruct>()
         }
         fn get_static_meta_object() -> &'static qtbridge::qt_type_lib::QMetaObject {
-            some_struct_impl_details::ProxyRust::get_static_meta_object()
+            <Self as qtbridge::qt_traits::QObjectHolder>::ProxyRust::get_static_meta_object()
         }
         fn register_meta(
             mut meta_obj: std::pin::Pin<&mut qtbridge::bridge::DynamicMetaObjectData_Rust>,
@@ -229,7 +233,8 @@ mod some_module {
             meta_data_ref
         }
         fn get_list_meta_type() -> qtbridge::qt_type_lib::QMetaType {
-            some_struct_impl_details::ProxyRust::get_qmetatype_list_of_cpp_proxy()
+            <Self as qtbridge::qt_traits::QObjectHolder>::ProxyRust::get_qmetatype_list_of_cpp_proxy(
+            )
         }
     }
     impl qtbridge::qt_type_lib::QMetaTypeInterfaceGet for SomeStruct {
@@ -268,9 +273,7 @@ mod some_module {
             ) {
                 let instance =
                     std::rc::Rc::new(std::cell::RefCell::new(<SomeStruct as Default>::default()));
-                some_struct_impl_details::register_instance_in_map_with_cpp_proxy_at(
-                    addr, instance,
-                );
+                < SomeStruct as qtbridge :: qt_traits :: QObjectHolder > :: register_instance_in_map_with_cpp_proxy_at (addr , instance) ;
             }
             pub extern "C" fn dtor(
                 _iface: *const qtbridge::qt_type_lib::QMetaTypeInterface,
@@ -279,8 +282,8 @@ mod some_module {
                 qtbridge::qt_type_lib::QObject::destruct(obj.cast());
             }
             let iface = qtbridge::qt_type_lib::QMetaTypeInterface::fill_fields(
-                some_struct_impl_details::ProxyRust::get_align_of_cpp_proxy(),
-                some_struct_impl_details::ProxyRust::get_size_of_cpp_proxy(),
+                <Self as qtbridge::qt_traits::QObjectHolder>::ProxyRust::get_align_of_cpp_proxy(),
+                <Self as qtbridge::qt_traits::QObjectHolder>::ProxyRust::get_size_of_cpp_proxy(),
                 flags,
                 class_name,
                 meta_object_fn as usize,
@@ -293,31 +296,21 @@ mod some_module {
             iface_ref
         }
     }
-    mod some_struct_impl_details {
-        use std::cell::{BorrowError, BorrowMutError, RefCell};
-        use std::rc::Rc;
-        type RustObj = super::SomeStruct;
-        pub(super) type ProxyRust =
-            qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelProxyRust;
-        type ProxiesMap = std::collections::HashMap<*const u8, *const ProxyRust>;
-        thread_local ! (static SOMESTRUCT_PROXY_INSTANCES : std :: cell :: RefCell < ProxiesMap > = std :: cell :: RefCell :: new (ProxiesMap :: default ()));
-        fn try_borrow_proxies_map<F, R>(f: F) -> R
+    impl SomeStruct {
+        fn try_borrow_mut_proxies_map_impl<F, R>(f: F) -> R
         where
-            F: FnOnce(&ProxiesMap) -> R,
+            F: FnOnce(
+                &mut std::collections::HashMap<
+                    *const u8,
+                    *const qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelProxyRust,
+                >,
+            ) -> R,
         {
-            SOMESTRUCT_PROXY_INSTANCES
-                .try_with(|proxies_map_cell| -> Result<R, BorrowError> {
-                    let proxies_map_ref = proxies_map_cell.try_borrow()?;
-                    Ok(f(&proxies_map_ref))
-                })
-                .unwrap()
-                .expect("Failed to borrow map of proxies")
-        }
-        fn try_borrow_mut_proxies_map<F, R>(f: F) -> R
-        where
-            F: FnOnce(&mut ProxiesMap) -> R,
-        {
-            SOMESTRUCT_PROXY_INSTANCES
+            use std::cell::BorrowMutError;
+            use std::cell::RefCell;
+            use std::collections::HashMap;
+            thread_local ! (static INSTANCES : RefCell < HashMap < * const u8 , * const qtbridge :: qt_ifaces :: qabstract_list_model :: QAbstractListModelProxyRust > > = RefCell :: new (HashMap :: new ()));
+            INSTANCES
                 .try_with(|proxies_map_cell| -> Result<R, BorrowMutError> {
                     let mut proxies_map_ref_mut = proxies_map_cell.try_borrow_mut()?;
                     Ok(f(&mut proxies_map_ref_mut))
@@ -325,72 +318,58 @@ mod some_module {
                 .unwrap()
                 .expect("Failed to borrow_mut map of proxies")
         }
-        pub(super) fn get_rust_proxy(rust_obj_ref: &RustObj) -> &ProxyRust {
-            get_rust_proxy_mut(rust_obj_ref)
+    }
+    impl qtbridge::qt_traits::QObjectHolder for SomeStruct {
+        type ProxyRust = qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelProxyRust;
+        fn try_borrow_mut_proxies_map<F, R>(f: F) -> R
+        where
+            F: FnOnce(&mut std::collections::HashMap<*const u8, *const Self::ProxyRust>) -> R,
+        {
+            Self::try_borrow_mut_proxies_map_impl(f)
         }
-        pub(super) fn get_rust_proxy_mut(rust_obj_ref: &RustObj) -> &mut ProxyRust {
-            try_get_rust_proxy_mut(rust_obj_ref).expect("No proxy registered for given rust object")
-        }
-        pub(super) fn try_get_rust_proxy_mut(rust_obj_ref: &RustObj) -> Option<&mut ProxyRust> {
-            let ptr = try_borrow_mut_proxies_map(|proxies| {
-                let rust_obj_ptr = std::ptr::from_ref(rust_obj_ref).cast();
-                match proxies.get(&rust_obj_ptr) {
-                    Some(ptr) => ptr.cast_mut(),
-                    None => std::ptr::null_mut(),
-                }
-            });
-            unsafe { ptr.as_mut() }
-        }
-        pub(crate) fn try_get_qobject(
-            this: &RustObj,
-        ) -> Option<&mut qtbridge::qt_type_lib::QObject> {
-            let rust_proxy = try_get_rust_proxy_mut(this)?;
+        fn try_get_qobject(&self) -> Option<&mut qtbridge::qt_type_lib::QObject> {
+            let rust_proxy = Self::try_get_rust_proxy_mut(&self)?;
             let cpp_proxy = rust_proxy.get_cpp_proxy();
             let qobject_ptr: *const qtbridge::qt_type_lib::QObject = cpp_proxy.cast();
             unsafe { qobject_ptr.cast_mut().as_mut() }
         }
-        pub(crate) fn get_qobject(this: &RustObj) -> &mut qtbridge::qt_type_lib::QObject {
-            try_get_qobject(this).expect("QObject is not attached")
-        }
-        pub(crate) fn register_instance_in_map(
-            rust_obj_rc: Rc<RefCell<RustObj>>,
+        fn register_instance_in_map(
+            rust_obj_rc: std::rc::Rc<std::cell::RefCell<Self>>,
             register_strong: bool,
         ) {
+            use std::cell::RefCell;
+            use std::rc::Rc;
             let key = (*rust_obj_rc).as_ptr() as *const u8;
-            try_borrow_mut_proxies_map(|proxies| {
+            Self::try_borrow_mut_proxies_map(|proxies| {
                 let dyn_rc: Rc<
                     RefCell<dyn qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModel>,
                 > = rust_obj_rc;
-                let proxy_ptr =
-                    ProxyRust::new(&dyn_rc, register_strong, unregister_instance_in_map);
+                let proxy_ptr = Self::ProxyRust::new(
+                    &dyn_rc,
+                    register_strong,
+                    Self::unregister_instance_in_map,
+                );
                 proxies.insert(key, proxy_ptr);
             })
         }
-        pub(super) fn register_instance_in_map_with_cpp_proxy_at(
+        fn register_instance_in_map_with_cpp_proxy_at(
             addr: *mut u8,
-            rust_obj_rc: Rc<RefCell<RustObj>>,
+            rust_obj_rc: std::rc::Rc<std::cell::RefCell<Self>>,
         ) {
+            use std::cell::RefCell;
+            use std::rc::Rc;
             let key = (*rust_obj_rc).as_ptr() as *const u8;
-            try_borrow_mut_proxies_map(|proxies| {
+            Self::try_borrow_mut_proxies_map(|proxies| {
                 let dyn_rc: Rc<
                     RefCell<dyn qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModel>,
                 > = rust_obj_rc;
-                let proxy_ptr =
-                    ProxyRust::new_with_cpp_proxy_at(addr, &dyn_rc, unregister_instance_in_map);
+                let proxy_ptr = Self::ProxyRust::new_with_cpp_proxy_at(
+                    addr,
+                    &dyn_rc,
+                    Self::unregister_instance_in_map,
+                );
                 proxies.insert(key, proxy_ptr);
             })
-        }
-        pub(super) fn unregister_instance_in_map(rust_obj_ptr: *const u8) {
-            try_borrow_mut_proxies_map(|proxies| proxies.remove(&rust_obj_ptr))
-                .expect("Proxy object for rust object is not registered")
-                .cast_mut();
-        }
-        pub(crate) fn set_dynamic_meta(instance: &Rc<RefCell<RustObj>>) {
-            let dynamic_meta =
-                <RustObj as qtbridge::bridge::QMetaInfo>::get_shared_dynamic_meta_object_data();
-            let instance_ref = &instance.borrow();
-            let qobject_ref = get_qobject(instance_ref);
-            dynamic_meta.set_to_qobject(qobject_ref);
         }
     }
 }

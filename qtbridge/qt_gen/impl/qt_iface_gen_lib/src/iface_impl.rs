@@ -4,9 +4,9 @@
 use std::collections::BTreeMap;
 
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
+use quote::quote;
 
-use qt_gen_common::{Naming, naming};
+use qt_gen_common::naming;
 use qt_gen_common::type_qualified_mapping::CallOrigin;
 use qt_gen_common::signature_utils::{get_qualified_types_in_signature, get_arg_ident, get_qualified_args, get_qualified_return_type, is_self_mut};
 
@@ -177,7 +177,6 @@ impl InterfaceImpl {
 
     /// Generates functions that forward calls to the base C++ implementation of the associated C++ interface.
     fn generate_iface_base_functions(&self) -> syn::Result<Vec<syn::ImplItemFn>> {
-        let impl_detail_mod_name = naming::rust::module::impl_details(&self.struct_ident.to_string());
 
         let mut result = Vec::new();
         for method in self.desc.get_methods() {
@@ -194,7 +193,7 @@ impl InterfaceImpl {
                 false
             };
 
-            result.push(Self::generate_forward_to_base_func(method_sig, &impl_detail_mod_name, &self.origin, is_overriden)?);
+            result.push(Self::generate_forward_to_base_func(method_sig, &self.origin, is_overriden)?);
         }
 
         Ok(result)
@@ -203,7 +202,7 @@ impl InterfaceImpl {
     /// Generates a function that obtains a reference to the Rust proxy and calls the
     /// corresponding method, which is then dispatched to the base implementation
     /// of the C++ interface.
-    fn generate_forward_to_base_func(callee_sig: &syn::Signature, impl_detail_mod_name: &Naming, origin: &CallOrigin, add_prefix_to_caller_name: bool) -> syn::Result<syn::ImplItemFn> {
+    fn generate_forward_to_base_func(callee_sig: &syn::Signature, origin: &CallOrigin, add_prefix_to_caller_name: bool) -> syn::Result<syn::ImplItemFn> {
         let callee_sig_ident = &callee_sig.ident;
         let caller_name = if add_prefix_to_caller_name {
             naming::rust::function::base(&callee_sig_ident)
@@ -233,9 +232,11 @@ impl InterfaceImpl {
             }
         }
 
+        let trait_library = origin.trait_module();
+
         let func_code = quote!{
             fn #caller_name(#(#inputs),*) #output {
-                let proxy = #impl_detail_mod_name::#get_proxy(self);
+                let proxy = <Self as #trait_library::QObjectHolder>::#get_proxy(self);
                 #call
             }
         };
@@ -246,9 +247,6 @@ impl InterfaceImpl {
     /// not to clutter impl block of the given structure too much.
     pub fn generate_impl_details(&self) -> syn::Result<TokenStream> {
         let struct_ident = &self.struct_ident;
-        let struct_str = struct_ident.to_string();
-        let proxies_map_name = format_ident!("{}_PROXY_INSTANCES", struct_ident.to_string().to_ascii_uppercase());
-        let impl_details_mod = naming::rust::module::impl_details(&struct_str);
 
         let iface_name = self.desc.get_ident();
         let iface_module = naming::rust::module::from_struct_name(iface_name);
@@ -259,146 +257,72 @@ impl InterfaceImpl {
 
         let iface_library = self.origin.iface_module();
         let type_library = self.origin.type_module();
-        let bridge_library = self.origin.bridge_module();
+        let trait_library = self.origin.trait_module();
 
         let code = quote! {
-            /// Functionality called from implementation internals that makes sense to place in a separate module
-            /// rather than overwhelm impl block of struct or add yet another trait impl.
-            mod #impl_details_mod {
-                use std::cell::{BorrowError, BorrowMutError, RefCell};
-                use std::rc::Rc;
 
-                /// Alias for the user-defined struct annotated with `#[qobject]` for which this module is generated.
-                type RustObj #type_generics = super::#struct_ident #type_generics;
-
-                /// Alias for the Rust proxy type corresponding to the user-defined type.
-                /// The Rust proxy is an intermediate layer between the Rust object and the C++ proxy,
-                /// forwarding calls in both directions and managing borrowing of the Rust object
-                /// during QAIM calls (and TBD for meta calls as well).
-                pub(in super) type ProxyRust = #iface_library::#iface_module::#proxy_rust;
-
-                /// Type alias for a map containing all instances of the given user-defined type.
-                type ProxiesMap = std::collections::HashMap<*const u8, *const ProxyRust>;
-
-                /// Shared map containing all registered instances of given user-defined type (multiton).
-                thread_local!(static #proxies_map_name: std::cell::RefCell<ProxiesMap> =
-                    std::cell::RefCell::new(ProxiesMap::default())
-                );
-
-                /// Invoke the provided function if immutable borrowing succeeds.
-                fn try_borrow_proxies_map<F, R>(f: F) -> R
-                where F: FnOnce(&ProxiesMap) -> R
-                {
-                    #proxies_map_name.try_with(|proxies_map_cell| -> Result<R, BorrowError> {
-                        let proxies_map_ref = proxies_map_cell.try_borrow()?;
-                        Ok(f(&proxies_map_ref))
-                    })
-                    .unwrap()
-                    .expect("Failed to borrow map of proxies")
-                }
-
+            /// Shared map containing all registered instances of given user-defined type (multiton).
+            /// This cannot live in a trait
+            impl #impl_generics #struct_ident #type_generics #where_clause {
                 /// Invoke the provided function if mutable borrowing succeeds.
-                fn try_borrow_mut_proxies_map<F, R>(f: F) -> R
-                where F: FnOnce(&mut ProxiesMap) -> R
+                fn try_borrow_mut_proxies_map_impl<F, R>(f: F) -> R
+                where F: FnOnce(&mut std::collections::HashMap<*const u8, *const #iface_library::#iface_module::#proxy_rust>) -> R
                 {
-                    #proxies_map_name.try_with(|proxies_map_cell| -> Result<R, BorrowMutError> {
+                    use std::cell::BorrowMutError;
+                    use std::cell::RefCell;
+                    use std::collections::HashMap;
+                    thread_local!(static INSTANCES: RefCell<
+                        HashMap<*const u8, *const #iface_library::#iface_module::#proxy_rust>
+                    > = RefCell::new(HashMap::new()));
+                    INSTANCES.try_with(|proxies_map_cell| -> Result<R, BorrowMutError> {
                         let mut proxies_map_ref_mut = proxies_map_cell.try_borrow_mut()?;
                         Ok(f(&mut proxies_map_ref_mut))
                     })
                     .unwrap()
                     .expect("Failed to borrow_mut map of proxies")
                 }
+            }
 
-                /// Return an immutable reference to the Rust proxy linked to the Rust object specified in the argument.
-                pub(in super) fn get_rust_proxy #impl_generics(rust_obj_ref: &RustObj #type_generics) -> &ProxyRust
-                #where_clause
+            impl #impl_generics #trait_library::QObjectHolder for #struct_ident #type_generics #where_clause {
+
+                type ProxyRust = #iface_library::#iface_module::#proxy_rust;
+
+                fn try_borrow_mut_proxies_map<F, R>(f: F) -> R
+                    where F: FnOnce(&mut std::collections::HashMap<*const u8, *const Self::ProxyRust>) -> R
                 {
-                    get_rust_proxy_mut(rust_obj_ref)
+                    Self::try_borrow_mut_proxies_map_impl(f)
                 }
 
-                /// Return a mutable reference to the Rust proxy linked to the Rust object specified in the argument.
-                pub(in super) fn get_rust_proxy_mut #impl_generics(rust_obj_ref: &RustObj #type_generics) -> &mut ProxyRust
-                #where_clause
+                fn try_get_qobject(&self) -> Option<&mut #type_library::QObject>
                 {
-                    try_get_rust_proxy_mut(rust_obj_ref)
-                        .expect("No proxy registered for given rust object")
-                }
-
-                /// Return a Result wrapping mutable reference to the Rust proxy associated with the specified object.
-                pub(in super) fn try_get_rust_proxy_mut #impl_generics(rust_obj_ref: &RustObj #type_generics) -> Option<&mut ProxyRust>
-                #where_clause
-                {
-                    let ptr = try_borrow_mut_proxies_map(|proxies| {
-                        let rust_obj_ptr = std::ptr::from_ref(rust_obj_ref).cast();
-                        match proxies.get(&rust_obj_ptr) {
-                            Some(ptr) => ptr.cast_mut(),
-                            None => std::ptr::null_mut(),
-                        }
-                    });
-                    unsafe { ptr.as_mut() }
-                }
-
-                /// Return Result with QObject linked to the Rust object provided as an argument.
-                pub(crate) fn try_get_qobject #impl_generics(this: &RustObj #type_generics) -> Option<&mut #type_library::QObject>
-                #where_clause
-                {
-                    let rust_proxy = try_get_rust_proxy_mut(this)?;
+                    let rust_proxy = Self::try_get_rust_proxy_mut(&self)?;
                     let cpp_proxy = rust_proxy.get_cpp_proxy();
                     let qobject_ptr: *const #type_library::QObject = cpp_proxy.cast();
                     unsafe { qobject_ptr.cast_mut().as_mut() }
                 }
 
-                /// Return QObject linked to the Rust object provided as an argument.
-                pub(crate) fn get_qobject #impl_generics(this: &RustObj #type_generics) -> &mut #type_library::QObject
-                #where_clause
+                fn register_instance_in_map(rust_obj_rc: std::rc::Rc<std::cell::RefCell<Self>>, register_strong: bool)
                 {
-                    try_get_qobject(this)
-                        .expect("QObject is not attached")
-                }
-
-                /// Register the given Rust object instance in the multiton.
-                /// Create Rust and C++ proxies and links them to the Rust object.
-                pub(crate) fn register_instance_in_map #impl_generics(rust_obj_rc: Rc<RefCell<RustObj #type_generics>>, register_strong: bool)
-                #where_clause
-                {
+                    use std::rc::Rc;
+                    use std::cell::RefCell;
                     let key = (*rust_obj_rc).as_ptr() as *const u8;
-                    try_borrow_mut_proxies_map(|proxies| {
+                    Self::try_borrow_mut_proxies_map(|proxies| {
                         let dyn_rc: Rc<RefCell<dyn #iface_library::#iface_module::#iface_traits_name>> = rust_obj_rc;
-                        let proxy_ptr = ProxyRust::new(&dyn_rc, register_strong, unregister_instance_in_map);
+                        let proxy_ptr = Self::ProxyRust::new(&dyn_rc, register_strong, Self::unregister_instance_in_map);
                         proxies.insert(key, proxy_ptr);
                     })
                 }
 
-                /// Register the given Rust object instance in the multiton.
-                /// Create Rust and C++ proxies and links them to the Rust object.
-                /// C++ proxy created using placement new operator at the memory address provided as the first argument.
-                pub(super) fn register_instance_in_map_with_cpp_proxy_at #impl_generics(addr: *mut u8, rust_obj_rc: Rc<RefCell<RustObj #type_generics>>)
-                #where_clause
+                fn register_instance_in_map_with_cpp_proxy_at(addr: *mut u8, rust_obj_rc: std::rc::Rc<std::cell::RefCell<Self>>)
                 {
+                    use std::rc::Rc;
+                    use std::cell::RefCell;
                     let key = (*rust_obj_rc).as_ptr() as *const u8;
-                    try_borrow_mut_proxies_map(|proxies| {
+                    Self::try_borrow_mut_proxies_map(|proxies| {
                         let dyn_rc: Rc<RefCell<dyn #iface_library::#iface_module::#iface_traits_name>> = rust_obj_rc;
-                        let proxy_ptr = ProxyRust::new_with_cpp_proxy_at(addr, &dyn_rc, unregister_instance_in_map);
+                        let proxy_ptr = Self::ProxyRust::new_with_cpp_proxy_at(addr, &dyn_rc, Self::unregister_instance_in_map);
                         proxies.insert(key, proxy_ptr);
                     })
-                }
-
-                /// Removes the entry associated with the specified Rust object from the multiton map.
-                pub(super) fn unregister_instance_in_map(rust_obj_ptr: *const u8) {
-                    try_borrow_mut_proxies_map(|proxies| proxies.remove(&rust_obj_ptr))
-                        .expect("Proxy object for rust object is not registered")
-                        .cast_mut();
-                }
-
-                /// Configure the QObject associated with the given Rust object to use
-                /// the dynamic metaobject specific to this Rust type.
-                pub(crate) fn set_dynamic_meta #impl_generics(instance: &Rc<RefCell<RustObj #type_generics>>)
-                #where_clause
-                {
-                    let dynamic_meta = <RustObj #type_generics as #bridge_library::QMetaInfo>::get_shared_dynamic_meta_object_data();
-                    let instance_ref = &instance.borrow();
-                    let qobject_ref = get_qobject(instance_ref);
-                    dynamic_meta.set_to_qobject(qobject_ref);
                 }
             }
         };
@@ -410,8 +334,8 @@ impl InterfaceImpl {
     pub fn generate_qobject_funcs(&self) -> syn::Result<syn::ItemImpl> {
         let struct_name = &self.struct_ident;
         let (impl_generics, type_generics, where_clause) = self.impl_generics.split_for_impl();
-        let impl_details_name = naming::rust::module::impl_details(struct_name);
         let type_library = self.origin.type_module();
+        let trait_library = self.origin.trait_module();
 
         let functions_code = [
             quote! {
@@ -431,8 +355,8 @@ impl InterfaceImpl {
                 /// TODO: rename it so that 'qobject' is not exposed to the user.
                 /// TODO: or attach a qobject on demand/when sending the object to QML engine?.
                 pub fn attach_qobject(instance: &std::rc::Rc<std::cell::RefCell<Self>>) {
-                    #impl_details_name::register_instance_in_map(instance.clone(), false);
-                    #impl_details_name::set_dynamic_meta(instance);
+                    <Self as #trait_library::QObjectHolder>::register_instance_in_map(instance.clone(), false);
+                    <Self as #trait_library::QObjectHolder>::set_dynamic_meta(instance);
                 }
             },
             quote! {
@@ -441,7 +365,7 @@ impl InterfaceImpl {
                 /// TODO: Rename it so that 'qobject' is not exposed to the user.
                 /// TODO: Document somewhere (in the documentation of #[qobject_impl]?) that this function must be called from the `Drop` implementation of the user-defined type.
                 pub fn detach_qobject(&self) {
-                    if let Some(qobj) = #impl_details_name::try_get_qobject(self) {
+                    if let Some(qobj) = <Self as #trait_library::QObjectHolder>::try_get_qobject(self) {
                         // QObject destructor will drop Rust proxy and remove entry from the instance map
                         #type_library::QObject::delete(std::ptr::from_mut(qobj));
                     }
@@ -452,7 +376,7 @@ impl InterfaceImpl {
                 /// Return a reference to the QObject attached to 'self'.
                 // TODO: probably remove it later
                 pub fn get_qobject(&self) -> &mut #type_library::QObject {
-                    #impl_details_name::get_qobject(self)
+                    <Self as #trait_library::QObjectHolder>::get_qobject(self)
                 }
             },
             quote! {
@@ -460,7 +384,7 @@ impl InterfaceImpl {
                 /// corresponding to 'self'.
                 pub fn as_qvariant(&self) -> #type_library::QVariant {
                     // TODO: handle changes in reference counter via QMetaTypeInterface
-                    let qobj_ref = #impl_details_name::get_qobject(self);
+                    let qobj_ref = <Self as #trait_library::QObjectHolder>::get_qobject(self);
                     let qobj_ptr = std::ptr::from_mut(qobj_ref);
                     qobj_ptr.into()
                 }

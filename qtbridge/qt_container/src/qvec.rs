@@ -597,17 +597,13 @@ mod qvec
         #[overridden]
         fn role_names(&self)-> QHash<i32, QByteArray> {
             let names = T::role_names();
-            if names.is_empty() {
-                let proxy = qvec_impl_details::get_rust_proxy(self);
-                proxy.base_role_names()
-            } else {
-                let mut result = QHash::default();
-                names.iter()
-                    .for_each(|(k, v)| result.insert(k, &QByteArray::from(v)));
-                result
-            }
+            // TODO: If names is empty, we could revert to
+            // QAbstractItemModel::role_names() / default role names.
+            let mut result = QHash::default();
+            names.iter()
+                .for_each(|(k, v)| result.insert(k, &QByteArray::from(v)));
+            result
         }
     }
 }
-
 pub use qvec::QVec;

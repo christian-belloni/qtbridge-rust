@@ -79,6 +79,8 @@
 pub use bridge;
 #[doc(hidden)]
 pub use qt_gen;
+pub use qt_traits;
+pub use qt_traits::*;
 #[doc(hidden)]
 pub use qt_ifaces;
 pub use qt_type_lib;

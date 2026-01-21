@@ -1,8 +1,6 @@
 use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
 
- use qt_gen_common::naming;
-
 pub fn qml_element(args: TokenStream, input: TokenStream) -> syn::Result<TokenStream> {
     let (item_ts, struct_ident) = get_struct_or_impl_info(input)?;
     let mut is_singleton = false;
@@ -34,7 +32,7 @@ pub fn qml_element(args: TokenStream, input: TokenStream) -> syn::Result<TokenSt
              fn qml_register() {
                 #constructor_body
 
-                let meta_obj_data = <Self as qtbridge::bridge::QMetaInfo>::get_shared_dynamic_meta_object_data();
+                let meta_obj_data = <#struct_ident as qtbridge::bridge::QMetaInfo>::get_shared_dynamic_meta_object_data();
                 let meta_obj = unsafe {
                     meta_obj_data.get_dynamic_qmetaobject()
                         .as_ref()
@@ -68,16 +66,15 @@ pub fn qml_element(args: TokenStream, input: TokenStream) -> syn::Result<TokenSt
 }
 
 fn build_constructor_body(struct_ident: &syn::Ident, is_singleton: bool) -> TokenStream {
-    let impl_details_mod = naming::rust::module::impl_details(&struct_ident.to_string());
 
     if is_singleton {
         quote! {
             pub extern "C"
             fn default_ctor() -> *mut qtbridge::QObject {
                 let instance = std::rc::Rc::new(std::cell::RefCell::new(<#struct_ident as Default>::default()));
-                #impl_details_mod::register_instance_in_map(instance.clone(), true);
-                #impl_details_mod::set_dynamic_meta(&instance);
-                std::ptr::from_mut(#impl_details_mod::get_qobject(&instance.borrow()))
+                <#struct_ident as qtbridge::qt_traits::QObjectHolder>::register_instance_in_map(instance.clone(), true);
+                <#struct_ident as qtbridge::qt_traits::QObjectHolder>::set_dynamic_meta(&instance);
+                std::ptr::from_mut(Self::get_qobject(&instance.borrow()))
             };
         }
     } else {
@@ -85,18 +82,19 @@ fn build_constructor_body(struct_ident: &syn::Ident, is_singleton: bool) -> Toke
             pub extern "C"
             fn default_ctor(addr: *mut u8, _userdata: *mut u8) {
                 let instance = std::rc::Rc::new(std::cell::RefCell::new(<#struct_ident as Default>::default()));
-                #impl_details_mod::register_instance_in_map_with_cpp_proxy_at(addr, instance.clone());
-                #impl_details_mod::set_dynamic_meta(&instance);
+                <#struct_ident as qtbridge::qt_traits::QObjectHolder>::register_instance_in_map_with_cpp_proxy_at(addr, instance.clone());
+                <#struct_ident as qtbridge::qt_traits::QObjectHolder>::set_dynamic_meta(&instance);
             };
         }
     }
 }
 
 fn build_qml_register_call(struct_name: &str, is_singleton: bool) -> TokenStream {
+    let struct_ident = format_ident!("{struct_name}");
     if is_singleton {
         quote! {
             qtbridge::qml_register_singleton(
-                <Self as qtbridge::qt_type_lib::QMetaTypeGet>::get_qmetatype(),
+                <#struct_ident as qtbridge::qt_type_lib::QMetaTypeGet>::get_qmetatype(),
                 default_ctor as usize,
                 uri.as_bytes(),
                 version_major,
@@ -106,12 +104,11 @@ fn build_qml_register_call(struct_name: &str, is_singleton: bool) -> TokenStream
             )
         }
     } else {
-        let impl_details_mod = naming::rust::module::impl_details(struct_name);
         quote! {
             qtbridge::qt_type_lib::qml_register_element(
-                <Self as qtbridge::qt_type_lib::QMetaTypeGet>::get_qmetatype(),
-                #impl_details_mod::ProxyRust::get_qmetatype_list_of_cpp_proxy(),
-                #impl_details_mod::ProxyRust::get_size_of_cpp_proxy() as u32,
+                <#struct_ident as qtbridge::qt_type_lib::QMetaTypeGet>::get_qmetatype(),
+                <#struct_ident as qtbridge::qt_traits::QObjectHolder>::ProxyRust::get_qmetatype_list_of_cpp_proxy(),
+                <#struct_ident as qtbridge::qt_traits::QObjectHolder>::ProxyRust::get_size_of_cpp_proxy() as u32,
                 default_ctor as usize,
                 uri.as_bytes(),
                 version_major,

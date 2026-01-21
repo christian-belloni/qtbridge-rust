@@ -57,7 +57,7 @@ fn require_that_qobject_impl_macro_handles_signals_slots_and_properties() {
             ::std::any::type_name::<SomeStruct>()
         }
         fn get_static_meta_object() -> &'static qtbridge::qt_type_lib::QMetaObject {
-            some_struct_impl_details::ProxyRust::get_static_meta_object()
+            <Self as qtbridge::qt_traits::QObjectHolder>::ProxyRust::get_static_meta_object()
         }
         fn register_meta(
             mut meta_obj: std::pin::Pin<&mut qtbridge::bridge::DynamicMetaObjectData_Rust>,
@@ -154,7 +154,7 @@ fn require_that_qobject_impl_macro_handles_signals_slots_and_properties() {
             meta_data_ref
         }
         fn get_list_meta_type() -> qtbridge::qt_type_lib::QMetaType {
-            some_struct_impl_details::ProxyRust::get_qmetatype_list_of_cpp_proxy()
+            <Self as qtbridge::qt_traits::QObjectHolder>::ProxyRust::get_qmetatype_list_of_cpp_proxy()
         }
     }
 

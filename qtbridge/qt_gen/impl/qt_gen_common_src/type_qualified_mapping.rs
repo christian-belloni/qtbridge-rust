@@ -40,6 +40,13 @@ impl CallOrigin {
         }
     }
 
+    pub fn trait_module(&self) -> Path {
+        match self {
+            CallOrigin::External => parse_quote!(qtbridge::qt_traits),
+            CallOrigin::Internal => parse_quote!(qt_traits),
+        }
+    }
+
 }
 
 impl TypeQualifiedMapping {

@@ -4,16 +4,14 @@
 use proc_macro2::TokenStream;
 use quote::{quote};
 
-use qt_gen_common::naming;
 use qt_gen_common::type_qualified_mapping::CallOrigin;
 
 pub fn generate_qmeta_type_interface_get(struct_ident: &syn::Ident, generics: &syn::Generics, origin: &CallOrigin) -> syn::Result<TokenStream> {
-    let struct_name = struct_ident.to_string();
-    let impl_details_name = naming::rust::module::impl_details(&struct_name);
     let (impl_generics, type_generics, where_clause) = generics.split_for_impl();
     let type_generics_turbofish = type_generics.as_turbofish();
     let type_library = origin.type_module();
     let bridge_library = origin.bridge_module();
+    let trait_library = origin.trait_module();
 
     let code = quote! {
         impl #impl_generics #type_library::QMetaTypeInterfaceGet for #struct_ident #type_generics #where_clause {
@@ -64,7 +62,7 @@ pub fn generate_qmeta_type_interface_get(struct_ident: &syn::Ident, generics: &s
                 #where_clause
                 {
                     let instance = std::rc::Rc::new(std::cell::RefCell::new(<#struct_ident #type_generics_turbofish as Default>::default()));
-                    #impl_details_name::register_instance_in_map_with_cpp_proxy_at(addr, instance);
+                    <#struct_ident #type_generics_turbofish as #trait_library::QObjectHolder>::register_instance_in_map_with_cpp_proxy_at(addr, instance);
                 }
 
                 pub extern "C"
@@ -73,8 +71,8 @@ pub fn generate_qmeta_type_interface_get(struct_ident: &syn::Ident, generics: &s
                 }
 
                 let iface = #type_library::QMetaTypeInterface::fill_fields(
-                    #impl_details_name::ProxyRust::get_align_of_cpp_proxy(),
-                    #impl_details_name::ProxyRust::get_size_of_cpp_proxy(),
+                    <Self as #trait_library::QObjectHolder>::ProxyRust::get_align_of_cpp_proxy(),
+                    <Self as #trait_library::QObjectHolder>::ProxyRust::get_size_of_cpp_proxy(),
                     flags,
                     class_name,
                     meta_object_fn #type_generics_turbofish as usize,

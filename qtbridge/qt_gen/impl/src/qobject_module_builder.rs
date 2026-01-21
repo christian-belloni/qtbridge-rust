@@ -128,13 +128,16 @@ impl QObjectModuleBuilder {
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaTypeInterfaceGet trait.\nError: {}", err)))?;
 
         // Concat additional items to the source items processed
-        output_module_items.push(iface_base_impl.into());
-        output_module_items.push(iface_trait.into());
-        output_module_items.push(qobject_funcs.into());
+        output_module_items.push(iface_base_impl.into());                  // impl block with the base functions
+        output_module_items.push(iface_trait.into());                      // Rust implementation of C++ interface methods
+        output_module_items.push(qobject_funcs.into());                    // Impl block with functions needed to attach, detach and reference QObject
         // TODO: return items below as high level AST but not TokenStreams
-        output_module_items.push(syn::parse2(qmeta_info_impl_tokens)?);
-        output_module_items.push(syn::parse2(qmetatype_iface_get_impl_tokens)?);
-        output_module_items.push(syn::parse2(impl_details)?);
+        output_module_items.push(syn::parse2(qmeta_info_impl_tokens)?);             // impl qtbridge::bridge::QMetaInfo
+        output_module_items.push(syn::parse2(qmetatype_iface_get_impl_tokens)?);    // impl qtbridge::qt_type_lib::QMetaTypeInterfaceGet
+
+        // TODO: this is not very elegant. We should probably return Vec<Item> from the function generating this code
+        let file: syn::File = syn::parse2(impl_details)?;
+        output_module_items.extend(file.items);                                // Functionality called from implementation internals
 
         Ok(syn::ItemMod {
             content: Some((syn::token::Brace::default(), output_module_items)),

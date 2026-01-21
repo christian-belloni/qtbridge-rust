@@ -142,11 +142,6 @@ pub mod rust {
         pub fn proxy_rust_bridge() -> Naming {
             "proxy_rust_bridge".into()
         }
-
-        pub fn impl_details(struct_ident: &(impl std::fmt::Display + ?Sized)) -> Naming {
-            format!("{}_impl_details", crate::case_conv::camel_to_snake(&struct_ident.to_string()))
-                .into()
-        }
     }
 
     pub mod traits {
