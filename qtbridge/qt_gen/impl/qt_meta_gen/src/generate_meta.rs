@@ -105,11 +105,25 @@ fn generate_meta_reg_use_block(signals: &[QSignalInfo], slots: &[QSlotInfo], pro
     let type_library = origin.type_module();
     let bridge_library = origin.bridge_module();
 
-    let use_metatype = if properties.iter().any(|p| p.is_type_deduced_from_member()) {
-        quote! { use #type_library::{QMetaType, QMetaTypeId, get_meta_type_id_of_fn_return_value}; }
-    } else {
-        quote! { use #type_library::{QMetaType, QMetaTypeId}; }
+    let import_type_lib = match origin {
+        CallOrigin::Internal => None,
+        CallOrigin::External => Some(quote! {use #type_library;})
     };
+
+    let import_meta_type =  quote! {
+        use qt_type_lib::{QMetaType, QMetaTypeId};
+    };
+
+    let is_qmeta_type_get_used = properties.iter()
+        .any(|p| p.is_type_deduced_from_member());
+    let import_get_meta_type_id = is_qmeta_type_get_used
+        .then(|| quote! { use qt_type_lib::get_meta_type_id_of_fn_return_value; });
+
+    let is_typed_arg_present =
+        signals.iter()
+            .any(|s| s.get_typed_arg_count() > 0);
+    let import_qmeta_type_get = is_typed_arg_present
+        .then(|| quote! { use qt_type_lib::QMetaTypeGet; });
 
     let mut meta_callbacks = Vec::new();
     if !slots.is_empty() {
@@ -122,7 +136,7 @@ fn generate_meta_reg_use_block(signals: &[QSignalInfo], slots: &[QSlotInfo], pro
         }
     }
 
-    let use_metacallbacks = match meta_callbacks.len() {
+    let import_metacallbacks = match meta_callbacks.len() {
         0 => quote!{},
         1 => {
             let mcb = meta_callbacks.first().unwrap();
@@ -132,8 +146,11 @@ fn generate_meta_reg_use_block(signals: &[QSignalInfo], slots: &[QSlotInfo], pro
     };
 
     quote! {
-        #use_metatype
-        #use_metacallbacks
+        #import_type_lib
+        #import_meta_type
+        #import_get_meta_type_id
+        #import_qmeta_type_get
+        #import_metacallbacks
     }
 }
 

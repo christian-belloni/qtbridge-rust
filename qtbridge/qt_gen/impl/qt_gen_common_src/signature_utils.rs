@@ -82,6 +82,23 @@ pub fn check_signature(sign: &syn::Signature, expect_self: ExpectSelfRef, is_met
     Ok(())
 }
 
+/// Takes a function signature and returns an iterator over its typed arguments,
+/// skipping the `Self` receiver.
+pub fn get_typed_args(sign: &syn::Signature) -> impl Iterator<Item = &syn::PatType> {
+    sign.inputs.iter()
+        .filter_map(|arg| match arg {
+            syn::FnArg::Receiver(_) => None,
+            syn::FnArg::Typed(pat_type) => Some(pat_type),
+        })
+}
+
+/// Takes a function signature and returns an iterator over the types of arguments
+/// skipping the `Self` receiver type.
+pub fn get_typed_args_types(sign: &syn::Signature) -> impl Iterator<Item = &syn::Type> {
+    get_typed_args(sign)
+        .map(|arg| arg.ty.as_ref())
+}
+
 pub fn is_arg_self_ref(arg: &syn::FnArg, expected_mut: Option<bool>) -> bool {
     let syn::FnArg::Receiver(receiver) = arg else {
         return false;

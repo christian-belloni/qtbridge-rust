@@ -62,26 +62,21 @@ fn require_that_qobject_impl_macro_handles_signals_slots_and_properties() {
         fn register_meta(
             mut meta_obj: std::pin::Pin<&mut qtbridge::bridge::DynamicMetaObjectData_Rust>,
         ) {
+            use qt_type_lib::get_meta_type_id_of_fn_return_value;
+            use qt_type_lib::QMetaTypeGet;
+            use qt_type_lib::{QMetaType, QMetaTypeId};
             use qtbridge::bridge::metacallbacks::{
                 property_read_callback_for, property_write_callback_for, slot_callback_for,
             };
-            use qtbridge::qt_type_lib::{get_meta_type_id_of_fn_return_value, QMetaType, QMetaTypeId};
-            meta_obj.as_mut().register_signal(
-                "thisValueChanged",
-                &[QMetaType::new(QMetaTypeId::QString as i32)],
-            );
-            meta_obj.as_mut().register_signal(
-                "otherValueChanged",
-                &[QMetaType::new(QMetaTypeId::Float as i32)],
-            );
-            meta_obj.as_mut().register_signal(
-                "thisStringValueChangedByRef",
-                &[QMetaType::new(QMetaTypeId::QString as i32)],
-            );
-            meta_obj.as_mut().register_signal(
-                "thatStringValueChangedByValue",
-                &[QMetaType::new(QMetaTypeId::QString as i32)],
-            );
+            use qtbridge::qt_type_lib;
+            meta_obj.as_mut()
+                .register_signal("thisValueChanged", &[qt_type_lib::QString::get_qmetatype()]);
+            meta_obj.as_mut()
+                .register_signal("otherValueChanged", &[f32::get_qmetatype()]);
+            meta_obj.as_mut()
+                .register_signal("thisStringValueChangedByRef", &[qt_type_lib::QString::get_qmetatype()]);
+            meta_obj.as_mut()
+                .register_signal("thatStringValueChangedByValue", &[qt_type_lib::QString::get_qmetatype()]);
             meta_obj.as_mut().register_slot(
                 "onThatValueChanged",
                 &[QMetaType::new(QMetaTypeId::QString as i32)],

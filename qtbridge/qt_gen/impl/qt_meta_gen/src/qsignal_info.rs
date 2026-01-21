@@ -2,15 +2,16 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
+use quote::quote;
 use syn::{spanned::Spanned, Ident, LitStr};
 
 use qt_gen_common::case_conv;
 use qt_gen_common::function_with_attributes::{FunctionWithAttributes, BlockOrSemi};
 use qt_gen_common::parse_utils::{parse_name_value, partition_attr_by};
 use qt_gen_common::rust_type_info::RustTypeInfo;
-use qt_gen_common::signature_utils::{check_meta_call_signature, get_arg_ident, get_arg_type_info, get_arg_type_qmeta_type};
+use qt_gen_common::signature_utils::{check_meta_call_signature, get_arg_ident, get_arg_type_info, get_typed_args, get_typed_args_types};
 use qt_gen_common::type_qualified_mapping::CallOrigin;
+use qt_gen_common::type_registry::meta_types::get_qmetatype_support_for_type;
 use crate::traits::{ExpandTokens, QmlName};
 
 #[derive(Default)]
@@ -61,10 +62,7 @@ impl QSignalInfo {
 
     /// Get count of arguments after &self
     pub fn get_typed_arg_count(&self) -> usize {
-        match self.sig.inputs.len() {
-            0 => 0,
-            i => i - 1,
-        }
+        get_typed_args(&self.sig).count()
     }
 
     pub fn get_arg_type(&self, num: usize) -> syn::Result<RustTypeInfo<'_>> {
@@ -79,12 +77,16 @@ impl QSignalInfo {
         let sig = &self.sig;
 
         let name = self.get_qml_name_span().0;
-        let arg_types_qt = sig.inputs.iter()
-            .skip(1)
-            .map(|arg| format_ident!("{}", get_arg_type_qmeta_type(arg).unwrap()));
+        let arg_types_qt = get_typed_args_types(sig)
+            .map(|ty| {
+                let meta_type = get_qmetatype_support_for_type(ty)?
+                    .unwrap_or_else(|| ty.clone());
+                Ok(meta_type)
+            })
+            .collect::<syn::Result<Vec<_>>>()?;
 
         let register_signal = quote!{
-            meta_obj.as_mut().register_signal(#name, &[#(QMetaType::new(QMetaTypeId::#arg_types_qt as i32)),*]);
+            meta_obj.as_mut().register_signal(#name, &[#(#arg_types_qt::get_qmetatype()),*]);
         };
         Ok(register_signal)
     }
