@@ -27,6 +27,11 @@ pub(crate) fn type_to_string(src: &syn::Type) -> syn::Result<String> {
     }
 }
 
+pub fn type_to_string_fallback(src: &syn::Type) -> String {
+    type_to_string(src)
+        .unwrap_or_else(|_| src.to_token_stream().to_string())
+}
+
 pub fn type_array_to_string(src: &syn::TypeArray) -> syn::Result<String> {
     let elm_type = type_to_string(src.elem.as_ref())?;
     let len = expr_to_string(&src.len)?;

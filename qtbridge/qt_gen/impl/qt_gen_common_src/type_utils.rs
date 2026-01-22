@@ -4,7 +4,7 @@
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
-use crate::type_to_string::{path_to_string, type_to_string};
+use crate::type_to_string::type_to_string;
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum ValuePass {
@@ -15,18 +15,20 @@ pub enum ValuePass {
 }
 
 pub fn unwrapped_ref_to_string(ty: &syn::Type) -> syn::Result<String> {
+    type_to_string(unwrapped_ref(ty))
+}
+
+/// Recursively unwraps the type until non-reference type is found
+pub fn unwrapped_ref(ty: &syn::Type) -> &syn::Type {
     let mut unwrapped = ty;
     loop {
         match unwrapped {
-            syn::Type::Path(type_path) => {
-                return path_to_string(&type_path.path);
-            },
-            syn::Type::Reference(type_ref) => {
-                unwrapped = type_ref.elem.as_ref();
-            },
-            _ => return type_to_string(unwrapped),
+            syn::Type::Reference(type_ref) =>
+                unwrapped = &type_ref.elem.as_ref(),
+            _ => break
         }
     }
+    unwrapped
 }
 
 pub fn get_type_pass(ty: &syn::Type) -> ValuePass {

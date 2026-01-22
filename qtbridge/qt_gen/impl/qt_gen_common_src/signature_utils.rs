@@ -82,6 +82,14 @@ pub fn check_signature(sign: &syn::Signature, expect_self: ExpectSelfRef, is_met
     Ok(())
 }
 
+
+pub fn get_typed_arg_type(arg: &syn::FnArg) -> Option<&syn::Type> {
+    match arg {
+        syn::FnArg::Receiver(_) => None,
+        syn::FnArg::Typed(pat_type) => Some(pat_type.ty.as_ref()),
+    }
+}
+
 /// Takes a function signature and returns an iterator over its typed arguments,
 /// skipping the `Self` receiver.
 pub fn get_typed_args(sign: &syn::Signature) -> impl Iterator<Item = &syn::PatType> {
@@ -162,11 +170,14 @@ pub(crate) fn get_typed_arg_type_info(arg: &syn::PatType) -> RustTypeInfo<'_> {
 }
 
 pub fn get_return_type_info(return_type: &syn::ReturnType) -> Option<RustTypeInfo<'_>> {
-    if let syn::ReturnType::Type(_, ty) = &return_type {
-        Some(RustTypeInfo::new(ty.as_ref()))
-    }
-    else {
-        None
+    get_return_type(return_type)
+        .map(RustTypeInfo::new)
+}
+
+pub fn get_return_type(return_type: &syn::ReturnType) -> Option<&syn::Type> {
+    match return_type {
+        syn::ReturnType::Default => None,
+        syn::ReturnType::Type(_rarrow, ty) => Some(ty.as_ref()),
     }
 }
 

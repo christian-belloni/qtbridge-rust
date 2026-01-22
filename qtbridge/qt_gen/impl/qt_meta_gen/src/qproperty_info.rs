@@ -7,7 +7,8 @@ use syn::{parse::Parse, spanned::Spanned};
 
 use qt_gen_common::parse_utils::parse_name_value;
 use qt_gen_common::type_registry::meta_types::get_qmetatype_support_for_type;
-use qt_gen_common::type_utils::{get_take_value_code, ValuePass};
+use qt_gen_common::type_to_string::type_to_string_fallback;
+use qt_gen_common::type_utils::{ValuePass, get_take_value_code, get_type_pass, unwrapped_ref, unwrapped_ref_to_string};
 use crate::qproperty_type_deduction::{deduce_type_from_getter, deduce_type_from_setter};
 use crate::QSignalInfo;
 use crate::traits::{QmlName, find_by_qml_name};
@@ -137,15 +138,19 @@ impl QPropertyInfo {
             None => None,
         };
 
-        let prop_type = if let Some(getter_type) = &getter_type {
-            if let Some(setter_type) = &setter_type {
-                let getter_type_str = getter_type.unwrapped_ref_to_str()?;
-                let setter_type_str = setter_type.unwrapped_ref_to_str()?;
-                if getter_type_str != setter_type_str {
-                    return Err(syn::Error::new(self.write_method.span(), format!("Property has inconsistent Read and Write accessors types: '{getter_type_str}' and '{setter_type_str}'")));
+        let prop_type = if let Some(getter_ty) = &getter_type {
+            if let Some(setter_ty) = &setter_type {
+                let getter_ty_unwrapped = unwrapped_ref(getter_ty);
+                let setter_ty_unwrapped = unwrapped_ref(setter_ty);
+                if getter_ty_unwrapped != setter_ty_unwrapped {
+                    return Err(syn::Error::new(self.write_method.span(),
+                        format!("Property has inconsistent Read and Write accessors types: '{}' and '{}'",
+                            type_to_string_fallback(&getter_ty_unwrapped),
+                            type_to_string_fallback(&setter_ty_unwrapped)
+                        )));
                 }
             }
-            Some(getter_type)
+            Some(getter_ty)
         }
         else if let Some(setter_type) = &setter_type {
             Some(setter_type)
@@ -154,9 +159,9 @@ impl QPropertyInfo {
         };
 
         if let Some(pt) = prop_type {
-            self.accessor_ty = Some(pt.unwrapped_ref_to_str()?);
+            self.accessor_ty = Some(unwrapped_ref_to_string(pt)?);
         }
-        self.write_value_pass = setter_type.map(|s| s.get_value_pass());
+        self.write_value_pass = setter_type.map(|s| get_type_pass(&s));
 
         Ok(())
     }
