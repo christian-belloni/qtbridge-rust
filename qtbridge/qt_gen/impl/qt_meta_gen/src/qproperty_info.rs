@@ -6,7 +6,8 @@ use quote::{format_ident, quote};
 use syn::{parse::Parse, spanned::Spanned};
 
 use qt_gen_common::parse_utils::parse_name_value;
-use qt_gen_common::type_utils::{get_take_value_code, rust_type_to_qmetatype, ValuePass};
+use qt_gen_common::type_registry::meta_types::get_qmetatype_support_for_type;
+use qt_gen_common::type_utils::{get_take_value_code, ValuePass};
 use crate::qproperty_type_deduction::{deduce_type_from_getter, deduce_type_from_setter};
 use crate::QSignalInfo;
 use crate::traits::{QmlName, find_by_qml_name};
@@ -171,21 +172,28 @@ impl QPropertyInfo {
             ..
         } = self;
 
-        let ty_qt = match &accessor_ty {
+        let metatype_expr = match &accessor_ty {
             // Get type of property from getter/setter
-            Some(ty) => {
-                let ty_qt_str = rust_type_to_qmetatype(ty)
-                    .ok_or_else(|| syn::Error::new(*span, format!("Type of qproperty can not be mapped to qt: {}", ty)))?;
-                let ty_ident = format_ident!("{ty_qt_str}");
+            Some(ty_str) => {
+                let mut accessor_type: syn::Type = syn::parse_str(ty_str)
+                    .map_err(|err| syn::Error::new(*span, format!("Failed to parse type '{ty_str}'while evaluating metatype of qproperty.\nError: '{err}'")))?;
+                if let Some(meta_type) = get_qmetatype_support_for_type(&accessor_type)
+                    .map_err(|err| syn::Error::new(*span, format!("Type '{ty_str}' of qproperty can not be mapped to qt.\nError: {err}")))?
+                {
+                    accessor_type = meta_type;
+                }
                 quote! {
-                    QMetaTypeId::#ty_ident
+                    #accessor_type::get_qmetatype()
                 }
             },
+            // Get an expression that will determine metatype using runtime function
+            // (but hopefully will be inlined by the compiler).
+            // Will be removed if we switch to #[qobject].
             None => {
                 let member_var = member.as_ref()
                     .ok_or_else(||syn::Error::new(*span, "Can't deduce type of qproperty neither from accessor nor from member"))?;
                 quote!{
-                    get_meta_type_id_of_fn_return_value(|this: &Self| { &this.#member_var } )
+                    QMetaType::new(get_meta_type_id_of_fn_return_value(|this: &Self| { &this.#member_var } ) as i32)
                 }
             }
         };
@@ -203,13 +211,13 @@ impl QPropertyInfo {
 
         if let Some(write_callback) = write_callback {
             Ok(quote!{
-                meta_obj.as_mut().register_property(#name, &QMetaType::new(#ty_qt as i32), #read_callback, #write_callback, #signal_name);
+                meta_obj.as_mut().register_property(#name, &(#metatype_expr), #read_callback, #write_callback, #signal_name);
             })
         }
         else {
             let is_const = self.is_const();
             Ok(quote!{
-                meta_obj.as_mut().register_property_read_only(#name, &QMetaType::new(#ty_qt as i32), #read_callback, #is_const, #signal_name);
+                meta_obj.as_mut().register_property_read_only(#name, &(#metatype_expr), #read_callback, #is_const, #signal_name);
             })
         }
     }

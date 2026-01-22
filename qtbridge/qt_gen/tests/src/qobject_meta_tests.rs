@@ -87,7 +87,7 @@ fn require_that_qobject_impl_macro_handles_signals_slots_and_properties() {
             );
             meta_obj.as_mut().register_property(
                 "this_value",
-                &QMetaType::new(QMetaTypeId::QString as i32),
+                &(qt_type_lib::QString::get_qmetatype()),
                 property_read_callback_for::<SomeStruct>(|this| this.get_value().into()),
                 property_write_callback_for::<SomeStruct>(|this, value| {
                     let Ok(value) = TryInto::try_into(value) else {
@@ -104,9 +104,9 @@ fn require_that_qobject_impl_macro_handles_signals_slots_and_properties() {
             );
             meta_obj.as_mut().register_property(
                 "otherValue",
-                &QMetaType::new(
+                &(QMetaType::new(
                     get_meta_type_id_of_fn_return_value(|this: &Self| &this.otherValueVar) as i32,
-                ),
+                )),
                 property_read_callback_for::<SomeStruct>(|this| (&this.otherValueVar).into()),
                 property_write_callback_for::<SomeStruct>(|this, value| {
                     let Ok(value) = value.try_into() else {

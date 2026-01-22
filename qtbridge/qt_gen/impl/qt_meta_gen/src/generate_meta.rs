@@ -120,6 +120,8 @@ fn generate_meta_reg_use_block(signals: &[QSignalInfo], slots: &[QSlotInfo], pro
         .then(|| quote! { use qt_type_lib::get_meta_type_id_of_fn_return_value; });
 
     let is_typed_arg_present =
+        (!properties.is_empty() && properties.iter()
+            .any(|p| !p.is_type_deduced_from_member())) ||
         signals.iter()
             .any(|s| s.get_typed_arg_count() > 0) ||
         slots.iter()
