@@ -4,7 +4,7 @@
 use quote::ToTokens;
 use syn::spanned::Spanned;
 
-pub(crate) fn type_to_string(src: &syn::Type) -> syn::Result<String> {
+pub fn type_to_string(src: &syn::Type) -> syn::Result<String> {
     match src {
         syn::Type::Array(type_array) =>
             type_array_to_string(type_array),

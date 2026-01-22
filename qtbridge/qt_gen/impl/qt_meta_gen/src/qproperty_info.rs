@@ -126,43 +126,36 @@ impl QPropertyInfo {
     }
 
     // TODO: pass struct fields for deducing types of 'Member' properties
+    // Sets the property type based on the type deduced from its accessors.
     pub fn set_type(&mut self, struct_methods: &[syn::Signature]) -> syn::Result<()> {
+        let getter_type = self.read_method.as_ref()
+            .map(|getter| deduce_type_from_getter(getter, struct_methods))
+            .transpose()?;
+        let setter_type = self.write_method.as_ref()
+            .map(|setter| deduce_type_from_setter(setter, struct_methods))
+            .transpose()?;
 
-        let getter_type = match &self.read_method {
-            Some(getter) => Some(deduce_type_from_getter(getter, struct_methods)?),
-            None => None,
-        };
+        self.write_value_pass = setter_type.map(get_type_pass);
 
-        let setter_type = match &self.write_method {
-            Some(setter) => Some(deduce_type_from_setter(setter, struct_methods)?),
-            None => None,
-        };
-
-        let prop_type = if let Some(getter_ty) = &getter_type {
-            if let Some(setter_ty) = &setter_type {
-                let getter_ty_unwrapped = unwrapped_ref(getter_ty);
-                let setter_ty_unwrapped = unwrapped_ref(setter_ty);
-                if getter_ty_unwrapped != setter_ty_unwrapped {
+        let prop_type = match (getter_type, setter_type) {
+            (None, None) => return Ok(()),    // No accessor to deduce the type
+            (None, Some(set_ty)) => set_ty,   // Get the type from setter
+            (Some(get_ty), None) => get_ty,   // Get the type from getter
+            (Some(get_ty), Some(set_ty)) => { // Get the type from getter after checking type consistency
+                let get_ty_no_ref = unwrapped_ref(get_ty);
+                let set_ty_no_ref = unwrapped_ref(set_ty);
+                if get_ty_no_ref != set_ty_no_ref {
                     return Err(syn::Error::new(self.write_method.span(),
                         format!("Property has inconsistent Read and Write accessors types: '{}' and '{}'",
-                            type_to_string_fallback(&getter_ty_unwrapped),
-                            type_to_string_fallback(&setter_ty_unwrapped)
+                            type_to_string_fallback(get_ty_no_ref),
+                            type_to_string_fallback(set_ty_no_ref)
                         )));
                 }
-            }
-            Some(getter_ty)
-        }
-        else if let Some(setter_type) = &setter_type {
-            Some(setter_type)
-        } else {
-            None
+                get_ty
+            },
         };
 
-        if let Some(pt) = prop_type {
-            self.accessor_ty = Some(unwrapped_ref_to_string(pt)?);
-        }
-        self.write_value_pass = setter_type.map(|s| get_type_pass(&s));
-
+        self.accessor_ty = Some(unwrapped_ref_to_string(prop_type)?);
         Ok(())
     }
 
