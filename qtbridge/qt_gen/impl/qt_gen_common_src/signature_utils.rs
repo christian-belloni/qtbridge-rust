@@ -9,10 +9,9 @@ use syn::visit_mut::VisitMut;
 use crate::case_conv;
 use crate::qt_alias_mapping::QtAliasMapping;
 use crate::qt_generic_mapping::QtGenericMapping;
-use crate::rust_type_info::RustTypeInfo;
 use crate::type_qualified_mapping::{CallOrigin, TypeQualifiedMapping};
 use crate::type_to_cpp::is_type_mapped_to_cpp;
-use crate::type_utils::{is_ptr, is_rust_type_mapped_to_qmetatype, rust_type_to_qmetatype, unwrapped_ref_to_string};
+use crate::type_utils::{is_ptr, is_rust_type_mapped_to_qmetatype, unwrapped_ref_to_string};
 
 #[derive(PartialEq)]
 pub enum ExpectSelfRef {
@@ -117,27 +116,8 @@ pub fn is_arg_self_ref(arg: &syn::FnArg, expected_mut: Option<bool>) -> bool {
 }
 
 pub fn is_self_mut(sig: &syn::Signature) -> bool {
-    let Some(first_arg) = sig.inputs.first() else {
-        return false;
-    };
-
-    is_arg_self_ref(first_arg, Some(true))
-}
-
-pub fn is_first_arg_self_ref(args: &Punctuated<syn::FnArg, syn::Token![,]>) -> bool {
-    let Some(first_arg) = args.first() else {
-        return false;
-    };
-    is_arg_self_ref(first_arg, None)
-}
-
-pub fn skip_arg_if_self_ref(args: &Punctuated<syn::FnArg, syn::Token![,]>) -> syn::punctuated::Iter<'_, syn::FnArg> {
-    let mut result = args.iter();
-    if is_first_arg_self_ref(args) {
-        result.next();
-    }
-
-    result
+    sig.inputs.first()
+        .is_some_and(|self_arg| is_arg_self_ref(self_arg, Some(true)))
 }
 
 pub fn change_first_arg<P: Default>(new_arg: syn::FnArg, src: &Punctuated<syn::FnArg, P>) -> Punctuated<syn::FnArg, P> {
@@ -149,36 +129,11 @@ pub fn change_first_arg<P: Default>(new_arg: syn::FnArg, src: &Punctuated<syn::F
     args
 }
 
-pub fn get_arg_type_info(arg: &syn::FnArg) -> syn::Result<RustTypeInfo<'_>> {
-    let syn::FnArg::Typed(typed_arg) = arg else {
-        return Err(syn::Error::new(arg.span(), format!("Argument '{}'is not a typed argument", arg.to_token_stream())));
-    };
-
-    Ok(get_typed_arg_type_info(typed_arg))
-}
-
-pub(crate) fn get_typed_arg_type_info(arg: &syn::PatType) -> RustTypeInfo<'_> {
-
-    RustTypeInfo::new(arg.ty.as_ref())
-}
-
-pub fn get_return_type_info(return_type: &syn::ReturnType) -> Option<RustTypeInfo<'_>> {
-    get_return_type(return_type)
-        .map(RustTypeInfo::new)
-}
-
 pub fn get_return_type(return_type: &syn::ReturnType) -> Option<&syn::Type> {
     match return_type {
         syn::ReturnType::Default => None,
         syn::ReturnType::Type(_rarrow, ty) => Some(ty.as_ref()),
     }
-}
-
-pub fn get_arg_type_qmeta_type(arg: &syn::FnArg) -> syn::Result<&str> {
-    let type_info = get_arg_type_info(arg)?;
-    let rust_type_str = type_info.unwrapped_ref_to_str()?;
-    rust_type_to_qmetatype(&rust_type_str)
-        .ok_or_else(|| syn::Error::new(arg.span(), format!("Failed to map type {} to QMetaType", rust_type_str)))
 }
 
 pub fn get_arg_ident(arg: &syn::FnArg) -> syn::Result<syn::Ident> {
@@ -294,7 +249,6 @@ fn return_type_to_str(return_ty: &syn::ReturnType) -> String {
         syn::ReturnType::Type(_arrow, ty) => ty.to_token_stream().to_string(),
     }
 }
-
 
 pub fn get_qualified_args<'a>(args: impl Iterator<Item = &'a syn::FnArg>, type_mapping: CallOrigin) -> syn::Result<Vec<syn::FnArg>> {
     let mut map = TypeQualifiedMapping::new(type_mapping);

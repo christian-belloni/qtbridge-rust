@@ -13,7 +13,6 @@ pub mod parse_utils;
 pub mod path_utils;
 pub mod qt_generic_mapping;
 pub mod qt_alias_mapping;
-pub mod rust_type_info;
 pub mod signature_utils;
 pub mod type_dependencies;
 pub mod type_mapping;

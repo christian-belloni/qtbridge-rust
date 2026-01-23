@@ -143,12 +143,6 @@ static RUST_QMETATYPE_MAP: &'static [(&'static str, &'static str)] = &[
     ("QModelIndex", "QModelIndex"),
 ];
 
-pub fn rust_type_to_qmetatype(rust_type: &str) -> Option<&'static str> {
-    RUST_QMETATYPE_MAP.iter()
-        .find(|(rust, _qt)| *rust == rust_type)
-        .map(|(_rust, qt)| *qt)
-}
-
 pub fn is_rust_type_mapped_to_qmetatype(rust_type: &str) -> bool {
     RUST_QMETATYPE_MAP.iter().any(|(rust, _cpp)| *rust == rust_type)
 }
