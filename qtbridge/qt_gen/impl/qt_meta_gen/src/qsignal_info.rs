@@ -8,8 +8,7 @@ use syn::{spanned::Spanned, Ident, LitStr};
 use qt_gen_common::case_conv;
 use qt_gen_common::function_with_attributes::{FunctionWithAttributes, BlockOrSemi};
 use qt_gen_common::parse_utils::{parse_name_value, partition_attr_by};
-use qt_gen_common::rust_type_info::RustTypeInfo;
-use qt_gen_common::signature_utils::{check_meta_call_signature, get_arg_ident, get_arg_type_info, get_typed_args, get_typed_args_types};
+use qt_gen_common::signature_utils::{check_meta_call_signature, get_arg_ident, get_typed_args, get_typed_args_types};
 use qt_gen_common::type_qualified_mapping::CallOrigin;
 use qt_gen_common::type_registry::meta_types::get_qmetatype_support_for_type;
 use crate::traits::{ExpandTokens, QmlName};
@@ -65,12 +64,10 @@ impl QSignalInfo {
         get_typed_args(&self.sig).count()
     }
 
-    pub fn get_arg_type(&self, num: usize) -> syn::Result<RustTypeInfo<'_>> {
-        let num = num + 1; // get N-th typed argument (after self)
-        let arg = self.sig.inputs.get(num)
-            .ok_or_else(|| syn::Error::new(self.sig.ident.span(), format!("Failed to get typed argument #{}", num)))?;
-
-        get_arg_type_info(arg)
+    pub fn get_arg_type(&self, num: usize) -> syn::Result<&syn::Type> {
+        get_typed_args_types(&self.sig)
+            .nth(num)
+            .ok_or_else(|| syn::Error::new(self.sig.span(), format!("Failed to get typed argument #{num}")))
     }
 
     pub fn get_meta_registration_code(&self) -> syn::Result<TokenStream> {

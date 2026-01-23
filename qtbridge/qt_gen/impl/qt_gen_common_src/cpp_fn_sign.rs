@@ -1,10 +1,10 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use quote::ToTokens;
 use crate::case_conv;
-use crate::signature_utils::{check_signature, get_return_type_info, get_typed_arg_ident, ExpectSelfRef};
+use crate::signature_utils::{ExpectSelfRef, check_signature, get_return_type, get_typed_arg_ident};
 use crate::type_to_cpp::type_to_cpp;
+use crate::type_to_string::type_to_string_fallback;
 
 pub struct CppFnArg {
     rust_type: syn::Type,
@@ -157,12 +157,12 @@ impl CppFnSign {
 }
 
 fn get_cpp_return_type(return_type: &syn::ReturnType) -> syn::Result<Option<String>> {
-    let Some(type_info) = get_return_type_info(return_type) else {
-        return Ok(None);
+    let Some(ty) = get_return_type(return_type) else {
+        return Ok(None)
     };
 
-    let cpp_type_str = type_info.to_cpp_type()
-        .map_err(|err| syn::Error::new(err.span(), format!("Return type '{}' is currently unsupported by the bridge. Error: {}",
-            type_info.get_type().to_token_stream(), err)))?;
-    Ok(Some(cpp_type_str))
+    let cpp = type_to_cpp(ty)
+        .map_err(|err| syn::Error::new(err.span(), format!("Return type '{}' is currently unsupported by the bridge. Error: {err}",
+            type_to_string_fallback(ty))))?;
+    Ok(Some(cpp))
 }

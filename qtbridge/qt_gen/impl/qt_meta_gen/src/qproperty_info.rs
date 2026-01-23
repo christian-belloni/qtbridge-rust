@@ -91,7 +91,7 @@ impl QPropertyInfo {
                     1 => {
                         let prop_type = self.get_accessor_type(); // TODO: handle member as well?
                         if !prop_type.is_empty() {
-                            let signal_arg_type_str = signal.get_arg_type(0)?.unwrapped_ref_to_str()?;
+                            let signal_arg_type_str = unwrapped_ref_to_string(signal.get_arg_type(0)?)?;
                             if prop_type != signal_arg_type_str {
                                 return Err(syn::Error::new(notify_signal.span(), format!("Property/signal types mismatch: '{prop_type}' and '{signal_arg_type_str}'")));
                             }
@@ -281,7 +281,7 @@ impl QPropertyInfo {
                 let signal_name_ident = signal.get_rust_name();
                 let mut signal_arg = None;
                 if signal.get_typed_arg_count() > 0 {
-                    signal_arg = match signal.get_arg_type(0)?.get_value_pass() {
+                    signal_arg = match get_type_pass(signal.get_arg_type(0)?) {
                         ValuePass::ByValue => Some(quote! { this.#member.clone() }),
                         ValuePass::ByConstReference => Some(quote! { &this.#member }),
                         ValuePass::ByMutReference => Some(quote! { &mut this.#member }),

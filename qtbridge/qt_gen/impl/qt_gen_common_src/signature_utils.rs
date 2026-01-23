@@ -12,7 +12,7 @@ use crate::qt_generic_mapping::QtGenericMapping;
 use crate::rust_type_info::RustTypeInfo;
 use crate::type_qualified_mapping::{CallOrigin, TypeQualifiedMapping};
 use crate::type_to_cpp::is_type_mapped_to_cpp;
-use crate::type_utils::{is_rust_type_mapped_to_qmetatype, rust_type_to_qmetatype};
+use crate::type_utils::{is_ptr, is_rust_type_mapped_to_qmetatype, rust_type_to_qmetatype, unwrapped_ref_to_string};
 
 #[derive(PartialEq)]
 pub enum ExpectSelfRef {
@@ -50,16 +50,9 @@ pub fn check_signature(sign: &syn::Signature, expect_self: ExpectSelfRef, is_met
         _ => {},
     }
 
-    let typed_args = skip_arg_if_self_ref(inputs);
-
-    for arg in typed_args {
-        let syn::FnArg::Typed(typed_arg) = arg else {
-            return Err(syn::Error::new(arg.span(), format!("Argument '{}' is not typed", arg.to_token_stream())));
-        };
-
-        let arg_type = get_typed_arg_type_info(typed_arg);
-        let type_str = arg_type
-            .unwrapped_ref_to_str()?;
+    for typed_arg in get_typed_args(sign) {
+        let arg_type = typed_arg.ty.as_ref();
+        let type_str = unwrapped_ref_to_string(arg_type)?;
 
         if is_meta_call {
             // if it's signal, slot, or property accessor then all the arguments
@@ -73,7 +66,7 @@ pub fn check_signature(sign: &syn::Signature, expect_self: ExpectSelfRef, is_met
             }
         }
         else {
-            if !is_type_mapped_to_cpp(arg_type.get_type()) {
+            if !is_type_mapped_to_cpp(arg_type) {
                 return Err(syn::Error::new(typed_arg.ty.span(), format!("Type '{}' of argument is not supported by bridge", type_str)));
             }
         }
@@ -362,8 +355,7 @@ pub fn substitute_qt_aliases_in_signature(src: &mut syn::Signature) -> syn::Resu
 }
 
 pub fn is_unsafe(sign: &syn::Signature) -> bool {
-    sign.inputs.iter()
-        .filter_map(|arg| get_arg_type_info(arg).ok())
-        .chain(get_return_type_info(&sign.output))
-        .any(|t| t.is_ptr())
+    get_typed_args_types(sign)
+        .chain(get_return_type(&sign.output))
+        .any(is_ptr)
 }

@@ -51,6 +51,10 @@ pub fn get_take_value_code(value: &syn::Ident, pass: ValuePass) -> TokenStream {
     }
 }
 
+pub fn is_ptr(ty: &syn::Type) -> bool {
+    matches!(ty, syn::Type::Ptr(_))
+}
+
 pub fn ident_str_to_path(src: &str) -> syn::Path {
     let ident = format_ident!("{src}");
     ident_to_path(ident)
