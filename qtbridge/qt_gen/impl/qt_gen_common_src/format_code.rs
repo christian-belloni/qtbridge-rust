@@ -6,8 +6,49 @@ use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::sync::LazyLock;
 use build_common::file_system_utils::{find_file_upwards, get_manifest_dir};
+use crate::parse_utils::is_not_doc_attribute;
 use proc_macro2::TokenStream;
 use quote::ToTokens;
+
+use syn::{visit_mut::VisitMut, Item, ImplItem};
+struct StripDocs;
+
+impl VisitMut for StripDocs {
+    fn visit_item_mut(&mut self, item: &mut Item) {
+        match item {
+            Item::Fn(item_fn) => item_fn.attrs.retain(is_not_doc_attribute),
+            Item::Struct(item_struct) => item_struct.attrs.retain(is_not_doc_attribute),
+            Item::Enum(item_enum) => item_enum.attrs.retain(is_not_doc_attribute),
+            Item::Impl(item_impl) => item_impl.attrs.retain(is_not_doc_attribute),
+            Item::Mod(item_mod) => item_mod.attrs.retain(is_not_doc_attribute),
+            Item::Const(item_const) => item_const.attrs.retain(is_not_doc_attribute),
+            Item::Type(item_type) => item_type.attrs.retain(is_not_doc_attribute),
+            Item::Macro(item_macro) => item_macro.attrs.retain(is_not_doc_attribute),
+            _ => {}
+        }
+
+        syn::visit_mut::visit_item_mut(self, item);
+    }
+
+    fn visit_impl_item_mut(&mut self, item: &mut ImplItem) {
+        match item {
+            ImplItem::Fn(item_fn) => item_fn.attrs.retain(is_not_doc_attribute),
+            _ => {}
+        }
+        syn::visit_mut::visit_impl_item_mut(self, item);
+    }
+}
+
+/// Removes the documentation from the code. Useful for baseline tests and
+/// compare code.
+/// Note that this function does not strip all types of tokens but is
+/// limited to the specific case of testing qobject_impl.
+/// TODO: Strip documentation of all types of tokens.
+pub fn strip_docs(ts: TokenStream) -> TokenStream {
+    let mut file: syn::File = syn::parse2(ts).unwrap();
+    StripDocs.visit_file_mut(&mut file);
+    file.to_token_stream()
+}
 
 pub fn format_rust_code(tokens: &TokenStream) -> Result<String, String> {
 

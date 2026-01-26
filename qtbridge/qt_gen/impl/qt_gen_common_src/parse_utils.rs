@@ -51,6 +51,10 @@ pub fn is_doc_attribute(attr: &syn::Attribute) -> bool {
     false
 }
 
+pub fn is_not_doc_attribute(attr: &syn::Attribute) -> bool {
+    !is_doc_attribute(attr)
+}
+
 pub fn is_two_segment_path_outer_attribute(attr: &syn::Attribute, seg0_str: &str, seg1_str: &str) -> bool {
     if let syn::AttrStyle::Inner(_) = attr.style  {
         return false;
