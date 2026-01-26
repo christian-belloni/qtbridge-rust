@@ -2,10 +2,24 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use build_common::qt_build::{link_qt_modules, qt_include_dirs};
-use qt_iface_gen::{generated_files_bridge,generated_files_cpp};
+
+const GENERATED_FILES_BRIDGE: [&'static str; 6] = [
+    "src/generated/qabstract_item_model/proxy_cpp_bridge.rs",
+    "src/generated/qabstract_item_model/proxy_rust_bridge.rs",
+    "src/generated/qabstract_list_model/proxy_cpp_bridge.rs",
+    "src/generated/qabstract_list_model/proxy_rust_bridge.rs",
+    "src/generated/qobject/proxy_cpp_bridge.rs",
+    "src/generated/qobject/proxy_rust_bridge.rs",
+];
+
+const GENERATED_FILES_CPP: [&'static str; 3] = [
+    "src/generated/qabstract_item_model/cpp/QAbstractItemModelProxyCpp.cpp",
+    "src/generated/qabstract_list_model/cpp/QAbstractListModelProxyCpp.cpp",
+    "src/generated/qobject/cpp/QObjectProxyCpp.cpp",
+];
 
 fn main() {
-    let mut builder = cxx_build::bridges(generated_files_bridge());
+    let mut builder = cxx_build::bridges(&GENERATED_FILES_BRIDGE);
     builder
         .std("c++17")
         .flag_if_supported("/Zc:__cplusplus")
@@ -14,7 +28,7 @@ fn main() {
         .include("../")
         .include("../utils");
 
-    generated_files_cpp().iter()
+    GENERATED_FILES_CPP.iter()
         .for_each(|file| {
             builder.file(file);
         });

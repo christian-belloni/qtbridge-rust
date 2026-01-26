@@ -27,7 +27,7 @@ members = [
     "qtbridge/qt_gen/impl",
     "qtbridge/qt_gen/impl/qt_gen_common",
     "qtbridge/qt_gen/impl/qt_gen_common_no_types",
-    "qtbridge/qt_gen/impl/qt_iface_gen",
+    # "qtbridge/qt_gen/impl/qt_iface_gen",
     "qtbridge/qt_gen/impl/qt_iface_gen_lib",
     "qtbridge/qt_gen/impl/qt_meta_gen",
     "qtbridge/qt_gen/impl/qt_type_gen",
