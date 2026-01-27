@@ -4,8 +4,9 @@
 use quote::ToTokens;
 use syn::spanned::Spanned;
 
-use crate::type_registry::{Type, TypeCategory};
-use crate::type_registry::type_traits::TypesEnum;
+use crate::type_registry;
+use type_registry::TypeCategory;
+use type_registry::type_traits::TypesEnum;
 
 pub fn is_type_mapped_to_cpp(ty: &syn::Type) -> bool {
     type_to_cpp(ty).is_ok()
@@ -149,7 +150,7 @@ pub fn path_to_cpp(src: &syn::Path) -> syn::Result<String> {
 }
 
 pub fn type_ident_to_cpp(src: &syn::Ident, category: Option<&TypeCategory>) -> syn::Result<String> {
-    let ty = Type::find_by_ident_in_opt_category_result(src, category)?;
+    let ty = type_registry::Type::find_by_ident_in_opt_category_result(src, category)?;
     let ty_info = ty.dyn_type_info();
     let cpp_name = ty_info.cpp_name()
         .ok_or_else(|| syn::Error::new(src.span(), "Type is not convertible to C++"))?;
@@ -164,7 +165,7 @@ fn path_segment_angle_bracketed_to_cpp(src: &syn::PathSegment, category: Option<
         return Err(syn::Error::new(src.span(), "Expected angle bracketed type"))
     };
 
-    let ty = Type::find_by_ident_in_opt_category_result(&src.ident, category)?;
+    let ty = type_registry::Type::find_by_ident_in_opt_category_result(&src.ident, category)?;
     let ty_info = ty.dyn_type_info();
 
     let gen_params_count = ty_info.generic_arg_count();

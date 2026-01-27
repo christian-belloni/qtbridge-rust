@@ -2,7 +2,7 @@ use quote::ToTokens;
 use syn::spanned::Spanned;
 
 use crate::type_registry;
-use type_registry::{QtType, StandardContainer, StandardType, StringType, Type};
+use type_registry::{QtType, StandardContainer, StandardType, StringType};
 use type_registry::qt::generic::{QtGenericArg, QtGenericTypeWithoutArgs};
 use type_registry::type_traits::{FindType, MetaTypeId, TypeInfo, TypeName};
 use crate::type_utils::{get_angle_bracketed_generic_arguments_of_last_path_segment, path_to_type};
@@ -26,7 +26,7 @@ pub fn get_qmetatype_support_for_type(mut src: &syn::Type) -> syn::Result<Option
     match src {
         syn::Type::Path(type_path) => {
             let path = &type_path.path;
-            let ty = Type::find_by_partial_path_result(path)?;
+            let ty = type_registry::Type::find_by_partial_path_result(path)?;
             let meta_id = ty.metatype_id();
 
             match meta_id {
@@ -47,13 +47,13 @@ pub fn get_qmetatype_support_for_type(mut src: &syn::Type) -> syn::Result<Option
 
 /// Handle cases where the given type is not a QMetaType
 /// and requires conversion to an intermediate, supported type.
-fn get_intermediate_type_for_not_metatype(src: &Type, src_path: &syn::Path) -> syn::Result<syn::Type> {
+fn get_intermediate_type_for_not_metatype(src: &type_registry::Type, src_path: &syn::Path) -> syn::Result<syn::Type> {
     let ty = match src {
-        Type::Standard(standard) =>
+        type_registry::Type::Standard(standard) =>
             get_intermediate_type_standard(standard, src_path)?,
-        Type::Cxx(_) =>
+        type_registry::Type::Cxx(_) =>
             return Err(syn::Error::new(src_path.span(), "Cxx types are not supported")),
-        Type::Qt(qt) =>
+        type_registry::Type::Qt(qt) =>
             get_intermediate_type_qt(qt, src_path)?,
     };
     let path = ty.complement_partially_qualified_path(&syn::parse_str(ty.full_name())?)?;
@@ -97,7 +97,7 @@ fn get_intermediate_type_container(src: &StandardContainer, src_path: &syn::Path
                 return Err(syn::Error::new(inter_arg_type_.span(), format!("Type '{}' is unsupported as argument in {src_name} container", inter_arg_type_.to_token_stream())))
             };
             let arg_path = &arg_type_path.path;
-            let arg_ty = Type::find_by_partial_path_result(arg_path)?;
+            let arg_ty = type_registry::Type::find_by_partial_path_result(arg_path)?;
             QtGenericArg::try_from(&arg_ty)
                 .map_err(|_| syn::Error::new(arg_path.span(), format!("Unsupported type of argument for Qt collection: '{}'", arg_ty.name())))
         })

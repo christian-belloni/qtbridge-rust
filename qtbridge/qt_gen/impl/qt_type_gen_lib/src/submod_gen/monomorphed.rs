@@ -4,15 +4,16 @@
 use std::rc::Rc;
 
 use proc_macro2::TokenStream;
-use qt_gen_common_no_types::parse_utils::is_doc_attribute;
-use qt_gen_common_no_types::type_to_string::path_to_string_fallback;
 use quote::{format_ident, quote};
 
 use qt_gen_common_no_types::naming;
+use qt_gen_common_no_types::parse_utils::is_doc_attribute;
 use qt_gen_common_no_types::type_mapping::TypeMapping;
-use qt_gen_common_no_types::type_registry::{QtType, Type};
-use qt_gen_common_no_types::type_registry::qt::generic::QtGenericArg;
-use qt_gen_common_no_types::type_registry::type_traits::{FindType, TypeName};
+use qt_gen_common_no_types::type_registry;
+use qt_gen_common_no_types::type_to_string::path_to_string_fallback;
+use type_registry::QtType;
+use type_registry::qt::generic::QtGenericArg;
+use type_registry::type_traits::{FindType, TypeName};
 
 use crate::function::Function;
 use crate::generic_instantiation_decl::GenericInstantiationDecl;
@@ -81,9 +82,9 @@ impl MonomorphedSubmoduleGenerator {
         let mut types = vec![self.src_struct_ident().clone(), impl_ident];
 
         for (_, gen_path) in self.base.type_map().get_impl().iter() {
-            let ty = Type::find_by_partial_path_result(gen_path)?;
+            let ty = type_registry::Type::find_by_partial_path_result(gen_path)?;
             let qt_type = match ty {
-                Type::Qt(qt_type) => qt_type,
+                type_registry::Type::Qt(qt_type) => qt_type,
                 _ => continue
             };
             types.push(format_ident!("{}", qt_type.name()));

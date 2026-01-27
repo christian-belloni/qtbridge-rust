@@ -7,9 +7,10 @@ use quote::ToTokens;
 use syn::spanned::Spanned;
 use syn::visit::Visit;
 
-use crate::type_registry::{CxxType, QtType, QtTypeSpanned, StandardType, Type};
-use crate::type_registry::qt::generic::QtGenericArg;
-use crate::type_registry::type_traits::FindType;
+use crate::type_registry;
+use type_registry::{CxxType, QtType, QtTypeSpanned, StandardType};
+use type_registry::qt::generic::QtGenericArg;
+use type_registry::type_traits::FindType;
 use crate::type_to_string::path_segment_to_string;
 use crate::type_utils::{are_all_args_generic_idents, get_ident_of_last_path_segment, ident_to_path};
 
@@ -100,11 +101,15 @@ impl TypeTokens {
     }
 
     pub fn insert_ident_type(&mut self, ident: syn::Ident) {
-        match Type::find_by_name(&ident.to_string()) {
-            Some(Type::Standard(standard)) => self.standard.insert(standard.clone()),
-            Some(Type::Cxx(cxx)) => self.cxx.insert(cxx.clone()),
-            Some(Type::Qt(qt)) => self.qt.insert(QtTypeSpanned::new(qt, ident.span())),
-            None => self.unclassified.insert(ident.into())
+        match type_registry::Type::find_by_name(&ident.to_string()) {
+            Some(type_registry::Type::Standard(standard)) =>
+                self.standard.insert(standard.clone()),
+            Some(type_registry::Type::Cxx(cxx)) =>
+                self.cxx.insert(cxx.clone()),
+            Some(type_registry::Type::Qt(qt)) =>
+                self.qt.insert(QtTypeSpanned::new(qt, ident.span())),
+            None =>
+                self.unclassified.insert(ident.into())
         };
     }
 
@@ -258,9 +263,9 @@ impl<'a> Visitor<'a> {
                 .ok_or_else(|| syn::Error::new(src.span(), format!("Path '{}' is invalid", src.to_token_stream())))?;
             // If all the generic arguments are generic idents (e.g. T, K, V, ..)
             // then discard args and handle only generic type ident.
-            Type::find_by_name(&src_ident.to_string())
+            type_registry::Type::find_by_name(&src_ident.to_string())
         } else {
-            Type::find_by_partial_path(src)
+            type_registry::Type::find_by_partial_path(src)
         };
 
         // Try to find type in registry
@@ -272,9 +277,14 @@ impl<'a> Visitor<'a> {
 
         // Add type to corresponding group depending of type category it belongs to
         match type_ {
-            Type::Standard(standard) => { self.tokens.insert_standard(standard.clone()); }
-            Type::Cxx(cxx) => { self.tokens.insert_cxx(cxx.clone()); }
-            Type::Qt(qt) => self.visit_qt_path(qt, src)?,
+            type_registry::Type::Standard(standard) => {
+                self.tokens.insert_standard(standard.clone());
+            }
+            type_registry::Type::Cxx(cxx) => {
+                self.tokens.insert_cxx(cxx.clone());
+            }
+            type_registry::Type::Qt(qt) =>
+                self.visit_qt_path(qt, src)?
         }
 
         // Visit nested items if not qt type

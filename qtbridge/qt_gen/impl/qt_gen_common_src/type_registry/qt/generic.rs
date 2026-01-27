@@ -7,7 +7,6 @@ use syn::spanned::Spanned;
 
 use crate::type_registry;
 use crate::type_registry::StandardType;
-use type_registry::Type;
 use type_registry::TypeCategory;
 use type_registry::type_traits::{FindType, TypeName, TypeInfo};
 use type_registry::primitives::PrimitiveType;
@@ -312,15 +311,15 @@ impl From<QtNonGenericType> for QtGenericArg {
     }
 }
 
-impl TryFrom<&Type> for QtGenericArg {
+impl TryFrom<&type_registry::Type> for QtGenericArg {
     type Error = ();
 
-    fn try_from(value: &Type) -> Result<Self, ()> {
+    fn try_from(value: &type_registry::Type) -> Result<Self, ()> {
         match value {
-            Type::Standard(StandardType::Primitive(primitive)) => {
+            type_registry::Type::Standard(StandardType::Primitive(primitive)) => {
                 return Ok((*primitive).clone().into())
             },
-            Type::Qt(QtType::NonGeneric(qt_non_generic)) => {
+            type_registry::Type::Qt(QtType::NonGeneric(qt_non_generic)) => {
                 return Ok(qt_non_generic.clone().into())
             },
             _ => {},
@@ -363,7 +362,7 @@ impl TryFrom<&syn::Path> for QtGenericArg {
                 _ => return Err(syn::Error::new(path.span(), "Qt types other than non generic are not supported currently as elements of another generic type")),
             }
         }
-        if let Some(ty) = Type::find_by_partial_path(path) {
+        if let Some(ty) = type_registry::Type::find_by_partial_path(path) {
             return Err(syn::Error::new(path.span(), format!("Type '{}' is not supported as elements of Qt generic type", ty.qualified_path_string())))
         }
 
