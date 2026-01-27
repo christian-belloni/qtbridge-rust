@@ -6,7 +6,6 @@ use proc_macro::TokenStream;
 use qt_gen_common::type_qualified_mapping::CallOrigin;
 
 // TODO: add documentation here.
-#[doc(hidden)]
 #[proc_macro_attribute]
 pub fn qobject(args: TokenStream, input: TokenStream) -> TokenStream {
     let mut builder = qt_gen_impl::QObjectModuleBuilder::new(CallOrigin::External);
@@ -17,6 +16,7 @@ pub fn qobject(args: TokenStream, input: TokenStream) -> TokenStream {
     output.into()
 }
 
+#[doc(hidden)]
 #[proc_macro_attribute]
 pub fn qobject_internal(args: TokenStream, input: TokenStream) -> TokenStream {
     let mut builder = qt_gen_impl::QObjectModuleBuilder::new(CallOrigin::Internal);
@@ -429,7 +429,6 @@ pub fn qobject_impl(args: TokenStream, input: TokenStream) -> TokenStream {
     };
     output.into()
 }
-
 #[doc(hidden)]
 #[proc_macro_attribute]
 pub fn qobject_impl_internal(args: TokenStream, input: TokenStream) -> TokenStream {

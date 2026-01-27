@@ -8,6 +8,7 @@ mod backend {
 
     use qtbridge::qml_element;
     use qtbridge::qt_type_lib::{QModelIndex, QVariant};
+    use qtbridge::{QAbstractListModel, QAbstractListModelBase};
 
     #[derive(Default)]
     #[qml_element]
@@ -15,18 +16,15 @@ mod backend {
         string_list: Vec<String>,
     }
 
-    impl Backend {
-        #[overridden]
+    impl QAbstractListModel for Backend {
         fn row_count(&self, _index: &QModelIndex) -> i32 {
             self.string_list.len() as i32
         }
 
-        #[overridden]
         fn data(&self, index: &QModelIndex, _role: i32) -> QVariant {
             QVariant::from(&self.string_list[index.row() as usize])
         }
 
-        #[overridden]
         fn remove_rows(&mut self, first: i32, count: i32, parent: &QModelIndex) -> bool {
             let first = first as usize;
             let last = first + count as usize;
@@ -40,7 +38,6 @@ mod backend {
             true
         }
 
-        #[overridden]
         fn set_data(&mut self, index: &QModelIndex, value: &QVariant, _role: i32) -> bool {
             if let Ok(value_str) = String::try_from(value) {
                 if !self.string_list.contains(&value_str) {
@@ -52,7 +49,9 @@ mod backend {
             }
             return false;
         }
+    }
 
+    impl Backend {
         #[qslot]
         fn add_string(&mut self, value: &str) {
             match self.string_list.contains(&value.to_string()) {

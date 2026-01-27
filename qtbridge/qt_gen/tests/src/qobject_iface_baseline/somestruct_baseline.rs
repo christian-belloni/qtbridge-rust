@@ -5,165 +5,30 @@ mod some_module {
         fn set_data(&mut self, index: &QModelIndex, value: &QVariant, role: i32) -> bool {
             false
         }
-        fn d_data_(&self, index: &QModelIndex, role: i32) -> QVariant {}
+        fn data(&self, index: &QModelIndex, role: i32) -> QVariant {}
         fn row_count(&self, parent: &QModelIndex) -> i32 {
             1
         }
     }
-    impl SomeStruct {
-        fn index(
+    impl qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelBase for SomeStruct {}
+    impl qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelProxyGet for SomeStruct {
+        fn get_rust_proxy(
             &self,
-            row: i32,
-            column: i32,
-            parent: &qtbridge::qt_type_lib::QModelIndex,
-        ) -> qtbridge::qt_type_lib::QModelIndex {
-            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy(self);
-            proxy.base_index(row, column, parent)
+        ) -> &qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelProxyRust {
+            <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy(self)
         }
-        fn role_names(
+        fn get_rust_proxy_mut(
             &self,
-        ) -> qtbridge::qt_type_lib::QHash<i32, qtbridge::qt_type_lib::QByteArray> {
-            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy(self);
-            proxy.base_role_names()
+        ) -> &mut qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelProxyRust {
+            <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy_mut(self)
         }
-        fn base_set_data(
+        fn get_trait(&self) -> &dyn qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModel {
+            self
+        }
+        fn get_trait_mut(
             &mut self,
-            index: &qtbridge::qt_type_lib::QModelIndex,
-            value: &qtbridge::qt_type_lib::QVariant,
-            role: i32,
-        ) -> bool {
-            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy_mut(self);
-            proxy.base_set_data(index, value, role)
-        }
-        fn remove_rows(
-            &mut self,
-            first: i32,
-            count: i32,
-            parent: &qtbridge::qt_type_lib::QModelIndex,
-        ) -> bool {
-            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy_mut(self);
-            proxy.base_remove_rows(first, count, parent)
-        }
-        fn sibling(
-            &self,
-            row: i32,
-            column: i32,
-            idx: &qtbridge::qt_type_lib::QModelIndex,
-        ) -> qtbridge::qt_type_lib::QModelIndex {
-            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy(self);
-            proxy.base_sibling(row, column, idx)
-        }
-        fn data_changed(
-            &mut self,
-            topLeft: &qtbridge::qt_type_lib::QModelIndex,
-            bottomRight: &qtbridge::qt_type_lib::QModelIndex,
-        ) {
-            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy_mut(self);
-            proxy.base_data_changed(topLeft, bottomRight)
-        }
-        fn begin_insert_rows(
-            &mut self,
-            parent: &qtbridge::qt_type_lib::QModelIndex,
-            first: i32,
-            last: i32,
-        ) {
-            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy_mut(self);
-            proxy.base_begin_insert_rows(parent, first, last)
-        }
-        fn end_insert_rows(&mut self) {
-            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy_mut(self);
-            proxy.base_end_insert_rows()
-        }
-        fn begin_move_rows(
-            &mut self,
-            sourceParent: &qtbridge::qt_type_lib::QModelIndex,
-            sourceFirst: i32,
-            sourceLast: i32,
-            destinationParent: &qtbridge::qt_type_lib::QModelIndex,
-            destinationChild: i32,
-        ) {
-            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy_mut(self);
-            proxy.base_begin_move_rows(
-                sourceParent,
-                sourceFirst,
-                sourceLast,
-                destinationParent,
-                destinationChild,
-            )
-        }
-        fn end_move_rows(&mut self) {
-            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy_mut(self);
-            proxy.base_end_move_rows()
-        }
-        fn begin_remove_rows(
-            &mut self,
-            parent: &qtbridge::qt_type_lib::QModelIndex,
-            first: i32,
-            last: i32,
-        ) {
-            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy_mut(self);
-            proxy.base_begin_remove_rows(parent, first, last)
-        }
-        fn end_remove_rows(&mut self) {
-            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy_mut(self);
-            proxy.base_end_remove_rows()
-        }
-        fn begin_reset_model(&mut self) {
-            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy_mut(self);
-            proxy.base_begin_reset_model()
-        }
-        fn end_reset_model(&mut self) {
-            let proxy = <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy_mut(self);
-            proxy.base_end_reset_model()
-        }
-    }
-    impl qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModel for SomeStruct {
-        fn index(
-            &self,
-            row: i32,
-            column: i32,
-            parent: &qtbridge::qt_type_lib::QModelIndex,
-        ) -> qtbridge::qt_type_lib::QModelIndex {
-            SomeStruct::index(self, row, column, parent)
-        }
-        fn row_count(&self, parent: &qtbridge::qt_type_lib::QModelIndex) -> i32 {
-            SomeStruct::row_count(self, parent)
-        }
-        fn data(
-            &self,
-            index: &qtbridge::qt_type_lib::QModelIndex,
-            role: i32,
-        ) -> qtbridge::qt_type_lib::QVariant {
-            SomeStruct::d_data_(self, index, role)
-        }
-        fn role_names(
-            &self,
-        ) -> qtbridge::qt_type_lib::QHash<i32, qtbridge::qt_type_lib::QByteArray> {
-            SomeStruct::role_names(self)
-        }
-        fn set_data(
-            &mut self,
-            index: &qtbridge::qt_type_lib::QModelIndex,
-            value: &qtbridge::qt_type_lib::QVariant,
-            role: i32,
-        ) -> bool {
-            SomeStruct::set_data(self, index, value, role)
-        }
-        fn remove_rows(
-            &mut self,
-            first: i32,
-            count: i32,
-            parent: &qtbridge::qt_type_lib::QModelIndex,
-        ) -> bool {
-            SomeStruct::remove_rows(self, first, count, parent)
-        }
-        fn sibling(
-            &self,
-            row: i32,
-            column: i32,
-            idx: &qtbridge::qt_type_lib::QModelIndex,
-        ) -> qtbridge::qt_type_lib::QModelIndex {
-            SomeStruct::sibling(self, row, column, idx)
+        ) -> &mut dyn qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModel {
+            self
         }
     }
     impl SomeStruct {
@@ -347,7 +212,9 @@ mod some_module {
             let key = (*rust_obj_rc).as_ptr() as *const u8;
             Self::try_borrow_mut_proxies_map(|proxies| {
                 let dyn_rc: Rc<
-                    RefCell<dyn qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModel>,
+                    RefCell<
+                        dyn qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelProxyGet,
+                    >,
                 > = rust_obj_rc;
                 let proxy_ptr = Self::ProxyRust::new(
                     &dyn_rc,
@@ -366,7 +233,9 @@ mod some_module {
             let key = (*rust_obj_rc).as_ptr() as *const u8;
             Self::try_borrow_mut_proxies_map(|proxies| {
                 let dyn_rc: Rc<
-                    RefCell<dyn qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModel>,
+                    RefCell<
+                        dyn qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelProxyGet,
+                    >,
                 > = rust_obj_rc;
                 let proxy_ptr = Self::ProxyRust::new_with_cpp_proxy_at(
                     addr,

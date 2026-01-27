@@ -148,7 +148,7 @@ pub mod rust {
         use crate::Naming;
 
         pub fn iface_trait(cpp_iface_name: &impl std::fmt::Display) -> Naming {
-            format!("{cpp_iface_name}").into()
+            format!("{cpp_iface_name}ProxyGet").into()
         }
     }
 

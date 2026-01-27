@@ -8,6 +8,7 @@ use qtbridge::{qobject, QApp};
 #[qobject(Base = QAbstractItemModel)]
 mod backend {
     use qtbridge::qt_type_lib::{QVariant, QModelIndex};
+    use qtbridge::{QAbstractItemModel, QAbstractItemModelBase};
 
     #[derive(Default)]
     pub struct Backend<T>
@@ -27,20 +28,20 @@ mod backend {
         }
     }
 
-    impl<T> Backend<T>
+    impl<T> QAbstractItemModel for Backend<T>
         where
         T: 'static + Default,
         for<'a> qtbridge::qt_type_lib::QVariant: From<&'a T>,
     {
-        #[overridden]
+
         fn index(&self, row: i32, column: i32, _parent: &QModelIndex) -> QModelIndex {
             self.create_index(row, column, 0)
         }
-        #[overridden]
+
         fn parent(&self, _child: &QModelIndex) -> QModelIndex {
             QModelIndex::default()
         }
-        #[overridden]
+
         fn row_count(&self, parent: &QModelIndex) -> i32 {
             if !parent.is_valid() {
                 self.data.len() as i32
@@ -48,15 +49,15 @@ mod backend {
                 0
             }
         }
-        #[overridden]
+
         fn column_count(&self, _parent: &QModelIndex) -> i32 {
             1
         }
-        #[overridden]
+
         fn data(&self, index: &QModelIndex, _role: i32) -> QVariant {
             QVariant::from(&self.data[index.row() as usize])
         }
-        #[overridden]
+
         fn set_data(&mut self, _index: &QModelIndex, _value: &QVariant, _role: i32) -> bool {
             false
         }

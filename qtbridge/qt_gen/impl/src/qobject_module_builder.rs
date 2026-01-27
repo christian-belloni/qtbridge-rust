@@ -4,8 +4,6 @@ use quote::{ToTokens, format_ident, quote};
 use syn::spanned::Spanned;
 
 use qt_gen_common::function_with_attributes::FunctionWithAttributes;
-use qt_iface_gen_lib::{InterfaceDesc, MethodOverride};
-use crate::iface_impl::InterfaceImpl;
 use qt_gen_common::parse_utils::is_path_with_segments_str;
 use qt_gen_common::type_utils::get_ident_of_last_path_segment;
 use qt_meta_gen::generate_meta::{QMetaInfoContext, generate_qmetainfo_trait_impl};
@@ -13,9 +11,8 @@ use qt_meta_gen::generate_qmetatype_interface_get::generate_qmeta_type_interface
 use qt_meta_gen::traits::{QmlName, find_duplicate_by_qml_name};
 use qt_meta_gen::{ExpandTokens, QClassInfo, QPropertyInfo, QSignalInfo, QSlotInfo};
 
-use crate::qobject_impl::{check_if_generated_functions_conflict_wth_client_code};
 use crate::qobject_module_params::QObjectModuleParams;
-
+use crate::iface_impl::InterfaceImpl;
 
 pub struct QObjectModuleBuilder {
     origin: CallOrigin,
@@ -25,7 +22,6 @@ pub struct QObjectModuleBuilder {
     signals: Vec<QSignalInfo>,
     slots: Vec<QSlotInfo>,
     properties: Vec<QPropertyInfo>,
-    overrides: Vec<MethodOverride>,
     class_infos: Vec<QClassInfo>,
     other_methods: Vec<syn::Signature>,
     is_drop_found: bool,
@@ -42,7 +38,6 @@ impl QObjectModuleBuilder {
             struct_fields: syn::parse_quote!{{}},
             slots: Vec::new(),
             properties: Vec::new(),
-            overrides: Vec::new(),
             class_infos: Vec::new(),
             other_methods: Vec::new(),
             is_drop_found: false,
@@ -78,22 +73,13 @@ impl QObjectModuleBuilder {
 
         // Code generation for QObject interface implementation
         // Load interface from description file
-        let iface_desc = match params.base() {
-            Some(base) => InterfaceDesc::new_from_ident(base),
-            None => InterfaceDesc::new_from_name_str("QObject"),
-        }?;
-        let iface_name = iface_desc.get_ident().to_string();
+        let iface_ident = match params.base() {
+            Some(base) => base.clone(),
+            None => syn::parse_str::<syn::Ident>("QObject")?,
+        };
 
         // Generate the implementation of the interface.
-        let struct_ident = &self.struct_ident;
-        let iface_impl = InterfaceImpl::new(struct_ident.clone(), self.struct_generics.clone(), self.overrides.clone(), iface_desc, self.origin.clone())?;
-        let unimpl_methods = iface_impl.get_unimplemented_pure_methods()?;
-        if !unimpl_methods.is_empty() {
-            // TODO: Check if suitable methods are in 'other_methods' but not marked as #[overridden]?
-            return Err(syn::Error::new(iface_name.span(),
-                format!("Some of pure virtual methods of interface '{iface_name}' are not overridden in '{}':\n{}",
-                    struct_ident, unimpl_methods.join(", "))));
-        }
+        let iface_impl = InterfaceImpl::new(self.struct_ident.clone(), iface_ident.clone(), self.struct_generics.clone(), self.origin.clone())?;
 
         // Generate blocks of code that will be added to expanded code.
         let drop_impl = self.generate_drop_trait_if_missing()?;
@@ -101,28 +87,17 @@ impl QObjectModuleBuilder {
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation details block.\nError:{err}")))?;
         let qobject_funcs = iface_impl.generate_qobject_funcs()
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate code block with auxiliary functions.\nError:{err}")))?;
-        let iface_base_impl = iface_impl.generate_iface_base_impl()
-            .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate code block with base functions of given interface.\nError:{err}")))?;
-        let iface_trait = iface_impl.generate_iface_trait_impl()
-            .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate code block with interface functions implementation.\nError:{err}")))?;
+        let iface_proxy_get_trait = iface_impl.generate_iface_proxy_get_trait_impl()
+            .map_err(|err: syn::Error| syn::Error::new(err.span(), format!("Failed to generate code block with interface functions implementation.\nError:{err}")))?;
+        let iface_trait = iface_impl.generate_iface_base_trait_impl()
+            .map_err(|err: syn::Error| syn::Error::new(err.span(), format!("Failed to generate code block with interface functions implementation.\nError:{err}")))?;
 
-        let iface_base_func_names = iface_base_impl.items.iter()
-            .filter_map(|item| match item {
-                syn::ImplItem::Fn(item_fn) => Some(item_fn.sig.ident.to_string()),
-                _ => None,
-            })
-            .collect::<Vec<_>>();
-
-        if let Some(conflict) = check_if_generated_functions_conflict_wth_client_code(iface_base_func_names.iter(), &self.other_methods) {
-            // TODO: check signal & slot functions in addition to other_methods
-            return Err(syn::Error::new(conflict.span(), format!("Function generated for interface implementation conflicts with user function '{conflict}'")));
-        }
 
         // TODO: pass QObjectModule to generate_qmetainfo_trait_impl() instead
         let ctx = QMetaInfoContext {
             struct_ident: &self.struct_ident,
             generics: &self.struct_generics,
-            cpp_iface_name: &iface_name,
+            cpp_iface_name: &iface_ident.to_string(),
             signals: &self.signals,
             slots: &self.slots,
             properties: &self.properties,
@@ -132,12 +107,13 @@ impl QObjectModuleBuilder {
         // Generate traits code.
         let qmeta_info_impl_tokens = generate_qmetainfo_trait_impl(&ctx, &self.origin)
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaInfo trait.\nError: {}", err)))?;
-        let qmetatype_iface_get_impl_tokens = generate_qmeta_type_interface_get(struct_ident, &self.struct_generics, &self.origin)
+        let qmetatype_iface_get_impl_tokens = generate_qmeta_type_interface_get(&self.struct_ident, &self.struct_generics, &self.origin)
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaTypeInterfaceGet trait.\nError: {}", err)))?;
 
         // Concat additional items to the source items processed
-        output_module_items.push(iface_base_impl.into());                  // impl block with the base functions
+        // output_module_items.push(iface_base_impl.into());                  // impl block with the base functions
         output_module_items.push(iface_trait.into());                      // Rust implementation of C++ interface methods
+        output_module_items.push(iface_proxy_get_trait.into());
         output_module_items.push(qobject_funcs.into());                    // Impl block with functions needed to attach, detach and reference QObject
         if let Some(drop) = drop_impl {
             output_module_items.push(drop.into());
@@ -315,11 +291,7 @@ impl QObjectModuleBuilder {
             output = signal.expand_tokens()?;
             self.signals.push(signal);
         }
-        else if MethodOverride::is_for_me(meta_attr) {
-            let method = MethodOverride::new(func)?;
-            output = method.expand_tokens()?;
-            self.overrides.push(method);
-        } else {
+        else {
             unreachable!()
         }
 
@@ -389,8 +361,7 @@ impl QObjectModuleBuilder {
         let meta_attrs: Vec<_> = input.iter()
             .filter(|attr|
                 QSlotInfo::is_for_me(attr) ||
-                QSignalInfo::is_for_me(attr) ||
-                MethodOverride::is_for_me(attr)
+                QSignalInfo::is_for_me(attr)
             )
             .take(2)
             .collect();

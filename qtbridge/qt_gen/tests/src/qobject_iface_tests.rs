@@ -17,17 +17,14 @@ pub fn require_that_qobject_macro_generates_interface_impl_code_that_agrees_with
             }
 
             impl SomeStruct {
-                #[overridden]
                 fn set_data(&mut self, index: &QModelIndex, value: &QVariant, role: i32 ) -> bool {
                     false
                 }
 
-                #[overridden(cpp_name="data")]
-                fn d_data_(&self, index: &QModelIndex, role: i32) -> QVariant {
+                fn data(&self, index: &QModelIndex, role: i32) -> QVariant {
                     //QVariant::default()
                 }
 
-                #[overridden]
                 fn row_count(&self, parent: &QModelIndex) -> i32 {
                     1
                 }

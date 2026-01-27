@@ -5,3 +5,10 @@
 pub mod qabstract_item_model;
 pub mod qabstract_list_model;
 pub mod qobject;
+
+pub use qabstract_item_model::{QAbstractItemModel, QAbstractItemModelBase};
+pub use qabstract_list_model::{QAbstractListModel, QAbstractListModelBase};
+// TODO: Figure out what to do with this trait. It is not really required and might
+// collide with other names
+pub use qobject::{QObject, QObjectBase};
+

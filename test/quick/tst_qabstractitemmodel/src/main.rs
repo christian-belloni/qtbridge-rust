@@ -113,6 +113,7 @@ mod backend {
 
     use super::Row;
     use qtbridge::qt_type_lib::{QVariant, QModelIndex};
+    use qtbridge::{QAbstractItemModel, QAbstractItemModelBase};
 
     pub struct Backend {
         root: Row,
@@ -170,8 +171,7 @@ mod backend {
         }
     }
 
-    impl Backend {
-        #[overridden]
+    impl QAbstractItemModel for Backend {
         fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex {
             if parent.is_valid() {
                 let parent_ptr = parent.internal_pointer() as *const Row;
@@ -193,7 +193,6 @@ mod backend {
             return QModelIndex::default();
         }
 
-        #[overridden]
         fn parent(&self, child: &QModelIndex) -> QModelIndex {
             if child.is_valid() {
                 let child_ptr: *const Row = child.internal_pointer() as *const Row;
@@ -211,7 +210,6 @@ mod backend {
             return QModelIndex::default();
         }
 
-        #[overridden]
         fn row_count(&self, parent: &QModelIndex) -> i32 {
             let parent_ptr: *const Row = parent.internal_pointer() as *const Row;
             if !parent_ptr.is_null() {
@@ -221,7 +219,6 @@ mod backend {
             return self.root.row_count() as i32;
         }
 
-        #[overridden]
         fn column_count(&self, parent: &QModelIndex) -> i32 {
             // columns are usually the same for all rows. At least that is what the views expect
             let parent_ptr: *const Row = parent.internal_pointer() as *const Row;
@@ -232,7 +229,6 @@ mod backend {
             return self.root.column_count() as i32;
         }
 
-        #[overridden]
         fn data(&self, index: &QModelIndex, role: i32) -> QVariant {
             if index.is_valid() {
                 let ptr = index.internal_pointer() as *const Row;
@@ -246,7 +242,6 @@ mod backend {
             return QVariant::default();
         }
 
-        #[overridden]
         fn set_data(&mut self, _index: &QModelIndex, _value: &QVariant, _role: i32) -> bool {
             false
         }

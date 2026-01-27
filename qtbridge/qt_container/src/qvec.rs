@@ -374,7 +374,7 @@ mod qvec
     use std::fmt;
     use std::slice::SliceIndex;
     use qt_type_lib::{QByteArray, QHash, QModelIndex, QVariant};
-
+    use qt_ifaces::{QAbstractItemModel, QAbstractItemModelBase};
     pub struct QVec<T>
     where
         T: crate::QModelItem + Default + 'static
@@ -506,17 +506,26 @@ mod qvec
     where
         T: crate::QModelItem + Default + 'static
     {
-        #[overridden]
+        fn map_role_to_element_id(&self, role: i32) -> i32 {
+            if role > 0x6 {
+                return role - 0x100;
+            }
+            role
+        }
+    }
+
+    impl<T> QAbstractItemModel for QVec<T>
+    where
+        T: crate::QModelItem + Default + 'static
+    {
         fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex {
             self.create_index(row, column, parent.internal_pointer())
         }
 
-        #[overridden]
         fn parent(&self, _child: &QModelIndex) -> QModelIndex {
             QModelIndex::default()
         }
 
-        #[overridden]
         fn row_count(&self, parent: &QModelIndex) -> i32 {
             if parent.is_valid() {
                 return 0;
@@ -524,19 +533,10 @@ mod qvec
             self.data.len() as i32
         }
 
-        #[overridden]
         fn column_count(&self, _parent: &QModelIndex) -> i32 {
             1
         }
 
-        fn map_role_to_element_id(&self, role: i32) -> i32 {
-            if role > 0x6 {
-                return role - 0x100;
-            }
-            role
-        }
-
-        #[overridden]
         fn data(&self, index: &QModelIndex, role: i32) -> QVariant {
             if !index.is_valid() {
                 return QVariant::default()
@@ -565,7 +565,6 @@ mod qvec
             }
         }
 
-        #[overridden]
         fn set_data(&mut self, index: &QModelIndex, value: &QVariant, role: i32) -> bool {
             if !index.is_valid() {
                 return false;
@@ -594,7 +593,6 @@ mod qvec
             }
         }
 
-        #[overridden]
         fn role_names(&self)-> QHash<i32, QByteArray> {
             let names = T::role_names();
             // TODO: If names is empty, we could revert to

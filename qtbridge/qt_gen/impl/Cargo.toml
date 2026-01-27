@@ -13,7 +13,7 @@ quote.workspace = true
 syn.workspace = true
 qt_gen_common = { path = "qt_gen_common" }
 qt_gen_common_no_types = { path = "qt_gen_common_no_types" }
-qt_iface_gen_lib = { path = "qt_iface_gen_lib" }
+# qt_iface_gen_lib = { path = "qt_iface_gen_lib" }
 qt_meta_gen = { path = "qt_meta_gen" }
 
 [build-dependencies]

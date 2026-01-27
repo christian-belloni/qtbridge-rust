@@ -1,8 +1,6 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use std::collections::BTreeSet;
-
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 use syn::{spanned::Spanned, Ident};
@@ -10,7 +8,6 @@ use syn::{spanned::Spanned, Ident};
 use qt_gen_common::parse_utils::parse_name_value;
 use qt_gen_common::function_with_attributes::FunctionWithAttributes;
 use qt_gen_common::type_qualified_mapping::CallOrigin;
-use qt_iface_gen_lib::{InterfaceDesc, MethodOverride};
 use crate::iface_impl::InterfaceImpl;
 use qt_meta_gen::generate_meta::{generate_qmetainfo_trait_impl, QMetaInfoContext};
 use qt_meta_gen::generate_qmetatype_interface_get::generate_qmeta_type_interface_get;
@@ -21,8 +18,8 @@ pub struct QObjectImplOutput {
     /// Content of 'impl' block after the macro expansion (Qt-specific annotations removed, signals expanded, etc)
     pub new_impl: TokenStream,
 
-    /// 'impl' block containing base functions from C++ interface (both virtual and not)
-    pub iface_base_impl: syn::ItemImpl,
+    // implementation of trait has to be generated at macro expansion time
+    pub iface_proxy_get_trait: syn::ItemImpl,
 
     // implementation of trait consisting of virtual methods of C++ interface
     pub iface_trait: syn::ItemImpl,
@@ -44,14 +41,11 @@ impl QObjectImplOutput {
     // Implement as regular function but not as ToTokens trait
     // not to add a 'quote' dependency to qt_gen project
     pub fn to_token_stream(&self) -> TokenStream {
-        let Self{ new_impl, iface_base_impl, iface_trait, qobject_funcs, qmeta_info_impl, qmetatype_iface_get_impl, impl_details } = &self;
-
-        let iface_base_impl = (!iface_base_impl.items.is_empty())
-            .then(|| iface_base_impl.to_token_stream());
+        let Self{ new_impl, iface_proxy_get_trait, iface_trait, qobject_funcs, qmeta_info_impl, qmetatype_iface_get_impl, impl_details } = &self;
 
         quote!{
             #new_impl
-            #iface_base_impl
+            #iface_proxy_get_trait
             #iface_trait
             #qobject_funcs
             #qmeta_info_impl
@@ -85,7 +79,6 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream, origin: &CallOrigin
     let mut signals    = Vec::<QSignalInfo>::new();
     let mut slots      = Vec::<QSlotInfo>::new();
     let mut properties = Vec::<QPropertyInfo>::new();
-    let mut overrides  = Vec::<MethodOverride>::new();
     let mut items_out  = Vec::<syn::ImplItem>::new();
     let mut class_infos = Vec::<QClassInfo>::new();
 
@@ -109,10 +102,6 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream, origin: &CallOrigin
             },
             Some(QObjectImplItem::Property(property)) => {
                 properties.push(property);
-            },
-            Some(QObjectImplItem::Override(method)) => {
-                item_out_tokens = method.expand_tokens()?;
-                overrides.push(method);
             },
             Some(QObjectImplItem::ClassInfo(class_info)) => {
                 class_infos.push(class_info);
@@ -143,44 +132,29 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream, origin: &CallOrigin
         }
     }
 
-    // Code generation for QObject interface implementation
-    // Load interface from description file
-    let (iface_name, iface_desc) = if let Some(base) = params.base.as_ref() {
-        (base.to_string(), InterfaceDesc::new_from_ident(base)?)
+    let iface_ident = if let Some(base) = params.base.as_ref() {
+        base.clone()
     }
     else {
-        ("QObject".to_owned(), InterfaceDesc::new_from_name_str("QObject")?)
+        syn::parse_str::<syn::Ident>("QObject")?
     };
 
-    let iface_impl = InterfaceImpl::new(struct_ident.clone(), generics.clone(), overrides, iface_desc, origin.clone())?;
-    let unimpl_methods = iface_impl.get_unimplemented_pure_methods()?;
-    if !unimpl_methods.is_empty() {
-        // TODO: Check if suitable methods are in 'other_methods' but not marked as #[overridden]?
-        return Err(syn::Error::new(iface_name.span(), format!("Some of pure virtual methods of interface '{}' are not overridden in '{}':\n{}", iface_name, struct_ident, unimpl_methods.join(", "))));
-    }
+
+    let iface_impl = InterfaceImpl::new(struct_ident.clone(), iface_ident.clone(), generics.clone(), origin.clone())?;
 
     let impl_details = iface_impl.generate_impl_details()
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation details block.\nError:{err}")))?;
     let qobject_funcs = iface_impl.generate_qobject_funcs()
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate code block with auxiliary functions.\nError:{err}")))?;
-    let iface_base_impl = iface_impl.generate_iface_base_impl()?;
-    let iface_trait = iface_impl.generate_iface_trait_impl()?;
+    let iface_proxy_get_trait = iface_impl.generate_iface_proxy_get_trait_impl()
+            .map_err(|err: syn::Error| syn::Error::new(err.span(), format!("Failed to generate code block with interface functions implementation.\nError:{err}")))?;
+        let iface_trait = iface_impl.generate_iface_base_trait_impl()
+            .map_err(|err: syn::Error| syn::Error::new(err.span(), format!("Failed to generate code block with interface functions implementation.\nError:{err}")))?;
 
-    let iface_base_func_names = iface_base_impl.items.iter()
-        .filter_map(|item| match item {
-            syn::ImplItem::Fn(item_fn) => Some(item_fn.sig.ident.to_string()),
-            _ => None,
-        })
-        .collect::<Vec<_>>();
-
-    if let Some(conflict) = check_if_generated_functions_conflict_wth_client_code(iface_base_func_names.iter(), &other_methods) {
-        // TODO: check signal & slot functions in addition to other_methods
-        return Err(syn::Error::new(conflict.span(), format!("Function generated for interface implementation conflicts with user function '{conflict}'")));
-    }
     let ctx = QMetaInfoContext {
         struct_ident: &struct_ident,
         generics: &generics,
-        cpp_iface_name: &iface_name,
+        cpp_iface_name: &iface_ident.to_string(),
         signals: &signals,
         slots: &slots,
         properties: &properties,
@@ -199,7 +173,7 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream, origin: &CallOrigin
 
     Ok(QObjectImplOutput {
         new_impl,
-        iface_base_impl,
+        iface_proxy_get_trait,
         iface_trait,
         qobject_funcs,
         qmeta_info_impl,
@@ -238,7 +212,6 @@ pub(crate) enum QObjectImplItem {
     Signal(QSignalInfo),
     Slot(QSlotInfo),
     Property(QPropertyInfo),
-    Override(MethodOverride),
     ClassInfo(QClassInfo)
 }
 
@@ -260,15 +233,12 @@ fn extract_qobject_item(item_in: &syn::ImplItem, origin: &CallOrigin) -> syn::Re
                     }
                     else if QSignalInfo::is_for_me(attr) {
                         result = Some(QObjectImplItem::Signal(QSignalInfo::new(func, origin)?))
-                    }
-                    else if MethodOverride::is_for_me(attr) {
-                        result = Some(QObjectImplItem::Override(MethodOverride::new(func)?));
                     } else {
                         continue;
                     }
 
                     for attr in attrs.iter().skip(idx+1) {
-                        if QSignalInfo::is_for_me(attr) || QSlotInfo::is_for_me(attr) || MethodOverride::is_for_me(attr) {
+                        if QSignalInfo::is_for_me(attr) || QSlotInfo::is_for_me(attr) {
                             return Err(syn::Error::new(attr.span(), "The attribute conflicts with function attribute above"));
                         }
                     }
@@ -324,20 +294,4 @@ fn check_duplicates(signals: &[QSignalInfo], slots: &[QSlotInfo], properties: &[
     }
 
     Ok(())
-}
-
-pub(crate) fn check_if_generated_functions_conflict_wth_client_code<'a>(
-    generated_names: impl Iterator<Item = &'a String>,
-    client_funcs: &Vec<syn::Signature>
-) -> Option<&syn::Ident> {
-
-    let generated_names = BTreeSet::from_iter(generated_names);
-    for sig in client_funcs {
-        let sig_ident = &sig.ident;
-        if generated_names.contains(&sig_ident.to_string()) {
-            return Some(sig_ident);
-        }
-    }
-
-    None
 }
