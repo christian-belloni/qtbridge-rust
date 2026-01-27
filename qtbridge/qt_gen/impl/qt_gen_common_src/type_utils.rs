@@ -121,28 +121,3 @@ pub fn are_all_args_generic_idents(src: &syn::Path, idents: &[syn::Ident]) -> bo
             false
         })
 }
-
-// Names of types in Rust and QMetaType that can be used as type of arguments to signal, slots, property accessors.
-// These types may be hold by QVariant
-static RUST_QMETATYPE_MAP: &'static [(&'static str, &'static str)] = &[
-//  Rust type        QMetaType
-    ("i64",         "LongLong"),
-    ("u64",         "ULongLong"),
-    ("i32",         "Int"),
-    ("u32",         "Uint"),
-    ("i16",         "Short"),
-    ("u16",         "UShort"),
-    ("i8" ,         "SChar"),
-    ("u8" ,         "UChar"),
-    ("bool",        "Bool"),
-    ("f32",         "Float"),
-    ("f64",         "Double"),
-    ("String",      "QString"),
-    ("str",         "QString"),
-    ("Vec<String>", "QStringList"),
-    ("QModelIndex", "QModelIndex"),
-];
-
-pub fn is_rust_type_mapped_to_qmetatype(rust_type: &str) -> bool {
-    RUST_QMETATYPE_MAP.iter().any(|(rust, _cpp)| *rust == rust_type)
-}

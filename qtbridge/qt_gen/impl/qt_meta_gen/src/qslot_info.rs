@@ -7,9 +7,9 @@ use syn::{spanned::Spanned, Ident, LitStr};
 use qt_gen_common::case_conv;
 use qt_gen_common::function_with_attributes::{BlockOrSemi, FunctionWithAttributes};
 use qt_gen_common::parse_utils::{parse_name_value, partition_attr_by};
-use qt_gen_common::signature_utils::{check_meta_call_signature, get_typed_args, get_typed_args_types};
+use qt_gen_common::signature_utils::{get_typed_args, get_typed_args_types};
 use qt_gen_common::type_utils::{get_take_value_code, get_type_pass, unwrapped_ref_to_string};
-use qt_gen_common::type_registry::meta_types::get_qmetatype_support_for_type;
+use qt_gen_common::type_registry::meta_types::{check_meta_call_signature_types, get_qmetatype_support_for_type};
 
 use crate::traits::{ExpandTokens, QmlName};
 
@@ -94,7 +94,7 @@ impl QSlotInfo {
     }
 
     fn check_signature(sign: &syn::Signature) -> syn::Result<()> {
-        check_meta_call_signature(&sign)
+        check_meta_call_signature_types(&sign)
     }
 }
 

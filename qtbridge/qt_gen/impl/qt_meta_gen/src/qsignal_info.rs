@@ -8,9 +8,9 @@ use syn::{spanned::Spanned, Ident, LitStr};
 use qt_gen_common::case_conv;
 use qt_gen_common::function_with_attributes::{FunctionWithAttributes, BlockOrSemi};
 use qt_gen_common::parse_utils::{parse_name_value, partition_attr_by};
-use qt_gen_common::signature_utils::{check_meta_call_signature, get_arg_ident, get_typed_args, get_typed_args_types};
+use qt_gen_common::signature_utils::{get_arg_ident, get_typed_args, get_typed_args_types};
 use qt_gen_common::type_qualified_mapping::CallOrigin;
-use qt_gen_common::type_registry::meta_types::get_qmetatype_support_for_type;
+use qt_gen_common::type_registry::meta_types::{check_meta_call_signature_types, get_qmetatype_support_for_type};
 use crate::traits::{ExpandTokens, QmlName};
 
 #[derive(Default)]
@@ -89,7 +89,7 @@ impl QSignalInfo {
     }
 
     fn check_signature(sign: &syn::Signature) -> syn::Result<()> {
-        check_meta_call_signature(&sign)
+        check_meta_call_signature_types(&sign)
     }
 }
 

@@ -5,8 +5,33 @@ use crate::type_registry;
 use type_registry::{QtType, StandardContainer, StandardType, StringType};
 use type_registry::qt::generic::{QtGenericArg, QtGenericTypeWithoutArgs};
 use type_registry::type_traits::{FindType, MetaTypeId, TypeInfo, TypeName};
+use crate::signature_utils::{get_typed_args, is_arg_self_ref};
+use crate::type_to_string::type_to_string_fallback;
 use crate::type_utils::{get_angle_bracketed_generic_arguments_of_last_path_segment, path_to_type};
 
+/// Checks whether the given signature can participate in meta-calls
+/// (as slot callbacks or property getters/setters).
+///
+/// All argument and return types must be `QMetaType's.
+pub fn check_meta_call_signature_types(src: &syn::Signature) -> syn::Result<()> {
+    if !src.inputs.first().is_some_and(|arg| is_arg_self_ref(arg, None)) {
+        return Err(syn::Error::new(src.ident.span(), "First argument must be &self"));
+    }
+
+    for typed_arg in get_typed_args(src) {
+        let arg_type = typed_arg.ty.as_ref();
+        if !is_type_mapped_to_qmetatype(arg_type) {
+            return Err(syn::Error::new(arg_type.span(), format!("Type '{}' of argument is currently unsupported for meta calls", type_to_string_fallback(arg_type))))
+        }
+    }
+
+    Ok(())
+}
+
+/// Returns true if the type can be stored in QMetaType.
+pub fn is_type_mapped_to_qmetatype(ty: &syn::Type) -> bool {
+    get_qmetatype_support_for_type(ty).is_ok()
+}
 
 /// Checks whether the given type is supported by the `QMetaType` system.
 ///
@@ -128,4 +153,3 @@ fn get_intermediate_type_qt(_src: &QtType, src_path: &syn::Path) -> syn::Result<
     // Not supported ATM, but may be implemented in the future.
     Err(syn::Error::new(src_path.span(), "Qt types without metaTypeId are currently unsupported"))
 }
-

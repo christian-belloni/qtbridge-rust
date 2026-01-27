@@ -70,7 +70,7 @@ pub struct CppFnSign {
 
 impl CppFnSign {
     pub fn new_from_rust_sig(sig: &syn::Signature, cpp_name: Option<String>, expect_self: ExpectSelfRef) -> syn::Result<Self> {
-        check_signature(sig, expect_self, false)?;
+        check_signature(sig, expect_self)?;
 
         let return_type = get_cpp_return_type(&sig.output)?;
 

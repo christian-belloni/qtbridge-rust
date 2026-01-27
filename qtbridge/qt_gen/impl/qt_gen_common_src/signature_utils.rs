@@ -11,7 +11,8 @@ use crate::qt_alias_mapping::QtAliasMapping;
 use crate::qt_generic_mapping::QtGenericMapping;
 use crate::type_qualified_mapping::{CallOrigin, TypeQualifiedMapping};
 use crate::type_to_cpp::is_type_mapped_to_cpp;
-use crate::type_utils::{is_ptr, is_rust_type_mapped_to_qmetatype, unwrapped_ref_to_string};
+use crate::type_to_string::type_to_string_fallback;
+use crate::type_utils::is_ptr;
 
 #[derive(PartialEq)]
 pub enum ExpectSelfRef {
@@ -20,15 +21,11 @@ pub enum ExpectSelfRef {
     Maybe
 }
 
-pub fn check_meta_call_signature(sign: &syn::Signature) -> syn::Result<()> {
-    check_signature(sign, ExpectSelfRef::Yes, true)
-}
-
 pub fn check_method_signature(sign: &syn::Signature) -> syn::Result<()> {
-    check_signature(sign, ExpectSelfRef::Yes, false)
+    check_signature(sign, ExpectSelfRef::Yes)
 }
 
-pub fn check_signature(sign: &syn::Signature, expect_self: ExpectSelfRef, is_meta_call: bool) -> syn::Result<()> {
+pub fn check_signature(sign: &syn::Signature, expect_self: ExpectSelfRef) -> syn::Result<()> {
     let inputs = &sign.inputs;
 
     match expect_self {
@@ -51,23 +48,8 @@ pub fn check_signature(sign: &syn::Signature, expect_self: ExpectSelfRef, is_met
 
     for typed_arg in get_typed_args(sign) {
         let arg_type = typed_arg.ty.as_ref();
-        let type_str = unwrapped_ref_to_string(arg_type)?;
-
-        if is_meta_call {
-            // if it's signal, slot, or property accessor then all the arguments
-            // must be named
-            // must be convertible to/from QVariant
-            let syn::Pat::Ident(_arg_ident) = typed_arg.pat.as_ref() else {
-                return Err(syn::Error::new(typed_arg.span(), format!("Failed to get argument name from {}", typed_arg.pat.to_token_stream())));
-            };
-            if !is_rust_type_mapped_to_qmetatype(&type_str) {
-                return Err(syn::Error::new(typed_arg.ty.span(), format!("Type '{}' of argument is currently unsupported for meta calls", type_str)));
-            }
-        }
-        else {
-            if !is_type_mapped_to_cpp(arg_type) {
-                return Err(syn::Error::new(typed_arg.ty.span(), format!("Type '{}' of argument is not supported by bridge", type_str)));
-            }
+        if !is_type_mapped_to_cpp(arg_type) {
+            return Err(syn::Error::new(typed_arg.ty.span(), format!("Type '{}' of argument is not supported by bridge", type_to_string_fallback(arg_type))));
         }
     }
 

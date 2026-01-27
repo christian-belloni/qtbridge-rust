@@ -5,7 +5,9 @@ use quote::ToTokens;
 use syn::spanned::Spanned;
 
 use qt_gen_common::signature_utils::{get_return_type, get_typed_arg_type, is_arg_self_ref};
-use qt_gen_common::type_utils::{is_rust_type_mapped_to_qmetatype, unwrapped_ref_to_string};
+use qt_gen_common::type_registry::meta_types::is_type_mapped_to_qmetatype;
+use qt_gen_common::type_to_string::type_to_string_fallback;
+
 
 /// Deduces a property's type from its getter function.
 ///
@@ -46,9 +48,8 @@ fn get_property_getter_type(sig: &syn::Signature) -> syn::Result<&syn::Type> {
     let return_type = get_return_type(&sig.output)
         .ok_or_else(|| syn::Error::new(sig.span(), format!("Getter has return type not specified : {}", sig.to_token_stream())))?;
 
-    let return_type_str = unwrapped_ref_to_string(return_type)?;
-    if !is_rust_type_mapped_to_qmetatype(&return_type_str) {
-        return Err(syn::Error::new(return_type.span(), format!("Return type '{return_type_str}' is not supported for bridging")));
+    if !is_type_mapped_to_qmetatype(return_type) {
+        return Err(syn::Error::new(return_type.span(), format!("Return type '{}' is not supported for bridging", type_to_string_fallback(return_type))));
     }
 
     Ok(return_type)
@@ -74,9 +75,8 @@ fn get_property_setter_type(sig: &syn::Signature) -> syn::Result<&syn::Type> {
     let arg_type = get_typed_arg_type(arg1)
         .ok_or_else(|| syn::Error::new(arg1.span(), format!("Failed to get type of argument: '{}'", arg1.to_token_stream())))?;
 
-    let arg_type_str = unwrapped_ref_to_string(arg_type)?;
-    if !is_rust_type_mapped_to_qmetatype(&arg_type_str) {
-        return Err(syn::Error::new(arg_type.span(), format!("Type '{arg_type_str}' is not supported for bridging")));
+    if !is_type_mapped_to_qmetatype(arg_type) {
+        return Err(syn::Error::new(arg_type.span(), format!("Type '{}' is not supported for bridging", type_to_string_fallback(arg_type))));
     }
 
     Ok(arg_type)
