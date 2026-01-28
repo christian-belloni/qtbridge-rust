@@ -60,10 +60,10 @@ impl FindType for Type {
             .or_else(|| QtType::find_by_name(name).map(Type::from))
     }
 
-    fn find_by_partial_path(path: &syn::Path) -> Option<Self> {
-        StandardType::find_by_partial_path(path).map(Type::from)
-            .or_else(|| CxxType::find_by_partial_path(path).map(Type::from))
-            .or_else(|| QtType::find_by_partial_path(path).map(Type::from))
+    fn find_by_path(path: &syn::Path) -> Option<Self> {
+        StandardType::find_by_path(path).map(Type::from)
+            .or_else(|| CxxType::find_by_path(path).map(Type::from))
+            .or_else(|| QtType::find_by_path(path).map(Type::from))
     }
 }
 

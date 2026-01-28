@@ -82,7 +82,7 @@ impl MonomorphedSubmoduleGenerator {
         let mut types = vec![self.src_struct_ident().clone(), impl_ident];
 
         for (_, gen_path) in self.base.type_map().get_impl().iter() {
-            let ty = type_registry::Type::find_by_partial_path_result(gen_path)?;
+            let ty = type_registry::Type::find_by_path_checked(gen_path)?;
             let qt_type = match ty {
                 type_registry::Type::Qt(qt_type) => qt_type,
                 _ => continue

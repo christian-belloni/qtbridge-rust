@@ -134,7 +134,7 @@ impl TypeTokens {
     }
 
     pub fn remove_qt(&mut self, value: &syn::Path) -> bool {
-        if let Some(qt_type) = QtType::find_by_partial_path(value) {
+        if let Some(qt_type) = QtType::find_by_path(value) {
             return self.qt.remove(&QtTypeSpanned::new(qt_type, value.span()))
         }
         false
@@ -149,7 +149,7 @@ impl TypeTokens {
 
         let mut unclassified = std::mem::take(&mut self.unclassified);
         unclassified.retain(|path| {
-            let Some(qt_type) = QtType::find_by_partial_path(path) else {
+            let Some(qt_type) = QtType::find_by_path(path) else {
                 // The type is still unknown. Leave it in the collection.
                 return true
             };
@@ -265,7 +265,7 @@ impl<'a> Visitor<'a> {
             // then discard args and handle only generic type ident.
             type_registry::Type::find_by_name(&src_ident.to_string())
         } else {
-            type_registry::Type::find_by_partial_path(src)
+            type_registry::Type::find_by_path(src)
         };
 
         // Try to find type in registry

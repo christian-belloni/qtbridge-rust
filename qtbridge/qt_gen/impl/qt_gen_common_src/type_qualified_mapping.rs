@@ -66,7 +66,7 @@ impl TypeQualifiedMapping {
             return Ok(())
         }
 
-        let ty = type_registry::Type::find_by_partial_path_result(src)
+        let ty = type_registry::Type::find_by_path_checked(src)
             .map_err(|err| syn::Error::new(err.span(),
                 format!("Failed to get path '{}' fully qualified.\nError: {err}", src.to_token_stream())))?;
         let mut new = ty.dyn_type_info().complement_partially_qualified_path(src)?;

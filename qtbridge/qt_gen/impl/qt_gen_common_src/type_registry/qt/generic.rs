@@ -353,16 +353,16 @@ impl TryFrom<&syn::Path> for QtGenericArg {
     type Error = syn::Error;
 
     fn try_from(path: &syn::Path) -> Result<Self, Self::Error> {
-        if let Some(primitive) = PrimitiveType::find_by_partial_path(path) {
+        if let Some(primitive) = PrimitiveType::find_by_path(path) {
             return Ok(Self::Primitive(primitive))
         }
-        if let Some(qt) = QtType::find_by_partial_path(path) {
+        if let Some(qt) = QtType::find_by_path(path) {
             match qt {
                 QtType::NonGeneric(concrete) => return Ok(Self::Qt(concrete)),
                 _ => return Err(syn::Error::new(path.span(), "Qt types other than non generic are not supported currently as elements of another generic type")),
             }
         }
-        if let Some(ty) = type_registry::Type::find_by_partial_path(path) {
+        if let Some(ty) = type_registry::Type::find_by_path(path) {
             return Err(syn::Error::new(path.span(), format!("Type '{}' is not supported as elements of Qt generic type", ty.qualified_path_string())))
         }
 

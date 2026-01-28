@@ -79,7 +79,7 @@ impl FindType for QtType {
         QT_TYPE_MAP.with_borrow(|map| map.get(name).cloned())
     }
 
-    fn find_by_partial_path(path: &syn::Path) -> Option<Self> {
+    fn find_by_path(path: &syn::Path) -> Option<Self> {
         let qt_type = find_type_by_partial_path::<Self>(path)?;
 
         // If type is generic with args specified - try to find monomorphed form

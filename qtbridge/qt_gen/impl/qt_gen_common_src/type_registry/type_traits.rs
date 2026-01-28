@@ -163,15 +163,26 @@ pub trait StaticTypeGroup: Sized {
     fn get_static_sorted_list() -> &'static [Self];
 }
 
+/// A trait for finding a type by its name or by a `syn::Path` in a certain category of types (e.g. primitives, arithmetical, strings, Qt types, etc.).
 pub trait FindType: TypeName + Sized {
+    /// Finds a type by its name in a group of types.
+    ///
+    /// The name must match the identifier of the last segment of the type's
+    /// path (e.g. `Foo` in `crate::module::Foo<i32>`).
     fn find_by_name(name: &str) -> Option<Self>;
 
-    fn find_by_partial_path(path: &syn::Path) -> Option<Self> {
+    /// Finds a type from a `syn::Path` (possibly partially-qualified) in a group of types.
+    ///
+    /// Returns `None` if the type is not found.
+    fn find_by_path(path: &syn::Path) -> Option<Self> {
         find_type_by_partial_path::<Self>(path)
     }
 
-    fn find_by_partial_path_result(path: &syn::Path) -> syn::Result<Self> {
-        Self::find_by_partial_path(path)
+    /// Finds a type from a `syn::Path` (possibly partially-qualified) in a group of types.
+    ///
+    /// Returns `syn::Error` if the type is not found.
+    fn find_by_path_checked(path: &syn::Path) -> syn::Result<Self> {
+        Self::find_by_path(path)
             .ok_or_else(|| syn::Error::new(path.span(), format!("Failed to find type by path '{}'", path.to_token_stream())))
     }
 }

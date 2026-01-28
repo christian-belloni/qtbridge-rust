@@ -24,7 +24,7 @@ impl QtAliasMapping {
     }
 
     fn do_visit_path(&mut self, src: &mut syn::Path) -> syn::Result<()> {
-        if let Some(qt_alias) = QtAliasToMonomorphedType::find_by_partial_path(src) {
+        if let Some(qt_alias) = QtAliasToMonomorphedType::find_by_path(src) {
             let pos = src.segments.iter()
                 .position(|seg| seg.ident == qt_alias.name())
                 .ok_or_else(|| syn::Error::new(src.span(), "Failed to find segment with Qt alias type"))?;
