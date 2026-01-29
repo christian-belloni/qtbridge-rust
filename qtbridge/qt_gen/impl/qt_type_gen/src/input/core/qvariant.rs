@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use std::mem::MaybeUninit;
-use crate::QObject;
+use crate::{QByteArray, QList, QObject, QString};
 
 #[qt_gen::bridge]
 mod qvariant {
 
+    include_in_cpp!(<QList>);
     include_in_cpp!(<QVariant>);
     include_in_cpp!("rustconv.h");
 
@@ -163,6 +164,33 @@ mod qvariant {
     }
 
     #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, f32, f64]]
+    impl<T> From<&Vec<T>> for QVariant {
+        fn from(value: &Vec<T>) -> Self {
+            cpp_fn!(|value: &Vec<T>| -> Self {
+                QList<T> qlist(value.cbegin(), value.cend());
+                return QVariant::fromValue(qlist);
+            })(value)
+        }
+    }
+
+    #[instantiate_for[QByteArray, QString]]
+    impl<T> From<&Vec<T>> for QVariant {
+        fn from(value: &Vec<T>) -> Self {
+            let cpp = cpp_fn!(|list: QList<T>| -> Self {
+                return QVariant::fromValue(std::move(list));
+            });
+            cpp(QList::from(value))
+        }
+    }
+
+    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, f32, f64, QByteArray, QString]]
+    impl<T> From<Vec<T>> for QVariant {
+        fn from(value: Vec<T>) -> Self {
+            QVariant::from(&value)
+        }
+    }
+
+    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, f32, f64]]
     impl<T> TryFrom<&QVariant> for T {
         type Error = ();
 
@@ -183,10 +211,39 @@ mod qvariant {
         }
     }
 
-    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, f32, f64, String, Vec<String>]]
-    impl<T> TryFrom<QVariant> for T {
+    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, f32, f64]]
+    impl<T> TryFrom<&QVariant> for Vec<T> {
         type Error = ();
 
+        fn try_from(value: &QVariant) -> Result<Self, ()> {
+            let convert_fn = cpp_fn!(|from: &QVariant, result: &mut QList<T>| -> bool {
+                if (!from.canConvert<QList<T>>())
+                    return false;
+
+                result = from.value<QList<T>>();
+                return true;
+
+            });
+
+            let mut x = QList::default();
+            match convert_fn(value, &mut x) {
+                true => Ok(x.into()),
+                false => Err(())
+            }
+        }
+    }
+
+    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, f32, f64, String]]
+    impl<T> TryFrom<QVariant> for T {
+        type Error = ();
+        fn try_from(value: QVariant) -> Result<Self, ()> {
+            Self::try_from(&value)
+        }
+    }
+
+    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, f32, f64, String]]
+    impl<T> TryFrom<QVariant> for Vec<T> {
+        type Error = ();
         fn try_from(value: QVariant) -> Result<Self, ()> {
             Self::try_from(&value)
         }

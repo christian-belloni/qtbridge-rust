@@ -262,13 +262,20 @@ mod qlist {
         }
     }
 
-    #[exclude_if_struct_instantiation[QByteArray, QString, QVariant]]
     impl From<&Vec<T>> for QList<T> {
         fn from(value: &Vec<T>) -> Self {
-            let cpp = cpp_fn!(|src: &Vec<T>| -> Self {
-                return QList<T>(src.cbegin(), src.cend());
-            });
-            cpp(value)
+            Self::from(value.as_slice())
+        }
+    }
+
+    impl From<Vec<T>> for QList<T> {
+        fn from(value: Vec<T>) -> Self {
+            let mut result = Self::default();
+            result.reserve(value.len());
+            for item in value.into_iter() {
+                result.append(item);
+            }
+            result
         }
     }
 
@@ -283,6 +290,23 @@ mod qlist {
                 return result;
             });
             cpp(value)
+        }
+    }
+
+    #[include_if_struct_instantiation[QByteArray, QString, QVariant]]
+    impl From<&QList<T>> for Vec<T> {
+        fn from(value: &QList<T>) -> Self {
+            let mut v = Vec::with_capacity(value.len());
+            for i in 0..value.len() {
+                v.push(value[i].clone());
+            }
+            v
+        }
+    }
+
+    impl From<QList<T>> for Vec<T> {
+        fn from(value: QList<T>) -> Self {
+            From::from(&value)
         }
     }
 
