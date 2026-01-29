@@ -10,7 +10,7 @@ mod qbytearray {
 
     #[derive_cpp(Default, Clone, Drop)]
     #[derive(Debug)]
-    #[qmetatype(id=12)]
+    #[qmetatype = 12]
     /// The QByteArray struct provides an array of bytes.
     ///
     /// See also: [QByteArray documentation](https://doc.qt.io/qt-6/qbytearray.html).

@@ -2,14 +2,15 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use proc_macro2::Span;
-use qt_gen_common_no_types::multi_type_mapping::MultiTypeMapping;
 use syn::parse::Parse;
 use syn::parse::discouraged::Speculative;
 use syn::punctuated::Punctuated;
 
+use qt_gen_common_no_types::multi_type_mapping::MultiTypeMapping;
 use qt_gen_common_no_types::parse_utils::parse_name_value;
 
 use crate::generic_idents::GenericIdents;
+use crate::qmetatype_attribute::QMetaTypeAttribute;
 
 /// Type (single or tuple) for which structure will be instantiated
 #[derive(Clone)]
@@ -76,7 +77,7 @@ impl Parse for GenericInstantiationTypes {
 pub struct GenericInstantiationDecl {
     types: GenericInstantiationTypes,
     alias: Option<syn::Ident>,
-    qmetatype: Option<u16>,
+    qmetatype: Option<QMetaTypeAttribute>,
 }
 
 impl GenericInstantiationDecl {
@@ -88,11 +89,11 @@ impl GenericInstantiationDecl {
         self.alias.as_ref()
     }
 
-    pub fn qmetatype_id(&self) -> Option<i32> {
-        self.qmetatype.map(|id| id as i32)
+    pub fn qmetatype_id(&self) -> Option<&QMetaTypeAttribute> {
+        self.qmetatype.as_ref()
     }
 
-    fn parse_alias_and_qmetatype(input: syn::parse::ParseStream) -> syn::Result<(Option<syn::Ident>, Option<u16>)> {
+    fn parse_alias_and_qmetatype(input: syn::parse::ParseStream) -> syn::Result<(Option<syn::Ident>, Option<QMetaTypeAttribute>)> {
         let mut alias = None;
         let mut qmetatype = None;
 
@@ -103,8 +104,7 @@ impl GenericInstantiationDecl {
                     alias = Some(parse_name_value::<syn::Ident, syn::Ident>(input)?.1)
                 },
                 "qmetatype" => {
-                    let lit = parse_name_value::<syn::Ident, syn::LitInt>(input)?.1;
-                    qmetatype = Some(lit.base10_parse()?);
+                    qmetatype = Some(input.parse()?);
                 }
                 _ => return Err(syn::Error::new(keyword.span(), format!("Unexpected ident: '{keyword}'"))),
             }

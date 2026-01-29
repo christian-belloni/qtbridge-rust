@@ -264,7 +264,8 @@ impl SubmoduleGenerator for MonomorphedSubmoduleGenerator {
         let monomorped_name = self.ident().to_string();
         let path_in_gen = self.path_in_gen()?;
         let qmetatype_id = self.inst.qmetatype_id()
-            .unwrap_or(0);
+            .and_then(|qmt| qmt.id())
+            .unwrap_or(-1);
         QtType::add_monomorphed(monomorped_name.clone(), self.src_struct_ident(), generic_args, path_in_gen, qmetatype_id.into())?;
 
         if let Some(alias) = self.inst.alias() {

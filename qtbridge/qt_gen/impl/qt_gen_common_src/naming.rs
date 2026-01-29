@@ -183,7 +183,7 @@ pub mod rust {
             format!("{}_clone", crate::case_conv::camel_to_snake(struct_name)).into()
         }
 
-        pub fn qmetatype(struct_name: &str) -> Naming {
+        pub fn qmetatype(struct_name: &impl std::fmt::Display) -> Naming {
             crate::case_conv::camel_to_snake(&format!("{struct_name}Qmetatype")).into()
         }
 

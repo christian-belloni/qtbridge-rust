@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use proc_macro2::Span;
+use quote::ToTokens;
 use syn::punctuated::Punctuated;
 use syn::spanned::Spanned;
 
@@ -36,7 +37,7 @@ impl StructureAttributes {
                 syn::Meta::Path(path) => {
                     if path.is_ident("qmetatype") {
                         // QMetaType without Id specified
-                        qmetatype = Some(QMetaTypeAttribute::new())
+                        qmetatype = Some(QMetaTypeAttribute::new_without_id())
                     }
                     else {
                         return Err(syn::Error::new(path.span(), "Unsupported meta path attribute"))
@@ -62,10 +63,6 @@ impl StructureAttributes {
                         "instantiate_for" => {
                             instantiations = Some(meta_list.parse_args()?);
                         },
-                        "qmetatype" => {
-                            // QMetaType with Id
-                            qmetatype = Some(meta_list.parse_args_with(QMetaTypeAttribute::parse_from_meta_list_args)?);
-                        },
                         "doc" => docs.push(attr.clone()), // Non-comment doc attribute
                         _ => return Err(syn::Error::new(ident.span(), "Unsupported meta list attribute")),
                     }
@@ -85,7 +82,8 @@ impl StructureAttributes {
                             namespace = Some(lit_str.value());
                         },
                         "doc" => docs.push(attr.clone()), // Doc comment
-                        _ => return Err(syn::Error::new(nv.span(), "Unsupported name-value attribute"))
+                        "qmetatype" => qmetatype = Some(syn::parse2(nv.to_token_stream())?),
+                        _ => return Err(syn::Error::new(nv.span(), format!("Unsupported name-value attribute '{ident}'")))
                     }
                 }
             }

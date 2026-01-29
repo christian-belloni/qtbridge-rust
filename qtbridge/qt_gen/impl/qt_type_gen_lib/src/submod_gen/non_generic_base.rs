@@ -67,16 +67,12 @@ impl NonGenericSubmoduleGeneratorBase {
         };
         let type_map = TypeMappingNested::new(type_map_impl);
 
-        let qmetatype_id = if let Some(inst) = inst.as_ref() {
-            inst.qmetatype_id()
-        }
-        else {
-            struct_.as_ref().and_then(|s| match s.qmetatype_attr() {
-                Some(attr) => Some(attr.id().unwrap_or_default()),
-                None => None,
-            })
+        let qmetatype = match &inst {
+            Some(inst_decl) => inst_decl.qmetatype_id(),
+            None => struct_
+                .and_then(|s| s.qmetatype_attr())
         };
-
+        let qmetatype_id = qmetatype.map(|q| q.id().unwrap_or_default());
 
         let funcs_substituted = get_functions_substituted(&src_module.functions(), &struct_path, &type_map)?;
         let traits_substituted = match inst.as_ref() {
@@ -133,7 +129,7 @@ impl NonGenericSubmoduleGeneratorBase {
     }
 
     pub fn is_qmetatypeid_func_needed(&self) -> bool {
-        self.qmetatype_id.is_some_and(|id| id == 0)
+        self.qmetatype_id.as_ref().is_some_and(|id| *id == 0)
     }
 
     pub fn type_tokens(&self) -> &SubmoduleTypeTokens {
@@ -474,23 +470,23 @@ impl NonGenericSubmoduleGeneratorBase {
     }
 
     fn get_qmetatype_get_trait_rust_code(&self) -> Option<TokenStream> {
-        let struct_ident = self.struct_ident()?;
         let id = self.qmetatype_id()?;
         let impl_code = match id {
             1.. => quote! {
                 crate::QMetaType::new(#id)
             },
             _ => {
-                let struct_name = struct_ident.to_string();
-                let func_name = naming::rust::function::qmetatype(&struct_name);
+                let struct_name_src = self.src_struct_ident()?;
+                let func_name = naming::rust::function::qmetatype(struct_name_src);
                 quote! {
                     ffi::#func_name()
                 }
             }
         };
 
+        let struct_ident_inst = self.struct_ident()?;
         let trait_code = quote! {
-            impl crate::QMetaTypeGet for #struct_ident {
+            impl crate::QMetaTypeGet for #struct_ident_inst {
                 fn get_qmetatype() -> crate::QMetaType {
                     #impl_code
                 }
@@ -691,15 +687,16 @@ namespace {bridge_namespace} {{
             return None
         }
 
-        let struct_name = self.struct_ident()?;
-        let func_name = naming::cpp::function::qmetatype(&struct_name);
+        let struct_name_src = self.src_struct_ident()?;
+        let struct_name_inst = self.struct_ident()?;
+        let func_name = naming::cpp::function::qmetatype(&struct_name_src);
         let sig = format!("QMetaType {func_name}()");
 
         let decl = format!("{sig};");
         let def = format!(r#"
 {sig}
 {{
-        return QMetaType::fromType<{struct_name}>();
+        return QMetaType::fromType<{struct_name_inst}>();
 }}
 "#);
         Some((decl, def))

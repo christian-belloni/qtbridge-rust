@@ -11,7 +11,7 @@ mod qvariant {
     include_in_cpp!("rustconv.h");
 
     #[derive_cpp(Default, Drop, Clone)]
-    #[qmetatype(id=41)]
+    #[qmetatype = 41]
     /// The QVariant struct acts like an enum for the most common Qt data types.
     ///
     /// QVariant represents dynamically typed value container.

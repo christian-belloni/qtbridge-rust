@@ -9,7 +9,7 @@ mod qmodelindex {
     include_in_cpp!(<QModelIndex>);
 
     #[derive_cpp(Default, Drop, Clone)]
-    #[qmetatype(id=42)]
+    #[qmetatype = 42]
     /// The QModelIndex struct is used to locate data in a data model.
     ///
     /// This struct is used as an index into item models derived from QAbstractItemModel.

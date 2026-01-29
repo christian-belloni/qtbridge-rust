@@ -11,7 +11,7 @@ mod qstring {
 
     #[derive_cpp(Default, Drop, Clone)]
     #[derive(Debug)]
-    #[qmetatype(id=10)]
+    #[qmetatype = 10]
     /// The QString struct provides a Unicode character string.
     ///
     /// QString stores a string of 16-bit char items, where each item corresponds to one UTF-16 code unit.

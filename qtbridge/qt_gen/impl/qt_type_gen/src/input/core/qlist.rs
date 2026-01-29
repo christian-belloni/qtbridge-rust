@@ -6,7 +6,17 @@ mod qlist {
     include_in_cpp!(<QList>);
 
     #[instantiate_for[
-        i8, u8, i16, u16, i32, u32, i64, u64, f32, f64,
+        ((bool), qmetatype),
+        ((i8), qmetatype),
+        ((u8), qmetatype),
+        ((i16), qmetatype),
+        ((u16), qmetatype),
+        ((i32), qmetatype),
+        ((u32), qmetatype),
+        ((i64), qmetatype),
+        ((u64), qmetatype),
+        ((f32), qmetatype),
+        ((f64), qmetatype),
         ((QByteArray), alias = QByteArrayList, qmetatype = 49),
         ((QString), alias = QStringList, qmetatype = 11),
         ((QVariant), alias = QVariantList, qmetatype = 9)

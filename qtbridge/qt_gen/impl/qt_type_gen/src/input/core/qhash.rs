@@ -10,7 +10,7 @@ mod qhash {
     #[instantiate_for[
         (i32, QByteArray),
         (QByteArray, QVariant),
-        (QString, QVariant),
+        ((QString, QVariant), alias = QVariantHash, qmetatype = 28),
     ]]
     #[derive(Debug)]
     #[derive_cpp(Default, Clone, Drop)]
