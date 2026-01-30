@@ -1,7 +1,6 @@
 use proc_macro2::TokenStream;
 use qt_gen_common::type_qualified_mapping::CallOrigin;
 use quote::{ToTokens, format_ident, quote};
-use syn::Generics;
 use syn::spanned::Spanned;
 
 use qt_gen_common::function_with_attributes::FunctionWithAttributes;
@@ -20,7 +19,8 @@ use crate::qobject_module_params::QObjectModuleParams;
 pub struct QObjectModuleBuilder {
     origin: CallOrigin,
     struct_ident: syn::Ident,
-    struct_generics: Generics,
+    struct_generics: syn::Generics,
+    struct_fields: syn::FieldsNamed,
     signals: Vec<QSignalInfo>,
     slots: Vec<QSlotInfo>,
     properties: Vec<QPropertyInfo>,
@@ -36,8 +36,9 @@ impl QObjectModuleBuilder {
         Self {
             origin,
             struct_ident: format_ident!("dummy"),
-            struct_generics: Generics::default(),
+            struct_generics: syn::Generics::default(),
             signals: Vec::new(),
+            struct_fields: syn::parse_quote!{{}},
             slots: Vec::new(),
             properties: Vec::new(),
             overrides: Vec::new(),
@@ -69,7 +70,7 @@ impl QObjectModuleBuilder {
 
         // Try to deduce properties type here when we have list of potential getters/setters
         for prop in &mut self.properties {
-            prop.set_type(&self.other_methods)?;
+            prop.set_type(&self.other_methods, Some(&self.struct_fields))?;
             prop.validate(&self.signals)
                 .map_err(|err| syn::Error::new(err.span(), format!("Wrong property declaration: {err}")))?;
         }
@@ -173,6 +174,10 @@ impl QObjectModuleBuilder {
         }
         self.struct_ident = struct_.ident.clone();
         self.struct_generics = struct_.generics.clone();
+        self.struct_fields = match &struct_.fields {
+            syn::Fields::Named(named) => named.clone(),
+            _ => return Err(syn::Error::new(struct_.fields.span(), "Only named struct fields are supported"))
+        };
 
         // Process input items of module. Expand item to output module
         let mut output_items = Vec::new();

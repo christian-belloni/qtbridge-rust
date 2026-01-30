@@ -9,7 +9,7 @@ use qt_gen_common::parse_utils::parse_name_value;
 use qt_gen_common::type_registry::meta_types::get_qmetatype_support_for_type;
 use qt_gen_common::type_to_string::type_to_string_fallback;
 use qt_gen_common::type_utils::{ValuePass, get_take_value_code, get_type_pass, unwrapped_ref, unwrapped_ref_to_string};
-use crate::qproperty_type_deduction::{deduce_type_from_getter, deduce_type_from_setter};
+use crate::qproperty_type_deduction::{deduce_type_from_getter, deduce_type_from_member, deduce_type_from_setter};
 use crate::QSignalInfo;
 use crate::traits::{QmlName, find_by_qml_name};
 
@@ -21,9 +21,12 @@ pub struct QPropertyInfo{
     notify_signal: Option<syn::LitStr>,
     member: Option<syn::Ident>,
     constant: Option<syn::Ident>,
-    accessor_ty: Option<String>,             // Evaluated from getter/setter TODO: don't use string here
-    //read_value_pass: Option<ValuePass>,    //
-    write_value_pass: Option<ValuePass>,     // How value passed to setter (by reference or by value)
+
+    /// The type of the property, deduced from getter, setter or member variable. TODO: don't use string here
+    deduced_type: Option<String>,
+
+    /// How the value is passed to the setter (by reference or by value)
+    write_value_pass: Option<ValuePass>,
 }
 
 impl QPropertyInfo {
@@ -59,8 +62,8 @@ impl QPropertyInfo {
         self.notify_signal.as_ref()
     }
 
-    fn get_accessor_type(&self) -> String {
-        self.accessor_ty
+    fn get_deduced_type(&self) -> String {
+        self.deduced_type
             .as_ref()
             .map_or(String::new(), |t| t.clone())
     }
@@ -89,7 +92,7 @@ impl QPropertyInfo {
                 match signal.get_typed_arg_count() {
                     0 => {}
                     1 => {
-                        let prop_type = self.get_accessor_type(); // TODO: handle member as well?
+                        let prop_type = self.get_deduced_type(); // TODO: handle member as well?
                         if !prop_type.is_empty() {
                             let signal_arg_type_str = unwrapped_ref_to_string(signal.get_arg_type(0)?)?;
                             if prop_type != signal_arg_type_str {
@@ -125,37 +128,45 @@ impl QPropertyInfo {
         Ok(())
     }
 
-    // TODO: pass struct fields for deducing types of 'Member' properties
-    // Sets the property type based on the type deduced from its accessors.
-    pub fn set_type(&mut self, struct_methods: &[syn::Signature]) -> syn::Result<()> {
-        let getter_type = self.read_method.as_ref()
-            .map(|getter| deduce_type_from_getter(getter, struct_methods))
-            .transpose()?;
-        let setter_type = self.write_method.as_ref()
-            .map(|setter| deduce_type_from_setter(setter, struct_methods))
-            .transpose()?;
+    // Sets the property type based on the type deduced from its accessors or member variable.
+    pub fn set_type(&mut self, methods: &[syn::Signature], fields: Option<&syn::FieldsNamed>) -> syn::Result<()> {
+        let mut deduced = Vec::new(); // Array of tuples (Type, Span, "deduced from")
 
-        self.write_value_pass = setter_type.map(get_type_pass);
+        if let Some(getter) = self.read_method.as_ref() {
+            let getter_type = deduce_type_from_getter(getter, methods)?;
+            deduced.push((getter_type, getter.span(), "getter"));
+        }
 
-        let prop_type = match (getter_type, setter_type) {
-            (None, None) => return Ok(()),    // No accessor to deduce the type
-            (None, Some(set_ty)) => set_ty,   // Get the type from setter
-            (Some(get_ty), None) => get_ty,   // Get the type from getter
-            (Some(get_ty), Some(set_ty)) => { // Get the type from getter after checking type consistency
-                let get_ty_no_ref = unwrapped_ref(get_ty);
-                let set_ty_no_ref = unwrapped_ref(set_ty);
-                if get_ty_no_ref != set_ty_no_ref {
-                    return Err(syn::Error::new(self.write_method.span(),
-                        format!("Property has inconsistent Read and Write accessors types: '{}' and '{}'",
-                            type_to_string_fallback(get_ty_no_ref),
-                            type_to_string_fallback(set_ty_no_ref)
-                        )));
-                }
-                get_ty
-            },
+        self.write_value_pass = None;
+        if let Some(setter) = self.write_method.as_ref() {
+            let setter_type = deduce_type_from_setter(setter, methods)?;
+            deduced.push((setter_type, setter.span(), "setter"));
+            self.write_value_pass = Some(get_type_pass(setter_type));
+        }
+
+        if let Some(member) = self.member.as_ref() &&
+           let Some(fields) = fields {
+                let member_type = deduce_type_from_member(member, fields.named.iter())?;
+                deduced.push((member_type, member.span(), "member"));
+            }
+
+        let Some((first_type, _, first_src)) = deduced.first() else {
+            return Ok(())
         };
 
-        self.accessor_ty = Some(unwrapped_ref_to_string(prop_type)?);
+        if let Some((second_type, second_span, second_src)) = deduced.get(1) {
+            let first_type_no_ref = unwrapped_ref(first_type);
+            let second_type_no_ref = unwrapped_ref(second_type);
+            if first_type_no_ref != second_type_no_ref {
+                return Err(syn::Error::new(*second_span,
+                    format!("Property types deduced from '{first_src}' and '{second_src}' are inconsistent: '{}' vs '{}'",
+                        type_to_string_fallback(first_type_no_ref),
+                        type_to_string_fallback(second_type_no_ref)
+                    )));
+            }
+        }
+
+        self.deduced_type = Some(unwrapped_ref_to_string(first_type)?);
         Ok(())
     }
 
@@ -166,12 +177,12 @@ impl QPropertyInfo {
             span,
             notify_signal,
             member,
-            accessor_ty,
+            deduced_type,
             ..
         } = self;
 
-        let metatype_expr = match &accessor_ty {
-            // Get type of property from getter/setter
+        let metatype_expr = match &deduced_type {
+            // Type of property is deduced from getter, setter or member (works for #[qobject] but not for #[qobject_impl] macro)
             Some(ty_str) => {
                 let mut accessor_type: syn::Type = syn::parse_str(ty_str)
                     .map_err(|err| syn::Error::new(*span, format!("Failed to parse type '{ty_str}'while evaluating metatype of qproperty.\nError: '{err}'")))?;
@@ -247,7 +258,7 @@ impl QPropertyInfo {
 
         if let Some(setter_fn) = &self.write_method {
             // Generate write callback that calls given setter
-            let ty_str = self.accessor_ty.as_ref()
+            let ty_str = self.deduced_type.as_ref()
                 .ok_or_else(|| syn::Error::new(self.span, "Failed to generate write property callback. Type is not deduced"))?;
             let pass_arg = get_take_value_code(&format_ident!("value"), self.write_value_pass.unwrap_or(ValuePass::ByValue));
 
@@ -375,7 +386,7 @@ impl syn::parse::Parse for QPropertyInfo {
             notify_signal,
             member,
             constant,
-            accessor_ty: None,               // Property type is not clear at the moment of parsing. Will be deduced later
+            deduced_type: None,               // Property type is not clear at the moment of parsing. Will be deduced later
             write_value_pass: None,
         })
     }

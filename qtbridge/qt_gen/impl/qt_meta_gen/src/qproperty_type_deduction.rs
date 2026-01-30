@@ -39,6 +39,20 @@ pub(crate)fn deduce_type_from_setter<'a>(setter_ident: &syn::Ident, methods: &'a
         .map_err(|err| syn::Error::new(err.span(), format!("Function '{setter_ident}' is not suitable to be property setter.\nReason: {err}")))
 }
 
+/// Deduces a property's type from the type of a struct field.
+///
+/// # Arguments
+///
+/// * `field_ident` -  The identifier of the field within the struct.
+/// * `fields` - The fields of the struct, given as an iterator.
+pub(crate) fn deduce_type_from_member<'a>(field_ident: &syn::Ident, mut fields: impl Iterator<Item = &'a syn::Field>) -> syn::Result<&'a syn::Type> {
+    let field = fields
+        .find(|f| f.ident.as_ref().is_some_and(|ident| ident == field_ident))
+        .ok_or_else(|| syn::Error::new(field_ident.span(), format!("Field '{field_ident}' not found")))?;
+
+    Ok(&field.ty)
+}
+
 fn get_property_getter_type(sig: &syn::Signature) -> syn::Result<&syn::Type> {
     let args = &sig.inputs;
     if args.len() != 1 || !is_arg_self_ref(&args[0], Some(false)) {

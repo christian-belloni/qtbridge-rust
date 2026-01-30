@@ -136,7 +136,7 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream, origin: &CallOrigin
 
     // Try to deduce properties type here when we have list of potential getters/setters
     for prop in &mut properties {
-        prop.set_type(&other_methods)?;
+        prop.set_type(&other_methods, None)?;
         if let Err(err) = prop.validate(&signals) {
             return Err(syn::Error::new(err.span(), format!("Wrong property declaration: {}", err)));
         }

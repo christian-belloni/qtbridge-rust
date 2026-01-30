@@ -77,6 +77,9 @@ public:
                     throw std::runtime_error("Signal for given Id is registered already");
         }
 
+        for (const QMetaType& type: argMetaTypes)
+            type.registerType();
+
         QByteArray signature = generateFuncSignature(name, argMetaTypes);
         QMetaMethodBuilder builder = m_mob->addSignal(signature);
         const int localId = builder.index();
@@ -93,6 +96,9 @@ public:
     {
         if (!m_mob)
             throw std::runtime_error("Slot registration must be done before endMetaRegistration() call");
+
+        for (const QMetaType& type: argMetaTypes)
+            type.registerType();
 
         QByteArray signature = generateFuncSignature(name, argMetaTypes);
         QMetaMethodBuilder builder = m_mob->addSlot(signature);
@@ -162,6 +168,7 @@ private:
             throw std::runtime_error("Invalid property type");
 
         const bool writable = static_cast<bool>(setter);
+        metaType.registerType();
 
         //TODO: pass notifierId argument to addProperty?
         QMetaPropertyBuilder builder = m_mob->addProperty(name, metaType.name());
