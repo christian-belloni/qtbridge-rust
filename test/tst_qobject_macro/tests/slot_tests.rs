@@ -105,7 +105,6 @@ fn get_qml_code_for(arg_type_suffix: &str, arg_value: &str) -> String {
 
             Component.onCompleted: {{
                 testObject.slot{arg_type_suffix}({arg_value});
-                Qt.callLater(Qt.quit);
             }}
         }}
     "#)
@@ -120,11 +119,10 @@ fn test_type<F>(arg_type_suffix: &str, arg_value: &str, check_fn: F)
 
     // Run QApp with QML code for the given slot.
     let obj = TestObject::default_with_attached_qobject();
-    QApp::new()
-        .add_initial_property("testObject", &obj.borrow().as_qvariant())
-        .load_qml(get_qml_code_for(&suffix, arg_value).as_bytes())
-        .run();
-    assert!(check_fn(&obj.borrow()), "file type: {arg_type_suffix}");
+    let mut app = QApp::new();
+    app.add_initial_property("testObject", &obj.borrow().as_qvariant())
+        .load_qml(get_qml_code_for(&suffix, arg_value).as_bytes());
+    assert!(check_fn(&obj.borrow()), "failing slot type: {arg_type_suffix}");
 }
 
 fn test_slot_types() {

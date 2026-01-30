@@ -41,10 +41,6 @@ pub mod test_object {
         pub fn signal_string(&self, arg: String);
         #[qsignal]
         pub fn signal_string_ref(&self, arg: &String);
-        #[qsignal]
-        pub fn signal_vec_of_strings(&self, arg: Vec<String>);
-        #[qsignal]
-        pub fn signal_vec_of_strings_ref(&self, arg: &Vec<String>);
     }
 }
 
@@ -214,24 +210,3 @@ fn signal_is_emitted_when_called_with_string_ref_arg() {
     assert_eq!(arg, "DEF");
 }
 
-#[test]
-fn signal_is_emitted_when_called_with_vec_of_strings_arg() {
-    let obj = TestObject::default_with_attached_qobject();
-    let mut spy = QSignalSpy::new(obj.borrow().get_qobject(), "signalVecOfStrings");
-    obj.borrow().signal_vec_of_strings(vec!["One".into(), "Two".into(), "Four".into()]);
-    assert_eq!(spy.count(), 1);
-    let args = spy.pin_mut().take_first();
-    let arg: Vec<String> = args.first().try_into().unwrap();
-    assert_eq!(arg, vec!["One", "Two", "Four"]);
-}
-
-#[test]
-fn signal_is_emitted_when_called_with_vec_of_strings_ref_arg() {
-    let obj = TestObject::default_with_attached_qobject();
-    let mut spy = QSignalSpy::new(obj.borrow().get_qobject(), "signalVecOfStringsRef");
-    obj.borrow().signal_vec_of_strings_ref(&vec!["Two".into(), "Four".into(), "Eight".into()]);
-    assert_eq!(spy.count(), 1);
-    let args = spy.pin_mut().take_first();
-    let arg: Vec<String> = args.first().try_into().unwrap();
-    assert_eq!(arg, vec!["Two", "Four", "Eight"]);
-}

@@ -14,3 +14,8 @@ qtbridge = { path = "../../qtbridge" }
 name = "slot_tests"
 path = "tests/slot_tests.rs"
 harness = false
+
+[[test]]
+name = "signal_vec_tests"
+path = "tests/signal_vec_tests.rs"
+harness = false
