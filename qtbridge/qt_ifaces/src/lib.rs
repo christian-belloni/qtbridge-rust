@@ -3,5 +3,9 @@
 
 mod generated;
 pub use generated::*;
+
+mod manual;
+pub use manual::*;
+
 pub mod object_access;
 pub use object_access::rust_object_access::RustObjAccess;

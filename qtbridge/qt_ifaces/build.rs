@@ -3,23 +3,26 @@
 
 use build_common::qt_build::{link_qt_modules, qt_include_dirs};
 
-const GENERATED_FILES_BRIDGE: [&'static str; 6] = [
+const FILES_BRIDGE: [&'static str; 8] = [
     "src/generated/qabstract_item_model/proxy_cpp_bridge.rs",
     "src/generated/qabstract_item_model/proxy_rust_bridge.rs",
     "src/generated/qabstract_list_model/proxy_cpp_bridge.rs",
     "src/generated/qabstract_list_model/proxy_rust_bridge.rs",
     "src/generated/qobject/proxy_cpp_bridge.rs",
     "src/generated/qobject/proxy_rust_bridge.rs",
+    "src/manual/qlist_model/proxy_cpp_bridge.rs",
+    "src/manual/qlist_model/proxy_rust_bridge.rs",
 ];
 
-const GENERATED_FILES_CPP: [&'static str; 3] = [
+const FILES_CPP: [&'static str; 4] = [
     "src/generated/qabstract_item_model/cpp/QAbstractItemModelProxyCpp.cpp",
     "src/generated/qabstract_list_model/cpp/QAbstractListModelProxyCpp.cpp",
     "src/generated/qobject/cpp/QObjectProxyCpp.cpp",
+    "src/manual/qlist_model/cpp/QListModelProxyCpp.cpp",
 ];
 
 fn main() {
-    let mut builder = cxx_build::bridges(&GENERATED_FILES_BRIDGE);
+    let mut builder = cxx_build::bridges(&FILES_BRIDGE);
     builder
         .std("c++17")
         .flag_if_supported("/Zc:__cplusplus")
@@ -28,7 +31,7 @@ fn main() {
         .include("../")
         .include("../utils");
 
-    GENERATED_FILES_CPP.iter()
+    FILES_CPP.iter()
         .for_each(|file| {
             builder.file(file);
         });

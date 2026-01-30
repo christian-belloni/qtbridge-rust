@@ -48,7 +48,7 @@ ApplicationWindow {
                     Label {
                         property bool inEditMode: false
                         id: textLabel
-                        text: inEditMode ? "" : `Item ${ld.index+1}: ${ld.model.edit}`
+                        text: inEditMode ? "" : `Item ${ld.index+1}: ${ld.model.value}`
                         Layout.fillWidth: true
                         TextInput {
                             id: editField
@@ -58,7 +58,7 @@ ApplicationWindow {
                                 textLabel.inEditMode = false
                             }
                             onAccepted: {
-                                ld.model.edit = text
+                                ld.model.value = text
                             }
                         }
                     }
@@ -69,7 +69,7 @@ ApplicationWindow {
                             if (textLabel.inEditMode) {
                                 textLabel.inEditMode = false
                             } else {
-                                editField.text = `${ld.model.edit}`
+                                editField.text = `${ld.model.value}`
                                 textLabel.inEditMode = true
                                 editField.forceActiveFocus()
                                 editField.selectAll()

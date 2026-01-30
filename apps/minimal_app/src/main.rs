@@ -3,12 +3,11 @@
 
 use qtbridge::{QApp, qobject};
 
-#[qobject(Base = QAbstractListModel)]
+#[qobject(Base = QListModel)]
 mod backend {
 
     use qtbridge::qml_element;
-    use qtbridge::qt_type_lib::{QModelIndex, QVariant};
-    use qtbridge::{QAbstractListModel, QAbstractListModelBase};
+    use qtbridge::{QListModel, QListModelBase};
 
     #[derive(Default)]
     #[qml_element]
@@ -16,38 +15,26 @@ mod backend {
         string_list: Vec<String>,
     }
 
-    impl QAbstractListModel for Backend {
-        fn row_count(&self, _index: &QModelIndex) -> i32 {
-            self.string_list.len() as i32
+    impl QListModel for Backend {
+        type Item = String;
+
+        fn len(&self) -> usize {
+            self.string_list.len()
         }
-
-        fn data(&self, index: &QModelIndex, _role: i32) -> QVariant {
-            QVariant::from(&self.string_list[index.row() as usize])
+        fn get(&self, index: usize) -> Option<&String> {
+            self.string_list.get(index)
         }
-
-        fn remove_rows(&mut self, first: i32, count: i32, parent: &QModelIndex) -> bool {
-            let first = first as usize;
-            let last = first + count as usize;
-
-            if last > self.string_list.len() {
-                return false;
+        fn set_unnotified(&mut self, index: usize, value: String) -> bool {
+            match self.string_list.contains(&value) {
+                true => { self.duplicate_found(&value); return false },
+                false => { self.string_list[index] = value; return true },
             }
-            self.begin_remove_rows(parent, first as i32, (last - 1) as i32);
-            self.string_list.drain(first..last);
-            self.end_remove_rows();
-            true
         }
-
-        fn set_data(&mut self, index: &QModelIndex, value: &QVariant, _role: i32) -> bool {
-            if let Ok(value_str) = String::try_from(value) {
-                if !self.string_list.contains(&value_str) {
-                    self.string_list[index.row() as usize] = value_str;
-                    self.data_changed(index, index);
-                    return true;
-                }
-                self.duplicate_found(&value_str);
-            }
-            return false;
+        fn push_unnotified(&mut self, value: String) {
+            self.string_list.push(value);
+        }
+        fn remove_unnotified(&mut self, index: usize) -> String {
+            self.string_list.remove(index)
         }
     }
 
@@ -56,17 +43,9 @@ mod backend {
         fn add_string(&mut self, value: &str) {
             match self.string_list.contains(&value.to_string()) {
                 true => self.duplicate_found(&value),
-                false => self.append_prechecked_string(value),
+                false => self.push(value.to_string()),
             }
         }
-
-        fn append_prechecked_string(&mut self, new_value: &str) {
-            let len = self.string_list.len() as i32;
-            self.begin_insert_rows(&QModelIndex::default(), len, len);
-            self.string_list.push(new_value.to_string());
-            self.end_insert_rows();
-        }
-
         #[qsignal]
         fn duplicate_found(&self, duplicate: &str);
     }
