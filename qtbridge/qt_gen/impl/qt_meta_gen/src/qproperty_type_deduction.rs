@@ -76,7 +76,7 @@ fn get_property_setter_type(sig: &syn::Signature) -> syn::Result<&syn::Type> {
 
     let arg_type_str = unwrapped_ref_to_string(arg_type)?;
     if !is_rust_type_mapped_to_qmetatype(&arg_type_str) {
-        return Err(syn::Error::new(arg_type.span(), format!("Type '{arg_type_str'} is not supported for bridging")));
+        return Err(syn::Error::new(arg_type.span(), format!("Type '{arg_type_str}' is not supported for bridging")));
     }
 
     Ok(arg_type)
