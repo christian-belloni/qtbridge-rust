@@ -8,7 +8,7 @@ use qt_gen_common::case_conv;
 use qt_gen_common::function_with_attributes::{BlockOrSemi, FunctionWithAttributes};
 use qt_gen_common::parse_utils::{parse_name_value, partition_attr_by};
 use qt_gen_common::signature_utils::{get_typed_args, get_typed_args_types};
-use qt_gen_common::type_utils::{get_take_value_code, get_type_pass, unwrapped_ref_to_string};
+use qt_gen_common::type_utils::{get_take_value_code, get_type_pass, remove_ref_to_string};
 use qt_gen_common::type_registry::meta_types::{check_meta_call_signature_types, get_qmetatype_support_for_type};
 
 use crate::traits::{ExpandTokens, QmlName};
@@ -76,7 +76,7 @@ impl QSlotInfo {
             let var_name = format_ident!("arg_{}", idx);
             let pass = get_type_pass(arg_type);
             let pass_var = get_take_value_code(&var_name, pass);
-            let getter = get_arg_getter_func(&unwrapped_ref_to_string(arg_type)?);
+            let getter = get_arg_getter_func(&remove_ref_to_string(arg_type)?);
 
             arg_types_qt.push(meta_type);
             arg_unpack.push(quote!{ let #var_name = params.#getter( #idx ); });

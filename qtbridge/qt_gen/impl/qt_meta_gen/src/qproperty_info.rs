@@ -8,7 +8,7 @@ use syn::{parse::Parse, spanned::Spanned};
 use qt_gen_common::parse_utils::parse_name_value;
 use qt_gen_common::type_registry::meta_types::get_qmetatype_support_for_type;
 use qt_gen_common::type_to_string::type_to_string_fallback;
-use qt_gen_common::type_utils::{ValuePass, get_take_value_code, get_type_pass, unwrapped_ref, unwrapped_ref_to_string};
+use qt_gen_common::type_utils::{ValuePass, get_take_value_code, get_type_pass, remove_ref, remove_ref_to_string};
 use crate::qproperty_type_deduction::{deduce_type_from_getter, deduce_type_from_member, deduce_type_from_setter};
 use crate::QSignalInfo;
 use crate::traits::{QmlName, find_by_qml_name};
@@ -92,8 +92,8 @@ impl QPropertyInfo {
                     0 => {}
                     1 => {
                         if let Some(prop_type) = self.get_deduced_type() {
-                            let prop_type_str = unwrapped_ref_to_string(prop_type)?;
-                            let signal_type_str = unwrapped_ref_to_string(signal.get_arg_type(0)?)?;
+                            let prop_type_str = remove_ref_to_string(prop_type)?;
+                            let signal_type_str = remove_ref_to_string(signal.get_arg_type(0)?)?;
                             if prop_type_str != signal_type_str {
                                 return Err(syn::Error::new(notify_signal.span(), format!("Property/signal types mismatch: '{prop_type_str}' and '{signal_type_str}'")));
                             }
@@ -154,8 +154,8 @@ impl QPropertyInfo {
         };
 
         if let Some((second_type, second_span, second_src)) = deduced.get(1) {
-            let first_type_no_ref = unwrapped_ref(first_type);
-            let second_type_no_ref = unwrapped_ref(second_type);
+            let first_type_no_ref = remove_ref(first_type);
+            let second_type_no_ref = remove_ref(second_type);
             if first_type_no_ref != second_type_no_ref {
                 return Err(syn::Error::new(*second_span,
                     format!("Property types deduced from '{first_src}' and '{second_src}' are inconsistent: '{}' vs '{}'",
@@ -255,7 +255,7 @@ impl QPropertyInfo {
             // Generate write callback that calls given setter
             let ty = self.get_deduced_type()
                 .ok_or_else(|| syn::Error::new(self.span, "Failed to generate write property callback. Type is not deduced"))?;
-            let ty_str = unwrapped_ref_to_string(ty)?;
+            let ty_str = remove_ref_to_string(ty)?;
             let pass_arg = get_take_value_code(&format_ident!("value"), self.write_value_pass.unwrap_or(ValuePass::ByValue));
 
             return Ok(Some(quote! {

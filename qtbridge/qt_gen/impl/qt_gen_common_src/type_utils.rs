@@ -14,12 +14,12 @@ pub enum ValuePass {
     // TODO: ByValueCopy ?
 }
 
-pub fn unwrapped_ref_to_string(ty: &syn::Type) -> syn::Result<String> {
-    type_to_string(unwrapped_ref(ty))
+pub fn remove_ref_to_string(ty: &syn::Type) -> syn::Result<String> {
+    type_to_string(remove_ref(ty))
 }
 
 /// Recursively unwraps the type until non-reference type is found
-pub fn unwrapped_ref(ty: &syn::Type) -> &syn::Type {
+pub fn remove_ref(ty: &syn::Type) -> &syn::Type {
     let mut unwrapped = ty;
     loop {
         match unwrapped {
