@@ -23,7 +23,7 @@ pub struct QPropertyInfo{
     constant: Option<syn::Ident>,
 
     /// The type of the property, deduced from getter, setter or member variable. TODO: don't use string here
-    deduced_type: Option<String>,
+    deduced_type: Option<syn::Type>,
 
     /// How the value is passed to the setter (by reference or by value)
     write_value_pass: Option<ValuePass>,
@@ -62,10 +62,9 @@ impl QPropertyInfo {
         self.notify_signal.as_ref()
     }
 
-    fn get_deduced_type(&self) -> String {
+    fn get_deduced_type(&self) -> Option<&syn::Type> {
         self.deduced_type
             .as_ref()
-            .map_or(String::new(), |t| t.clone())
     }
 
     pub fn validate(&self, signals: &[QSignalInfo]) -> syn::Result<()> {
@@ -92,11 +91,11 @@ impl QPropertyInfo {
                 match signal.get_typed_arg_count() {
                     0 => {}
                     1 => {
-                        let prop_type = self.get_deduced_type(); // TODO: handle member as well?
-                        if !prop_type.is_empty() {
-                            let signal_arg_type_str = unwrapped_ref_to_string(signal.get_arg_type(0)?)?;
-                            if prop_type != signal_arg_type_str {
-                                return Err(syn::Error::new(notify_signal.span(), format!("Property/signal types mismatch: '{prop_type}' and '{signal_arg_type_str}'")));
+                        if let Some(prop_type) = self.get_deduced_type() {
+                            let prop_type_str = unwrapped_ref_to_string(prop_type)?;
+                            let signal_type_str = unwrapped_ref_to_string(signal.get_arg_type(0)?)?;
+                            if prop_type_str != signal_type_str {
+                                return Err(syn::Error::new(notify_signal.span(), format!("Property/signal types mismatch: '{prop_type_str}' and '{signal_type_str}'")));
                             }
                         }
                     }
@@ -166,7 +165,7 @@ impl QPropertyInfo {
             }
         }
 
-        self.deduced_type = Some(unwrapped_ref_to_string(first_type)?);
+        self.deduced_type = Some((*first_type).clone());
         Ok(())
     }
 
@@ -183,16 +182,12 @@ impl QPropertyInfo {
 
         let metatype_expr = match &deduced_type {
             // Type of property is deduced from getter, setter or member (works for #[qobject] but not for #[qobject_impl] macro)
-            Some(ty_str) => {
-                let mut accessor_type: syn::Type = syn::parse_str(ty_str)
-                    .map_err(|err| syn::Error::new(*span, format!("Failed to parse type '{ty_str}'while evaluating metatype of qproperty.\nError: '{err}'")))?;
-                if let Some(meta_type) = get_qmetatype_support_for_type(&accessor_type)
-                    .map_err(|err| syn::Error::new(*span, format!("Type '{ty_str}' of qproperty can not be mapped to qt.\nError: {err}")))?
-                {
-                    accessor_type = meta_type;
-                }
+            Some(ty) => {
+                let meta_type = get_qmetatype_support_for_type(&ty)
+                    .map_err(|err| syn::Error::new(*span, format!("Type '{}' of qproperty can not be mapped to qt.\nError: {err}", type_to_string_fallback(ty))))?
+                    .unwrap_or_else(|| ty.clone());
                 quote! {
-                    #accessor_type::get_qmetatype()
+                    #meta_type::get_qmetatype()
                 }
             },
             // Get an expression that will determine metatype using runtime function
@@ -258,8 +253,9 @@ impl QPropertyInfo {
 
         if let Some(setter_fn) = &self.write_method {
             // Generate write callback that calls given setter
-            let ty_str = self.deduced_type.as_ref()
+            let ty = self.get_deduced_type()
                 .ok_or_else(|| syn::Error::new(self.span, "Failed to generate write property callback. Type is not deduced"))?;
+            let ty_str = unwrapped_ref_to_string(ty)?;
             let pass_arg = get_take_value_code(&format_ident!("value"), self.write_value_pass.unwrap_or(ValuePass::ByValue));
 
             return Ok(Some(quote! {
