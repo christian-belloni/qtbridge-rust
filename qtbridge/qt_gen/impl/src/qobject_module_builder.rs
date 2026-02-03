@@ -85,8 +85,6 @@ impl QObjectModuleBuilder {
         let drop_impl = self.generate_drop_trait_if_missing()?;
         let impl_details = iface_impl.generate_impl_details()
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation details block.\nError:{err}")))?;
-        let qobject_funcs = iface_impl.generate_qobject_funcs()
-            .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate code block with auxiliary functions.\nError:{err}")))?;
         let iface_proxy_get_trait = iface_impl.generate_iface_proxy_get_trait_impl()
             .map_err(|err: syn::Error| syn::Error::new(err.span(), format!("Failed to generate code block with interface functions implementation.\nError:{err}")))?;
         let iface_trait = iface_impl.generate_iface_base_trait_impl()
@@ -111,10 +109,8 @@ impl QObjectModuleBuilder {
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaTypeInterfaceGet trait.\nError: {}", err)))?;
 
         // Concat additional items to the source items processed
-        // output_module_items.push(iface_base_impl.into());                  // impl block with the base functions
         output_module_items.push(iface_trait.into());                      // Rust implementation of C++ interface methods
         output_module_items.push(iface_proxy_get_trait.into());
-        output_module_items.push(qobject_funcs.into());                    // Impl block with functions needed to attach, detach and reference QObject
         if let Some(drop) = drop_impl {
             output_module_items.push(drop.into());
         }
@@ -222,8 +218,10 @@ impl QObjectModuleBuilder {
             *semi = Some(Default::default());
         }
 
+        let trait_library = self.origin.trait_module();
+
         let drop_expr: syn::Expr = syn::parse2(quote!{
-            self.detach_qobject()
+            <Self as #trait_library::QObjectHolder>::detach_qobject(self)
         })?;
         new_item_fn.block.stmts.push(syn::Stmt::Expr(drop_expr, Some(Default::default())));
 
@@ -344,13 +342,14 @@ impl QObjectModuleBuilder {
 
         let struct_ident = &self.struct_ident;
         let (impl_generics, type_generics, where_clause) = self.struct_generics.split_for_impl();
+        let trait_library = self.origin.trait_module();
 
         let drop = syn::parse2::<syn::ItemImpl>(quote! {
             impl #impl_generics Drop for #struct_ident #type_generics
             #where_clause
             {
                 fn drop(&mut self) {
-                    self.detach_qobject();
+                    <Self as #trait_library::QObjectHolder>::detach_qobject(self);
                 }
             }
         })?;

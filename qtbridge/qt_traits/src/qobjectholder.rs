@@ -13,7 +13,7 @@ use bridge::QMetaInfo;
 ///
 /// The functions are meant to be called by other generated code and should not
 /// be called manually.
-pub trait QObjectHolder : QMetaInfo {
+pub trait QObjectHolder : QMetaInfo + Default {
     /// Alias for the Rust proxy type corresponding to the user-defined type.
     /// The Rust proxy is an intermediate layer between the Rust object and the C++ proxy,
     /// forwarding calls in both directions and managing borrowing of the Rust object
@@ -84,4 +84,43 @@ pub trait QObjectHolder : QMetaInfo {
         let qobject_ref = instance_ref.get_qobject();
         dynamic_meta.set_to_qobject(qobject_ref);
     }
+
+    /// Create a new default-initialized object of this type with a `QObject` already attached.
+    /// The object must remain at its original heap location and must not be moved out of `Rc<RefCell<T>>`.
+    /// TODO: rename it so that 'qobject' is not exposed to the user.
+    /// TODO: or attach a qobject on demand/when sending the object to QML engine?.
+    fn default_with_attached_qobject() -> std::rc::Rc<std::cell::RefCell<Self>> {
+        let instance = std::rc::Rc::new(std::cell::RefCell::new(Self::default()));
+        Self::attach_qobject(&instance);
+        instance
+    }
+    /// Attach a dedicated `QObject` to the Rust object given as an argument.
+    /// Rust object must remain at its original heap location and must not be moved out of `Rc<RefCell<T>>`.
+    /// TODO: rename it so that 'qobject' is not exposed to the user.
+    /// TODO: or attach a qobject on demand/when sending the object to QML engine?.
+    fn attach_qobject(instance: &std::rc::Rc<std::cell::RefCell<Self>>) {
+        Self::register_instance_in_map(
+            instance.clone(),
+            false,
+        );
+        Self::set_dynamic_meta(instance);
+    }
+    /// Detach and remove the dedicated `QObject` from the specified object.
+    /// This function is intended to be called during the `Drop` of this type.
+    /// TODO: Rename it so that 'qobject' is not exposed to the user.
+    /// TODO: Document somewhere (in the documentation of #[qobject_impl]?) that this function must be called from the `Drop` implementation of the user-defined type.
+    fn detach_qobject(&self) {
+        if let Some(qobj) = Self::try_get_qobject(self) {
+            QObject::delete(std::ptr::from_mut(qobj));
+        }
+    }
+
+    /// Return a QVariant containing a pointer to the QObject proxy
+    /// corresponding to 'self'.
+    fn as_qvariant(&self) -> qt_type_lib::QVariant {
+        let qobj_ref = self.get_qobject();
+        let qobj_ptr = std::ptr::from_mut(qobj_ref);
+        qobj_ptr.into()
+    }
 }
+

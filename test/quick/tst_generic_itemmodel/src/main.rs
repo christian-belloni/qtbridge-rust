@@ -4,6 +4,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use qtbridge::{qobject, QApp};
+use qtbridge::QObjectHolder;
 
 #[qobject(Base = QAbstractItemModel)]
 mod backend {

@@ -24,9 +24,6 @@ pub struct QObjectImplOutput {
     // implementation of trait consisting of virtual methods of C++ interface
     pub iface_trait: syn::ItemImpl,
 
-    /// 'impl' block containing functions to attach/detach/access proxies
-    pub qobject_funcs: syn::ItemImpl,
-
     /// Implementation of QMetaInfo trait
     pub qmeta_info_impl: TokenStream,
 
@@ -41,13 +38,12 @@ impl QObjectImplOutput {
     // Implement as regular function but not as ToTokens trait
     // not to add a 'quote' dependency to qt_gen project
     pub fn to_token_stream(&self) -> TokenStream {
-        let Self{ new_impl, iface_proxy_get_trait, iface_trait, qobject_funcs, qmeta_info_impl, qmetatype_iface_get_impl, impl_details } = &self;
+        let Self{ new_impl, iface_proxy_get_trait, iface_trait, qmeta_info_impl, qmetatype_iface_get_impl, impl_details } = &self;
 
         quote!{
             #new_impl
             #iface_proxy_get_trait
             #iface_trait
-            #qobject_funcs
             #qmeta_info_impl
             #qmetatype_iface_get_impl
             #impl_details
@@ -144,8 +140,6 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream, origin: &CallOrigin
 
     let impl_details = iface_impl.generate_impl_details()
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation details block.\nError:{err}")))?;
-    let qobject_funcs = iface_impl.generate_qobject_funcs()
-        .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate code block with auxiliary functions.\nError:{err}")))?;
     let iface_proxy_get_trait = iface_impl.generate_iface_proxy_get_trait_impl()
             .map_err(|err: syn::Error| syn::Error::new(err.span(), format!("Failed to generate code block with interface functions implementation.\nError:{err}")))?;
         let iface_trait = iface_impl.generate_iface_base_trait_impl()
@@ -175,7 +169,6 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream, origin: &CallOrigin
         new_impl,
         iface_proxy_get_trait,
         iface_trait,
-        qobject_funcs,
         qmeta_info_impl,
         qmetatype_iface_get_impl,
         impl_details,

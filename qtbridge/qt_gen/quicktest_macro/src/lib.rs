@@ -100,6 +100,7 @@ pub fn run_quick_test(attr: TokenStream, item: TokenStream) -> TokenStream {
 
                     use qtbridge::qt_type_lib::QVariantMap;
                     use qtbridge::quicktest::quick_test_main_with_properties;
+                    use qtbridge::QObjectHolder;
 
                     let test_object = #class_ident::default_with_attached_qobject();
                     let properties = QVariantMap::from((#name_ident, test_object.borrow().as_qvariant()));

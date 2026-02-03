@@ -34,38 +34,9 @@ mod some_module {
             self
         }
     }
-    impl SomeStruct {
-        pub fn default_with_attached_qobject() -> std::rc::Rc<std::cell::RefCell<Self>> {
-            let instance = std::rc::Rc::new(std::cell::RefCell::new(Self::default()));
-            Self::attach_qobject(&instance);
-            instance
-        }
-        pub fn attach_qobject(instance: &std::rc::Rc<std::cell::RefCell<Self>>) {
-            <Self as qtbridge::qt_traits::QObjectHolder>::register_instance_in_map(
-                instance.clone(),
-                false,
-            );
-            <Self as qtbridge::qt_traits::QObjectHolder>::set_dynamic_meta(instance);
-        }
-        pub fn detach_qobject(&self) {
-            if let Some(qobj) = <Self as qtbridge::qt_traits::QObjectHolder>::try_get_qobject(self)
-            {
-                qtbridge::qt_type_lib::QObject::delete(std::ptr::from_mut(qobj));
-            }
-        }
-        pub fn get_qobject(&self) -> &mut qtbridge::qt_type_lib::QObject {
-            <Self as qtbridge::qt_traits::QObjectHolder>::get_qobject(self)
-        }
-        pub fn as_qvariant(&self) -> qtbridge::qt_type_lib::QVariant {
-            let qobj_ref = <Self as qtbridge::qt_traits::QObjectHolder>::get_qobject(self);
-            let qobj_ptr = std::ptr::from_mut(qobj_ref);
-            qobj_ptr.into()
-        }
-    }
     impl Drop for SomeStruct {
         fn drop(&mut self) {
-            self.detach_qobject();
-        }
+            <Self as qtbridge::qt_traits::QObjectHolder>::detach_qobject(self);        }
     }
     impl qtbridge::bridge::QMetaInfo for SomeStruct {
         fn class_name() -> &'static str {

@@ -74,8 +74,7 @@ fn build_constructor_body(struct_ident: &syn::Ident, is_singleton: bool) -> Toke
                 let instance = std::rc::Rc::new(std::cell::RefCell::new(<#struct_ident as Default>::default()));
                 <#struct_ident as qtbridge::qt_traits::QObjectHolder>::register_instance_in_map(instance.clone(), true);
                 <#struct_ident as qtbridge::qt_traits::QObjectHolder>::set_dynamic_meta(&instance);
-                let instance_ref = &instance.borrow();
-                instance_ref.get_qobject()
+                <#struct_ident as qtbridge::QObjectHolder>::get_qobject(&instance.borrow())
             };
         }
     } else {

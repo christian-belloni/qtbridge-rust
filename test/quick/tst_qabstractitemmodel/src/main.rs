@@ -3,6 +3,7 @@
 
 use qtbridge::{qobject, run_quick_test, QApp};
 use qtbridge::qt_type_lib::QVariant;
+use qtbridge::QObjectHolder;
 
 #[derive(Clone)]
 pub struct Cell {

@@ -3,6 +3,7 @@
 
 use qtbridge::qobject;
 use qtbridge::{QVec, QModelItem, QApp};
+use qtbridge::QObjectHolder;
 
 use std::collections::HashMap;
 use std::cell::RefCell;

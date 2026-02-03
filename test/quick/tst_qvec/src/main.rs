@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use qtbridge::{qobject, QVec, QApp};
+use qtbridge::QObjectHolder;
 
 use std::cell::RefCell;
 use std::rc::Rc;

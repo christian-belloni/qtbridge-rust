@@ -1,7 +1,7 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 #![cfg(test)]
-use qtbridge::{QApp, qobject};
+use qtbridge::{QApp, QObjectHolder, qobject};
 
 #[qobject]
 pub mod test_object {
