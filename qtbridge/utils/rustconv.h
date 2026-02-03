@@ -74,6 +74,12 @@ inline QByteArray RustSliceToQByteArray(rust::Slice<const T> slice)
     return { reinterpret_cast<const char*>(slice.data()), static_cast<qsizetype>(slice.size()) };
 }
 
+template <typename T>
+inline QSpan<const T> RustSliceToQSpan(rust::Slice<const T> slice)
+{
+    return QSpan(slice.begin(), slice.end());
+}
+
 template <typename RustContainerT, typename CppT = std::remove_const_t<typename RustContainerT::value_type> >
 inline std::vector<CppT> RustContainerToCppVector(RustContainerT src)
 {

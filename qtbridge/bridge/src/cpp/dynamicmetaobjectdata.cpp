@@ -1,12 +1,14 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-#include "dynamicmetaobjectdata_cpp.h"
+#include "dynamicmetaobjectdata.h"
 #include "metamethodparams.h"
 #include "rustobjectgetter.h"
 #include <QMetaType>
 #include <QObject>
 #include <QScopedPointer>
+#include <QSpan>
+#include <QVariant>
 #include <private/qobject_p.h>
 #include <private/qmetaobjectbuilder_p.h>
 #include <map>
@@ -15,7 +17,7 @@
 
 using namespace std::string_literals;
 
-class DynamicMetaObjectData_Cpp::Impl : public QDynamicMetaObjectData
+class DynamicMetaObjectData::Impl : public QDynamicMetaObjectData
 {
 public:
     using PropertyId = int;
@@ -35,7 +37,7 @@ public:
 
     // TODO: assume that
     //      notifySignal = name + "Changed"; ?
-    void registerProperty(const QByteArray& name, const QMetaType& metaType, PropertyGetterFunc&& getter, PropertySetterFunc&& setter, bool isConstant, const QByteArray& notifySignal)
+    void registerProperty(const QByteArray& name, const QMetaType& metaType, PropertyGetterFn getter, std::optional<PropertySetterFn> setter, bool isConstant, const QByteArray& notifySignal)
     {
         std::optional<int> signal;
         if (!notifySignal.isEmpty())
@@ -48,7 +50,7 @@ public:
         doRegisterProperty(name, metaType, std::move(getter), std::move(setter), isConstant, signal);
     }
 
-    void registerSignal(const QByteArray& name, const std::vector<QMetaType>& argMetaTypes)
+    void registerSignal(const QByteArray& name, QSpan<const QMetaType> argMetaTypes)
     {
         if (!m_mob)
             throw std::runtime_error("Signal registration must be done before endMetaRegistration() call");
@@ -68,7 +70,7 @@ public:
 #endif // _DEBUG
     }
 
-    void registerSlot(const QByteArray& name, const std::vector<QMetaType>& argMetaTypes, SlotFunc&& func)
+    void registerSlot(const QByteArray& name, QSpan<const QMetaType> argMetaTypes, SlotCallbackFn&& func)
     {
         if (!m_mob)
             throw std::runtime_error("Slot registration must be done before endMetaRegistration() call");
@@ -100,7 +102,7 @@ public:
         }
     }
 
-    void emitSignal(QObject* obj, const QByteArray& name, const MetaMethodOutgoingParams& params)
+    void emitSignal(QObject& obj, const QByteArray& name, const MetaMethodOutgoingParams& params)
     {
         if (auto idx = getSignalIndexByName(name))
             doEmitSignal(obj, *idx, params);
@@ -117,7 +119,7 @@ public:
     }
 
 private:
-    void doRegisterProperty(const QByteArray& name, const QMetaType& metaType, PropertyGetterFunc&& getter, PropertySetterFunc&& setter, bool isConstant, std::optional<int> signalIndex)
+    void doRegisterProperty(const QByteArray& name, const QMetaType& metaType, PropertyGetterFn getter, std::optional<PropertySetterFn> setter, bool isConstant, std::optional<int> signalIndex)
     {
         if (!m_mob)
             throw std::runtime_error("Property registration must be done before endMetaRegistration() call");
@@ -125,7 +127,7 @@ private:
         if (!metaType.isValid())
             throw std::runtime_error("Invalid property type");
 
-        const bool writable = static_cast<bool>(setter);
+        const bool writable = setter.has_value();
         metaType.registerType();
 
         //TODO: pass notifierId argument to addProperty?
@@ -146,7 +148,7 @@ private:
         }
 
         const auto localId = builder.index();
-        auto [_, added] = m_properties.emplace(localId, PropertyInfo{ metaType, std::move(getter), std::move(setter) });
+        auto [_, added] = m_properties.emplace(localId, PropertyInfo{ metaType, std::move(getter), std::move(*setter) });
         if (!added)
             throw std::runtime_error("Failed to register property");
 
@@ -155,14 +157,14 @@ private:
 #endif // _DEBUG
     }
 
-    void doEmitSignal(QObject* obj, SignalId id, void** params)
+    void doEmitSignal(QObject& obj, SignalId id, void** params)
     {
         if (!m_mo)
             throw std::logic_error(__func__ + " called before endMetaRegistration()"s);
-        QMetaObject::activate(obj, m_mo.get(), id, params);
+        QMetaObject::activate(&obj, m_mo.get(), id, params);
     }
 
-     void doEmitSignal(QObject* obj, SignalId id, const MetaMethodOutgoingParams& params)
+     void doEmitSignal(QObject& obj, SignalId id, const MetaMethodOutgoingParams& params)
      {
          const QMetaMethod method = getMetaMethod(id);
          auto params_copy = params; // Do the copy to handle mutability of composed variant data
@@ -234,7 +236,7 @@ private:
 #ifdef _DEBUG
                 Q_ASSERT(method.methodSignature() == m_signalSignatures.at(methodId));
 #endif // _DEBUG
-                doEmitSignal(o, methodId, argv);
+                doEmitSignal(*o, methodId, argv);
                 return true;
             }
             break;
@@ -246,12 +248,9 @@ private:
 #ifdef _DEBUG
                 Q_ASSERT(method.methodSignature() == m_slotSignatures.at(methodId));
 #endif // _DEBUG
-                if (auto& callback = slotIt->second.m_callback)
-                {
-                    const MetaMethodIncomingParams params(method, argv);
-                    callback(clientPtr, params);
-                    return true;
-                }
+                const MetaMethodIncomingParams params(method, argv);
+                slotIt->second.m_callback(clientPtr, params);
+                return true;
             }
             break;
             default:
@@ -276,8 +275,6 @@ private:
             return false;
 
         auto& getterFunc = propIt->second.m_getter;
-        if (!getterFunc)
-            return false;
 
         const QMetaProperty property = m_mo->property(id);
 #ifdef _DEBUG
@@ -305,9 +302,6 @@ private:
             return false;
 
         auto& setterFunc = propIt->second.m_setter;
-        if (!setterFunc)
-            return false;
-
         const QMetaProperty property = m_mo->property(id);
 #ifdef _DEBUG
         Q_ASSERT(property.name() == m_propertyNames.at(propId));
@@ -318,7 +312,7 @@ private:
         return true;
     }
 
-    static QByteArray generateFuncSignature(const QByteArray& name, const std::vector<QMetaType>& argMetaTypes)
+    static QByteArray generateFuncSignature(const QByteArray& name, const QSpan<const QMetaType>& argMetaTypes)
     {
         QString paramStr;
         for (const auto& type : argMetaTypes)
@@ -364,8 +358,8 @@ private:
     struct PropertyInfo
     {
         QMetaType m_type;
-        PropertyGetterFunc m_getter;
-        PropertySetterFunc m_setter;
+        PropertyGetterFn m_getter;
+        PropertySetterFn m_setter;
     };
 
     struct SignalInfo
@@ -375,7 +369,7 @@ private:
 
     struct SlotInfo
     {
-        SlotFunc m_callback;
+        SlotCallbackFn m_callback;
     };
 
 private:
@@ -393,48 +387,56 @@ private:
 };
 
 
-DynamicMetaObjectData_Cpp::DynamicMetaObjectData_Cpp(const QMetaObject* staticMetaObj, const QByteArray& className)
-    : m_impl(std::make_unique<Impl>(staticMetaObj, className))
+DynamicMetaObjectData::DynamicMetaObjectData(const QMetaObject* staticMetaObj, rust::Str className)
+    : m_impl(std::make_unique<Impl>(staticMetaObj, RustStrToQByteArray(className)))
 {}
 
-DynamicMetaObjectData_Cpp::~DynamicMetaObjectData_Cpp()
-{}
-
-void DynamicMetaObjectData_Cpp::setToQObject(QObject& dst) const
+void DynamicMetaObjectData::setToQObject(QObject& dst) const
 {
     QObjectPrivate::get(&dst)->metaObject = m_impl.get();
 }
 
-const QMetaObject* DynamicMetaObjectData_Cpp::getDynamicQMetaObject() const
+const QMetaObject* DynamicMetaObjectData::getDynamicQMetaObject() const
 {
     return m_impl->getDynamicQMetaObject();
 }
 
-void DynamicMetaObjectData_Cpp::addClassInfo(const QByteArray& name, const QByteArray& value) {
-    m_impl->addClassInfo(name, value);
-}
-
-void DynamicMetaObjectData_Cpp::registerProperty(const QByteArray& name, const QMetaType& metaType, PropertyGetterFunc&& getter, PropertySetterFunc&& setter, bool isConstant, const QByteArray& notifySignal)
+void DynamicMetaObjectData::addClassInfo(rust::Str name, rust::Str value)
 {
-    m_impl->registerProperty(name, metaType, std::move(getter), std::move(setter), isConstant, notifySignal);
+    m_impl->addClassInfo(RustStrToQByteArray(name), RustStrToQByteArray(value));
 }
 
-void DynamicMetaObjectData_Cpp::registerSignal(const QByteArray& name, const std::vector<QMetaType>& argMetaTypes)
+void DynamicMetaObjectData::registerProperty(rust::Str name, const QMetaType& metaType, PropertyGetterFn getter, PropertySetterFn setter, rust::Str notifySignal)
 {
-    m_impl->registerSignal(name, argMetaTypes);
+    m_impl->registerProperty(RustStrToQByteArray(name), metaType, std::move(getter), std::move(setter), false, RustStrToQByteArray(notifySignal));
 }
 
-void DynamicMetaObjectData_Cpp::registerSlot(const QByteArray& name, const std::vector<QMetaType>& argMetaTypes, SlotFunc&& callback)
+void DynamicMetaObjectData::registerPropertyReadOnly(rust::Str name, const QMetaType& metaType, PropertyGetterFn getter, bool isConstant, rust::Str notifySignal)
 {
-    m_impl->registerSlot(name, argMetaTypes, std::move(callback));
+    m_impl->registerProperty(RustStrToQByteArray(name), metaType, std::move(getter), std::nullopt, isConstant, RustStrToQByteArray(notifySignal));
 }
 
-void DynamicMetaObjectData_Cpp::endMetaRegistration()
+void DynamicMetaObjectData::registerSignal(rust::Str name, rust::Slice<const QMetaType> argMetaTypes)
+{
+    m_impl->registerSignal(RustStrToQByteArray(name), RustSliceToQSpan(argMetaTypes));
+}
+
+void DynamicMetaObjectData::registerSlot(rust::Str name, rust::Slice<const QMetaType> argMetaTypes, SlotCallbackFn callback)
+{
+    m_impl->registerSlot(RustStrToQByteArray(name), RustSliceToQSpan(argMetaTypes), std::move(callback));
+}
+
+void DynamicMetaObjectData::endMetaRegistration()
 {
     m_impl->endMetaRegistration();
 }
 
-void DynamicMetaObjectData_Cpp::emitSignal(QObject* obj, const QByteArray& name, const MetaMethodOutgoingParams& params) const
+void DynamicMetaObjectData::emitSignal(QObject& obj, rust::Str name, const MetaMethodOutgoingParams& params) const
 {
-    m_impl->emitSignal(obj, name, params);
+    m_impl->emitSignal(obj, RustStrToQByteArray(name), params);
+}
+
+DynamicMetaObjectData *createDynamicMetaObjectData(rust::Str rustStructName, const QMetaObject& staticMeta)
+{
+    return new DynamicMetaObjectData(&staticMeta, rustStructName);
 }

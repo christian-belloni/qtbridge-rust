@@ -16,8 +16,7 @@ fn main() {
     );
 
     let other_cpp_files: Vec<&str> = vec!(
-        "dynamicmetaobjectdata_cpp.cpp",
-        "dynamicmetaobjectdata_rust.cpp",
+        "dynamicmetaobjectdata.cpp",
         "qresource_rust.cpp"
     );
 

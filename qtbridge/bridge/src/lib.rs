@@ -9,7 +9,7 @@ pub mod qmetainfo;
 pub mod qml_register;
 pub mod qresource;
 
-pub use dynamicmetaobjectdata::{DynamicMetaObjectData_Rust, create_dynamic_meta_object_data};
+pub use dynamicmetaobjectdata::{DynamicMetaObjectData, create_dynamic_meta_object_data};
 pub use qapp::QApp;
 pub use qmetainfo::{QMetaInfo, create_dynamic_meta_object_data_for_type};
 pub use qml_register::QmlRegister;

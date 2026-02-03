@@ -22,10 +22,9 @@ pub mod ffi {
         type QVariant = qt_type_lib::QVariant;
     }
 
-    #[namespace = "rust::bridge"]
     unsafe extern "C++" {
-        include!("cpp/dynamicmetaobjectdata_rust.h");
-        type DynamicMetaObjectData_Rust;
+        include!("cpp/dynamicmetaobjectdata.h");
+        type DynamicMetaObjectData;
 
         #[rust_name = "set_to_qobject"]
         fn setToQObject(&self, dst: &mut QObject);
@@ -55,11 +54,11 @@ pub mod ffi {
         fn getDynamicQMetaObject(self: &Self) -> *const QMetaObject;
 
         #[rust_name = "create_dynamic_meta_object_data"]
-        fn createDynamicMetaObjectData(rust_struct_name: &str, static_meta: &QMetaObject) -> *mut DynamicMetaObjectData_Rust;
+        fn createDynamicMetaObjectData(rust_struct_name: &str, static_meta: &QMetaObject) -> *mut DynamicMetaObjectData;
     }
 }
 
-unsafe impl Sync for crate::DynamicMetaObjectData_Rust {}
+unsafe impl Sync for crate::DynamicMetaObjectData {}
 
-pub use ffi::{DynamicMetaObjectData_Rust, create_dynamic_meta_object_data};
+pub use ffi::{DynamicMetaObjectData, create_dynamic_meta_object_data};
 

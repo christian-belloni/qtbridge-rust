@@ -60,7 +60,7 @@ fn require_that_qobject_impl_macro_handles_signals_slots_and_properties() {
             <Self as qtbridge::qt_traits::QObjectHolder>::ProxyRust::get_static_meta_object()
         }
         fn register_meta(
-            mut meta_obj: std::pin::Pin<&mut qtbridge::bridge::DynamicMetaObjectData_Rust>,
+            mut meta_obj: std::pin::Pin<&mut qtbridge::bridge::DynamicMetaObjectData>,
         ) {
             use qt_type_lib::get_meta_type_id_of_fn_return_value;
             use qt_type_lib::QMetaTypeGet;
@@ -129,11 +129,11 @@ fn require_that_qobject_impl_macro_handles_signals_slots_and_properties() {
                 .add_class_info("DefaultProperty", "this_value");
             meta_obj.as_mut().end_meta_registration();
         }
-        fn get_shared_dynamic_meta_object_data() -> &'static qtbridge::bridge::DynamicMetaObjectData_Rust {
+        fn get_shared_dynamic_meta_object_data() -> &'static qtbridge::bridge::DynamicMetaObjectData {
             use std::any::TypeId;
             use std::cell::RefCell;
             use std::collections::HashMap;
-            thread_local ! (static DYNAMIC_META_MAP : RefCell < HashMap < TypeId , * const qtbridge :: bridge :: DynamicMetaObjectData_Rust >> = RefCell :: new (HashMap :: new ()));
+            thread_local ! (static DYNAMIC_META_MAP : RefCell < HashMap < TypeId , * const qtbridge :: bridge :: DynamicMetaObjectData >> = RefCell :: new (HashMap :: new ()));
             let type_id = TypeId::of::<SomeStruct>();
             {
                 let meta_data_ptr = DYNAMIC_META_MAP.with_borrow(|dynamic_meta_data_map| {
