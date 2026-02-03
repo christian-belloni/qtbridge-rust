@@ -8,6 +8,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use qt_traits::QModelItem;
 
+#[doc(hidden)]
 pub trait QListModelProxyGet {
     fn get_rust_proxy(&self) -> &QListModelProxyRust;
     fn get_rust_proxy_mut(&self) -> &mut QListModelProxyRust;
@@ -128,39 +129,211 @@ where
     }
 }
 
+/// A trait representing a list-based Qt model.
+///
+/// [`QListModel`] provides an interface for list-like data structures
+/// that are exposed to Qt through the Model-View concept.
+/// <https://doc.qt.io/qt-6/qtquick-modelviewsdata-modelview.html>.
+///
+/// This trait requires the `qobject` macro to set up the correct Qt proxy.
+/// The macro will further generate functionality in the form of the
+/// [`QListModelBase`] trait that supplements the [`QListModel`] functionality.
+///
+/// ## Design
+///
+/// - The model owns items of associated type `Item` that has to implement
+///   the [`QModelItem`] trait. Roles are derived from the [`QModelItem`]
+///   implementation.
+/// - Mutation methods are provided in an **unnotified** form, meaning
+///   they modify the underlying data without emitting Qt model signals.
+/// - These methods are used by the automatically implemented [`QListModelBase`]
+///   trait to create methods that collaborate the UI about changes in collections.
+///
+/// As a minimum you have to implement the methods [`QListModel::len`] and
+/// [`QListModel::get`] to create a readable list model. Further methods can be
+/// implemented to make the model fully mutable.
+///
+/// Methods that do not return an [`Option`] or a boolean value must succeed
+/// and perform exactly the operation described in the documentation to avoid
+/// invalidating the synchronization between any views and the underlying data.
+/// No additional structural changes may occur outside the provided functions.
+///
+/// **Note, that default implementations may `panic!`** if the corresponding method is
+/// not overridden. It is your responsibility to make sure that these functions are
+/// not called from QML.
+///
+/// ## Example
+///
+/// ``` ignore
+/// use qtbridge::qobject;
+/// #[qobject(Base = QListModel)]
+/// mod backend {
+///     use qtbridge::qml_element;
+///     use qtbridge::{QListModel, QListModelBase};
+///
+///     #[derive(Default)]
+///     #[qml_element]
+///     pub struct Backend {
+///         string_list: Vec<String>,
+///     }
+///     impl QListModel for Backend {
+///         type Item = String;
+///
+///         fn len(&self) -> usize {
+///             self.string_list.len()
+///         }
+///         fn get(&self, index: usize) -> Option<&Self::Item> {
+///             self.string_list.get(index)
+///         }
+///     }
+/// }
+///
+/// ```
+///
+/// The list model can be used in QML views as follows
+/// ``` qml, ignore
+/// ListView {
+///     model: backend
+///     delegate: Text {
+///         required property string value
+///         text: value
+///     }
+/// }
+/// ```
+
 pub trait QListModel : QListModelProxyGet {
+    /// The item type stored in the model.
+    ///
+    /// Items must:
+    /// - Implement [`QModelItem`] to integrate with Qt
+    /// - Be [`Default`] for creating new items
+    /// - Be [`Clone`] for safe data access and copying
     type Item: QModelItem + Default + Clone;
 
+    /// Returns the number of items in the list.
     fn len(&self) -> usize;
 
+    /// Returns a reference to the item at `index`, or `None` if the index
+    /// is out of bounds.
     fn get(&self, index: usize) -> Option<&Self::Item>;
 
-    fn reset_unnotified(&mut self) {}
-
+    /// Sets the item at `index`. Reimplement this function but call
+    /// [`QListModelBase::set`] to notify Qt about the modification.
+    ///
+    /// Returns `true` if the value was successfully set, or `false` if the
+    /// operation failed (e.g., index out of bounds or value fails
+    /// validation by the business logic).
+    ///
+    /// The default implementation does nothing and returns `false`.
     fn set_unnotified(&mut self, _index: usize, _value: Self::Item) -> bool {
         false
     }
 
+    /// Appends an item to the end of the model. Reimplement this
+    /// function but call [`QListModelBase::push`] to notify Qt about the
+    /// modification.
+    ///
+    /// The function has to accept the value. Validation has to be
+    /// done before this function is called.
+    ///
+    /// The default implementation falls back to [`QListModel::insert_unnotified`],
+    /// which in turn panics by default.
     fn push_unnotified(&mut self, value: Self::Item) {
         self.insert_unnotified(self.len(), value);
     }
 
+    /// Inserts `value` at `index`. Reimplement this function but
+    /// call [`QListModelBase::insert`] to notify Qt about the
+    /// modification.
+    ///
+    /// The function has to accept the value. Validation has to be
+    /// done before this function is called.
+    ///
+    /// Panics by default. Implementors must override this method to support
+    /// insertion.
     fn insert_unnotified(&mut self, _index: usize, _value: Self::Item) {
         panic!("In order to use insert, implement insert_unnotified")
     }
 
+    /// Removes and returns the last item in the model. Reimplement this
+    /// function but call [`QListModelBase::pop`] to notify Qt
+    /// about the modification.
+    ///
+    /// Returns `None` if the model is empty. If the model is not empty,
+    /// the function has to guarantee the success of the operation.
+    ///
+    /// The default implementation falls back to [`QListModel::remove_unnotified`],
+    /// which in turn panics by default.
     fn pop_unnotified(&mut self) -> Option<Self::Item> {
         (self.len() > 0)
             .then(|| self.remove_unnotified(self.len() - 1))
     }
 
+    /// Removes and returns the item at `index`. Reimplement this
+    /// function but call [`QListModelBase::remove`] to notify Qt
+    /// about the modification.
+    ///
+    /// The index must be valid and the model has to guarantee the success of
+    /// the operation.
+    ///
+    /// Panics by default. Implementors must override this method to support
+    /// removal.
     fn remove_unnotified(&mut self, _index: usize) -> Self::Item {
         panic!("In order to use remove, implement remove_unnotified")
     }
+
+    /// Resets the model’s internal storage. Reimplement this function but
+    /// call [`QListModelBase::reset`] to notify Qt about the modification.
+    ///
+    /// Panics by default. Implementors must override this method to support
+    /// a model reset.
+    ///
+    /// After [`QListModel::reset_unnotified`] returns, the internal storage
+    /// must reflect the new model state: [`QListModel::len`] and
+    /// [`QListModel::get`] must be consistent with the updated storage.
+    fn reset_unnotified(&mut self) {
+        panic!("In order to use reset, implement reset_unnotified")
+    }
+
 }
 
+/// A data-change signaling extension of [`QListModel`].
+///
+/// `QListModelBase` provides the signaling mutation API for list models.
+/// The methods defined in this trait wrap the corresponding
+/// `*_unnotified` methods from [`QListModel`] and automatically emit the
+/// required Qt model signals (such as `beginInsertRows`, `endInsertRows`,
+/// `dataChanged`, etc.). This allows the UI to react to changes in the
+/// underlying data.
+///
+/// This trait is automatically implemented by the [`qobject`] macro and
+/// should not be implemented manually.
+///
+/// ## Usage
+///
+/// When modifying data that you made accessible with [`QListModel`], you
+/// have to use the functions provided by this trait. Do **not** call the
+/// `*_unnotified` methods from [`QListModel`] directly unless you are
+/// manually handling Qt model notifications.
+///
+/// The correctness of this trait depends on implementors of [`QListModel`]
+/// ensuring that:
+///
+/// * The `*_unnotified` methods perform the exact mutation corresponding
+///   to the emitted Qt signals.
+/// * No additional structural changes occur.
+///
+/// Violating this contract may result in undefined behavior in Qt views.
 pub trait QListModelBase : QListModelProxyGet + QListModel {
-    fn set(&mut self, index: usize, value: Self::Item) -> bool {
+    /// Sets the item at `index` and notifies any attached views about
+    /// the change, if the operation is successful.
+    ///
+    /// This method calls [`QListModel::set_unnotified`].
+    ///
+    /// Returns `true` if the value was successfully updated,
+    /// or `false` if the operation failed (for example, if the index
+    /// was out of bounds or validation failed).
+    fn set(&mut self, index: usize, value: <Self as QListModel>::Item) -> bool {
         if self.set_unnotified(index, value) {
             let model_index = <Self as QListModelProxyGet>::get_rust_proxy(self).base_index(index as i32, 0 , &QModelIndex::default());
             self.get_rust_proxy_mut().base_data_changed(&model_index, &model_index);
@@ -169,16 +342,34 @@ pub trait QListModelBase : QListModelProxyGet + QListModel {
             false
         }
     }
+
+    /// Appends `value` to the end of the model and notifies any attached views about
+    /// the change.
+    ///
+    /// This method calls [`QListModel::push_unnotified`].
     fn push(&mut self, value: Self::Item) {
         self.get_rust_proxy_mut().base_begin_insert_rows(&QModelIndex::default(), self.len() as i32, self.len() as i32);
         self.push_unnotified(value);
         self.get_rust_proxy_mut().base_end_insert_rows();
     }
+
+    /// Inserts `value` at `index` and notifies any attached views about
+    /// the change.
+    ///
+    /// This method calls [`QListModel::insert_unnotified`].
     fn insert(&mut self, index: usize, value: Self::Item) {
         self.get_rust_proxy_mut().base_begin_insert_rows(&QModelIndex::default(), index as i32, index as i32);
         self.insert_unnotified(index, value);
         self.get_rust_proxy_mut().base_end_insert_rows();
     }
+
+    /// Removes and returns the last item in the model and notifies any attached views about
+    /// the change.
+    ///
+    /// This method calls [`QListModel::pop_unnotified`].
+    ///
+    /// Returns `None` if the model is empty. If the model is not empty,
+    /// the function has to guarantee the success of the operation.
     fn pop(&mut self) -> Option<Self::Item> {
         if self.len() == 0 {
             return None;
@@ -188,12 +379,20 @@ pub trait QListModelBase : QListModelProxyGet + QListModel {
         self.get_rust_proxy_mut().base_end_remove_rows();
         value
     }
+
+    /// Removes and returns the item at `index` and notifies any attached views about
+    /// the change.
+    ///
+    /// This method calls [`QListModel::remove_unnotified`].
     fn remove(&mut self, index: usize) -> Self::Item {
         self.get_rust_proxy_mut().base_begin_remove_rows(&QModelIndex::default(), index as i32, index as i32);
         let value = self.remove_unnotified(index);
         self.get_rust_proxy_mut().base_end_remove_rows();
         value
     }
+    /// Resets the entire model and notifies any attached views to resyncronize all data.
+    ///
+    /// This method calls [`QListModel::reset_unnotified`].
     fn reset(&mut self) {
         self.get_rust_proxy_mut().base_begin_reset_model();
         self.reset_unnotified();
