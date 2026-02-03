@@ -16,11 +16,6 @@ class QObject;
 class DynamicMetaObjectData_Cpp
 {
 public:
-//TODO: create wrappers around int-based handles for signal & slots
-// to make them more strong typed (impossible to mixup signal/slot argument values)
-    using ClientSignalId  = int;
-    using SignalOrSlotId = int;
-
     // C++ callbacks
     using PropertyGetterFunc = std::function<QVariant(uint8_t* receiver)>;
     using PropertySetterFunc = std::function<void(uint8_t* receiver, const QVariant& value)>;
@@ -34,14 +29,12 @@ public:
 
     void addClassInfo(const QByteArray& name, const QByteArray& value);
     // Registration of properties/signals/events
-    void registerPropertyId(const QByteArray& name, const QMetaType& metaType, PropertyGetterFunc&& getter, PropertySetterFunc&& setter, bool isConstant, ClientSignalId notifySignalId/*client signal id*/);
     void registerProperty  (const QByteArray& name, const QMetaType& metaType, PropertyGetterFunc&& getter, PropertySetterFunc&& setter, bool isConstant, const QByteArray& notifySignal);
-    void registerSignal(const QByteArray& name, const std::vector<QMetaType>& argMetaTypes, std::optional<ClientSignalId> clientSignalId = std::nullopt);
+    void registerSignal(const QByteArray& name, const std::vector<QMetaType>& argMetaTypes);
     void registerSlot(const QByteArray& name, const std::vector<QMetaType>& argMetaTypes, SlotFunc&& callback);
     void endMetaRegistration();
 
     void emitSignal(QObject* obj, const QByteArray& name, const MetaMethodOutgoingParams& params) const;
-    void emitSignal(QObject* obj, ClientSignalId clientSignalId, const MetaMethodOutgoingParams& params) const;
 
 private:
     // Use pimpl idiom not to expose private APIs

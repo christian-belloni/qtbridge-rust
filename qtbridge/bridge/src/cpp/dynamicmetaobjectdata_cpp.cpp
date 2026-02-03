@@ -33,19 +33,6 @@ public:
         m_mob->addClassInfo(name, value);
     }
 
-     void registerPropertyId(const QByteArray& name, const QMetaType& metaType, PropertyGetterFunc&& getter, PropertySetterFunc&& setter, bool isConstant, int notifySignalId)
-    {
-        std::optional<int> signal;
-        if (notifySignalId >= 0)
-        {
-            signal = getSignalIndexByClientId(notifySignalId);
-            if (!signal)
-                throw std::runtime_error("Failed to find signal by client signal id");
-        }
-
-        doRegisterProperty(name, metaType, std::move(getter), std::move(setter), isConstant, signal);
-    }
-
     // TODO: assume that
     //      notifySignal = name + "Changed"; ?
     void registerProperty(const QByteArray& name, const QMetaType& metaType, PropertyGetterFunc&& getter, PropertySetterFunc&& setter, bool isConstant, const QByteArray& notifySignal)
@@ -61,21 +48,10 @@ public:
         doRegisterProperty(name, metaType, std::move(getter), std::move(setter), isConstant, signal);
     }
 
-    void registerSignal(const QByteArray& name, const std::vector<QMetaType>& argMetaTypes, std::optional<int> clientSignalid)
+    void registerSignal(const QByteArray& name, const std::vector<QMetaType>& argMetaTypes)
     {
         if (!m_mob)
             throw std::runtime_error("Signal registration must be done before endMetaRegistration() call");
-
-        if (clientSignalid.has_value())
-        {
-            // check that signal with given Id is not yet registered
-            if (std::any_of(m_signals.begin(), m_signals.end(),
-                [clientId = *clientSignalid](const auto& entry) {
-                    const auto& entrySignalId = entry.second.m_clientId;
-                    return entrySignalId && *entrySignalId == clientId;
-                }))
-                    throw std::runtime_error("Signal for given Id is registered already");
-        }
 
         for (const QMetaType& type: argMetaTypes)
             type.registerType();
@@ -83,7 +59,7 @@ public:
         QByteArray signature = generateFuncSignature(name, argMetaTypes);
         QMetaMethodBuilder builder = m_mob->addSignal(signature);
         const int localId = builder.index();
-        auto [_, added] = m_signals.emplace(localId, SignalInfo{ name, clientSignalid });
+        auto [_, added] = m_signals.emplace(localId, SignalInfo{ name });
         if (!added)
             throw std::runtime_error("Failed to register signal");
 
@@ -131,24 +107,6 @@ public:
         else
             throw std::runtime_error("Failed to find signal by name");
     }
-
-    void emitSignalId(QObject* obj, int clientSignalId, const MetaMethodOutgoingParams& params)
-    {
-        if (auto idx = getSignalIndexByClientId(clientSignalId))
-            doEmitSignal(obj, *idx, params);
-        else
-            throw std::runtime_error("Failed to find signal by signal id");
-    }
-
-    // static void connect(const Impl& sender, SignalId signalId, const Impl& receiver, SignalOrSlotId signalOrSlotId)
-    // {
-    //     const QMetaMethod senderMethod = sender.getMetaMethod(signalId);
-    //     const QMetaMethod receiverMethod = receiver.getMetaMethod(signalOrSlotId);
-    //
-    //     TODO: re-implement this
-    //     QObject::connect(&sender.m_qobject, senderMethod,
-    //                     &receiver.m_qobject, receiverMethod);
-    // }
 
     const QMetaObject* getDynamicQMetaObject()
     {
@@ -402,18 +360,6 @@ private:
         return std::nullopt;
     }
 
-    std::optional<int> getSignalIndexByClientId(int clientId) const
-    {
-        for (const auto& [idx, signalInfo] : m_signals)
-        {
-            const auto& curClientId = signalInfo.m_clientId;
-            if (curClientId && *curClientId == clientId)
-                return idx;
-        }
-
-        return std::nullopt;
-    }
-
 private:
     struct PropertyInfo
     {
@@ -425,7 +371,6 @@ private:
     struct SignalInfo
     {
         QByteArray m_name;
-        std::optional<int> m_clientId;
     };
 
     struct SlotInfo
@@ -469,19 +414,14 @@ void DynamicMetaObjectData_Cpp::addClassInfo(const QByteArray& name, const QByte
     m_impl->addClassInfo(name, value);
 }
 
-void DynamicMetaObjectData_Cpp::registerPropertyId(const QByteArray& name, const QMetaType& metaType, PropertyGetterFunc&& getter, PropertySetterFunc&& setter, bool isConstant, ClientSignalId notifySignal)
-{
-    m_impl->registerPropertyId(name, metaType, std::move(getter), std::move(setter), isConstant, notifySignal);
-}
-
 void DynamicMetaObjectData_Cpp::registerProperty(const QByteArray& name, const QMetaType& metaType, PropertyGetterFunc&& getter, PropertySetterFunc&& setter, bool isConstant, const QByteArray& notifySignal)
 {
     m_impl->registerProperty(name, metaType, std::move(getter), std::move(setter), isConstant, notifySignal);
 }
 
-void DynamicMetaObjectData_Cpp::registerSignal(const QByteArray& name, const std::vector<QMetaType>& argMetaTypes, std::optional<ClientSignalId> clientSignalId)
+void DynamicMetaObjectData_Cpp::registerSignal(const QByteArray& name, const std::vector<QMetaType>& argMetaTypes)
 {
-    m_impl->registerSignal(name, argMetaTypes, clientSignalId);
+    m_impl->registerSignal(name, argMetaTypes);
 }
 
 void DynamicMetaObjectData_Cpp::registerSlot(const QByteArray& name, const std::vector<QMetaType>& argMetaTypes, SlotFunc&& callback)
@@ -497,9 +437,4 @@ void DynamicMetaObjectData_Cpp::endMetaRegistration()
 void DynamicMetaObjectData_Cpp::emitSignal(QObject* obj, const QByteArray& name, const MetaMethodOutgoingParams& params) const
 {
     m_impl->emitSignal(obj, name, params);
-}
-
-void DynamicMetaObjectData_Cpp::emitSignal(QObject* obj, ClientSignalId clientSignalId, const MetaMethodOutgoingParams& params) const
-{
-    m_impl->emitSignalId(obj, clientSignalId, params);
 }

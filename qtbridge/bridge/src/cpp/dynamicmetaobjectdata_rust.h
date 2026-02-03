@@ -21,9 +21,6 @@ namespace rust::bridge
  class DynamicMetaObjectData_Rust
 {
 public:
-    using ClientSignalId = int;
-    using SignalOrSlotId = int;
-
 // Rust callbacks to be passed across the bridge
     using PropertyGetterFn = rust::Fn<QVariant(uint8_t* receiver)>;
     using PropertySetterFn = rust::Fn<void(uint8_t* receiver, const QVariant& value)>;
@@ -36,16 +33,13 @@ public:
     const QMetaObject* getDynamicQMetaObject() const;
 
     void addClassInfo(rust::Str name, rust::Str value);
-    void registerPropertyId(rust::Str name, const QMetaType& metaType, PropertyGetterFn getter, bool isConstant, int32_t notifySignal);
     void registerProperty  (rust::Str name, const QMetaType& metaType, PropertyGetterFn getter, PropertySetterFn setter, rust::Str notifySignal);
     void registerPropertyReadOnly(rust::Str name, const QMetaType& metaType, PropertyGetterFn getter, bool isConstant, rust::Str notifySignal);
-    void registerSignalId(rust::Str name, rust::Slice<const QMetaType> argMetaTypes, int32_t signalId);
     void registerSignal  (rust::Str name, rust::Slice<const QMetaType> argMetaTypes);
     void registerSlot(rust::Str name, rust::Slice<const QMetaType> argMetaTypes, SlotCallbackFn callback);
     void endMetaRegistration();
 
     void emitSignal(QObject& obj, rust::Str name, const MetaMethodOutgoingParams& params) const;
-    void emitSignal(QObject& obj, ClientSignalId clientSignalId, const MetaMethodOutgoingParams& params) const;
 
 private:
     std::unique_ptr<DynamicMetaObjectData_Cpp> m_impl;

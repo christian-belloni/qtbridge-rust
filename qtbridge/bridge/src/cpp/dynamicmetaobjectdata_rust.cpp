@@ -31,11 +31,6 @@ void DynamicMetaObjectData_Rust::addClassInfo(rust::Str name, rust::Str value)
     m_impl->addClassInfo(RustStrToQByteArray(name), RustStrToQByteArray(value));
 }
 
-void DynamicMetaObjectData_Rust::registerPropertyId(rust::Str name, const QMetaType& metaType, PropertyGetterFn getter, bool isConstant, int32_t notifySignal)
-{
-    m_impl->registerPropertyId(RustStrToQByteArray(name), metaType, std::move(getter), nullptr, isConstant, notifySignal);
-}
-
 void DynamicMetaObjectData_Rust::registerProperty(rust::Str name, const QMetaType& metaType, PropertyGetterFn getter, PropertySetterFn setter, rust::Str notifySignal)
 {
     m_impl->registerProperty(RustStrToQByteArray(name), metaType, std::move(getter), std::move(setter), false, RustStrToQByteArray(notifySignal));
@@ -44,11 +39,6 @@ void DynamicMetaObjectData_Rust::registerProperty(rust::Str name, const QMetaTyp
 void DynamicMetaObjectData_Rust::registerPropertyReadOnly(rust::Str name, const QMetaType& metaType, PropertyGetterFn getter, bool isConstant, rust::Str notifySignal)
 {
     m_impl->registerProperty(RustStrToQByteArray(name), metaType, std::move(getter), nullptr, isConstant, RustStrToQByteArray(notifySignal));
-}
-
-void DynamicMetaObjectData_Rust::registerSignalId(rust::Str name, rust::Slice<const QMetaType> argMetaTypes, int32_t signalId)
-{
-    m_impl->registerSignal(RustStrToQByteArray(name), RustContainerToCppVector(argMetaTypes), signalId);
 }
 
 void DynamicMetaObjectData_Rust::registerSignal(rust::Str name, rust::Slice<const QMetaType> argMetaTypes)
@@ -69,11 +59,6 @@ void DynamicMetaObjectData_Rust::endMetaRegistration()
 void DynamicMetaObjectData_Rust::emitSignal(QObject& obj, rust::Str name, const MetaMethodOutgoingParams& params) const
 {
     m_impl->emitSignal(&obj, RustStrToQByteArray(name), params);
-}
-
-void DynamicMetaObjectData_Rust::emitSignal(QObject& obj, ClientSignalId clientSignalId, const MetaMethodOutgoingParams& params) const
-{
-    m_impl->emitSignal(&obj, clientSignalId, params);
 }
 
 DynamicMetaObjectData_Rust* createDynamicMetaObjectData(rust::Str rustStructName, const QMetaObject& staticMeta)

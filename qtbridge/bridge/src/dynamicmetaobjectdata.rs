@@ -39,14 +39,8 @@ pub mod ffi {
         #[rust_name = "register_property_read_only"]
         fn registerPropertyReadOnly(self: Pin<&mut Self>, name: &str, meta_type: &QMetaType, getter: unsafe fn(receiver: *mut u8)->QVariant, is_constant: bool, notify_signal: &str);
 
-        #[rust_name = "register_property_id"]
-        fn registerPropertyId(self: Pin<&mut Self>, name: &str, meta_type: &QMetaType, getter: unsafe fn(receiver: *mut u8)->QVariant, is_constant: bool, notify_signal: i32);
-
         #[rust_name = "register_signal"]
         fn registerSignal(self: Pin<&mut Self>, name: &str, arg_meta_types: &[QMetaType]);
-
-        #[rust_name = "register_signal_id"]
-        fn registerSignalId(self: Pin<&mut Self>, name: &str, arg_meta_types: &[QMetaType], signal_id: i32);
 
         #[rust_name = "register_slot"]
         fn registerSlot(self: Pin<&mut Self>, name: &str, arg_meta_types: &[QMetaType], callback: unsafe fn(receiver: *mut u8, &MetaMethodIncomingParams));
