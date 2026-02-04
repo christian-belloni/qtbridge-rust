@@ -3,7 +3,7 @@
 #![cfg(test)]
 use qtbridge::qt_type_lib::QSignalSpy;
 use qtbridge::qobject;
-use qtbridge::qt_traits::QObjectHolder;
+use qtbridge::QObjectHolder;
 
 #[qobject]
 pub mod test_object {

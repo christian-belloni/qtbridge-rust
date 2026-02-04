@@ -11,7 +11,6 @@ pub fn generate_qmeta_type_interface_get(struct_ident: &syn::Ident, generics: &s
     let type_generics_turbofish = type_generics.as_turbofish();
     let type_library = origin.type_module();
     let bridge_library = origin.bridge_module();
-    let trait_library = origin.trait_module();
 
     let code = quote! {
         impl #impl_generics #type_library::QMetaTypeInterfaceGet for #struct_ident #type_generics #where_clause {
@@ -62,7 +61,7 @@ pub fn generate_qmeta_type_interface_get(struct_ident: &syn::Ident, generics: &s
                 #where_clause
                 {
                     let instance = std::rc::Rc::new(std::cell::RefCell::new(<#struct_ident #type_generics_turbofish as Default>::default()));
-                    <#struct_ident #type_generics_turbofish as #trait_library::QObjectHolder>::register_instance_in_map_with_cpp_proxy_at(addr, instance);
+                    <#struct_ident #type_generics_turbofish as #bridge_library::QObjectHolder>::register_instance_in_map_with_cpp_proxy_at(addr, instance);
                 }
 
                 pub extern "C"
@@ -71,8 +70,8 @@ pub fn generate_qmeta_type_interface_get(struct_ident: &syn::Ident, generics: &s
                 }
 
                 let iface = #type_library::QMetaTypeInterface::fill_fields(
-                    <Self as #trait_library::QObjectHolder>::ProxyRust::get_align_of_cpp_proxy(),
-                    <Self as #trait_library::QObjectHolder>::ProxyRust::get_size_of_cpp_proxy(),
+                    <Self as #bridge_library::QObjectHolder>::ProxyRust::get_align_of_cpp_proxy(),
+                    <Self as #bridge_library::QObjectHolder>::ProxyRust::get_size_of_cpp_proxy(),
                     flags,
                     class_name,
                     meta_object_fn #type_generics_turbofish as usize,

@@ -8,8 +8,10 @@ pub mod qapp;
 pub mod qmetainfo;
 pub mod qml_register;
 pub mod qresource;
+pub mod qobjectholder;
 
 pub use dynamicmetaobjectbuilder::{DynamicMetaObjectBuilder, create_dynamic_meta_object_builder};
 pub use qapp::QApp;
 pub use qmetainfo::{QMetaInfo, create_dynamic_meta_object_builder_for_type};
 pub use qml_register::QmlRegister;
+pub use qobjectholder::QObjectHolder;

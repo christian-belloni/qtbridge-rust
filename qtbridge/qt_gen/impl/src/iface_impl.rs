@@ -36,7 +36,7 @@ impl InterfaceImpl {
         let struct_name = &self.struct_ident;
         let (impl_generics, type_generics, where_clause) = self.impl_generics.split_for_impl();
         let iface_library = self.origin.iface_module();
-        let trait_library = self.origin.trait_module();
+        let bridge_library = self.origin.bridge_module();
 
         let get_trait_body = if iface_ident == "QObject" {
             quote! { panic!("QObject does not implement a Rust trait interface")}
@@ -57,11 +57,11 @@ impl InterfaceImpl {
         let trait_impl: syn::ItemImpl = syn::parse2(quote! {
             impl #impl_generics #iface_library::#iface_module::#proxy_iface_ident for #struct_name #type_generics #where_clause {
                 fn get_rust_proxy(&self) -> &#iface_library::#iface_module::#proxy_ident {
-                    <Self as #trait_library::QObjectHolder>::get_rust_proxy(self)
+                    <Self as #bridge_library::QObjectHolder>::get_rust_proxy(self)
 
                 }
                 fn get_rust_proxy_mut(&self) -> &mut #iface_library::#iface_module::#proxy_ident {
-                    <Self as #trait_library::QObjectHolder>::get_rust_proxy_mut(self)
+                    <Self as #bridge_library::QObjectHolder>::get_rust_proxy_mut(self)
                 }
                 #trait_methods
             }
@@ -97,7 +97,7 @@ impl InterfaceImpl {
 
         let iface_library = self.origin.iface_module();
         let type_library = self.origin.type_module();
-        let trait_library = self.origin.trait_module();
+        let bridge_library = self.origin.bridge_module();
 
         let code = quote! {
 
@@ -123,7 +123,7 @@ impl InterfaceImpl {
                 }
             }
 
-            impl #impl_generics #trait_library::QObjectHolder for #struct_ident #type_generics #where_clause {
+            impl #impl_generics #bridge_library::QObjectHolder for #struct_ident #type_generics #where_clause {
 
                 type ProxyRust = #iface_library::#iface_module::#proxy_rust;
 

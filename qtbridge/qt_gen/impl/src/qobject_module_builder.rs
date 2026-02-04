@@ -218,10 +218,10 @@ impl QObjectModuleBuilder {
             *semi = Some(Default::default());
         }
 
-        let trait_library = self.origin.trait_module();
+        let bridge_library = self.origin.bridge_module();
 
         let drop_expr: syn::Expr = syn::parse2(quote!{
-            <Self as #trait_library::QObjectHolder>::detach_qobject(self)
+            <Self as #bridge_library::QObjectHolder>::detach_qobject(self)
         })?;
         new_item_fn.block.stmts.push(syn::Stmt::Expr(drop_expr, Some(Default::default())));
 
@@ -342,14 +342,14 @@ impl QObjectModuleBuilder {
 
         let struct_ident = &self.struct_ident;
         let (impl_generics, type_generics, where_clause) = self.struct_generics.split_for_impl();
-        let trait_library = self.origin.trait_module();
+        let bridge_library = self.origin.bridge_module();
 
         let drop = syn::parse2::<syn::ItemImpl>(quote! {
             impl #impl_generics Drop for #struct_ident #type_generics
             #where_clause
             {
                 fn drop(&mut self) {
-                    <Self as #trait_library::QObjectHolder>::detach_qobject(self);
+                    <Self as #bridge_library::QObjectHolder>::detach_qobject(self);
                 }
             }
         })?;

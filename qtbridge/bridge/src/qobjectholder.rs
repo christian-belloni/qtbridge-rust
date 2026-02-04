@@ -5,7 +5,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use qt_type_lib::QObject;
-use bridge::QMetaInfo;
+use crate::QMetaInfo;
 
 /// Trait to enable access to the bridge between C++ and Rust. This trait is
 /// automatically implemented by the 'qobject_impl' macro and should not be implemnted

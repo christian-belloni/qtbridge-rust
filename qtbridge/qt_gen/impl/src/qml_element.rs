@@ -72,9 +72,9 @@ fn build_constructor_body(struct_ident: &syn::Ident, is_singleton: bool) -> Toke
             pub extern "C"
             fn default_ctor() -> *mut qtbridge::qt_type_lib::QObject {
                 let instance = std::rc::Rc::new(std::cell::RefCell::new(<#struct_ident as Default>::default()));
-                <#struct_ident as qtbridge::qt_traits::QObjectHolder>::register_instance_in_map(instance.clone(), true);
-                <#struct_ident as qtbridge::qt_traits::QObjectHolder>::set_dynamic_meta(&instance);
-                <#struct_ident as qtbridge::QObjectHolder>::get_qobject(&instance.borrow())
+                <#struct_ident as qtbridge::bridge::QObjectHolder>::register_instance_in_map(instance.clone(), true);
+                <#struct_ident as qtbridge::bridge::QObjectHolder>::set_dynamic_meta(&instance);
+                <#struct_ident as qtbridge::bridge::QObjectHolder>::get_qobject(&instance.borrow())
             };
         }
     } else {
@@ -82,8 +82,8 @@ fn build_constructor_body(struct_ident: &syn::Ident, is_singleton: bool) -> Toke
             pub extern "C"
             fn default_ctor(addr: *mut u8, _userdata: *mut u8) {
                 let instance = std::rc::Rc::new(std::cell::RefCell::new(<#struct_ident as Default>::default()));
-                <#struct_ident as qtbridge::qt_traits::QObjectHolder>::register_instance_in_map_with_cpp_proxy_at(addr, instance.clone());
-                <#struct_ident as qtbridge::qt_traits::QObjectHolder>::set_dynamic_meta(&instance);
+                <#struct_ident as qtbridge::bridge::QObjectHolder>::register_instance_in_map_with_cpp_proxy_at(addr, instance.clone());
+                <#struct_ident as qtbridge::bridge::QObjectHolder>::set_dynamic_meta(&instance);
             };
         }
     }
@@ -107,8 +107,8 @@ fn build_qml_register_call(struct_name: &str, is_singleton: bool) -> TokenStream
         quote! {
             qtbridge::qt_type_lib::qml_register_element(
                 <#struct_ident as qtbridge::qt_type_lib::QMetaTypeGet>::get_qmetatype(),
-                <#struct_ident as qtbridge::qt_traits::QObjectHolder>::ProxyRust::get_qmetatype_list_of_cpp_proxy(),
-                <#struct_ident as qtbridge::qt_traits::QObjectHolder>::ProxyRust::get_size_of_cpp_proxy() as u32,
+                <#struct_ident as qtbridge::bridge::QObjectHolder>::ProxyRust::get_qmetatype_list_of_cpp_proxy(),
+                <#struct_ident as qtbridge::bridge::QObjectHolder>::ProxyRust::get_size_of_cpp_proxy() as u32,
                 default_ctor as usize,
                 uri.as_bytes(),
                 version_major,

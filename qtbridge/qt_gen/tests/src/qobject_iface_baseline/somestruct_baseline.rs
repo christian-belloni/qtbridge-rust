@@ -15,12 +15,12 @@ mod some_module {
         fn get_rust_proxy(
             &self,
         ) -> &qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelProxyRust {
-            <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy(self)
+            <Self as qtbridge::bridge::QObjectHolder>::get_rust_proxy(self)
         }
         fn get_rust_proxy_mut(
             &self,
         ) -> &mut qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelProxyRust {
-            <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy_mut(self)
+            <Self as qtbridge::bridge::QObjectHolder>::get_rust_proxy_mut(self)
         }
         fn get_trait(
             &self,
@@ -36,14 +36,15 @@ mod some_module {
     }
     impl Drop for SomeStruct {
         fn drop(&mut self) {
-            <Self as qtbridge::qt_traits::QObjectHolder>::detach_qobject(self);        }
+            <Self as qtbridge::bridge::QObjectHolder>::detach_qobject(self);
+        }
     }
     impl qtbridge::bridge::QMetaInfo for SomeStruct {
         fn class_name() -> &'static str {
             ::std::any::type_name::<SomeStruct>()
         }
         fn get_static_meta_object() -> &'static qtbridge::qt_type_lib::QMetaObject {
-            <Self as qtbridge::qt_traits::QObjectHolder>::ProxyRust::get_static_meta_object()
+            <Self as qtbridge::bridge::QObjectHolder>::ProxyRust::get_static_meta_object()
         }
         fn register_meta(
             mut meta_obj: std::pin::Pin<&mut qtbridge::bridge::DynamicMetaObjectBuilder>,
@@ -76,8 +77,7 @@ mod some_module {
             meta_data_ref
         }
         fn get_list_meta_type() -> qtbridge::qt_type_lib::QMetaType {
-            <Self as qtbridge::qt_traits::QObjectHolder>::ProxyRust::get_qmetatype_list_of_cpp_proxy(
-            )
+            <Self as qtbridge::bridge::QObjectHolder>::ProxyRust::get_qmetatype_list_of_cpp_proxy()
         }
     }
     impl qtbridge::qt_type_lib::QMetaTypeInterfaceGet for SomeStruct {
@@ -117,7 +117,7 @@ mod some_module {
             ) {
                 let instance =
                     std::rc::Rc::new(std::cell::RefCell::new(<SomeStruct as Default>::default()));
-                < SomeStruct as qtbridge :: qt_traits :: QObjectHolder > :: register_instance_in_map_with_cpp_proxy_at (addr , instance) ;
+                < SomeStruct as qtbridge :: bridge :: QObjectHolder > :: register_instance_in_map_with_cpp_proxy_at (addr , instance) ;
             }
             pub extern "C" fn dtor(
                 _iface: *const qtbridge::qt_type_lib::QMetaTypeInterface,
@@ -126,8 +126,8 @@ mod some_module {
                 qtbridge::qt_type_lib::QObject::destruct(obj.cast());
             }
             let iface = qtbridge::qt_type_lib::QMetaTypeInterface::fill_fields(
-                <Self as qtbridge::qt_traits::QObjectHolder>::ProxyRust::get_align_of_cpp_proxy(),
-                <Self as qtbridge::qt_traits::QObjectHolder>::ProxyRust::get_size_of_cpp_proxy(),
+                <Self as qtbridge::bridge::QObjectHolder>::ProxyRust::get_align_of_cpp_proxy(),
+                <Self as qtbridge::bridge::QObjectHolder>::ProxyRust::get_size_of_cpp_proxy(),
                 flags,
                 class_name,
                 meta_object_fn as usize,
@@ -163,7 +163,7 @@ mod some_module {
                 .expect("Failed to borrow_mut map of proxies")
         }
     }
-    impl qtbridge::qt_traits::QObjectHolder for SomeStruct {
+    impl qtbridge::bridge::QObjectHolder for SomeStruct {
         type ProxyRust = qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelProxyRust;
         fn try_borrow_mut_proxies_map<F, R>(f: F) -> R
         where

@@ -154,7 +154,6 @@ impl ExpandTokens for QSignalInfo {
         }
 
         let bridge_library = self.origin.bridge_module();
-        let trait_library = self.origin.trait_module();
         let arg_pack = quote!{
             let mut signal_params = #bridge_library::metamethodparams::MetaMethodOutgoingParams::new();
             #(#args_push)*
@@ -167,7 +166,7 @@ impl ExpandTokens for QSignalInfo {
             #sig
             {
                 let dynamic_meta_obj = <Self as #bridge_library::QMetaInfo>::get_shared_dynamic_meta_object();
-                let qobj = <Self as #trait_library::QObjectHolder>::get_qobject(self);
+                let qobj = <Self as #bridge_library::QObjectHolder>::get_qobject(self);
 
                 #arg_pack
                 dynamic_meta_obj.emit_signal(qobj, #qml_name, &signal_params);
