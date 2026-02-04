@@ -2,12 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 #include "metamethodparams.h"
-
-MetaMethodIncomingParams::MetaMethodIncomingParams(const QMetaMethod& method, void** paramData)
-    : m_method(method)
-    , m_paramData(paramData)
-{
-}
+#include <stdexcept>
 
 std::vector<void*> MetaMethodOutgoingParams::getDataPtrs(const QMetaMethod& method)
 {

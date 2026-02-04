@@ -14,49 +14,6 @@ pub mod ffi {
 
     unsafe extern "C++" {
         include!("cpp/metamethodparams.h");
-        type MetaMethodIncomingParams;
-
-        fn get_bool(&self, num: usize) -> bool;
-
-        #[rust_name = "get_i64"]
-        fn get_int64_t(&self, num: usize) -> i64;
-
-        #[rust_name = "get_u64"]
-        fn get_uint64_t(&self, num: usize) -> u64;
-
-        #[rust_name = "get_i32"]
-        fn get_int32_t(&self, num: usize) -> i32;
-
-        #[rust_name = "get_u32"]
-        fn get_uint32_t(&self, num: usize) -> u32;
-
-        #[rust_name = "get_i16"]
-        fn get_int16_t(&self, num: usize) -> i16;
-
-        #[rust_name = "get_u16"]
-        fn get_uint16_t(&self, num: usize) -> u16;
-
-        #[rust_name = "get_i8"]
-        fn get_int8_t(&self, num: usize) -> i8;
-
-        #[rust_name = "get_u8"]
-        fn get_uint8_t(&self, num: usize) -> u8;
-
-        #[rust_name = "get_f32"]
-        fn get_float(&self, num: usize) -> f32;
-
-        #[rust_name = "get_f64"]
-        fn get_double(&self, num: usize) -> f64;
-
-        #[rust_name = "get_string"]
-        fn getString(&self, num: usize) -> String;
-
-        #[rust_name = "get_string_list"]
-        fn getStringList(&self, num: usize) -> Vec<String>;
-    }
-
-    unsafe extern "C++" {
-        include!("cpp/metamethodparams.h");
         type MetaMethodOutgoingParams = super::MetaMethodOutgoingParams;
 
         #[rust_name = "push"]
@@ -69,8 +26,6 @@ pub mod ffi {
         fn MetaMethodOutgoingParams_New() -> MetaMethodOutgoingParams;
     }
 }
-
-pub use ffi::MetaMethodIncomingParams;
 
 // Allow instantiation of the class on the stack
 // to avoid too wordy syntax using std::pin<> in the client code
