@@ -32,7 +32,7 @@ pub fn qml_element(args: TokenStream, input: TokenStream) -> syn::Result<TokenSt
              fn qml_register() {
                 #constructor_body
 
-                let meta_obj_data = <#struct_ident as qtbridge::bridge::QMetaInfo>::get_shared_dynamic_meta_object_data();
+                let meta_obj_data = <#struct_ident as qtbridge::bridge::QMetaInfo>::get_shared_dynamic_meta_object();
                 let meta_obj = unsafe {
                     meta_obj_data.get_dynamic_qmetaobject()
                         .as_ref()

@@ -1,7 +1,7 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-#include "dynamicmetaobjectdata.h"
+#include "dynamicmetaobjectbuilder.h"
 #include "metamethodparams.h"
 #include "rustobjectgetter.h"
 #include <QMetaType>
@@ -17,7 +17,7 @@
 
 using namespace std::string_literals;
 
-class DynamicMetaObjectData::Impl : public QDynamicMetaObjectData
+class DynamicMetaObjectBuilder::Impl : public QDynamicMetaObjectData
 {
 public:
     using PropertyId = int;
@@ -387,56 +387,56 @@ private:
 };
 
 
-DynamicMetaObjectData::DynamicMetaObjectData(const QMetaObject* staticMetaObj, rust::Str className)
+DynamicMetaObjectBuilder::DynamicMetaObjectBuilder(const QMetaObject* staticMetaObj, rust::Str className)
     : m_impl(std::make_unique<Impl>(staticMetaObj, RustStrToQByteArray(className)))
 {}
 
-void DynamicMetaObjectData::setToQObject(QObject& dst) const
+void DynamicMetaObjectBuilder::setToQObject(QObject& dst) const
 {
     QObjectPrivate::get(&dst)->metaObject = m_impl.get();
 }
 
-const QMetaObject* DynamicMetaObjectData::getDynamicQMetaObject() const
+const QMetaObject* DynamicMetaObjectBuilder::getDynamicQMetaObject() const
 {
     return m_impl->getDynamicQMetaObject();
 }
 
-void DynamicMetaObjectData::addClassInfo(rust::Str name, rust::Str value)
+void DynamicMetaObjectBuilder::addClassInfo(rust::Str name, rust::Str value)
 {
     m_impl->addClassInfo(RustStrToQByteArray(name), RustStrToQByteArray(value));
 }
 
-void DynamicMetaObjectData::registerProperty(rust::Str name, const QMetaType& metaType, PropertyGetterFn getter, PropertySetterFn setter, rust::Str notifySignal)
+void DynamicMetaObjectBuilder::registerProperty(rust::Str name, const QMetaType& metaType, PropertyGetterFn getter, PropertySetterFn setter, rust::Str notifySignal)
 {
     m_impl->registerProperty(RustStrToQByteArray(name), metaType, std::move(getter), std::move(setter), false, RustStrToQByteArray(notifySignal));
 }
 
-void DynamicMetaObjectData::registerPropertyReadOnly(rust::Str name, const QMetaType& metaType, PropertyGetterFn getter, bool isConstant, rust::Str notifySignal)
+void DynamicMetaObjectBuilder::registerPropertyReadOnly(rust::Str name, const QMetaType& metaType, PropertyGetterFn getter, bool isConstant, rust::Str notifySignal)
 {
     m_impl->registerProperty(RustStrToQByteArray(name), metaType, std::move(getter), std::nullopt, isConstant, RustStrToQByteArray(notifySignal));
 }
 
-void DynamicMetaObjectData::registerSignal(rust::Str name, rust::Slice<const QMetaType> argMetaTypes)
+void DynamicMetaObjectBuilder::registerSignal(rust::Str name, rust::Slice<const QMetaType> argMetaTypes)
 {
     m_impl->registerSignal(RustStrToQByteArray(name), RustSliceToQSpan(argMetaTypes));
 }
 
-void DynamicMetaObjectData::registerSlot(rust::Str name, rust::Slice<const QMetaType> argMetaTypes, SlotCallbackFn callback)
+void DynamicMetaObjectBuilder::registerSlot(rust::Str name, rust::Slice<const QMetaType> argMetaTypes, SlotCallbackFn callback)
 {
     m_impl->registerSlot(RustStrToQByteArray(name), RustSliceToQSpan(argMetaTypes), std::move(callback));
 }
 
-void DynamicMetaObjectData::endMetaRegistration()
+void DynamicMetaObjectBuilder::endMetaRegistration()
 {
     m_impl->endMetaRegistration();
 }
 
-void DynamicMetaObjectData::emitSignal(QObject& obj, rust::Str name, const MetaMethodOutgoingParams& params) const
+void DynamicMetaObjectBuilder::emitSignal(QObject& obj, rust::Str name, const MetaMethodOutgoingParams& params) const
 {
     m_impl->emitSignal(obj, RustStrToQByteArray(name), params);
 }
 
-DynamicMetaObjectData *createDynamicMetaObjectData(rust::Str rustStructName, const QMetaObject& staticMeta)
+DynamicMetaObjectBuilder *createDynamicMetaObjectBuilder(rust::Str rustStructName, const QMetaObject& staticMeta)
 {
-    return new DynamicMetaObjectData(&staticMeta, rustStructName);
+    return new DynamicMetaObjectBuilder(&staticMeta, rustStructName);
 }

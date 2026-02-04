@@ -44,7 +44,7 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext, origin: &CallOrigin
                 <Self as #trait_library::QObjectHolder>::ProxyRust::get_static_meta_object()
             }
 
-            fn register_meta(mut meta_obj: std::pin::Pin<&mut #bridge_library::DynamicMetaObjectData>) {
+            fn register_meta(mut meta_obj: std::pin::Pin<&mut #bridge_library::DynamicMetaObjectBuilder>) {
                 #use_block
 
                 #signals_meta_reg
@@ -55,12 +55,12 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext, origin: &CallOrigin
                 meta_obj.as_mut().end_meta_registration();
             }
 
-            fn get_shared_dynamic_meta_object_data() -> &'static #bridge_library::DynamicMetaObjectData {
+            fn get_shared_dynamic_meta_object() -> &'static #bridge_library::DynamicMetaObjectBuilder {
                 use std::any::TypeId;
                 use std::cell::RefCell;
                 use std::collections::HashMap;
 
-                thread_local!(static DYNAMIC_META_MAP: RefCell<HashMap<TypeId, *const #bridge_library::DynamicMetaObjectData>> =
+                thread_local!(static DYNAMIC_META_MAP: RefCell<HashMap<TypeId, *const #bridge_library::DynamicMetaObjectBuilder>> =
                     RefCell::new(HashMap::new()));
 
                 let type_id = TypeId::of::<#struct_ident #type_generics>();
@@ -75,7 +75,7 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext, origin: &CallOrigin
                     }
                 }
 
-                let meta_data_ptr = #bridge_library::create_dynamic_meta_object_data_for_type::<#struct_ident #type_generics>();
+                let meta_data_ptr = #bridge_library::create_dynamic_meta_object_builder_for_type::<#struct_ident #type_generics>();
                 let meta_data_ref = unsafe { meta_data_ptr.as_ref() }.unwrap();
                 DYNAMIC_META_MAP.with_borrow_mut(|dynamic_meta_data_map| {
                     dynamic_meta_data_map.insert(type_id, meta_data_ptr);

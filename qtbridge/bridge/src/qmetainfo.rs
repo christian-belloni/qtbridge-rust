@@ -2,26 +2,26 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use qt_type_lib::{QMetaObject, QMetaType};
-use crate::DynamicMetaObjectData;
+use crate::DynamicMetaObjectBuilder;
 
 pub trait QMetaInfo {
     fn class_name() -> &'static str;
-    fn register_meta(meta_obj: std::pin::Pin<&mut DynamicMetaObjectData>); // Called once per type (per specific class name)
+    fn register_meta(meta_obj: std::pin::Pin<&mut DynamicMetaObjectBuilder>); // Called once per type (per specific class name)
 
     /// Return QMetaObject from QObject proxy.
     fn get_static_meta_object() -> &'static QMetaObject;
 
     /// Return Dynamic QMetaObject containing information
     /// about signals/slots/properties for given Rust object.
-    fn get_shared_dynamic_meta_object_data() -> &'static DynamicMetaObjectData;
+    fn get_shared_dynamic_meta_object() -> &'static DynamicMetaObjectBuilder;
 
     /// Return QMetaType of `QQmlListProperty<Self>`.
     /// Needed for Qml type registration.
     fn get_list_meta_type() -> QMetaType;
 }
 
-pub fn create_dynamic_meta_object_data_for_type<T: QMetaInfo>() -> *const DynamicMetaObjectData {
-    let meta = crate::create_dynamic_meta_object_data(
+pub fn create_dynamic_meta_object_builder_for_type<T: QMetaInfo>() -> *const DynamicMetaObjectBuilder {
+    let meta = crate::create_dynamic_meta_object_builder(
         T::class_name(),
         T::get_static_meta_object());
     let pinned_meta = unsafe {

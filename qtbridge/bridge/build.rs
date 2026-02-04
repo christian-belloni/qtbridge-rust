@@ -7,7 +7,7 @@ use build_common::qt_build::{qt_include_dirs, link_qt_modules};
 fn main() {
 
     let bridge_files = vec!(
-        "dynamicmetaobjectdata",
+        "dynamicmetaobjectbuilder",
         "metamethodparams",
         "qresource"
     );
@@ -16,7 +16,7 @@ fn main() {
     );
 
     let other_cpp_files: Vec<&str> = vec!(
-        "dynamicmetaobjectdata.cpp",
+        "dynamicmetaobjectbuilder.cpp",
         "qresource_rust.cpp"
     );
 

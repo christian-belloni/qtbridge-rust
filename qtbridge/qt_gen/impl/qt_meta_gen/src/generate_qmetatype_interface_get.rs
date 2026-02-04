@@ -53,7 +53,7 @@ pub fn generate_qmeta_type_interface_get(struct_ident: &syn::Ident, generics: &s
                 fn meta_object_fn #impl_generics(_iface: *const #type_library::QMetaTypeInterface) -> *mut #type_library::QMetaObject
                 #where_clause
                 {
-                    let meta_obj_data = <#struct_ident #type_generics as #bridge_library::QMetaInfo>::get_shared_dynamic_meta_object_data();
+                    let meta_obj_data = <#struct_ident #type_generics as #bridge_library::QMetaInfo>::get_shared_dynamic_meta_object();
                     meta_obj_data.get_dynamic_qmetaobject().cast_mut()
                 }
 

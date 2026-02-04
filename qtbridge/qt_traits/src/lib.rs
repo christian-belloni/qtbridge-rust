@@ -80,7 +80,7 @@ pub trait QObjectHolder : QMetaInfo {
     /// the dynamic metaobject specific to this Rust type.
     fn set_dynamic_meta(instance: &Rc<RefCell<Self>>)
     {
-        let dynamic_meta = Self::get_shared_dynamic_meta_object_data();
+        let dynamic_meta = Self::get_shared_dynamic_meta_object();
         let instance_ref = &instance.borrow();
         let qobject_ref = instance_ref.get_qobject();
         dynamic_meta.set_to_qobject(qobject_ref);

@@ -207,16 +207,16 @@ mod some_module {
             <Self as qtbridge::qt_traits::QObjectHolder>::ProxyRust::get_static_meta_object()
         }
         fn register_meta(
-            mut meta_obj: std::pin::Pin<&mut qtbridge::bridge::DynamicMetaObjectData>,
+            mut meta_obj: std::pin::Pin<&mut qtbridge::bridge::DynamicMetaObjectBuilder>,
         ) {
             meta_obj.as_mut().end_meta_registration();
         }
-        fn get_shared_dynamic_meta_object_data(
-        ) -> &'static qtbridge::bridge::DynamicMetaObjectData {
+        fn get_shared_dynamic_meta_object(
+        ) -> &'static qtbridge::bridge::DynamicMetaObjectBuilder {
             use std::any::TypeId;
             use std::cell::RefCell;
             use std::collections::HashMap;
-            thread_local ! (static DYNAMIC_META_MAP : RefCell < HashMap < TypeId , * const qtbridge :: bridge :: DynamicMetaObjectData >> = RefCell :: new (HashMap :: new ()));
+            thread_local ! (static DYNAMIC_META_MAP : RefCell < HashMap < TypeId , * const qtbridge :: bridge :: DynamicMetaObjectBuilder >> = RefCell :: new (HashMap :: new ()));
             let type_id = TypeId::of::<SomeStruct>();
             {
                 let meta_data_ptr = DYNAMIC_META_MAP.with_borrow(|dynamic_meta_data_map| {
@@ -230,7 +230,7 @@ mod some_module {
                 }
             }
             let meta_data_ptr =
-                qtbridge::bridge::create_dynamic_meta_object_data_for_type::<SomeStruct>();
+                qtbridge::bridge::create_dynamic_meta_object_builder_for_type::<SomeStruct>();
             let meta_data_ref = unsafe { meta_data_ptr.as_ref() }.unwrap();
             DYNAMIC_META_MAP.with_borrow_mut(|dynamic_meta_data_map| {
                 dynamic_meta_data_map.insert(type_id, meta_data_ptr);
@@ -269,7 +269,7 @@ mod some_module {
             pub extern "C" fn meta_object_fn(
                 _iface: *const qtbridge::qt_type_lib::QMetaTypeInterface,
             ) -> *mut qtbridge::qt_type_lib::QMetaObject {
-                let meta_obj_data = < SomeStruct as qtbridge :: bridge :: QMetaInfo > :: get_shared_dynamic_meta_object_data () ;
+                let meta_obj_data = < SomeStruct as qtbridge :: bridge :: QMetaInfo > :: get_shared_dynamic_meta_object () ;
                 meta_obj_data.get_dynamic_qmetaobject().cast_mut()
             }
             pub extern "C" fn default_ctor(

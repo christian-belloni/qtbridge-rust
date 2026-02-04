@@ -166,7 +166,7 @@ impl ExpandTokens for QSignalInfo {
             #sig
             {
                 use #bridge_library::QMetaInfo;
-                let dynamic_meta_obj = Self::get_shared_dynamic_meta_object_data();
+                let dynamic_meta_obj = Self::get_shared_dynamic_meta_object();
                 let qobj = self.get_qobject();
 
                 #arg_pack

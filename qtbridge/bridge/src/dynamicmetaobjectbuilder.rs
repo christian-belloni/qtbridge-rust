@@ -23,8 +23,8 @@ pub mod ffi {
     }
 
     unsafe extern "C++" {
-        include!("cpp/dynamicmetaobjectdata.h");
-        type DynamicMetaObjectData;
+        include!("cpp/dynamicmetaobjectbuilder.h");
+        type DynamicMetaObjectBuilder;
 
         #[rust_name = "set_to_qobject"]
         fn setToQObject(&self, dst: &mut QObject);
@@ -53,12 +53,12 @@ pub mod ffi {
         #[rust_name = "get_dynamic_qmetaobject"]
         fn getDynamicQMetaObject(self: &Self) -> *const QMetaObject;
 
-        #[rust_name = "create_dynamic_meta_object_data"]
-        fn createDynamicMetaObjectData(rust_struct_name: &str, static_meta: &QMetaObject) -> *mut DynamicMetaObjectData;
+        #[rust_name = "create_dynamic_meta_object_builder"]
+        fn createDynamicMetaObjectBuilder(rust_struct_name: &str, static_meta: &QMetaObject) -> *mut DynamicMetaObjectBuilder;
     }
 }
 
-unsafe impl Sync for crate::DynamicMetaObjectData {}
+//unsafe impl Sync for crate::DynamicMetaObjectBuilder {}
 
-pub use ffi::{DynamicMetaObjectData, create_dynamic_meta_object_data};
+pub use ffi::{DynamicMetaObjectBuilder, create_dynamic_meta_object_builder};
 
