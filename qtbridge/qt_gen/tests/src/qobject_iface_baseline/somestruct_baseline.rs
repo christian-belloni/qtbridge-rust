@@ -219,5 +219,11 @@ mod some_module {
                 proxies.insert(key, proxy_ptr);
             })
         }
+        fn get_qmetatype_list_of_cpp_proxy() -> qtbridge::qt_type_lib::QMetaType {
+            Self::ProxyRust::get_qmetatype_list_of_cpp_proxy()
+        }
+        fn get_size_of_cpp_proxy() -> usize {
+            Self::ProxyRust::get_size_of_cpp_proxy()
+        }
     }
 }

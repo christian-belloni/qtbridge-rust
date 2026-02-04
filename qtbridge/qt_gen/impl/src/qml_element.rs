@@ -17,9 +17,6 @@ pub fn qml_element(args: TokenStream, input: TokenStream) -> syn::Result<TokenSt
     let qml_register_fn_indent = format_ident!("qml_register_{struct_ident}");
     let struct_name = struct_ident.to_string();
 
-    let constructor_body = build_constructor_body(&struct_ident, is_singleton);
-    let qml_register_call = build_qml_register_call(&struct_name, is_singleton);
-
     let qmlregister_code = quote! {
         // TODO: make auto registration via 'linkme' dependency an optional cargo feature?
         #[linkme::distributed_slice(qtbridge::qt_type_lib::QML_REGISTER_CALLBACKS)]
@@ -29,33 +26,11 @@ pub fn qml_element(args: TokenStream, input: TokenStream) -> syn::Result<TokenSt
         }
 
         impl qtbridge::bridge::QmlRegister for #struct_ident {
-             fn qml_register() {
-                #constructor_body
-
-                let meta_obj_data = <#struct_ident as qtbridge::bridge::QMetaInfo>::get_shared_dynamic_meta_object();
-                let meta_obj = unsafe {
-                    meta_obj_data.get_dynamic_qmetaobject()
-                        .as_ref()
-                        .expect("Failed to get QMetaObject")
-                };
-
-                // TODO: find a better way to specify URI. Possible options visible so far:
-                // * Set it in build.rs. That will force user to write build.rs. Previously build script wasn't mandatory.
-                // * Custom attributes in Cargo.toml. Probably requires us to parse Cargo.toml manually at build/proc macro time.
-                // * Add another custom file containing settings for Qt/QML at package root
-                let uri = env!("CARGO_PKG_NAME")
-                    .trim_start_matches(char::is_numeric)
-                    .chars()
-                    .map(|ch| if ch.is_alphanumeric() { ch } else { '_' })
-                    .collect::<String>();
-
-                let version_major = env!("CARGO_PKG_VERSION_MAJOR").parse()
-                    .expect("Failed to parse package major version");
-                let version_minor = env!("CARGO_PKG_VERSION_MINOR").parse()
-                    .expect("Failed to parse package minor version");
-
-                #qml_register_call
-            }
+            const URI: &str = env!("CARGO_PKG_NAME");
+            const ELEMENT_NAME: &str = #struct_name;
+            const MINOR_VERSION: &str = env!("CARGO_PKG_VERSION_MINOR");
+            const MAJOR_VERSION: &str = env!("CARGO_PKG_VERSION_MAJOR");
+            const IS_SINGLETON: bool = #is_singleton;
         }
     };
     let output = quote! {
@@ -63,61 +38,6 @@ pub fn qml_element(args: TokenStream, input: TokenStream) -> syn::Result<TokenSt
         #qmlregister_code
     };
     Ok(output)
-}
-
-fn build_constructor_body(struct_ident: &syn::Ident, is_singleton: bool) -> TokenStream {
-
-    if is_singleton {
-        quote! {
-            pub extern "C"
-            fn default_ctor() -> *mut qtbridge::qt_type_lib::QObject {
-                let instance = std::rc::Rc::new(std::cell::RefCell::new(<#struct_ident as Default>::default()));
-                <#struct_ident as qtbridge::bridge::QObjectHolder>::register_instance_in_map(instance.clone(), true);
-                <#struct_ident as qtbridge::bridge::QObjectHolder>::set_dynamic_meta(&instance);
-                <#struct_ident as qtbridge::bridge::QObjectHolder>::get_qobject(&instance.borrow())
-            };
-        }
-    } else {
-        quote! {
-            pub extern "C"
-            fn default_ctor(addr: *mut u8, _userdata: *mut u8) {
-                let instance = std::rc::Rc::new(std::cell::RefCell::new(<#struct_ident as Default>::default()));
-                <#struct_ident as qtbridge::bridge::QObjectHolder>::register_instance_in_map_with_cpp_proxy_at(addr, instance.clone());
-                <#struct_ident as qtbridge::bridge::QObjectHolder>::set_dynamic_meta(&instance);
-            };
-        }
-    }
-}
-
-fn build_qml_register_call(struct_name: &str, is_singleton: bool) -> TokenStream {
-    let struct_ident = format_ident!("{struct_name}");
-    if is_singleton {
-        quote! {
-            qtbridge::qt_type_lib::qml_register_singleton(
-                <#struct_ident as qtbridge::qt_type_lib::QMetaTypeGet>::get_qmetatype(),
-                default_ctor as usize,
-                uri.as_bytes(),
-                version_major,
-                version_minor,
-                #struct_name.as_bytes(),
-                meta_obj,
-            )
-        }
-    } else {
-        quote! {
-            qtbridge::qt_type_lib::qml_register_element(
-                <#struct_ident as qtbridge::qt_type_lib::QMetaTypeGet>::get_qmetatype(),
-                <#struct_ident as qtbridge::bridge::QObjectHolder>::ProxyRust::get_qmetatype_list_of_cpp_proxy(),
-                <#struct_ident as qtbridge::bridge::QObjectHolder>::ProxyRust::get_size_of_cpp_proxy() as u32,
-                default_ctor as usize,
-                uri.as_bytes(),
-                version_major,
-                version_minor,
-                #struct_name.as_bytes(),
-                meta_obj,
-            )
-        }
-    }
 }
 
 // TODO: support potential generics here?

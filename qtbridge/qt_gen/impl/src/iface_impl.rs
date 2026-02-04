@@ -164,6 +164,14 @@ impl InterfaceImpl {
                         proxies.insert(key, proxy_ptr);
                     })
                 }
+
+                fn get_qmetatype_list_of_cpp_proxy() -> #type_library::QMetaType {
+                    Self::ProxyRust::get_qmetatype_list_of_cpp_proxy()
+                }
+                fn get_size_of_cpp_proxy() -> usize {
+                    Self::ProxyRust::get_size_of_cpp_proxy()
+                }
+
             }
         };
         Ok(code)

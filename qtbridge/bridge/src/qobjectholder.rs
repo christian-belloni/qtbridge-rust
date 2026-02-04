@@ -4,7 +4,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use qt_type_lib::QObject;
+use qt_type_lib::{QObject, QMetaType};
 use crate::QMetaInfo;
 
 /// Trait to enable access to the bridge between C++ and Rust. This trait is
@@ -122,5 +122,15 @@ pub trait QObjectHolder : QMetaInfo + Default {
         let qobj_ptr = std::ptr::from_mut(qobj_ref);
         qobj_ptr.into()
     }
+
+    // TODO: Define a trait for the proxy, so we can use the proxy functions
+    // here without the need for code generation.
+    // See https://codereview.qt-project.org/c/qt/qtbridge-rust/+/707305
+    fn get_qmetatype_list_of_cpp_proxy() -> QMetaType;
+
+    // TODO: Define a trait for the proxy, so we can use the proxy functions
+    // here without the need for code generation
+    // See https://codereview.qt-project.org/c/qt/qtbridge-rust/+/707305
+    fn get_size_of_cpp_proxy() -> usize;
 }
 
