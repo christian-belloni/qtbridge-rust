@@ -54,16 +54,16 @@ instructions:
     userMessageOnFailure: >
       Failed toinstall rust.
 
-  - type: AppendToEnvironmentVariable
+  - type: PrependToEnvironmentVariable
     variableName: PATH
-    variableValue: ":{{.Env.CARGO_PATH}}"
+    variableValue: "{{.Env.CARGO_PATH}}:"
     disable_if:
       condition: property
       property: host.os
       equals_value: Windows
-  - type: AppendToEnvironmentVariable
+  - type: PrependToEnvironmentVariable
     variableName: PATH
-    variableValue: ";C:\\Users\\qt\\.cargo\\bin"
+    variableValue: "C:\\Users\\qt\\.cargo\\bin;"
     enable_if:
       condition: property
       property: host.os
