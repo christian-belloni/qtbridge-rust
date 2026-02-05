@@ -4,6 +4,7 @@
 #ifndef DYNAMICMETAOBJECTBUILDER_H
 #define DYNAMICMETAOBJECTBUILDER_H
 #include <QMetaObject>
+#include <cstdint>
 #include <memory>
 #include "rust/cxx.h"
 
@@ -34,7 +35,7 @@ public:
     // Rust callbacks to be passed across the bridge
     using PropertyGetterFn = rust::Fn<QVariant(uint8_t* receiver)>;
     using PropertySetterFn = rust::Fn<void(uint8_t* receiver, const QVariant& value)>;
-    using SlotCallbackFn   = rust::Fn<void(uint8_t* receiver, const MetaMethodIncomingParams& params)>;
+    using SlotCallbackFn   = rust::Fn<void(uint8_t* receiver, rust::Slice<const uint8_t* const> args)>;
 
     DynamicMetaObjectBuilder(const QMetaObject* staticMetaObj, rust::Str className);
 

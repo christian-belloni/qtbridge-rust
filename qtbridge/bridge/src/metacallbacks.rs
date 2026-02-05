@@ -2,14 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use qt_type_lib::QVariant;
-use crate::metamethodparams::ffi::MetaMethodIncomingParams;
 
-pub fn slot_callback_for<T>(this_callback: fn(&mut T, &MetaMethodIncomingParams)) -> fn(*mut u8, &MetaMethodIncomingParams) {
+pub fn slot_callback_for<T>(this_callback: fn(&mut T, &[*const u8])) -> fn(*mut u8, &[*const u8]) {
     unsafe {
-        std::mem::transmute::<
-            fn(&mut T,  &MetaMethodIncomingParams),
-            fn(*mut u8, &MetaMethodIncomingParams)
-        >(this_callback)
+        std::mem::transmute::<_, _>(this_callback)
     }
 }
 

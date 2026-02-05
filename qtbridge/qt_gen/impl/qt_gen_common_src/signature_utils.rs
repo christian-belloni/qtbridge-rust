@@ -139,7 +139,7 @@ pub(crate) fn get_receiver_arg_ident(arg: &syn::Receiver) -> syn::Ident {
     arg.self_token.into()
 }
 
-pub(crate) fn get_typed_arg_ident(arg: &syn::PatType) -> syn::Result<syn::Ident> {
+pub fn get_typed_arg_ident(arg: &syn::PatType) -> syn::Result<syn::Ident> {
     let syn::Pat::Ident(pat_ident) = arg.pat.as_ref() else {
         return Err(syn::Error::new(arg.span(), format!("Failed to get argument name from {}", arg.pat.to_token_stream())));
     };

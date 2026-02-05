@@ -7,7 +7,7 @@ use type_registry::qt::generic::{QtGenericArg, QtGenericTypeWithoutArgs};
 use type_registry::type_traits::{FindType, MetaTypeId, TypeInfo, TypeName};
 use crate::signature_utils::{get_typed_args, is_arg_self_ref};
 use crate::type_to_string::type_to_string_fallback;
-use crate::type_utils::{get_angle_bracketed_generic_arguments_of_last_path_segment, path_to_type};
+use crate::type_utils::{get_angle_bracketed_generic_arguments_of_last_path_segment, is_mut_ref, path_to_type};
 
 /// Checks whether the given signature can participate in meta-calls
 /// (as slot callbacks or property getters/setters).
@@ -22,6 +22,9 @@ pub fn check_meta_call_signature_types(src: &syn::Signature) -> syn::Result<()> 
         let arg_type = typed_arg.ty.as_ref();
         if !is_type_mapped_to_qmetatype(arg_type) {
             return Err(syn::Error::new(arg_type.span(), format!("Type '{}' of argument is currently unsupported for meta calls", type_to_string_fallback(arg_type))))
+        }
+        if is_mut_ref(arg_type) {
+            return Err(syn::Error::new(arg_type.span(), format!("Type '{}' of argument can't be passed by mutable reference", type_to_string_fallback(arg_type))))
         }
     }
 

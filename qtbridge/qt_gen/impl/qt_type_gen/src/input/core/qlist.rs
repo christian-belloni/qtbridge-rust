@@ -304,6 +304,17 @@ mod qlist {
         }
     }
 
+    #[include_if_struct_instantiation[QString]]
+    impl From<&QList<T>> for Vec<String> {
+        fn from(value: &QList<T>) -> Self {
+            let mut v = Vec::with_capacity(value.len());
+            for i in 0..value.len() {
+                v.push((&value[i]).into());
+            }
+            v
+        }
+    }
+
     impl From<QList<T>> for Vec<T> {
         fn from(value: QList<T>) -> Self {
             From::from(&value)

@@ -228,8 +228,8 @@ private:
                 auto slotIt = m_slots.find(methodId);
                 if (slotIt == m_slots.end())
                     return false;
-                const MetaMethodIncomingParams params(method, argv);
-                slotIt->second.m_callback(clientPtr, params);
+                rust::Slice argSlice(reinterpret_cast<const uint8_t* const*>(argv + 1), static_cast<size_t>(method.parameterCount()));
+                slotIt->second.m_callback(clientPtr, argSlice);
                 return true;
             }
             break;

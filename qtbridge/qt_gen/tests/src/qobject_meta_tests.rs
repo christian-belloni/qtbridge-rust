@@ -80,9 +80,11 @@ fn require_that_qobject_impl_macro_handles_signals_slots_and_properties() {
             meta_obj.as_mut().register_slot(
                 "onThatValueChanged",
                 &[qt_type_lib::QString::get_qmetatype()],
-                slot_callback_for::<SomeStruct>(|this, params| {
-                    let arg_0 = params.get_string(0usize);
-                    this.on_that_value_changed(&arg_0);
+                slot_callback_for::<SomeStruct>(|this, args| {
+                    let value_ref = unsafe { args[0usize].cast::<qt_type_lib::QString>().as_ref() }
+                        .expect("Argument #1 is nullptr");
+                    let value_var: <String as ToOwned>::Owned = value_ref.into();
+                    this.on_that_value_changed(&value_var);
                 }),
             );
             meta_obj.as_mut().register_property(

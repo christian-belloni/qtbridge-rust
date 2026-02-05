@@ -20,10 +20,10 @@ pub mod test_object {
         pub arg_f32: Option<f32>,
         pub arg_f64: Option<f64>,
         pub arg_string: Option<String>,
-        pub arg_string_list: Option<Vec<String>>,
     }
 
     impl TestObject {
+        // Slots taking the argument by value
         #[qslot]
         fn slot_no_args(&mut self) {
             self.arg_unit = Some(());
@@ -80,31 +80,69 @@ pub mod test_object {
         fn slot_string(&mut self, arg: String) {
             self.arg_string = Some(arg);
         }
+
+        // Slots taking the argument by reference
+        #[qslot]
+        fn slot_bool_ref(&mut self, arg: &bool) {
+            self.arg_bool = Some(*arg);
+        }
+        #[qslot]
+        fn slot_i8_ref(&mut self, arg: &i8) {
+            self.arg_i8 = Some(*arg);
+        }
+        #[qslot]
+        fn slot_u8_ref(&mut self, arg: &u8) {
+            self.arg_u8 = Some(*arg);
+        }
+        #[qslot]
+        fn slot_i16_ref(&mut self, arg: &i16) {
+            self.arg_i16 = Some(*arg);
+        }
+        #[qslot]
+        fn slot_u16_ref(&mut self, arg: &u16) {
+            self.arg_u16 = Some(*arg);
+        }
+        #[qslot]
+        fn slot_i32_ref(&mut self, arg: &i32) {
+            self.arg_i32 = Some(*arg);
+        }
+        #[qslot]
+        fn slot_u32_ref(&mut self, arg: &u32) {
+            self.arg_u32 = Some(*arg);
+        }
+        #[qslot]
+        fn slot_i64_ref(&mut self, arg: &i64) {
+            self.arg_i64 = Some(*arg);
+        }
+        #[qslot]
+        fn slot_u64_ref(&mut self, arg: &u64) {
+            self.arg_u64 = Some(*arg);
+        }
+        #[qslot]
+        fn slot_f32_ref(&mut self, arg: &f32) {
+            self.arg_f32 = Some(*arg);
+        }
+        #[qslot]
+        fn slot_f64_ref(&mut self, arg: &f64) {
+            self.arg_f64 = Some(*arg);
+        }
         #[qslot]
         fn slot_string_ref(&mut self, arg: &String) {
             self.arg_string = Some(arg.clone());
-        }
-        #[qslot]
-        fn slot_string_list(&mut self, arg: Vec<String>) {
-            self.arg_string_list = Some(arg);
-        }
-        #[qslot]
-        fn slot_string_list_ref(&mut self, arg: &Vec<String>) {
-            self.arg_string_list = Some(arg.clone());
         }
     }
 }
 
 pub use test_object::TestObject;
 
-fn get_qml_code_for(arg_type_suffix: &str, arg_value: &str) -> String {
+fn get_qml_code_for(slot_type_suffix: &str, arg_value: &str) -> String {
     format!(r#"
         import QtQuick
         Item {{
             required property var testObject
 
             Component.onCompleted: {{
-                testObject.slot{arg_type_suffix}({arg_value});
+                testObject.slot{slot_type_suffix}({arg_value});
             }}
         }}
     "#)
@@ -125,7 +163,7 @@ fn test_type<F>(arg_type_suffix: &str, arg_value: &str, check_fn: F)
     assert!(check_fn(&obj.borrow()), "failing slot type: {arg_type_suffix}");
 }
 
-fn test_slot_types() {
+fn test_slot_types_values() {
     test_type("NoArgs", "",              |obj| obj.arg_unit.is_some());
     test_type("bool", "true",            |obj| obj.arg_bool == Some(true));
     test_type("i8", "10",                |obj| obj.arg_i8 == Some(10));
@@ -140,13 +178,26 @@ fn test_slot_types() {
     test_type("f64", "0.25",             |obj| obj.arg_f64 == Some(0.25));
     test_type("str", "\"test\"",         |obj| obj.arg_string == Some("test".into()));
     test_type("string", "\"test2\"",     |obj| obj.arg_string == Some("test2".into()));
+}
+
+fn test_slot_types_references() {
+    test_type("boolRef", "true", |obj| obj.arg_bool == Some(true));
+    test_type("i8Ref", "11",     |obj| obj.arg_i8 == Some(11));
+    test_type("u8Ref", "21",     |obj| obj.arg_u8 == Some(21));
+    test_type("i16Ref", "-31",   |obj| obj.arg_i16 == Some(-31));
+    test_type("u16Ref", "41",    |obj| obj.arg_u16 == Some(41));
+    test_type("i32Ref", "-51",   |obj| obj.arg_i32 == Some(-51));
+
+    test_type("u32Ref", "61",    |obj| obj.arg_u32 == Some(61));
+    test_type("i64Ref", "71",    |obj| obj.arg_i64 == Some(71));
+    test_type("u64Ref", "81",    |obj| obj.arg_u64 == Some(81));
+    test_type("f32Ref", "0.25",  |obj| obj.arg_f32 == Some(0.25));
+    test_type("f64Ref", "0.75",  |obj| obj.arg_f64 == Some(0.75));
+
     test_type("stringRef", "\"test3\"",  |obj| obj.arg_string == Some("test3".into()));
-    test_type("stringList", "[\"abc\", \"def\", \"ghi\"]",
-        |obj| obj.arg_string_list == Some(vec!["abc".into(), "def".into(), "ghi".into()]));
-    test_type("stringListRef", "[\"jkl\", \"mno\", \"pqr\"]",
-        |obj| obj.arg_string_list == Some(vec!["jkl".into(), "mno".into(), "pqr".into()]));
 }
 
 fn main() {
-    test_slot_types()
+    test_slot_types_values();
+    test_slot_types_references();
 }

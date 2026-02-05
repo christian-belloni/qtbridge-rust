@@ -6,7 +6,6 @@ pub mod ffi {
 
     unsafe extern "C++" {
         include!("cpp/metamethodparams.h");
-        type MetaMethodIncomingParams = crate::metamethodparams::ffi::MetaMethodIncomingParams;
         type MetaMethodOutgoingParams = crate::metamethodparams::ffi::MetaMethodOutgoingParams;
 
         include!("qt_type_lib/src/generated/core/qmetaobject/cpp/qmetaobject.h");
@@ -42,7 +41,7 @@ pub mod ffi {
         fn registerSignal(self: Pin<&mut Self>, name: &str, arg_meta_types: &[QMetaType]);
 
         #[rust_name = "register_slot"]
-        fn registerSlot(self: Pin<&mut Self>, name: &str, arg_meta_types: &[QMetaType], callback: unsafe fn(receiver: *mut u8, &MetaMethodIncomingParams));
+        fn registerSlot(self: Pin<&mut Self>, name: &str, arg_meta_types: &[QMetaType], callback: unsafe fn(receiver: *mut u8, args: &[*const u8]));
 
         #[rust_name = "end_meta_registration"]
         fn endMetaRegistration(self: Pin<&mut Self>);

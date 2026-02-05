@@ -55,6 +55,13 @@ pub fn is_ptr(ty: &syn::Type) -> bool {
     matches!(ty, syn::Type::Ptr(_))
 }
 
+pub fn is_mut_ref(ty: &syn::Type) -> bool {
+    if let syn::Type::Reference(ref_) = ty {
+        return ref_.mutability.is_some()
+    }
+    false
+}
+
 pub fn ident_str_to_path(src: &str) -> syn::Path {
     let ident = format_ident!("{src}");
     ident_to_path(ident)
