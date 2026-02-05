@@ -2,9 +2,6 @@ impl qtbridge::bridge::QMetaInfo for SomeStruct {
     fn class_name() -> &'static str {
         ::std::any::type_name::<SomeStruct>()
     }
-    fn get_static_meta_object() -> &'static qtbridge::qt_type_lib::QMetaObject {
-        <Self as qtbridge::bridge::QObjectHolder>::ProxyRust::get_static_meta_object()
-    }
     fn register_meta(mut meta_obj: std::pin::Pin<&mut qtbridge::bridge::DynamicMetaObjectBuilder>) {
         use qt_type_lib::get_meta_type_id_of_fn_return_value;
         use qt_type_lib::QMetaTypeGet;
@@ -106,8 +103,5 @@ impl qtbridge::bridge::QMetaInfo for SomeStruct {
             dynamic_meta_data_map.insert(type_id, meta_data_ptr);
         });
         meta_data_ref
-    }
-    fn get_list_meta_type() -> qtbridge::qt_type_lib::QMetaType {
-        <Self as qtbridge::bridge::QObjectHolder>::ProxyRust::get_qmetatype_list_of_cpp_proxy()
     }
 }

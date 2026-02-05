@@ -30,17 +30,12 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext, origin: &CallOrigin
     let struct_ident = &ctx.struct_ident;
     let (impl_generics, type_generics, where_clause) = generics.split_for_impl();
 
-    let type_library = origin.type_module();
     let bridge_library = origin.bridge_module();
 
     Ok(quote! {
         impl #impl_generics #bridge_library::QMetaInfo for #struct_ident #type_generics #where_clause {
             fn class_name() -> &'static str {
                 ::std::any::type_name::<#struct_ident #type_generics>()
-            }
-
-            fn get_static_meta_object() -> &'static #type_library::QMetaObject {
-                <Self as #bridge_library::QObjectHolder>::ProxyRust::get_static_meta_object()
             }
 
             fn register_meta(mut meta_obj: std::pin::Pin<&mut #bridge_library::DynamicMetaObjectBuilder>) {
@@ -81,10 +76,6 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext, origin: &CallOrigin
                 });
 
                 meta_data_ref
-            }
-
-            fn get_list_meta_type() -> #type_library::QMetaType {
-                <Self as #bridge_library::QObjectHolder>::ProxyRust::get_qmetatype_list_of_cpp_proxy()
             }
         }
     })

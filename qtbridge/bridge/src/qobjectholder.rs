@@ -4,7 +4,8 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use qt_type_lib::{QObject, QMetaType};
+use qt_type_lib::{QObject, QMetaType, QMetaObject};
+use crate::qrustproxy::QRustProxy;
 use crate::QMetaInfo;
 
 /// Trait to enable access to the bridge between C++ and Rust. This trait is
@@ -18,8 +19,7 @@ pub trait QObjectHolder : QMetaInfo + Default {
     /// The Rust proxy is an intermediate layer between the Rust object and the C++ proxy,
     /// forwarding calls in both directions and managing borrowing of the Rust object
     /// during QAIM calls (and TBD for meta calls as well).
-    type ProxyRust;
-
+    type ProxyRust : QRustProxy;
     fn try_borrow_mut_proxies_map<F, R>(f: F) -> R
     where F: FnOnce(&mut std::collections::HashMap<*const u8, *const Self::ProxyRust>) -> R;
 
@@ -50,7 +50,12 @@ pub trait QObjectHolder : QMetaInfo + Default {
     }
 
     /// Return Result with QObject linked to the Rust object provided as an argument.
-    fn try_get_qobject(&self) -> Option<&mut QObject>;
+    fn try_get_qobject(&self) -> Option<&mut QObject> {
+        let rust_proxy = Self::try_get_rust_proxy_mut(&self)?;
+        let cpp_proxy = rust_proxy.get_cpp_proxy();
+        let qobject_ptr: *const QObject = cpp_proxy.cast();
+        unsafe { qobject_ptr.cast_mut().as_mut() }
+    }
 
     /// Return QObject linked to the Rust object provided as an argument.
     fn get_qobject(&self) -> &mut QObject
@@ -123,14 +128,20 @@ pub trait QObjectHolder : QMetaInfo + Default {
         qobj_ptr.into()
     }
 
-    // TODO: Define a trait for the proxy, so we can use the proxy functions
-    // here without the need for code generation.
-    // See https://codereview.qt-project.org/c/qt/qtbridge-rust/+/707305
-    fn get_qmetatype_list_of_cpp_proxy() -> QMetaType;
+    fn get_static_meta_object() -> &'static QMetaObject {
+        <Self::ProxyRust as QRustProxy>::get_static_meta_object()
+    }
 
-    // TODO: Define a trait for the proxy, so we can use the proxy functions
-    // here without the need for code generation
-    // See https://codereview.qt-project.org/c/qt/qtbridge-rust/+/707305
-    fn get_size_of_cpp_proxy() -> usize;
+    fn get_size_of_cpp_proxy() -> usize {
+        <Self::ProxyRust as QRustProxy>::get_size_of_cpp_proxy()
+    }
+
+    fn get_align_of_cpp_proxy() -> usize {
+        <Self::ProxyRust as QRustProxy>::get_align_of_cpp_proxy()
+    }
+
+    fn get_qmetatype_list_of_cpp_proxy() -> QMetaType {
+        <Self::ProxyRust as QRustProxy>::get_qmetatype_list_of_cpp_proxy()
+    }
 }
 

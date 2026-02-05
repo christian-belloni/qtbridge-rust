@@ -6,6 +6,7 @@
 use super::proxy_cpp_bridge::{QAbstractListModelProxyCpp, ffi};
 use crate::{RustObjAccess, call_rust_trait_impl, call_cpp_impl};
 use qt_type_lib::{QByteArray, QHash, QMetaObject, QMetaType, QModelIndex, QVariant};
+use bridge::qrustproxy::QRustProxy;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -144,8 +145,12 @@ pub struct QAbstractListModelProxyRust {
     rust_obj: RustObjAccess<dyn QAbstractListModelProxyGet>,
     on_drop: fn(rust_obj: *const u8),
 }
-impl QAbstractListModelProxyRust {
-    pub fn new(rust_obj: &Rc<RefCell<dyn QAbstractListModelProxyGet>>, register_strong: bool, on_drop: fn(rust_obj: *const u8)) -> *mut Self {
+
+impl QRustProxy for QAbstractListModelProxyRust {
+    type ProxyCppType = QAbstractListModelProxyCpp;
+    type RcRefCellType = Rc<RefCell<dyn QAbstractListModelProxyGet>>;
+
+    fn new(rust_obj: &Rc<RefCell<dyn QAbstractListModelProxyGet>>, register_strong: bool, on_drop: fn(rust_obj: *const u8)) -> *mut Self {
         let raw_rust_obj = rust_obj.as_ptr();
         let boxed_self = Box::new(Self {
             cpp_proxy: std::ptr::null_mut(),
@@ -159,7 +164,7 @@ impl QAbstractListModelProxyRust {
         unsafe { (*raw_self).cpp_proxy = ffi::create_qabstract_list_model_proxy_cpp(raw_rust_obj.cast(), raw_self) };
         raw_self
     }
-    pub fn new_with_cpp_proxy_at(addr: *mut u8, rust_obj: &Rc<RefCell<dyn QAbstractListModelProxyGet>>, on_drop: fn(rust_obj: *const u8)) -> *mut Self {
+    fn new_with_cpp_proxy_at(addr: *mut u8, rust_obj: &Rc<RefCell<dyn QAbstractListModelProxyGet>>, on_drop: fn(rust_obj: *const u8)) -> *mut Self {
         let raw_rust_obj = rust_obj.as_ptr();
         let boxed_self = Box::new(Self {
             cpp_proxy: std::ptr::null_mut(),
@@ -170,27 +175,32 @@ impl QAbstractListModelProxyRust {
         unsafe { (*raw_self).cpp_proxy = ffi::create_qabstract_list_model_proxy_cpp_at(addr, raw_rust_obj.cast(), raw_self) };
         raw_self
     }
-    pub fn drop_self(raw_self: *mut Self, rust_obj_ptr: *const u8) {
-        let boxed_self = unsafe { Box::from_raw(raw_self) };
-        (boxed_self.on_drop)(rust_obj_ptr);
+    fn drop_self(raw_self: *mut Self, rust_obj_ptr: *const u8) {
+        Self::drop_self_impl(raw_self, rust_obj_ptr);
     }
-    pub fn get_static_meta_object() -> &'static QMetaObject {
+    fn get_static_meta_object() -> &'static QMetaObject {
         ffi::static_qmeta_object_of_qabstract_list_model_proxy_cpp()
     }
-    pub fn get_size_of_cpp_proxy() -> usize {
+    fn get_size_of_cpp_proxy() -> usize {
         ffi::size_of_qabstract_list_model_proxy_cpp()
     }
-    pub fn get_align_of_cpp_proxy() -> usize {
+    fn get_align_of_cpp_proxy() -> usize {
         ffi::align_of_qabstract_list_model_proxy_cpp()
     }
-    pub fn get_qmetatype_list_of_cpp_proxy() -> QMetaType {
+    fn get_qmetatype_list_of_cpp_proxy() -> QMetaType {
         ffi::qmetatype_list_of_qabstract_list_model_proxy_cpp()
     }
-    pub fn get_cpp_proxy(&self) -> *const QAbstractListModelProxyCpp {
+    fn get_cpp_proxy(&self) -> *const QAbstractListModelProxyCpp {
         self.cpp_proxy as *const _
     }
-    pub fn get_cpp_proxy_mut(&self) -> *mut QAbstractListModelProxyCpp {
+    fn get_cpp_proxy_mut(&self) -> *mut QAbstractListModelProxyCpp {
         self.cpp_proxy
+    }
+}
+impl QAbstractListModelProxyRust {
+    pub fn drop_self_impl(raw_self: *mut Self, rust_obj_ptr: *const u8) {
+        let boxed_self = unsafe { Box::from_raw(raw_self) };
+        (boxed_self.on_drop)(rust_obj_ptr);
     }
     pub fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex {
         call_rust_trait_impl!(self, index(row, column, parent))

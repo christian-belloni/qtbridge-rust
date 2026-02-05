@@ -11,6 +11,7 @@ description = "Implementation of bridges between Qt item models and Rust objects
 cxx.workspace = true
 qt_type_lib = { path = "../qt_type_lib" }
 qt_traits = { path = "../qt_traits" }
+bridge = { path = "../bridge" }
 
 [build-dependencies]
 cxx-build.workspace = true

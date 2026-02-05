@@ -96,7 +96,6 @@ impl InterfaceImpl {
         let (impl_generics, type_generics, where_clause) = self.impl_generics.split_for_impl();
 
         let iface_library = self.origin.iface_module();
-        let type_library = self.origin.type_module();
         let bridge_library = self.origin.bridge_module();
 
         let code = quote! {
@@ -133,14 +132,6 @@ impl InterfaceImpl {
                     Self::try_borrow_mut_proxies_map_impl(f)
                 }
 
-                fn try_get_qobject(&self) -> Option<&mut #type_library::QObject>
-                {
-                    let rust_proxy = Self::try_get_rust_proxy_mut(&self)?;
-                    let cpp_proxy = rust_proxy.get_cpp_proxy();
-                    let qobject_ptr: *const #type_library::QObject = cpp_proxy.cast();
-                    unsafe { qobject_ptr.cast_mut().as_mut() }
-                }
-
                 fn register_instance_in_map(rust_obj_rc: std::rc::Rc<std::cell::RefCell<Self>>, register_strong: bool)
                 {
                     use std::rc::Rc;
@@ -148,7 +139,7 @@ impl InterfaceImpl {
                     let key = (*rust_obj_rc).as_ptr() as *const u8;
                     Self::try_borrow_mut_proxies_map(|proxies| {
                         let dyn_rc: Rc<RefCell<dyn #iface_library::#iface_module::#iface_traits_name>> = rust_obj_rc;
-                        let proxy_ptr = Self::ProxyRust::new(&dyn_rc, register_strong, Self::unregister_instance_in_map);
+                        let proxy_ptr = <Self::ProxyRust as #bridge_library::qrustproxy::QRustProxy>::new(&dyn_rc, register_strong, Self::unregister_instance_in_map);
                         proxies.insert(key, proxy_ptr);
                     })
                 }
@@ -160,18 +151,10 @@ impl InterfaceImpl {
                     let key = (*rust_obj_rc).as_ptr() as *const u8;
                     Self::try_borrow_mut_proxies_map(|proxies| {
                         let dyn_rc: Rc<RefCell<dyn #iface_library::#iface_module::#iface_traits_name>> = rust_obj_rc;
-                        let proxy_ptr = Self::ProxyRust::new_with_cpp_proxy_at(addr, &dyn_rc, Self::unregister_instance_in_map);
+                        let proxy_ptr = <Self::ProxyRust as #bridge_library::qrustproxy::QRustProxy>::new_with_cpp_proxy_at(addr, &dyn_rc, Self::unregister_instance_in_map);
                         proxies.insert(key, proxy_ptr);
                     })
                 }
-
-                fn get_qmetatype_list_of_cpp_proxy() -> #type_library::QMetaType {
-                    Self::ProxyRust::get_qmetatype_list_of_cpp_proxy()
-                }
-                fn get_size_of_cpp_proxy() -> usize {
-                    Self::ProxyRust::get_size_of_cpp_proxy()
-                }
-
             }
         };
         Ok(code)

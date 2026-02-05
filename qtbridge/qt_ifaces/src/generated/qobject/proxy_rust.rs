@@ -6,6 +6,7 @@
 use super::proxy_cpp_bridge::{QObjectProxyCpp, ffi};
 use crate::RustObjAccess;
 use qt_type_lib::{QMetaObject, QMetaType};
+use bridge::qrustproxy::QRustProxy;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -43,8 +44,13 @@ pub struct QObjectProxyRust {
     rust_obj: RustObjAccess<dyn QObjectProxyGet>,
     on_drop: fn(rust_obj: *const u8),
 }
-impl QObjectProxyRust {
-    pub fn new(rust_obj: &Rc<RefCell<dyn QObjectProxyGet>>, register_strong: bool, on_drop: fn(rust_obj: *const u8)) -> *mut Self {
+
+impl QRustProxy for QObjectProxyRust {
+
+    type ProxyCppType = QObjectProxyCpp;
+    type RcRefCellType = Rc<RefCell<dyn QObjectProxyGet>>;
+
+    fn new(rust_obj: &Rc<RefCell<dyn QObjectProxyGet>>, register_strong: bool, on_drop: fn(rust_obj: *const u8)) -> *mut Self {
         let raw_rust_obj = rust_obj.as_ptr();
         let boxed_self = Box::new(Self {
             cpp_proxy: std::ptr::null_mut(),
@@ -58,7 +64,7 @@ impl QObjectProxyRust {
         unsafe { (*raw_self).cpp_proxy = ffi::create_qobject_proxy_cpp(raw_rust_obj.cast(), raw_self) };
         raw_self
     }
-    pub fn new_with_cpp_proxy_at(addr: *mut u8, rust_obj: &Rc<RefCell<dyn QObjectProxyGet>>, on_drop: fn(rust_obj: *const u8)) -> *mut Self {
+    fn new_with_cpp_proxy_at(addr: *mut u8, rust_obj: &Rc<RefCell<dyn QObjectProxyGet>>, on_drop: fn(rust_obj: *const u8)) -> *mut Self {
         let raw_rust_obj = rust_obj.as_ptr();
         let boxed_self = Box::new(Self {
             cpp_proxy: std::ptr::null_mut(),
@@ -69,26 +75,32 @@ impl QObjectProxyRust {
         unsafe { (*raw_self).cpp_proxy = ffi::create_qobject_proxy_cpp_at(addr, raw_rust_obj.cast(), raw_self) };
         raw_self
     }
-    pub fn drop_self(raw_self: *mut Self, rust_obj_ptr: *const u8) {
-        let boxed_self = unsafe { Box::from_raw(raw_self) };
-        (boxed_self.on_drop)(rust_obj_ptr);
+    fn drop_self(raw_self: *mut Self, rust_obj_ptr: *const u8) {
+        Self::drop_self_impl(raw_self, rust_obj_ptr)
     }
-    pub fn get_static_meta_object() -> &'static QMetaObject {
+    fn get_static_meta_object() -> &'static QMetaObject {
         ffi::static_qmeta_object_of_qobject_proxy_cpp()
     }
-    pub fn get_size_of_cpp_proxy() -> usize {
+    fn get_size_of_cpp_proxy() -> usize {
         ffi::size_of_qobject_proxy_cpp()
     }
-    pub fn get_align_of_cpp_proxy() -> usize {
+    fn get_align_of_cpp_proxy() -> usize {
         ffi::align_of_qobject_proxy_cpp()
     }
-    pub fn get_qmetatype_list_of_cpp_proxy() -> QMetaType {
+    fn get_qmetatype_list_of_cpp_proxy() -> QMetaType {
         ffi::qmetatype_list_of_qobject_proxy_cpp()
     }
-    pub fn get_cpp_proxy(&self) -> *const QObjectProxyCpp {
+    fn get_cpp_proxy(&self) -> *const QObjectProxyCpp {
         self.cpp_proxy as *const _
     }
-    pub fn get_cpp_proxy_mut(&self) -> *mut QObjectProxyCpp {
+    fn get_cpp_proxy_mut(&self) -> *mut QObjectProxyCpp {
         self.cpp_proxy
+    }
+}
+
+impl QObjectProxyRust {
+    pub fn drop_self_impl(raw_self: *mut Self, rust_obj_ptr: *const u8) {
+        let boxed_self = unsafe { Box::from_raw(raw_self) };
+        (boxed_self.on_drop)(rust_obj_ptr);
     }
 }

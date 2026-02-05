@@ -70,8 +70,8 @@ pub fn generate_qmeta_type_interface_get(struct_ident: &syn::Ident, generics: &s
                 }
 
                 let iface = #type_library::QMetaTypeInterface::fill_fields(
-                    <Self as #bridge_library::QObjectHolder>::ProxyRust::get_align_of_cpp_proxy(),
-                    <Self as #bridge_library::QObjectHolder>::ProxyRust::get_size_of_cpp_proxy(),
+                    <Self as #bridge_library::QObjectHolder>::get_align_of_cpp_proxy(),
+                    <Self as #bridge_library::QObjectHolder>::get_size_of_cpp_proxy(),
                     flags,
                     class_name,
                     meta_object_fn #type_generics_turbofish as usize,
