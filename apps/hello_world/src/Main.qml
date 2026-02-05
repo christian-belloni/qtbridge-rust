@@ -10,13 +10,9 @@ ApplicationWindow {
     visible: true
     title: qsTr("Minimal QML app")
 
-    Backend {
-        id: backend
-    }
-
     Button {
         anchors.centerIn: parent
         text: "Hello World!"
-        onClicked: backend.sayHello()
+        onClicked: Backend.sayHello()
     }
 }

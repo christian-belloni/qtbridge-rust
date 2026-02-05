@@ -8,7 +8,7 @@ mod backend {
     use qtbridge::qml_element;
 
     #[derive(Default)]
-    #[qml_element]
+    #[qml_element(singleton)]
     pub struct Backend {
     }
 
