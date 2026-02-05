@@ -13,3 +13,7 @@ proc-macro = true
 [dependencies]
 qt_gen_impl = { path = "../impl" }
 qt_gen_common = { path = "../impl/qt_gen_common" }
+
+[dev-dependencies]
+linkme = "0.3.35"
+qtbridge = { path = "../../../qtbridge" }

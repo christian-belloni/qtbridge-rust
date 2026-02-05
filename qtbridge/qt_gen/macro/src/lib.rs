@@ -506,6 +506,52 @@ pub fn qslot(_: TokenStream, _: TokenStream) -> TokenStream {
 /// - All characters that are neither alphabetic not digits are replaced with '_'.
 ///
 /// Once an instance is created in QML, its exposed method and properties can be accessed and manipulated directly from QML code.
+///
+///
+/// ### Singleton support
+///
+/// Optionally, a QML element can be registered as a [singleton](https://doc.qt.io/qt-6/qml-singleton.html) by using `#[qml_element(singleton)]`.
+/// In this case, QML code accesses a single shared instance of the object directly, using the **type name itself** as identifier.
+/// This is useful for application-wide data, global settings, or service objects.
+///
+/// Exmaple:
+///
+/// ```rust
+/// use qtbridge::{qobject_impl, qml_element};
+///
+/// #[derive(Default)]
+/// pub struct Backend {
+/// }
+///
+/// #[qobject_impl]
+/// #[qml_element(singleton)]
+/// impl Backend {
+///     #[qslot]
+///     fn say_hello(&self) {
+///         println!("Hello World!")
+///     }
+/// }
+/// ```
+///
+/// Then QML can refer to it by type name "Backend":
+///
+/// ```javascript,ignore
+/// import QtQuick
+/// import QtQuick.Controls
+/// import hello_world
+///
+/// ApplicationWindow {
+///     visible: true
+///
+///     Button {
+///         anchors.centerIn: parent
+///         text: "Hello World!"
+///         onClicked: Backend.sayHello()
+///     }
+/// }
+/// ```
+///
+///
 #[proc_macro_attribute]
 pub fn qml_element(args: TokenStream, input: TokenStream) -> TokenStream {
     let output = match qt_gen_impl::qml_element(args.into(), input.into()) {
