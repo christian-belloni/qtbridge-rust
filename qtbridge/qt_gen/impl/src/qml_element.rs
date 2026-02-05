@@ -70,11 +70,12 @@ fn build_constructor_body(struct_ident: &syn::Ident, is_singleton: bool) -> Toke
     if is_singleton {
         quote! {
             pub extern "C"
-            fn default_ctor() -> *mut qtbridge::QObject {
+            fn default_ctor() -> *mut qtbridge::qt_type_lib::QObject {
                 let instance = std::rc::Rc::new(std::cell::RefCell::new(<#struct_ident as Default>::default()));
                 <#struct_ident as qtbridge::qt_traits::QObjectHolder>::register_instance_in_map(instance.clone(), true);
                 <#struct_ident as qtbridge::qt_traits::QObjectHolder>::set_dynamic_meta(&instance);
-                std::ptr::from_mut(Self::get_qobject(&instance.borrow()))
+                let instance_ref = &instance.borrow();
+                instance_ref.get_qobject()
             };
         }
     } else {
@@ -93,7 +94,7 @@ fn build_qml_register_call(struct_name: &str, is_singleton: bool) -> TokenStream
     let struct_ident = format_ident!("{struct_name}");
     if is_singleton {
         quote! {
-            qtbridge::qml_register_singleton(
+            qtbridge::qt_type_lib::qml_register_singleton(
                 <#struct_ident as qtbridge::qt_type_lib::QMetaTypeGet>::get_qmetatype(),
                 default_ctor as usize,
                 uri.as_bytes(),
