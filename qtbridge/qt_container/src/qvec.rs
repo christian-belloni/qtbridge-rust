@@ -6,7 +6,7 @@ use qt_type_lib::QVariant;
 /// Trait representing a single item in a Qt item model.
 ///
 /// This trait is implemented automatically by `#[derive(QModelItem)]`
-/// for structs and tuple structs and an implmenetation for primitive types
+/// for structs and tuple structs and an implementation for primitive types
 /// and tuples is provided. It allows a `QVec<T>` to expose fields as Qt
 /// to QML views.
 ///

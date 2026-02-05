@@ -34,7 +34,7 @@ as well as application examples in `apps`.
 
 To build this project, you’ll need:
 
-- One of the supported plaforms:
+- One of the supported platforms:
    - Linux (`x86_64`)
    - Windows (`x64`)
 - **Rust** (stable, version >= 1.87)
@@ -90,7 +90,7 @@ cargo test
 
 ### Environment variables
 
-Folder containing qmake must be in PATH. E.g:
+Folder containing qmake must be in PATH. For example:
 
 - On Windows:
 ```
@@ -138,7 +138,7 @@ impl Backend {
 }
 ```
 
-QML can take use the backend as follows:
+QML can use the backend as follows:
 
 ```
 import QtQuick
@@ -167,7 +167,7 @@ There are two examples:
  - hello_world
  - minimal_app
 
-To run those applications you can use `cargo run` from on if it's directory.
+To run those applications, you can use `cargo run` from its directory.
 There are also following aliases defined, which can be executed from root dir:
 
 Hello world example:
@@ -236,7 +236,7 @@ the macro analyzes the contents of the struct’s impl block and generates the r
 connect the struct to Qt’s meta-object system.
 
 Using this macro, a developer can:
-- Notify QML about events related to a Rust object (via **signals**).
+- Notify QML about events related to a Rust object (through **signals**).
 - Define **slots** that can connect to signals or be invoked directly from QML.
 - Expose object values to QML as **properties**, supporting read and optionally write access.
 
@@ -245,7 +245,7 @@ For more details, see the Rust documentation for `#[qobject_impl]`.
 ### qml_element
 
 The `#[qml_element]` macro makes Rust structures instantiable from QML. It has to be used together
-with `#[qobject_impl]`. This allows to write idomatic QML code.
+with `#[qobject_impl]`. This allows you to write idiomatic QML code.
 
 ### QVec
 
@@ -292,7 +292,7 @@ right holders.
 
 ### Additional Terms and Conditions
 
-The Qt Bridge for Rust is built using the Rust language and SDK, which is maintained by the Rust
+Qt Bridge for Rust is built using the Rust language and SDK, which is maintained by the Rust
 Foundation.
 
 Qt Bridge for Rust resides on top of Rust and does not modify it in any form. Rust is a trademark of

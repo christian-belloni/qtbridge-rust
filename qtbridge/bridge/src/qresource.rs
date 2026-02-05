@@ -25,7 +25,7 @@
 //! ```
 //!
 //! Dynamic resources can be registered with [`register_bytes`] and
-//! are then available at runtime via the `qrc:/` scheme in QML:
+//! are then available at runtime through the `qrc:/` scheme in QML:
 //! ```qml, ignore
 //! Image {
 //!     source: "qrc:/images/copy.png"
@@ -45,8 +45,8 @@ mod ffi {
 
 /// Registers Qt resource data from an in-memory byte slice.
 ///
-/// This function registers a dynamic resource generated with `rcc``,
-/// making the emedded resources available at runtime via the `qrc:/` scheme.
+/// This function registers a dynamic resource generated with `rcc`,
+/// making the embedded resources available at runtime through the `qrc:/` scheme.
 ///
 /// # Parameters
 ///
@@ -62,8 +62,8 @@ pub fn register_bytes(data: &[u8]) -> bool {
 
 /// Registers Qt resource data from an in-memory byte slice with a prefix.
 ///
-/// This function registers a dynamic resource generated with `rcc``,
-/// making the emedded resources available at runtime via the `qrc:/` scheme.
+/// This function registers a dynamic resource generated with `rcc`,
+/// making the embedded resources available at runtime through the `qrc:/` scheme.
 ///
 /// # Parameters
 ///
