@@ -6,6 +6,7 @@ use quote::quote;
 use qt_gen_impl::qobject_impl::qobject_impl;
 use crate::tst_assert::assert_tokens_eq;
 use qt_gen_common::type_qualified_mapping::CallOrigin;
+use qt_gen_common::format_code::strip_docs;
 
 #[test]
 fn require_that_qobject_impl_macro_handles_signals_slots_and_properties() {
@@ -51,119 +52,28 @@ fn require_that_qobject_impl_macro_handles_signals_slots_and_properties() {
         }
     };
 
-    let expected = quote! {
-        impl qtbridge::bridge::QMetaInfo for SomeStruct {
-        fn class_name() -> &'static str {
-            ::std::any::type_name::<SomeStruct>()
-        }
-        fn get_static_meta_object() -> &'static qtbridge::qt_type_lib::QMetaObject {
-            <Self as qtbridge::bridge::QObjectHolder>::ProxyRust::get_static_meta_object()
-        }
-        fn register_meta(
-            mut meta_obj: std::pin::Pin<&mut qtbridge::bridge::DynamicMetaObjectBuilder>,
-        ) {
-            use qt_type_lib::get_meta_type_id_of_fn_return_value;
-            use qt_type_lib::QMetaTypeGet;
-            use qt_type_lib::{QMetaType, QMetaTypeId};
-            use qtbridge::bridge::metacallbacks::{
-                property_read_callback_for, property_write_callback_for, slot_callback_for,
-            };
-            use qtbridge::qt_type_lib;
-            meta_obj.as_mut()
-                .register_signal("thisValueChanged", &[qt_type_lib::QString::get_qmetatype()]);
-            meta_obj.as_mut()
-                .register_signal("otherValueChanged", &[f32::get_qmetatype()]);
-            meta_obj.as_mut()
-                .register_signal("thisStringValueChangedByRef", &[qt_type_lib::QString::get_qmetatype()]);
-            meta_obj.as_mut()
-                .register_signal("thatStringValueChangedByValue", &[qt_type_lib::QString::get_qmetatype()]);
-            meta_obj.as_mut().register_slot(
-                "onThatValueChanged",
-                &[qt_type_lib::QString::get_qmetatype()],
-                slot_callback_for::<SomeStruct>(|this, args| {
-                    let value_ref = unsafe { args[0usize].cast::<qt_type_lib::QString>().as_ref() }
-                        .expect("Argument #1 is nullptr");
-                    let value_var: <String as ToOwned>::Owned = value_ref.into();
-                    this.on_that_value_changed(&value_var);
-                }),
-            );
-            meta_obj.as_mut().register_property(
-                "this_value",
-                &(qt_type_lib::QString::get_qmetatype()),
-                property_read_callback_for::<SomeStruct>(|this| this.get_value().into()),
-                property_write_callback_for::<SomeStruct>(|this, value| {
-                    let Ok(value) = TryInto::try_into(value) else {
-                        panic!(
-                            "Failed to convert value '{}' to type '{}' in qproperty '{}'",
-                            value.to_string(),
-                            "String",
-                            "this_value"
-                        );
-                    };
-                    this.set_value(&value);
-                }),
-                "thisValueChanged",
-            );
-            meta_obj.as_mut().register_property(
-                "otherValue",
-                &(QMetaType::new(
-                    get_meta_type_id_of_fn_return_value(|this: &Self| &this.otherValueVar) as i32,
-                )),
-                property_read_callback_for::<SomeStruct>(|this| (&this.otherValueVar).into()),
-                property_write_callback_for::<SomeStruct>(|this, value| {
-                    let Ok(value) = value.try_into() else {
-                        panic!(
-                            "Failed to convert value '{}' to type '{}' in qproperty '{}'",
-                            value.to_string(),
-                            std::any::type_name_of_val(&this.otherValueVar),
-                            "otherValue"
-                        );
-                    };
-                    if this.otherValueVar != value {
-                        this.otherValueVar = value;
-                        this.other_value_changed(this.otherValueVar.clone());
-                    }
-                }),
-                "otherValueChanged",
-            );
-            meta_obj
-                .as_mut()
-                .add_class_info("DefaultProperty", "this_value");
-            meta_obj.as_mut().end_meta_registration();
-        }
-        fn get_shared_dynamic_meta_object() -> &'static qtbridge::bridge::DynamicMetaObjectBuilder {
-            use std::any::TypeId;
-            use std::cell::RefCell;
-            use std::collections::HashMap;
-            thread_local ! (static DYNAMIC_META_MAP : RefCell < HashMap < TypeId , * const qtbridge :: bridge :: DynamicMetaObjectBuilder >> = RefCell :: new (HashMap :: new ()));
-            let type_id = TypeId::of::<SomeStruct>();
-            {
-                let meta_data_ptr = DYNAMIC_META_MAP.with_borrow(|dynamic_meta_data_map| {
-                    dynamic_meta_data_map
-                        .get(&type_id)
-                        .copied()
-                        .unwrap_or_default()
-                });
-                if let Some(meta_data_ref) = unsafe { meta_data_ptr.as_ref() } {
-                    return meta_data_ref;
-                }
-            }
-            let meta_data_ptr = qtbridge::bridge::create_dynamic_meta_object_builder_for_type::<SomeStruct>();
-            let meta_data_ref = unsafe { meta_data_ptr.as_ref() }.unwrap();
-            DYNAMIC_META_MAP.with_borrow_mut(|dynamic_meta_data_map| {
-                dynamic_meta_data_map.insert(type_id, meta_data_ptr);
-            });
-            meta_data_ref
-        }
-        fn get_list_meta_type() -> qtbridge::qt_type_lib::QMetaType {
-            <Self as qtbridge::bridge::QObjectHolder>::ProxyRust::get_qmetatype_list_of_cpp_proxy()
-        }
-    }
-
-    };
-
     let output = qobject_impl(input, quote!{}, &CallOrigin::External)
         .unwrap()
         .qmeta_info_impl;
-    assert_tokens_eq(&output, &expected);
+
+    /* Uncomment to update the baseline
+    use std::fs;
+    use std::path::Path;
+    use qt_gen_common::format_code::format_rust_code;
+
+    let baseline_path = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("src")
+        .join("test_baselines")
+        .join("somestruct_meta.rs");
+
+    fs::write(baseline_path,format_rust_code(&strip_docs(output.clone())).unwrap()).unwrap();
+    */
+
+    let baseline_src = include_str!("test_baselines/somestruct_meta.rs");
+    let baseline: proc_macro2::TokenStream =
+        baseline_src.parse().expect("baseline is not valid Rust");
+
+
+    assert_tokens_eq(&strip_docs(output),
+                   &strip_docs(baseline));
 }

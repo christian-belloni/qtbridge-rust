@@ -46,13 +46,13 @@ pub fn require_that_qobject_macro_generates_interface_impl_code_that_agrees_with
 
     let baseline_path = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("src")
-        .join("qobject_iface_baseline")
-        .join("somestruct_baseline.rs");
+        .join("test_baselines")
+        .join("somestruct_iface.rs");
 
     fs::write(baseline_path,format_rust_code(&strip_docs(output.clone())).unwrap()).unwrap();
     */
 
-    let baseline_src = include_str!("qobject_iface_baseline/somestruct_baseline.rs");
+    let baseline_src = include_str!("test_baselines/somestruct_iface.rs");
     let baseline: proc_macro2::TokenStream =
         baseline_src.parse().expect("baseline is not valid Rust");
 
