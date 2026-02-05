@@ -10,8 +10,8 @@ use qt_gen_common::naming;
 use qt_gen_common::type_qualified_mapping::CallOrigin;
 use qt_gen_common::signature_utils::{get_qualified_types_in_signature, get_arg_ident, get_qualified_args, get_qualified_return_type, is_self_mut};
 
-use crate::InterfaceDesc;
-use crate::MethodOverride;
+use qt_iface_gen_lib::InterfaceDesc;
+use qt_iface_gen_lib::MethodOverride;
 
 // Info extracted by parsing impl block of some structure by procedural macro 'qobject_impl'
 pub struct InterfaceImpl {

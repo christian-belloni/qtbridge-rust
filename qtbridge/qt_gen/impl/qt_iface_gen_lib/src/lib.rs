@@ -4,10 +4,8 @@
 pub mod method_override;
 pub mod iface_desc;
 pub mod iface_desc_method;
-pub mod iface_impl;
 pub mod proxy_gen;
 
 pub use iface_desc::InterfaceDesc;
 pub use iface_desc_method::IfaceMethodDesc;
-pub use iface_impl::InterfaceImpl;
 pub use method_override::MethodOverride;

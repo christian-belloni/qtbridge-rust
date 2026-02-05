@@ -4,7 +4,8 @@ use quote::{ToTokens, format_ident, quote};
 use syn::spanned::Spanned;
 
 use qt_gen_common::function_with_attributes::FunctionWithAttributes;
-use qt_iface_gen_lib::{InterfaceDesc, InterfaceImpl, MethodOverride};
+use qt_iface_gen_lib::{InterfaceDesc, MethodOverride};
+use crate::iface_impl::InterfaceImpl;
 use qt_gen_common::parse_utils::is_path_with_segments_str;
 use qt_gen_common::type_utils::get_ident_of_last_path_segment;
 use qt_meta_gen::generate_meta::{QMetaInfoContext, generate_qmetainfo_trait_impl};
