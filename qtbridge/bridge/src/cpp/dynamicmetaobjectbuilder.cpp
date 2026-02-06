@@ -11,6 +11,7 @@
 #include <QVariant>
 #include <private/qobject_p.h>
 #include <private/qmetaobjectbuilder_p.h>
+#include <cassert>
 #include <map>
 #include <optional>
 #include <stdexcept>
@@ -64,10 +65,6 @@ public:
         auto [_, added] = m_signals.emplace(localId, SignalInfo{ name });
         if (!added)
             throw std::runtime_error("Failed to register signal");
-
-#ifdef _DEBUG
-        m_signalSignatures.emplace(localId, signature);
-#endif // _DEBUG
     }
 
     void registerSlot(const QByteArray& name, QSpan<const QMetaType> argMetaTypes, SlotCallbackFn&& func)
@@ -83,10 +80,6 @@ public:
         const int localId = builder.index();
 
         m_slots.emplace(localId, SlotInfo{ std::move(func) });
-
-#ifdef _DEBUG
-        m_slotSignatures.emplace(localId, signature);
-#endif // _DEBUG
     }
 
     void endMetaRegistration()
@@ -98,7 +91,7 @@ public:
         }
         else
         {
-            Q_ASSERT_X(false, Q_FUNC_INFO, "Called more than once");
+            assert(false && "The function is called more than once");
         }
     }
 
@@ -141,9 +134,6 @@ private:
             const int idx = *signalIndex;
             if (!m_signals.count(idx))
                 throw std::runtime_error("Unknown property change signal");
-#ifdef _DEBUG
-            //Q_ASSERT(m_signalSignatures.at(idx) == type); // TODO: extract argument type from signal signature
-#endif // _DEBUG
             builder.setNotifySignal(m_mob->method(idx));
         }
 
@@ -151,10 +141,6 @@ private:
         auto [_, added] = m_properties.emplace(localId, PropertyInfo{ metaType, std::move(getter), std::move(*setter) });
         if (!added)
             throw std::runtime_error("Failed to register property");
-
-#ifdef _DEBUG
-        m_propertyNames.emplace(localId, name);
-#endif // _DEBUG
     }
 
     void doEmitSignal(QObject& obj, SignalId id, void** params)
@@ -233,9 +219,6 @@ private:
             {
                 if (!m_signals.count(methodId))
                     return false;
-#ifdef _DEBUG
-                Q_ASSERT(method.methodSignature() == m_signalSignatures.at(methodId));
-#endif // _DEBUG
                 doEmitSignal(*o, methodId, argv);
                 return true;
             }
@@ -245,9 +228,6 @@ private:
                 auto slotIt = m_slots.find(methodId);
                 if (slotIt == m_slots.end())
                     return false;
-#ifdef _DEBUG
-                Q_ASSERT(method.methodSignature() == m_slotSignatures.at(methodId));
-#endif // _DEBUG
                 const MetaMethodIncomingParams params(method, argv);
                 slotIt->second.m_callback(clientPtr, params);
                 return true;
@@ -277,9 +257,6 @@ private:
         auto& getterFunc = propIt->second.m_getter;
 
         const QMetaProperty property = m_mo->property(id);
-#ifdef _DEBUG
-        Q_ASSERT(property.name() == m_propertyNames.at(propId));
-#endif // _DEBUG
         const QVariant result = getterFunc(clientPtr);
         if (!QMetaType::convert(result.metaType(), result.data(), property.metaType(), dstArg))
             throw std::logic_error("Property type mismatch");
@@ -303,9 +280,6 @@ private:
 
         auto& setterFunc = propIt->second.m_setter;
         const QMetaProperty property = m_mo->property(id);
-#ifdef _DEBUG
-        Q_ASSERT(property.name() == m_propertyNames.at(propId));
-#endif // _DEBUG
         const auto v = QVariant::fromMetaType(property.metaType(), arg);
         setterFunc(clientPtr, v);
 
@@ -336,11 +310,6 @@ private:
 
         const int methodOffset = m_mo->methodOffset();
         const QMetaMethod method = m_mo->method(id + methodOffset);
-
-#ifdef _DEBUG
-        Q_ASSERT(method.methodSignature() == m_signalSignatures.at(id));
-#endif // _DEBUG
-
         return method;
     }
 
@@ -378,12 +347,6 @@ private:
     std::map<PropertyId, PropertyInfo> m_properties;
     std::map<SignalId, SignalInfo> m_signals;
     std::map<SlotId, SlotInfo> m_slots;
-
-#ifdef _DEBUG
-    std::map<PropertyId, QByteArray> m_propertyNames;
-    std::map<SignalId, QByteArray> m_signalSignatures;
-    std::map<SlotId, QByteArray> m_slotSignatures;
-#endif // _DEBUG
 };
 
 
