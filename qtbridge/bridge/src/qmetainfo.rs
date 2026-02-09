@@ -4,7 +4,9 @@
 use crate::{DynamicMetaObjectBuilder, QObjectHolder};
 
 pub trait QMetaInfo {
-    fn class_name() -> &'static str;
+    fn class_name() -> &'static str {
+        ::std::any::type_name::<Self>()
+    }
     fn register_meta(meta_obj: std::pin::Pin<&mut DynamicMetaObjectBuilder>); // Called once per type (per specific class name)
 
     /// Return Dynamic QMetaObject containing information

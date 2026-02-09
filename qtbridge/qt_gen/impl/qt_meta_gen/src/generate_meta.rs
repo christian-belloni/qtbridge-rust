@@ -34,10 +34,6 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext, origin: &CallOrigin
 
     Ok(quote! {
         impl #impl_generics #bridge_library::QMetaInfo for #struct_ident #type_generics #where_clause {
-            fn class_name() -> &'static str {
-                ::std::any::type_name::<#struct_ident #type_generics>()
-            }
-
             fn register_meta(mut meta_obj: std::pin::Pin<&mut #bridge_library::DynamicMetaObjectBuilder>) {
                 #use_block
 

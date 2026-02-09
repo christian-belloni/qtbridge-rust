@@ -39,9 +39,6 @@ mod some_module {
         }
     }
     impl qtbridge::bridge::QMetaInfo for SomeStruct {
-        fn class_name() -> &'static str {
-            ::std::any::type_name::<SomeStruct>()
-        }
         fn register_meta(
             mut meta_obj: std::pin::Pin<&mut qtbridge::bridge::DynamicMetaObjectBuilder>,
         ) {
