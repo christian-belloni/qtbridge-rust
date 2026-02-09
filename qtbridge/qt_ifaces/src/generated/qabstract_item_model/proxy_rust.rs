@@ -5,8 +5,9 @@
 
 use super::proxy_cpp_bridge::{QAbstractItemModelProxyCpp, ffi};
 use crate::{RustObjAccess, call_rust_trait_impl, call_cpp_impl};
+use bridge::qrustproxy::{QRustProxy, ConstructionMode};
+use bridge::QObjectHolder;
 use qt_type_lib::{QByteArray, QHash, QMetaObject, QMetaType, QModelIndex, QVariant};
-use bridge::qrustproxy::QRustProxy;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -15,7 +16,16 @@ pub trait QAbstractItemModelProxyGet {
     fn get_rust_proxy_mut(&self) -> &mut QAbstractItemModelProxyRust;
     fn get_trait(&self) -> &dyn QAbstractItemModelAdapter;
     fn get_trait_mut(&mut self) ->&mut dyn QAbstractItemModelAdapter;
+
+    fn create_rust_proxy(rust_obj_rc: Rc<RefCell<Self>>, construct: ConstructionMode) -> *mut QAbstractItemModelProxyRust
+    where
+        Self: QObjectHolder
+    {
+        let dyn_rc: Rc<RefCell<dyn QAbstractItemModelProxyGet>> = rust_obj_rc;
+        QAbstractItemModelProxyRust::new(&dyn_rc, construct, Self::unregister_instance_in_map)
+    }
 }
+
 pub trait QAbstractItemModelAdapter {
     fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex;
     fn parent(&self, child: &QModelIndex) -> QModelIndex;
@@ -250,29 +260,26 @@ impl QRustProxy for QAbstractItemModelProxyRust {
     type ProxyCppType = QAbstractItemModelProxyCpp;
     type RcRefCellType = Rc<RefCell<dyn QAbstractItemModelProxyGet>>;
 
-    fn new(rust_obj: &Rc<RefCell<dyn QAbstractItemModelProxyGet>>, register_strong: bool, on_drop: fn(rust_obj: *const u8)) -> *mut Self {
+    fn new(rust_obj: &Rc<RefCell<dyn QAbstractItemModelProxyGet>>, construct: ConstructionMode, on_drop: fn(rust_obj: *const u8)) -> *mut Self {
         let raw_rust_obj = rust_obj.as_ptr();
         let boxed_self = Box::new(Self {
             cpp_proxy: std::ptr::null_mut(),
-            rust_obj: match register_strong {
-                true => RustObjAccess::new_strong(rust_obj.clone()),
-                false => RustObjAccess::new_weak(Rc::downgrade(rust_obj)),
+            rust_obj: match construct {
+                ConstructionMode::Strong | ConstructionMode::AtAddress(_) => RustObjAccess::new_strong(rust_obj.clone()),
+                ConstructionMode::Weak => RustObjAccess::new_weak(Rc::downgrade(rust_obj)),
             },
             on_drop,
         });
         let raw_self = Box::into_raw(boxed_self);
-        unsafe { (*raw_self).cpp_proxy = ffi::create_qabstract_item_model_proxy_cpp(raw_rust_obj.cast(), raw_self) };
-        raw_self
-    }
-    fn new_with_cpp_proxy_at(addr: *mut u8, rust_obj: &Rc<RefCell<dyn QAbstractItemModelProxyGet>>, on_drop: fn(rust_obj: *const u8)) -> *mut Self {
-        let raw_rust_obj = rust_obj.as_ptr();
-        let boxed_self = Box::new(Self {
-            cpp_proxy: std::ptr::null_mut(),
-            rust_obj: RustObjAccess::new_strong(rust_obj.clone()),
-            on_drop,
-        });
-        let raw_self = Box::into_raw(boxed_self);
-        unsafe { (*raw_self).cpp_proxy = ffi::create_qabstract_item_model_proxy_cpp_at(addr, raw_rust_obj.cast(), raw_self) };
+
+        unsafe{ (*raw_self).cpp_proxy = match construct {
+            ConstructionMode::AtAddress(addr) => {
+                ffi::create_qabstract_item_model_proxy_cpp_at( addr, raw_rust_obj.cast(), raw_self)
+            }
+            ConstructionMode::Strong | ConstructionMode::Weak => {
+                ffi::create_qabstract_item_model_proxy_cpp(raw_rust_obj.cast(), raw_self)
+            }
+        }};
         raw_self
     }
     fn drop_self(raw_self: *mut Self, rust_obj_ptr: *const u8) {

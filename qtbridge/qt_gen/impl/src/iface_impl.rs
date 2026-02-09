@@ -104,45 +104,12 @@ impl InterfaceImpl {
 
                 type ProxyRust = #iface_library::#iface_module::#proxy_rust;
 
-                // Shared map containing all registered instances of given user-defined type (multiton).
-                fn try_borrow_mut_proxies_map<F, R>(f: F) -> R
-                    where F: FnOnce(&mut std::collections::HashMap<*const u8, *const Self::ProxyRust>) -> R
+                fn register_instance_in_map(rust_obj_rc: std::rc::Rc<std::cell::RefCell<Self>>, construction: #bridge_library::qrustproxy::ConstructionMode)
                 {
-                    use std::cell::BorrowMutError;
-                    use std::cell::RefCell;
-                    use std::collections::HashMap;
-                    thread_local!(static INSTANCES: RefCell<
-                        HashMap<*const u8, *const #iface_library::#iface_module::#proxy_rust>
-                    > = RefCell::new(HashMap::new()));
-                    INSTANCES.try_with(|proxies_map_cell| -> Result<R, BorrowMutError> {
-                        let mut proxies_map_ref_mut = proxies_map_cell.try_borrow_mut()?;
-                        Ok(f(&mut proxies_map_ref_mut))
-                    })
-                    .unwrap()
-                    .expect("Failed to borrow_mut map of proxies")
-                }
-
-                fn register_instance_in_map(rust_obj_rc: std::rc::Rc<std::cell::RefCell<Self>>, register_strong: bool)
-                {
-                    use std::rc::Rc;
-                    use std::cell::RefCell;
                     let key = (*rust_obj_rc).as_ptr() as *const u8;
+                    let proxy = <Self as #iface_library::#iface_module::#iface_traits_name>::create_rust_proxy(rust_obj_rc, construction);
                     Self::try_borrow_mut_proxies_map(|proxies| {
-                        let dyn_rc: Rc<RefCell<dyn #iface_library::#iface_module::#iface_traits_name>> = rust_obj_rc;
-                        let proxy_ptr = <Self::ProxyRust as #bridge_library::qrustproxy::QRustProxy>::new(&dyn_rc, register_strong, Self::unregister_instance_in_map);
-                        proxies.insert(key, proxy_ptr);
-                    })
-                }
-
-                fn register_instance_in_map_with_cpp_proxy_at(addr: *mut u8, rust_obj_rc: std::rc::Rc<std::cell::RefCell<Self>>)
-                {
-                    use std::rc::Rc;
-                    use std::cell::RefCell;
-                    let key = (*rust_obj_rc).as_ptr() as *const u8;
-                    Self::try_borrow_mut_proxies_map(|proxies| {
-                        let dyn_rc: Rc<RefCell<dyn #iface_library::#iface_module::#iface_traits_name>> = rust_obj_rc;
-                        let proxy_ptr = <Self::ProxyRust as #bridge_library::qrustproxy::QRustProxy>::new_with_cpp_proxy_at(addr, &dyn_rc, Self::unregister_instance_in_map);
-                        proxies.insert(key, proxy_ptr);
+                        proxies.insert(key, proxy as *const u8);
                     })
                 }
             }

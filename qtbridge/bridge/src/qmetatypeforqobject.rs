@@ -7,6 +7,7 @@ use std::any::TypeId;
 use std::collections::HashMap;
 use qt_type_lib::{QMetaTypeInterface, QMetaTypeFlag, QMetaObject, QObject};
 use crate::{QObjectHolder, QMetaInfo};
+use crate::qrustproxy::ConstructionMode;
 
 pub fn interface_for_generic<T: QObjectHolder + 'static>() -> &'static QMetaTypeInterface {
     thread_local!(static IFACE_MAP: RefCell<HashMap<TypeId , *const QMetaTypeInterface>> = RefCell::new(HashMap::new ()));
@@ -37,7 +38,7 @@ fn monomorphize_default_ctor<T: QObjectHolder>() -> extern "C" fn(*const QMetaTy
     extern "C" fn default_ctor<T: QObjectHolder>(_iface: *const QMetaTypeInterface, addr: *mut u8) {
         let instance =
         Rc::new(RefCell::new(<T as Default>::default()));
-        <T as QObjectHolder>::register_instance_in_map_with_cpp_proxy_at(addr , instance);
+        <T as QObjectHolder>::register_instance_in_map(instance, ConstructionMode::AtAddress(addr));
     }
     default_ctor::<T>
 }

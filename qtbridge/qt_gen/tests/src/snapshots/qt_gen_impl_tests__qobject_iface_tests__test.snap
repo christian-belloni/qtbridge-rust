@@ -74,58 +74,14 @@ mod some_module {
     }
     impl qtbridge::bridge::QObjectHolder for SomeStruct {
         type ProxyRust = qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelProxyRust;
-        fn try_borrow_mut_proxies_map<F, R>(f: F) -> R
-        where
-            F: FnOnce(&mut std::collections::HashMap<*const u8, *const Self::ProxyRust>) -> R,
-        {
-            use std::cell::BorrowMutError;
-            use std::cell::RefCell;
-            use std::collections::HashMap;
-            thread_local ! (static INSTANCES : RefCell < HashMap < * const u8 , * const qtbridge :: qt_ifaces :: qabstract_list_model :: QAbstractListModelProxyRust > > = RefCell :: new (HashMap :: new ()));
-            INSTANCES
-                .try_with(|proxies_map_cell| -> Result<R, BorrowMutError> {
-                    let mut proxies_map_ref_mut = proxies_map_cell.try_borrow_mut()?;
-                    Ok(f(&mut proxies_map_ref_mut))
-                })
-                .unwrap()
-                .expect("Failed to borrow_mut map of proxies")
-        }
         fn register_instance_in_map(
             rust_obj_rc: std::rc::Rc<std::cell::RefCell<Self>>,
-            register_strong: bool,
+            construction: qtbridge::bridge::qrustproxy::ConstructionMode,
         ) {
-            use std::cell::RefCell;
-            use std::rc::Rc;
             let key = (*rust_obj_rc).as_ptr() as *const u8;
+            let proxy = < Self as qtbridge :: qt_ifaces :: qabstract_list_model :: QAbstractListModelProxyGet > :: create_rust_proxy (rust_obj_rc , construction) ;
             Self::try_borrow_mut_proxies_map(|proxies| {
-                let dyn_rc: Rc<
-                    RefCell<
-                        dyn qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelProxyGet,
-                    >,
-                > = rust_obj_rc;
-                let proxy_ptr = <Self::ProxyRust as qtbridge::bridge::qrustproxy::QRustProxy>::new(
-                    &dyn_rc,
-                    register_strong,
-                    Self::unregister_instance_in_map,
-                );
-                proxies.insert(key, proxy_ptr);
-            })
-        }
-        fn register_instance_in_map_with_cpp_proxy_at(
-            addr: *mut u8,
-            rust_obj_rc: std::rc::Rc<std::cell::RefCell<Self>>,
-        ) {
-            use std::cell::RefCell;
-            use std::rc::Rc;
-            let key = (*rust_obj_rc).as_ptr() as *const u8;
-            Self::try_borrow_mut_proxies_map(|proxies| {
-                let dyn_rc: Rc<
-                    RefCell<
-                        dyn qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelProxyGet,
-                    >,
-                > = rust_obj_rc;
-                let proxy_ptr = < Self :: ProxyRust as qtbridge :: bridge :: qrustproxy :: QRustProxy > :: new_with_cpp_proxy_at (addr , & dyn_rc , Self :: unregister_instance_in_map) ;
-                proxies.insert(key, proxy_ptr);
+                proxies.insert(key, proxy as *const u8);
             })
         }
     }

@@ -3,6 +3,7 @@
 
 use crate::QObjectHolder;
 use crate::QMetaInfo;
+use crate::qrustproxy::ConstructionMode;
 use qt_type_lib::QObject;
 use qt_type_lib::QMetaTypeGet;
 pub trait QmlRegister : QMetaTypeGet + QMetaInfo + QObjectHolder + Default
@@ -50,13 +51,13 @@ pub trait QmlRegister : QMetaTypeGet + QMetaInfo + QObjectHolder + Default
 
 fn element_ctor<T: QmlRegister>(addr: *mut u8, _userdata: *mut u8) {
     let instance = std::rc::Rc::new(std::cell::RefCell::new(T::default()));
-    T::register_instance_in_map_with_cpp_proxy_at(addr, instance.clone());
+    T::register_instance_in_map(instance.clone(), ConstructionMode::AtAddress(addr));
     T::set_dynamic_meta(&instance);
 }
 
 fn singleton_ctor<T: QmlRegister>() -> *mut QObject {
     let instance = std::rc::Rc::new(std::cell::RefCell::new(T::default()));
-    T::register_instance_in_map(instance.clone(), true);
+    T::register_instance_in_map(instance.clone(), ConstructionMode::Strong);
     T::set_dynamic_meta(&instance);
     std::ptr::from_mut(T::get_qobject(&instance.borrow()))
 }

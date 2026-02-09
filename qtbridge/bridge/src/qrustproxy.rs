@@ -3,6 +3,12 @@
 
 use qt_type_lib::{QMetaObject, QMetaType};
 
+pub enum ConstructionMode {
+    Strong,
+    Weak,
+    AtAddress(*mut u8),
+}
+
 /// `QRustProxy` defines the Rust-side bridge object that binds:
 ///
 /// - A Rust object stored in `Rc<RefCell<dyn _>>`
@@ -54,8 +60,7 @@ use qt_type_lib::{QMetaObject, QMetaType};
 pub trait QRustProxy {
     type ProxyCppType;
     type RcRefCellType;
-    fn new(rust_obj: &Self::RcRefCellType, register_strong: bool, on_drop: fn(rust_obj: *const u8)) -> *mut Self;
-    fn new_with_cpp_proxy_at(addr: *mut u8, rust_obj: &Self::RcRefCellType, on_drop: fn(rust_obj: *const u8)) -> *mut Self;
+    fn new(rust_obj: &Self::RcRefCellType, construction: ConstructionMode, on_drop: fn(rust_obj: *const u8)) -> *mut Self;
     fn drop_self(raw_self: *mut Self, rust_obj_ptr: *const u8);
     fn get_static_meta_object() -> &'static QMetaObject;
     fn get_size_of_cpp_proxy() -> usize;
