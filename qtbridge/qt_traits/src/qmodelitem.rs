@@ -8,7 +8,7 @@ use qt_type_lib::QVariant;
 /// Trait representing a single item in a Qt item model.
 ///
 /// This trait is implemented automatically by `#[derive(QModelItem)]`
-/// for structs and tuple structs and an implmenetation for primitive types
+/// for structs and tuple structs and an implementation for primitive types
 /// and tuples is provided. It allows a `QVec<T>` to expose fields as Qt
 /// to QML views.
 ///
@@ -95,7 +95,7 @@ pub trait QModelItem {
     fn role_names() -> HashMap<i32, String>;
 }
 
-macro_rules! impl_QModelItem_for_primitive {
+macro_rules! impl_qmodel_item_for_primitive {
     ($t:ty) => {
         impl QModelItem for $t {
             const LEN: usize = 1;
@@ -116,18 +116,18 @@ macro_rules! impl_QModelItem_for_primitive {
     };
 }
 
-impl_QModelItem_for_primitive!(i8);
-impl_QModelItem_for_primitive!(i16);
-impl_QModelItem_for_primitive!(i32);
-impl_QModelItem_for_primitive!(i64);
-impl_QModelItem_for_primitive!(u8);
-impl_QModelItem_for_primitive!(u16);
-impl_QModelItem_for_primitive!(u32);
-impl_QModelItem_for_primitive!(u64);
-impl_QModelItem_for_primitive!(f32);
-impl_QModelItem_for_primitive!(f64);
-impl_QModelItem_for_primitive!(bool);
-impl_QModelItem_for_primitive!(String);
+impl_qmodel_item_for_primitive!(i8);
+impl_qmodel_item_for_primitive!(i16);
+impl_qmodel_item_for_primitive!(i32);
+impl_qmodel_item_for_primitive!(i64);
+impl_qmodel_item_for_primitive!(u8);
+impl_qmodel_item_for_primitive!(u16);
+impl_qmodel_item_for_primitive!(u32);
+impl_qmodel_item_for_primitive!(u64);
+impl_qmodel_item_for_primitive!(f32);
+impl_qmodel_item_for_primitive!(f64);
+impl_qmodel_item_for_primitive!(bool);
+impl_qmodel_item_for_primitive!(String);
 
 impl<T0> QModelItem for (T0,)
 where
