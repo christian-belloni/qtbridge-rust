@@ -37,7 +37,7 @@
 #[cxx::bridge]
 mod ffi {
     unsafe extern "C++" {
-        include!("cpp/qresource_rust.h");
+        include!("cpp/qresource.h");
 
         fn register_resource(data: &[u8], resource_root: &str) -> bool;
     }

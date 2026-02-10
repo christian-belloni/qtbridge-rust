@@ -16,8 +16,6 @@ fn main() {
     );
 
     let other_cpp_files: Vec<&str> = vec!(
-        "dynamicmetaobjectbuilder.cpp",
-        "qresource_rust.cpp"
     );
 
     let qt_modules = [
