@@ -5,7 +5,7 @@ use proc_macro::TokenStream;
 
 use qt_gen_common::type_qualified_mapping::CallOrigin;
 
-// TODO: add documentation here.
+/// TODO: add documentation here.
 #[proc_macro_attribute]
 pub fn qobject(args: TokenStream, input: TokenStream) -> TokenStream {
     let mut builder = qt_gen_impl::QObjectModuleBuilder::new(CallOrigin::External);
@@ -27,7 +27,7 @@ pub fn qobject_internal(args: TokenStream, input: TokenStream) -> TokenStream {
     output.into()
 }
 
-/// The macro that enables Qt meta-object features, allowing a Rust `struct` to be exposed to QML.
+/// Anotate a struct as a Qt object that can be accessed from QML.
 ///
 /// This macro makes it possible to declare the following items within the `impl` block:
 ///
@@ -130,98 +130,6 @@ pub fn qobject_internal(args: TokenStream, input: TokenStream) -> TokenStream {
 /// ```
 ///
 /// # Supported annotations
-///
-/// The macro supports [signals](#qsignal) and [slots](#qslot) as method-level attributes.
-/// In addition, it provides a function-like macro for declaring [properties](#qproperty).
-///
-/// ## Signals and Slots
-///
-/// Signals and slots are a core concept of the Qt framework. They are used for communication
-/// between objects in a type-safe and decoupled manner. A signal is emitted (called) when a particular event occurs.
-///
-/// Other objects can connect their slots to this signal, and those slots get automatically invoked when the signal is emitted.
-///
-/// Unlike Rust function pointers or functional traits, signals do not require you to manage the signal-receiver object
-/// or functor at a low level. In other words,
-/// you do not need to manually hold a reference to the receiver or a pointer to a function
-/// or closure associated with the signal.
-///
-/// Slots are callable methods that can be invoked from QML. A slot can also be called as a regular method from Rust code.
-///
-/// More information about signals, slots and connections: <https://doc.qt.io/qt-6/signalsandslots.html>, <https://doc.qt.io/qt-6/qml-qtqml-connections.html>.
-///
-/// ## `#[qsignal]`
-///
-/// Annotates a method as a **Qt signal**.
-///
-/// ### Requirements
-///
-/// - The first argument of a signal signature must be `&self` or `&mut self`.
-/// - The return type and types of all parameters following `self` must be in the list of [supported types](#type-support).
-/// - A function annotated with `#[qsignal]` must not have a body (end with semicolon or have an empty curly braces):
-///
-/// ```ignore
-/// #[qsignal]
-/// fn value_changed(&self, new_value: i32);
-/// ```
-///
-/// or
-///
-/// ```ignore
-/// #[qsignal]
-/// fn value_changed(&self, new_value: i32)
-/// {}
-/// ```
-///
-/// Rust and QML use different naming conventions: Rust prefers *snake_case*, while QML typically uses *camelCase*.
-///
-/// By default, the name of a signal or slot on QML side is the name of the corresponding Rust method, but converted to *camelCase*.
-/// For example, a signal declared as
-/// ```ignore
-/// #[qsignal]
-/// fn outside_temperature_changed();
-/// ```
-/// results in a signal named "outsideTemperatureChanged" on QML side.
-///
-/// The signal name exposed to QML can be explicitly overridden by `qml_name` parameter of the `#[qsignal]` annotation as shown below.
-/// The Rust method name remains unchanged.
-///
-/// ```ignore
-/// #[qsignal(qml_name = "configurationChanged")]
-/// fn cfg_changed();
-/// ```
-///
-/// To see how signals are handled on the QML side, look at: <https://doc.qt.io/qt-6/qtqml-syntax-signals.html>.
-///
-/// ## `#[qslot]`
-///
-/// Annotates a method as a **Qt slot**. In addition to being part of [signal-slot connection](#signals-and-slots), a slot also is a convenient way to invoke Rust code from QML.
-///
-/// ### Requirements
-///
-/// - The annotated function must have a body.
-/// - The first argument of a slot must be `&self` or `&mut self`.
-/// - The return type and types of all parameters following `self` must be in the list of [supported types](#type-support).
-///
-/// ### Example
-/// ```ignore
-/// #[qslot]
-/// fn on_control_changed(&mut self, new_value: i32) {
-///     if new_value != self.value {
-///         self.value = new_value;
-///         self.update();
-///     }
-/// }
-/// ```
-///
-/// Similarly to signals, the name of a slot exposed to QML can be explicitly controlled using the `qml_name` parameter:
-///
-/// ```ignore
-/// #[qslot(qml_name = "myControlChanged")]
-/// fn on_control_changed(&mut self, new_value: i32) {
-///    self.update_relevant_parameters(new_value);
-/// }
-/// ```
 ///
 /// ## `qproperty!`
 ///
@@ -429,6 +337,7 @@ pub fn qobject_impl(args: TokenStream, input: TokenStream) -> TokenStream {
     };
     output.into()
 }
+
 #[doc(hidden)]
 #[proc_macro_attribute]
 pub fn qobject_impl_internal(args: TokenStream, input: TokenStream) -> TokenStream {
@@ -437,6 +346,109 @@ pub fn qobject_impl_internal(args: TokenStream, input: TokenStream) -> TokenStre
         Err(err) => err.to_compile_error(),
     };
     output.into()
+}
+
+/// Marks a function as a signal that can be handled in QML.
+///
+/// Signals can be called from Rust and the signal handler can be defined in QML. This is the
+/// recommended way to invoke QML code from Rust.
+///
+/// ### Requirements
+///
+/// - The signal must be defined within a `#[qobject]` (mod) or `#[qobject_impl]` (impl) block
+/// - The first argument of the annotated function must be `&self` or `&mut self`.
+/// - The return type and all parameter types following `self` must be in the list of [supported types](#type-support).
+/// - A function annotated with `#[qsignal]` must not have a body (end with semicolon or have an empty curly braces):
+///
+/// ```ignore
+/// #[qobject_impl]
+/// impl Backend {
+///     #[qsignal]
+///     fn value_changed(&self, new_value: i32);
+///     #[qsignal]
+///     fn event_triggered(&self)
+///     {}
+/// }
+/// ```
+///
+/// To receive a notification on the QML side, the object definition has to declare a signal handler named
+/// `on<Signal>`, where `<Signal>` is the name of the signal, with the first letter capitalized.
+///
+/// ```ignore, qml
+/// Backend {
+///     onValue_changed: console.log("Value changed");
+/// }
+/// ```
+/// Alternatively you can instantiate a `Connection` object with the respective signal handler.
+/// ```ignore, qml
+/// Connection {
+///     target: backend
+///     function onValue_changed() {
+///         console.log("Value changed");
+///     }
+/// }
+/// ```
+///
+/// For more details see <https://doc.qt.io/qt-6/qtqml-syntax-signals.html>
+///
+/// ### Parameters
+///
+/// #### qml_name
+///
+/// The signal name as seen from QML. Defaults to the Rust function name.
+///
+/// ```ignore
+/// #[qsignal(qml_name = "configurationChanged")]
+/// fn cfg_changed();
+/// ```
+///
+#[proc_macro_attribute]
+pub fn qsignal(_: TokenStream, _: TokenStream) -> TokenStream {
+    // This macro does nothing but offer an entry point for Rust doc
+    panic!("#[qsignal] proc macro called outside #[qobject] or #[qobject_impl].")
+}
+
+/// Marks a method as invokable from QML.
+///
+/// In addition to being invokable from QML, the function can also act as a slot for
+/// [signal-slot connections](#signals-and-slots) when used in Qt signal bindings.
+///
+/// ### Requirements
+///
+/// - Has to be defined within a `#[qobject]` (mod) or `#[qobject_impl]` (impl) block
+/// - The annotated function must have a body.
+/// - The first argument of the annotated function must be `&self` or `&mut self`.
+/// - The return type and all parameter types following `self` must be in the list of [supported types](#type-support).
+///
+/// ### Example
+/// ```ignore
+/// #[qslot]
+/// fn set_value(&mut self, new_value: i32) {
+///     if new_value != self.value {
+///         self.value = new_value;
+///         self.update();
+///     }
+/// }
+/// ```
+///
+/// ### Parameters
+///
+/// #### qml_name
+///
+/// The function name as seen from QML. Defaults to the Rust function name.
+///
+/// ```ignore
+/// #[qslot(qml_name = "setValue")]
+/// fn set_value(&mut self, new_value: i32) {
+///    self.value = new_value;
+///    self.update();
+/// }
+/// ```
+///
+#[proc_macro_attribute]
+pub fn qslot(_: TokenStream, _: TokenStream) -> TokenStream {
+    // This macro does nothing but offer an entry point for Rust doc
+    panic!("#[qslot] proc macro called outside #[qobject] or #[qobject_impl].")
 }
 
 /// The macro that registers a user-defined Rust `struct` type as a QML [object type](https://doc.qt.io/qt-6/qtqml-typesystem-objecttypes.html).

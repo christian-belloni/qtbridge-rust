@@ -43,7 +43,7 @@
 //!     fn drop(&mut self) {
 //!         self.detach_qobject();
 //!    }
-//!}
+//! }
 //!
 //! fn main() {
 //!     QApp::new()
@@ -94,7 +94,10 @@ pub use qt_container_macro::*;
 #[doc(hidden)]
 pub use quicktest;
 
-pub use qt_gen::{qobject, qml_element};
+
+#[cfg(doc)]
+pub use qt_gen::{qsignal, qslot};
+pub use qt_gen::{qobject, qobject_impl, qml_element};
 pub use bridge::{QApp, run_simple_app, qresource};
 pub use qt_ifaces::{QAbstractItemModel, QAbstractItemModelBase};
 pub use qt_ifaces::{QAbstractListModel,QAbstractListModelBase};
