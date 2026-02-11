@@ -10,7 +10,7 @@ description = "Meta-package for QtBridge"
 [dependencies]
 build_common ={ path = "./build_common"}
 bridge = { path = "./bridge" }
-qt_gen = { path = "./qt_gen/macro" }
+qt_gen = { path = "./qt_gen" }
 quicktest_macro = { path = "./qt_gen/quicktest_macro"}
 qresource_macro = { path = "./qt_gen/qresource_macro"}
 qt_ifaces = { path = "./qt_ifaces" }

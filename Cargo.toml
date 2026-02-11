@@ -20,6 +20,7 @@ resolver = "2"
 
 members = [
     "qtbridge/build_common",
+    "qtbridge/qt_gen",
     "qtbridge/qt_gen/macro",
     "qtbridge/qt_gen/quicktest_macro",
     "qtbridge/qt_gen/qt_container_macro",
