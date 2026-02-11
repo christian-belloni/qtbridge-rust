@@ -3,34 +3,6 @@
 
 use qt_gen::qobject_internal;
 
-/// A Qt-aware vector that acts both as a container and a `QAbstractItemModel`.
-///
-/// `QVec<T>` mirrors the API of `Vec<T>` where possible (`push`, `pop`, `len`,
-/// indexing, iteration) but emits the necessary Qt model-change signals so QML
-/// views update automatically.
-///
-/// # Supported item types and respective role names
-///
-/// * **Primitive types** (e.g. `QVec<i32>`): exposed under the `"value"` role.
-/// * **Tuples** (e.g. `QVec<(i32, String)>`): roles are `"_0"`, `"_1"`, ...
-/// * **Structs implementing `QModelItem`**: roles come from the trait;
-///   `#[derive(QModelItem)]` generates roles from field names.
-///
-/// Up to 15 roles are supported.
-///
-/// # No mutable references
-///
-/// Methods like `get_mut`, `index_mut`, and `iter_mut` are intentionally
-/// unavailable because modifying items through direct references would bypass
-/// Qt’s notification system. Use `set` to update elements so QML views are
-/// notified correctly.
-///
-/// # QML integration
-///
-/// A model created with `QVec<T>` can be exposed as a QAbstractItemModel to QML.
-/// In QML, the model can be used to fill ListViews, Repeaters, and similar items.
-///
-
 #[qobject_internal(Base = QAbstractItemModel)]
 mod qvec
 {
@@ -39,6 +11,34 @@ mod qvec
     use qt_type_lib::{QByteArray, QHash, QModelIndex, QVariant};
     use qt_traits::QModelItem;
     use qt_ifaces::{QAbstractItemModel, QAbstractItemModelBase};
+
+    /// A Qt-aware vector that acts both as a container and a `QAbstractItemModel`.
+    ///
+    /// `QVec<T>` mirrors the API of `Vec<T>` where possible (`push`, `pop`, `len`,
+    /// indexing, iteration) but emits the necessary Qt model-change signals so QML
+    /// views update automatically.
+    ///
+    /// # Supported item types and respective role names
+    ///
+    /// * **Primitive types** (e.g. `QVec<i32>`): exposed under the `"value"` role.
+    /// * **Tuples** (e.g. `QVec<(i32, String)>`): roles are `"_0"`, `"_1"`, ...
+    /// * **Structs implementing `QModelItem`**: roles come from the trait;
+    ///   `#[derive(QModelItem)]` generates roles from field names.
+    ///
+    /// Up to 15 roles are supported.
+    ///
+    /// # No mutable references
+    ///
+    /// Methods like `get_mut`, `index_mut`, and `iter_mut` are intentionally
+    /// unavailable because modifying items through direct references would bypass
+    /// Qt’s notification system. Use `set` to update elements so QML views are
+    /// notified correctly.
+    ///
+    /// # QML integration
+    ///
+    /// A model created with `QVec<T>` can be exposed as a QAbstractItemModel to QML.
+    /// In QML, the model can be used to fill ListViews, Repeaters, and similar items.
+    ///
     pub struct QVec<T>
     where
         T: QModelItem + Default + 'static
