@@ -4,10 +4,9 @@
 // from the input file://./../../../../qt_gen/impl/qt_iface_gen_lib/src/input/QAbstractListModel
 
 use super::proxy_cpp_bridge::{QAbstractListModelProxyCpp, ffi};
-use crate::RustObjAccess;
+use crate::{RustObjAccess, call_rust_trait_impl, call_cpp_impl};
 use qt_type_lib::{QByteArray, QHash, QMetaObject, QMetaType, QModelIndex, QVariant};
 use std::cell::RefCell;
-use std::pin::Pin;
 use std::rc::Rc;
 
 pub trait QAbstractListModelProxyGet {
@@ -158,133 +157,66 @@ impl QAbstractListModelProxyRust {
         self.cpp_proxy
     }
     pub fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex {
-        self.rust_obj
-            .try_with_borrow(|vtable| vtable.get_trait().index(row, column, parent))
-            .expect("Failed to borrow object to call QAbstractListModel::index()")
+        call_rust_trait_impl!(self, index(row, column, parent))
     }
     pub fn row_count(&self, parent: &QModelIndex) -> i32 {
-        self.rust_obj
-            .try_with_borrow(|vtable| vtable.get_trait().row_count(parent))
-            .expect("Failed to borrow object to call QAbstractListModel::row_count()")
+        call_rust_trait_impl!(self, row_count(parent))
     }
     pub fn data(&self, index: &QModelIndex, role: i32) -> QVariant {
-        self.rust_obj
-            .try_with_borrow(|vtable| vtable.get_trait().data(index, role))
-            .expect("Failed to borrow object to call QAbstractListModel::data()")
+        call_rust_trait_impl!(self, data(index, role))
     }
     pub fn role_names(&self) -> QHash<i32, QByteArray> {
-        self.rust_obj
-            .try_with_borrow(|vtable| vtable.get_trait().role_names())
-            .expect("Failed to borrow object to call QAbstractListModel::role_names()")
+        call_rust_trait_impl!(self, role_names())
     }
     pub fn set_data(&mut self, index: &QModelIndex, value: &QVariant, role: i32) -> bool {
-        self.rust_obj
-            .try_with_borrow_mut(|vtable| vtable.get_trait_mut().set_data(index, value, role))
-            .expect("Failed to borrow mutably object to call QAbstractListModel::set_data()")
+        call_rust_trait_impl!(mut self, set_data(index, value, role))
     }
     pub fn remove_rows(&mut self, first: i32, count: i32, parent: &QModelIndex) -> bool {
-        self.rust_obj
-            .try_with_borrow_mut(|vtable| vtable.get_trait_mut().remove_rows(first, count, parent))
-            .expect("Failed to borrow mutably object to call QAbstractListModel::remove_rows()")
+        call_rust_trait_impl!(mut self, remove_rows(first, count, parent))
     }
     pub fn sibling(&self, row: i32, column: i32, idx: &QModelIndex) -> QModelIndex {
-        self.rust_obj
-            .try_with_borrow(|vtable| vtable.get_trait().sibling(row, column, idx))
-            .expect("Failed to borrow object to call QAbstractListModel::sibling()")
+        call_rust_trait_impl!(self, sibling(row, column, idx))
     }
     pub fn base_index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex {
-        let proxy = unsafe { self.cpp_proxy.as_ref().unwrap() };
-        self.rust_obj
-            .try_with_assuming_borrowed(|_| proxy.base_index(row, column, parent))
-            .expect("Failed to borrow object to call QAbstractListModel::base_index()")
+        call_cpp_impl!(self, base_index(row, column, parent))
     }
     pub fn base_role_names(&self) -> QHash<i32, QByteArray> {
-        let proxy = unsafe { self.cpp_proxy.as_ref().unwrap() };
-        self.rust_obj
-            .try_with_assuming_borrowed(|_| proxy.base_role_names())
-            .expect("Failed to borrow object to call QAbstractListModel::base_role_names()")
+        call_cpp_impl!(self, base_role_names())
     }
     pub fn base_set_data(&mut self, index: &QModelIndex, value: &QVariant, role: i32) -> bool {
-        let proxy = unsafe { self.cpp_proxy.as_mut().unwrap() };
-        let proxy_pinned = unsafe { Pin::new_unchecked(proxy) };
-        self.rust_obj
-            .try_with_assuming_borrowed_mut(|_| proxy_pinned.base_set_data(index, value, role))
-            .expect("Failed to borrow mutably object to call QAbstractListModel::base_set_data()")
+        call_cpp_impl!(mut self, base_set_data(index, value, role))
     }
     pub fn base_remove_rows(&mut self, first: i32, count: i32, parent: &QModelIndex) -> bool {
-        let proxy = unsafe { self.cpp_proxy.as_mut().unwrap() };
-        let proxy_pinned = unsafe { Pin::new_unchecked(proxy) };
-        self.rust_obj
-            .try_with_assuming_borrowed_mut(|_| proxy_pinned.base_remove_rows(first, count, parent))
-            .expect("Failed to borrow mutably object to call QAbstractListModel::base_remove_rows()")
+        call_cpp_impl!(mut self, base_remove_rows(first, count, parent))
     }
     pub fn base_sibling(&self, row: i32, column: i32, idx: &QModelIndex) -> QModelIndex {
-        let proxy = unsafe { self.cpp_proxy.as_ref().unwrap() };
-        self.rust_obj
-            .try_with_assuming_borrowed(|_| proxy.base_sibling(row, column, idx))
-            .expect("Failed to borrow object to call QAbstractListModel::base_sibling()")
+        call_cpp_impl!(self, base_sibling(row, column, idx))
     }
     pub fn base_data_changed(&mut self, top_left: &QModelIndex, bottom_right: &QModelIndex) {
-        let proxy = unsafe { self.cpp_proxy.as_mut().unwrap() };
-        let proxy_pinned = unsafe { Pin::new_unchecked(proxy) };
-        self.rust_obj
-            .try_with_assuming_borrowed_mut(|_| proxy_pinned.base_data_changed(top_left, bottom_right))
-            .expect("Failed to borrow mutably object to call QAbstractListModel::base_data_changed()")
+        call_cpp_impl!(mut self, base_data_changed(top_left, bottom_right))
     }
     pub fn base_begin_insert_rows(&mut self, parent: &QModelIndex, first: i32, last: i32) {
-        let proxy = unsafe { self.cpp_proxy.as_mut().unwrap() };
-        let proxy_pinned = unsafe { Pin::new_unchecked(proxy) };
-        self.rust_obj
-            .try_with_assuming_borrowed_mut(|_| proxy_pinned.base_begin_insert_rows(parent, first, last))
-            .expect("Failed to borrow mutably object to call QAbstractListModel::base_begin_insert_rows()")
+        call_cpp_impl!(mut self, base_begin_insert_rows(parent, first, last))
     }
     pub fn base_end_insert_rows(&mut self) {
-        let proxy = unsafe { self.cpp_proxy.as_mut().unwrap() };
-        let proxy_pinned = unsafe { Pin::new_unchecked(proxy) };
-        self.rust_obj
-            .try_with_assuming_borrowed_mut(|_| proxy_pinned.base_end_insert_rows())
-            .expect("Failed to borrow mutably object to call QAbstractListModel::base_end_insert_rows()")
+        call_cpp_impl!(mut self, base_end_insert_rows())
     }
     pub fn base_begin_move_rows(&mut self, source_parent: &QModelIndex, source_first: i32, source_last: i32, destination_parent: &QModelIndex, destination_child: i32) {
-        let proxy = unsafe { self.cpp_proxy.as_mut().unwrap() };
-        let proxy_pinned = unsafe { Pin::new_unchecked(proxy) };
-        self.rust_obj
-            .try_with_assuming_borrowed_mut(|_| proxy_pinned.base_begin_move_rows(source_parent, source_first, source_last, destination_parent, destination_child))
-            .expect("Failed to borrow mutably object to call QAbstractListModel::base_begin_move_rows()")
+        call_cpp_impl!(mut self, base_begin_move_rows(source_parent, source_first, source_last, destination_parent, destination_child))
     }
     pub fn base_end_move_rows(&mut self) {
-        let proxy = unsafe { self.cpp_proxy.as_mut().unwrap() };
-        let proxy_pinned = unsafe { Pin::new_unchecked(proxy) };
-        self.rust_obj
-            .try_with_assuming_borrowed_mut(|_| proxy_pinned.base_end_move_rows())
-            .expect("Failed to borrow mutably object to call QAbstractListModel::base_end_move_rows()")
+        call_cpp_impl!(mut self, base_end_move_rows())
     }
     pub fn base_begin_remove_rows(&mut self, parent: &QModelIndex, first: i32, last: i32) {
-        let proxy = unsafe { self.cpp_proxy.as_mut().unwrap() };
-        let proxy_pinned = unsafe { Pin::new_unchecked(proxy) };
-        self.rust_obj
-            .try_with_assuming_borrowed_mut(|_| proxy_pinned.base_begin_remove_rows(parent, first, last))
-            .expect("Failed to borrow mutably object to call QAbstractListModel::base_begin_remove_rows()")
+        call_cpp_impl!(mut self, base_begin_remove_rows(parent, first, last))
     }
     pub fn base_end_remove_rows(&mut self) {
-        let proxy = unsafe { self.cpp_proxy.as_mut().unwrap() };
-        let proxy_pinned = unsafe { Pin::new_unchecked(proxy) };
-        self.rust_obj
-            .try_with_assuming_borrowed_mut(|_| proxy_pinned.base_end_remove_rows())
-            .expect("Failed to borrow mutably object to call QAbstractListModel::base_end_remove_rows()")
+        call_cpp_impl!(mut self, base_end_remove_rows())
     }
     pub fn base_begin_reset_model(&mut self) {
-        let proxy = unsafe { self.cpp_proxy.as_mut().unwrap() };
-        let proxy_pinned = unsafe { Pin::new_unchecked(proxy) };
-        self.rust_obj
-            .try_with_assuming_borrowed_mut(|_| proxy_pinned.base_begin_reset_model())
-            .expect("Failed to borrow mutably object to call QAbstractListModel::base_begin_reset_model()")
+        call_cpp_impl!(mut self, base_begin_reset_model())
     }
     pub fn base_end_reset_model(&mut self) {
-        let proxy = unsafe { self.cpp_proxy.as_mut().unwrap() };
-        let proxy_pinned = unsafe { Pin::new_unchecked(proxy) };
-        self.rust_obj
-            .try_with_assuming_borrowed_mut(|_| proxy_pinned.base_end_reset_model())
-            .expect("Failed to borrow mutably object to call QAbstractListModel::base_end_reset_model()")
+        call_cpp_impl!(mut self, base_end_reset_model())
     }
 }

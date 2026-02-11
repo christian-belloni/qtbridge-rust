@@ -6,6 +6,70 @@ use std::ptr::{self, NonNull, addr_of_mut};
 use std::rc::{Rc, Weak};
 use std::cell::{BorrowError, BorrowMutError, Cell, Ref, RefCell, RefMut};
 
+#[macro_export]
+macro_rules! call_rust_trait_impl {
+    // Mutable version. The mut in front of the self is just a marker
+    (mut $self:expr, $method:ident ( $($arg:expr),* )) => {
+        $self.rust_obj
+            .try_with_borrow_mut(|vtable| {
+                vtable.get_trait_mut().$method($($arg),*)
+            })
+            .expect(concat!(
+                "Failed to borrow mutably for ",
+                stringify!($method),
+                "()"
+            ))
+    };
+
+    // Immutable version. Without the mut marker before self
+    ($self:expr, $method:ident ( $($arg:expr),* )) => {
+        $self.rust_obj
+            .try_with_borrow(|vtable| {
+                vtable.get_trait().$method($($arg),*)
+            })
+            .expect(concat!(
+                "Failed to borrow for ",
+                stringify!($method),
+                "()"
+            ))
+    };
+}
+
+#[macro_export]
+macro_rules! call_cpp_impl {
+    (mut $self:expr, $method:ident ( $($arg:expr),* )) => {{
+        let proxy = unsafe {
+            $self.cpp_proxy
+                .as_mut()
+                .expect("cpp_proxy was null")
+        };
+        let proxy_pinned = unsafe { std::pin::Pin::new_unchecked(proxy) };
+        $self.rust_obj
+            .try_with_assuming_borrowed_mut(|_| proxy_pinned.$method($($arg),*))
+            .expect(concat!(
+                "Failed to borrow mutably for ",
+                stringify!($method),
+                "()"
+            ))
+    }};
+
+    ($self:expr, $method:ident ( $($arg:expr),* )) => {{
+        let proxy = unsafe {
+            $self.cpp_proxy
+                .as_ref()
+                .expect("cpp_proxy was null")
+        };
+        $self.rust_obj
+            .try_with_assuming_borrowed(|_| proxy.$method($($arg),*))
+            .expect(concat!(
+                "Failed to borrow for ",
+                stringify!($method),
+                "()"
+            ))
+    }};
+}
+
+
 /// A structure that provides controlled access to a Rust object by invoking functors
 /// (potentially recursively) on the object while it is borrowed immutably or mutably.
 ///
