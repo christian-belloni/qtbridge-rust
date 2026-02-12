@@ -16,9 +16,12 @@ pub trait QObjectProxyGet {
     fn get_trait(&self) -> &dyn QObjectAdapter;
     fn get_trait_mut(&mut self) ->&mut dyn QObjectAdapter;
 }
+
+/* QObject trait left out on purpose
 pub trait QObject : QObjectProxyGet {
 
 }
+*/
 
 pub trait QObjectAdapter {
 

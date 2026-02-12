@@ -101,5 +101,4 @@ pub use qt_gen::{qobject, qobject_impl, qml_element};
 pub use bridge::{QApp, run_simple_app, qresource};
 pub use qt_ifaces::{QAbstractItemModel, QAbstractItemModelBase};
 pub use qt_ifaces::{QAbstractListModel,QAbstractListModelBase};
-pub use qt_ifaces::{QObject, QObjectBase};
 pub use qt_ifaces::{QListModel, QListModelBase};
