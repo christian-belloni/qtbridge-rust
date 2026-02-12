@@ -13,10 +13,20 @@ use std::rc::Rc;
 pub trait QObjectProxyGet {
     fn get_rust_proxy(&self) -> &QObjectProxyRust;
     fn get_rust_proxy_mut(&self) -> &mut QObjectProxyRust;
-    fn get_trait(&self) -> &dyn QObject;
-    fn get_trait_mut(&mut self) ->&mut dyn QObject;
+    fn get_trait(&self) -> &dyn QObjectAdapter;
+    fn get_trait_mut(&mut self) ->&mut dyn QObjectAdapter;
 }
 pub trait QObject : QObjectProxyGet {
+
+}
+
+pub trait QObjectAdapter {
+
+}
+
+impl<T> QObjectAdapter for T
+where
+    T: QObjectProxyGet {
 
 }
 

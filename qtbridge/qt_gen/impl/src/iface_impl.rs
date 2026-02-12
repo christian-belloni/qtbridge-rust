@@ -29,7 +29,8 @@ impl InterfaceImpl {
     pub fn generate_iface_proxy_get_trait_impl(&self) -> syn::Result<syn::ItemImpl> {
         let iface_name = &self.iface_ident;
         let iface_module = naming::rust::module::from_struct_name(iface_name);
-        let iface_ident = quote::format_ident!("{}", iface_name);
+        //TODO: It is not pretty that we need so many traits. We should reduce it.
+        let iface_ident = quote::format_ident!("{}Adapter", iface_name);
         let proxy_iface_ident = quote::format_ident!("{}ProxyGet", iface_name);
         let proxy_ident = quote::format_ident!("{}ProxyRust", iface_name);
         let struct_name = &self.struct_ident;

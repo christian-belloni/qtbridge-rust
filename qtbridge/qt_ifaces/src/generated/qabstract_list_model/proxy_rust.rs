@@ -12,8 +12,8 @@ use std::rc::Rc;
 pub trait QAbstractListModelProxyGet {
     fn get_rust_proxy(&self) -> &QAbstractListModelProxyRust;
     fn get_rust_proxy_mut(&self) -> &mut QAbstractListModelProxyRust;
-    fn get_trait(&self) -> &dyn QAbstractListModel;
-    fn get_trait_mut(&mut self) ->&mut dyn QAbstractListModel;
+    fn get_trait(&self) -> &dyn QAbstractListModelAdapter;
+    fn get_trait_mut(&mut self) ->&mut dyn QAbstractListModelAdapter;
 }
 
 pub trait QAbstractListModel : QAbstractListModelProxyGet {
@@ -38,6 +38,42 @@ pub trait QAbstractListModel : QAbstractListModelProxyGet {
     fn sibling(&self, row: i32, column: i32, idx: &QModelIndex) -> QModelIndex {
         let proxy = self.get_rust_proxy();
         proxy.base_sibling(row, column, idx)
+    }
+}
+
+pub trait QAbstractListModelAdapter {
+    fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex;
+    fn row_count(&self, parent: &QModelIndex) -> i32;
+    fn data(&self, index: &QModelIndex, role: i32) -> QVariant;
+    fn role_names(&self) -> QHash<i32, QByteArray>;
+    fn set_data(&mut self, index: &QModelIndex, value: &QVariant, role: i32) -> bool;
+    fn remove_rows(&mut self, first: i32, count: i32, parent: &QModelIndex) -> bool;
+    fn sibling(&self, row: i32, column: i32, idx: &QModelIndex) -> QModelIndex;
+}
+
+impl<T> QAbstractListModelAdapter for T
+where T:
+    QAbstractListModelProxyGet + QAbstractListModel {
+    fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex {
+         <Self as QAbstractListModel>::index(self, row, column, parent)
+    }
+    fn row_count(&self, parent: &QModelIndex) -> i32 {
+         <Self as QAbstractListModel>::row_count(self, parent)
+    }
+    fn data(&self, index: &QModelIndex, role: i32) -> QVariant {
+         <Self as QAbstractListModel>::data(self, index, role)
+    }
+    fn role_names(&self) -> QHash<i32, QByteArray> {
+         <Self as QAbstractListModel>::role_names(self)
+    }
+    fn set_data(&mut self, index: &QModelIndex, value: &QVariant, role: i32) -> bool {
+         <Self as QAbstractListModel>::set_data(self, index, value, role)
+    }
+    fn remove_rows(&mut self, first: i32, count: i32, parent: &QModelIndex) -> bool {
+         <Self as QAbstractListModel>::remove_rows(self, first, count, parent)
+    }
+    fn sibling(&self, row: i32, column: i32, idx: &QModelIndex) -> QModelIndex {
+         <Self as QAbstractListModel>::sibling(self, row, column, idx)
     }
 }
 

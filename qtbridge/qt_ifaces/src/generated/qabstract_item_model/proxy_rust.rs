@@ -12,9 +12,53 @@ use std::rc::Rc;
 pub trait QAbstractItemModelProxyGet {
     fn get_rust_proxy(&self) -> &QAbstractItemModelProxyRust;
     fn get_rust_proxy_mut(&self) -> &mut QAbstractItemModelProxyRust;
-    fn get_trait(&self) -> &dyn QAbstractItemModel;
-    fn get_trait_mut(&mut self) ->&mut dyn QAbstractItemModel;
+    fn get_trait(&self) -> &dyn QAbstractItemModelAdapter;
+    fn get_trait_mut(&mut self) ->&mut dyn QAbstractItemModelAdapter;
 }
+pub trait QAbstractItemModelAdapter {
+    fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex;
+    fn parent(&self, child: &QModelIndex) -> QModelIndex;
+    fn row_count(&self, parent: &QModelIndex) -> i32;
+    fn column_count(&self, parent: &QModelIndex) -> i32;
+    fn data(&self, index: &QModelIndex, role: i32) -> QVariant;
+    fn role_names(&self) -> QHash<i32, QByteArray>;
+    fn set_data(&mut self, index: &QModelIndex, value: &QVariant, role: i32) -> bool;
+    fn remove_rows(&mut self, first: i32, count: i32, parent: &QModelIndex) -> bool;
+    fn sibling(&self, row: i32, column: i32, idx: &QModelIndex) -> QModelIndex;
+}
+
+impl<T> QAbstractItemModelAdapter for T
+where
+    T: QAbstractItemModelProxyGet + QAbstractItemModel {
+    fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex {
+        <Self as QAbstractItemModel>::index(self, row, column, parent)
+    }
+    fn parent(&self, child: &QModelIndex) -> QModelIndex {
+        <Self as QAbstractItemModel>::parent(self, child)
+    }
+    fn row_count(&self, parent: &QModelIndex) -> i32 {
+        <Self as QAbstractItemModel>::row_count(self, parent)
+    }
+    fn column_count(&self, parent: &QModelIndex) -> i32 {
+        <Self as QAbstractItemModel>::column_count(self, parent)
+    }
+    fn data(&self, index: &QModelIndex, role: i32) -> QVariant {
+        <Self as QAbstractItemModel>::data(self, index, role)
+    }
+    fn role_names(&self) -> QHash<i32, QByteArray> {
+        <Self as QAbstractItemModel>::role_names(self)
+    }
+    fn set_data(&mut self, index: &QModelIndex, value: &QVariant, role: i32) -> bool {
+        <Self as QAbstractItemModel>::set_data(self, index, value, role)
+    }
+    fn remove_rows(&mut self, first: i32, count: i32, parent: &QModelIndex) -> bool {
+        <Self as QAbstractItemModel>::remove_rows(self, first, count, parent)
+    }
+    fn sibling(&self, row: i32, column: i32, idx: &QModelIndex) -> QModelIndex {
+        <Self as QAbstractItemModel>::sibling(self, row, column, idx)
+    }
+}
+
 pub trait QAbstractItemModel : QAbstractItemModelProxyGet {
     fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex;
     fn parent(&self, child: &QModelIndex) -> QModelIndex;

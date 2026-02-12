@@ -22,12 +22,15 @@ mod some_module {
         ) -> &mut qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelProxyRust {
             <Self as qtbridge::qt_traits::QObjectHolder>::get_rust_proxy_mut(self)
         }
-        fn get_trait(&self) -> &dyn qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModel {
+        fn get_trait(
+            &self,
+        ) -> &dyn qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelAdapter {
             self
         }
         fn get_trait_mut(
             &mut self,
-        ) -> &mut dyn qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModel {
+        ) -> &mut dyn qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelAdapter
+        {
             self
         }
     }
@@ -76,8 +79,7 @@ mod some_module {
         ) {
             meta_obj.as_mut().end_meta_registration();
         }
-        fn get_shared_dynamic_meta_object(
-        ) -> &'static qtbridge::bridge::DynamicMetaObjectBuilder {
+        fn get_shared_dynamic_meta_object() -> &'static qtbridge::bridge::DynamicMetaObjectBuilder {
             use std::any::TypeId;
             use std::cell::RefCell;
             use std::collections::HashMap;
@@ -134,7 +136,8 @@ mod some_module {
             pub extern "C" fn meta_object_fn(
                 _iface: *const qtbridge::qt_type_lib::QMetaTypeInterface,
             ) -> *mut qtbridge::qt_type_lib::QMetaObject {
-                let meta_obj_data = < SomeStruct as qtbridge :: bridge :: QMetaInfo > :: get_shared_dynamic_meta_object () ;
+                let meta_obj_data =
+                    <SomeStruct as qtbridge::bridge::QMetaInfo>::get_shared_dynamic_meta_object();
                 meta_obj_data.get_dynamic_qmetaobject().cast_mut()
             }
             pub extern "C" fn default_ctor(
