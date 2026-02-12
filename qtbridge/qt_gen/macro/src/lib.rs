@@ -27,7 +27,7 @@ pub fn qobject_internal(args: TokenStream, input: TokenStream) -> TokenStream {
     output.into()
 }
 
-/// Anotate a struct as a Qt object that can be accessed from QML.
+/// Annotate a struct as a Qt object that can be accessed from QML.
 ///
 /// This macro makes it possible to declare the following items within the `impl` block:
 ///
@@ -41,7 +41,7 @@ pub fn qobject_internal(args: TokenStream, input: TokenStream) -> TokenStream {
 /// The `#[qobject_impl]` macro must be applied to the `impl` block of the target `struct`.
 /// The contents of the `impl` block may contain macro-like [annotations](#supported-annotations) that control how data and methods are exposed to QML.
 ///
-/// Rust allows to add multiple `impl` blocks for the same `struct`. However, if you apply the `#[qobject_impl]` macro to one of them,
+/// Rust allows adding multiple `impl` blocks for the same `struct`. However, if you apply the `#[qobject_impl]` macro to one of them,
 /// that block must contain all the signals/slots/properties declarations for that type.
 ///
 /// ### Example
@@ -271,7 +271,7 @@ pub fn qobject_internal(args: TokenStream, input: TokenStream) -> TokenStream {
 /// with [`#[qml_element]`](crate::qml_element). This allows instances of the type to be default-constructed directly from QML.
 ///
 /// Another way to make an object available to QML is to create it on the Rust side and then expose it to QML.
-/// There are two ways to construct object in Rust to send it further to QML:
+/// There are two ways to construct a object in Rust to send it further to QML:
 /// - For a `struct` implementing `Default` trait, the simplest approach is to call
 /// `Self::default_with_attached_qobject()`.
 /// The return type of this function is `Rc<RefCell<Self>>`.
