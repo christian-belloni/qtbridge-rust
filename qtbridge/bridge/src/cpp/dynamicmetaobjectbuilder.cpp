@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 #include "dynamicmetaobjectbuilder.h"
-#include "metamethodparams.h"
+#include "rustconv.h"
 #include "rustobjectgetter.h"
 #include <QMetaType>
 #include <QObject>
@@ -97,10 +97,10 @@ public:
         }
     }
 
-    void emitSignal(QObject& obj, const QByteArray& name, const MetaMethodOutgoingParams& params)
+    void emitSignal(QObject& obj, const QByteArray& name, rust::Slice<const uint8_t* const> argv)
     {
         if (auto idx = getSignalIndexByName(name))
-            doEmitSignal(obj, *idx, params);
+            doEmitSignal(obj, *idx, argv);
         else
             throw std::runtime_error("Failed to find signal by name");
     }
@@ -152,12 +152,9 @@ private:
         QMetaObject::activate(&obj, m_mo.get(), id, params);
     }
 
-     void doEmitSignal(QObject& obj, SignalId id, const MetaMethodOutgoingParams& params)
+     void doEmitSignal(QObject& obj, SignalId id, rust::Slice<const uint8_t* const> argv)
      {
-         const QMetaMethod method = getMetaMethod(id);
-         auto params_copy = params; // Do the copy to handle mutability of composed variant data
-         std::vector<void*> paramData = params_copy.getDataPtrs(method);
-         doEmitSignal(obj, id, paramData.data());
+        doEmitSignal(obj, id, reinterpret_cast<void**>(const_cast<uint8_t**>(argv.data())));
     }
 
     void objectDestroyed(QObject *) override
@@ -407,9 +404,9 @@ void DynamicMetaObjectBuilder::endMetaRegistration()
     m_impl->endMetaRegistration();
 }
 
-void DynamicMetaObjectBuilder::emitSignal(QObject& obj, rust::Str name, const MetaMethodOutgoingParams& params) const
+void DynamicMetaObjectBuilder::emitSignal(QObject& obj, rust::Str name, rust::Slice<const uint8_t* const> argv) const
 {
-    m_impl->emitSignal(obj, RustStrToQByteArray(name), params);
+    m_impl->emitSignal(obj, RustStrToQByteArray(name), argv);
 }
 
 DynamicMetaObjectBuilder *createDynamicMetaObjectBuilder(rust::Str rustStructName, const QMetaObject& staticMeta)

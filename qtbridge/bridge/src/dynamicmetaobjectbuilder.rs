@@ -5,9 +5,6 @@
 pub mod ffi {
 
     unsafe extern "C++" {
-        include!("cpp/metamethodparams.h");
-        type MetaMethodOutgoingParams = crate::metamethodparams::ffi::MetaMethodOutgoingParams;
-
         include!("qt_type_lib/src/generated/core/qmetaobject/cpp/qmetaobject.h");
         type QMetaObject = qt_type_lib::QMetaObject;
 
@@ -47,7 +44,7 @@ pub mod ffi {
         fn endMetaRegistration(self: Pin<&mut Self>);
 
         #[rust_name = "emit_signal"]
-        fn emitSignal(self: &Self, qobj: &mut QObject, name: &str, params: &MetaMethodOutgoingParams);
+        fn emitSignal(self: &Self, qobj: &mut QObject, name: &str, argv: &[*const u8]);
 
         #[rust_name = "get_dynamic_qmetaobject"]
         fn getDynamicQMetaObject(self: &Self) -> *const QMetaObject;

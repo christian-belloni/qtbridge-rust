@@ -3,14 +3,17 @@
 
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{spanned::Spanned, Ident, LitStr};
+use syn::{parse_quote, Ident, LitStr};
+use syn::spanned::Spanned;
 
 use qt_gen_common::case_conv;
 use qt_gen_common::function_with_attributes::{FunctionWithAttributes, BlockOrSemi};
 use qt_gen_common::parse_utils::{parse_name_value, partition_attr_by};
-use qt_gen_common::signature_utils::{get_arg_ident, get_typed_args, get_typed_args_types};
+use qt_gen_common::signature_utils::{get_typed_args, get_typed_args_types};
+use qt_gen_common::type_utils::remove_ref;
 use qt_gen_common::type_qualified_mapping::CallOrigin;
 use qt_gen_common::type_registry::meta_types::{check_meta_call_signature_types, get_qmetatype_support_for_type};
+use crate::meta_call_bridge_generator::MetaCallBridgeGenerator;
 use crate::traits::{ExpandTokens, QmlName};
 
 #[derive(Default)]
@@ -23,6 +26,7 @@ pub struct QSignalInfo {
     meta_params: QSignalMetaParams, // Params extracted from qsignal attribute
     vis: syn::Visibility,
     sig: syn::Signature,
+    #[allow(dead_code)]
     origin: CallOrigin,
 }
 
@@ -77,7 +81,7 @@ impl QSignalInfo {
         let arg_types_qt = get_typed_args_types(sig)
             .map(|ty| {
                 let meta_type = get_qmetatype_support_for_type(ty)?
-                    .unwrap_or_else(|| ty.clone());
+                    .unwrap_or_else(|| remove_ref(ty).clone());
                 Ok(meta_type)
             })
             .collect::<syn::Result<Vec<_>>>()?;
@@ -143,34 +147,25 @@ impl QmlName for QSignalInfo {
 impl ExpandTokens for QSignalInfo {
     fn expand_tokens(&self) -> syn::Result<TokenStream> {
         let Self {attrs, vis, sig, ..} = self;
+
+        let bridge_generator = MetaCallBridgeGenerator::new(sig)?;
         let qml_name = self.get_qml_name_span().0;
-
-        let arg_count = sig.inputs.len() - 1;
-
-        let mut args_push = Vec::with_capacity(arg_count);
-        for arg in sig.inputs.iter().skip(1) {
-            let var_name = get_arg_ident(arg)?;
-            args_push.push(quote! { signal_params.push(#var_name.into()); });
-        }
-
-        let bridge_library = self.origin.bridge_module();
-        let arg_pack = quote!{
-            let mut signal_params = #bridge_library::metamethodparams::MetaMethodOutgoingParams::new();
-            #(#args_push)*
+        let fn_metacall = parse_quote! {
+            dynamic_meta_obj.emit_signal(qobj, #qml_name)
         };
+        let bridge_code = bridge_generator.generate_bridge_user_fn_to_metacall(fn_metacall)?;
 
         // Generate function that calls signal
-        Ok(quote!(
+        let code = quote! {
             #(#attrs)*
             #vis
             #sig
             {
-                let dynamic_meta_obj = <Self as #bridge_library::QMetaInfo>::get_shared_dynamic_meta_object();
-                let qobj = <Self as #bridge_library::QObjectHolder>::get_qobject(self);
-
-                #arg_pack
-                dynamic_meta_obj.emit_signal(qobj, #qml_name, &signal_params);
+                let dynamic_meta_obj = <Self as qtbridge::bridge::QMetaInfo>::get_shared_dynamic_meta_object();
+                let qobj = <Self as qtbridge::QObjectHolder>::get_qobject(self);
+                #bridge_code
             }
-        ))
+        };
+        Ok(code)
     }
 }

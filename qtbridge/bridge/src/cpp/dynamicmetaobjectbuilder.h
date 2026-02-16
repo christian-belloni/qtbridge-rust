@@ -9,7 +9,6 @@
 #include "rust/cxx.h"
 
 class MetaMethodIncomingParams;
-class MetaMethodOutgoingParams;
 class QMetaType;
 class QObject;
 class QVariant;
@@ -49,7 +48,7 @@ public:
     void registerSlot(rust::Str name, rust::Slice<const QMetaType> argMetaTypes, const QMetaType& returnMetaType, SlotCallbackFn callback);
     void endMetaRegistration();
 
-    void emitSignal(QObject& obj, rust::Str name, const MetaMethodOutgoingParams& params) const;
+    void emitSignal(QObject& obj, rust::Str name, rust::Slice<const uint8_t* const> argv) const;
 
 private:
     // Use pimpl idiom not to expose private APIs
