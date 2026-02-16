@@ -58,9 +58,14 @@ pub fn check_signature(sign: &syn::Signature, expect_self: ExpectSelfRef) -> syn
 
 
 pub fn get_typed_arg_type(arg: &syn::FnArg) -> Option<&syn::Type> {
+    get_typed_arg(arg)
+        .map(|pat| pat.ty.as_ref())
+}
+
+pub fn get_typed_arg(arg: &syn::FnArg) -> Option<&syn::PatType> {
     match arg {
         syn::FnArg::Receiver(_) => None,
-        syn::FnArg::Typed(pat_type) => Some(pat_type.ty.as_ref()),
+        syn::FnArg::Typed(pat_type) => Some(pat_type),
     }
 }
 
@@ -68,10 +73,7 @@ pub fn get_typed_arg_type(arg: &syn::FnArg) -> Option<&syn::Type> {
 /// skipping the `Self` receiver.
 pub fn get_typed_args(sign: &syn::Signature) -> impl Iterator<Item = &syn::PatType> {
     sign.inputs.iter()
-        .filter_map(|arg| match arg {
-            syn::FnArg::Receiver(_) => None,
-            syn::FnArg::Typed(pat_type) => Some(pat_type),
-        })
+        .filter_map(get_typed_arg)
 }
 
 /// Takes a function signature and returns an iterator over the types of arguments
