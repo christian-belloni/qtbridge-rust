@@ -30,11 +30,12 @@ impl qtbridge::bridge::QMetaInfo for SomeStruct {
         meta_obj.as_mut().register_slot(
             "onThatValueChanged",
             &[qt_type_lib::QString::get_qmetatype()],
-            slot_callback_for::<SomeStruct>(|this, args| {
-                let value_ref = unsafe { args[0usize].cast::<qt_type_lib::QString>().as_ref() }
-                    .expect("Argument #1 is nullptr");
-                let value_var: <String as ToOwned>::Owned = value_ref.into();
-                this.on_that_value_changed(&value_var);
+            &QMetaType::default(),
+            slot_callback_for::<SomeStruct>(|this, inputs, _outputs| {
+                let arg_0_ref = unsafe { inputs[0usize].cast::<qt_type_lib::QString>().as_ref() }
+                    .expect("Argument reference is null");
+                let arg_0_var: <String as ToOwned>::Owned = arg_0_ref.into();
+                this.on_that_value_changed(&arg_0_var)
             }),
         );
         meta_obj.as_mut().register_property(

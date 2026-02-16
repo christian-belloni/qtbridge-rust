@@ -69,7 +69,13 @@ impl From<&str> for QString {
 
 impl From<&String> for QString {
     fn from(value: &String) -> Self {
-        QString::new(&value)
+        QString::from(value.as_str())
+    }
+}
+
+impl From<String> for QString {
+    fn from(value: String) -> Self {
+        QString::from(value.as_str())
     }
 }
 

@@ -67,7 +67,7 @@ public:
             throw std::runtime_error("Failed to register signal");
     }
 
-    void registerSlot(const QByteArray& name, QSpan<const QMetaType> argMetaTypes, SlotCallbackFn&& func)
+    void registerSlot(const QByteArray& name, QSpan<const QMetaType> argMetaTypes, const QMetaType& returnMetaType, SlotCallbackFn&& func)
     {
         if (!m_mob)
             throw std::runtime_error("Slot registration must be done before endMetaRegistration() call");
@@ -77,6 +77,8 @@ public:
 
         QByteArray signature = generateFuncSignature(name, argMetaTypes);
         QMetaMethodBuilder builder = m_mob->addSlot(signature);
+        if (returnMetaType.isValid())
+            builder.setReturnType(returnMetaType.name());
         const int localId = builder.index();
 
         m_slots.emplace(localId, SlotInfo{ std::move(func) });
@@ -228,8 +230,19 @@ private:
                 auto slotIt = m_slots.find(methodId);
                 if (slotIt == m_slots.end())
                     return false;
-                rust::Slice argSlice(reinterpret_cast<const uint8_t* const*>(argv + 1), static_cast<size_t>(method.parameterCount()));
-                slotIt->second.m_callback(clientPtr, argSlice);
+
+                const int paramCount = method.parameterCount();
+                const QMetaType returnType = method.returnMetaType();
+                if ((paramCount > 0 || returnType.isValid()) && !argv)
+                    throw std::runtime_error("Input meta params are null");
+
+                uint8_t* const* u8Argv = reinterpret_cast<uint8_t* const*>(argv);
+                const uint8_t* const* inputsBegin = u8Argv + 1;
+                rust::Slice inputsSlice(inputsBegin, static_cast<size_t>(paramCount));
+                auto outputSlice = returnType.isValid() ?
+                    rust::Slice<uint8_t* const>(u8Argv, 1) :
+                    rust::Slice<uint8_t* const>();
+                slotIt->second.m_callback(clientPtr, inputsSlice, outputSlice);
                 return true;
             }
             break;
@@ -384,9 +397,9 @@ void DynamicMetaObjectBuilder::registerSignal(rust::Str name, rust::Slice<const 
     m_impl->registerSignal(RustStrToQByteArray(name), RustSliceToQSpan(argMetaTypes));
 }
 
-void DynamicMetaObjectBuilder::registerSlot(rust::Str name, rust::Slice<const QMetaType> argMetaTypes, SlotCallbackFn callback)
+void DynamicMetaObjectBuilder::registerSlot(rust::Str name, rust::Slice<const QMetaType> argMetaTypes, const QMetaType& returnMetaType, SlotCallbackFn callback)
 {
-    m_impl->registerSlot(RustStrToQByteArray(name), RustSliceToQSpan(argMetaTypes), std::move(callback));
+    m_impl->registerSlot(RustStrToQByteArray(name), RustSliceToQSpan(argMetaTypes), returnMetaType, std::move(callback));
 }
 
 void DynamicMetaObjectBuilder::endMetaRegistration()

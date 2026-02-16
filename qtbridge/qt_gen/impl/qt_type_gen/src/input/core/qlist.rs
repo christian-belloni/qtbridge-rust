@@ -304,6 +304,12 @@ mod qlist {
         }
     }
 
+    impl From<QList<T>> for Vec<T> {
+        fn from(value: QList<T>) -> Self {
+            Self::from(&value)
+        }
+    }
+
     #[include_if_struct_instantiation[QString]]
     impl From<&QList<T>> for Vec<String> {
         fn from(value: &QList<T>) -> Self {
@@ -315,9 +321,29 @@ mod qlist {
         }
     }
 
-    impl From<QList<T>> for Vec<T> {
+    #[include_if_struct_instantiation[QString]]
+    impl From<QList<T>> for Vec<String> {
         fn from(value: QList<T>) -> Self {
-            From::from(&value)
+            Self::from(&value)
+        }
+    }
+
+    #[include_if_struct_instantiation[QString]]
+    impl From<&Vec<String>> for QList<QString> {
+        fn from(value: &Vec<String>) -> Self {
+            let mut v = QList::default();
+            v.reserve(value.len());
+            for st in value {
+                v.append(st.into())
+            }
+            v
+        }
+    }
+
+    #[include_if_struct_instantiation[QString]]
+    impl From<Vec<String>> for QList<QString> {
+        fn from(value: Vec<String>) -> Self {
+            Self::from(&value)
         }
     }
 

@@ -3,27 +3,24 @@
 
 use qt_type_lib::QVariant;
 
-pub fn slot_callback_for<T>(this_callback: fn(&mut T, &[*const u8])) -> fn(*mut u8, &[*const u8]) {
+#[doc(hidden)]
+pub fn slot_callback_for<T>(this_callback: fn(&mut T, &[*const u8], &[*mut u8])) -> fn(*mut u8, &[*const u8], &[*mut u8]) {
     unsafe {
         std::mem::transmute::<_, _>(this_callback)
     }
 }
 
 //TODO: make self& not mut for read callbacks?
+#[doc(hidden)]
 pub fn property_read_callback_for<T>(this_callback: fn(&mut T)->QVariant) -> fn(*mut u8)->QVariant {
     unsafe {
-        std::mem::transmute::<
-            fn(&mut T)->QVariant,
-            fn(*mut u8)->QVariant,
-        >(this_callback)
+        std::mem::transmute::<_, _>(this_callback)
     }
 }
 
+#[doc(hidden)]
 pub fn property_write_callback_for<T>(this_callback: fn(&mut T, &QVariant)) -> fn(*mut u8, &QVariant) {
     unsafe {
-        std::mem::transmute::<
-            fn(&mut T, &QVariant),
-            fn(*mut u8, &QVariant),
-        >(this_callback)
+        std::mem::transmute::<_, _>(this_callback)
     }
 }

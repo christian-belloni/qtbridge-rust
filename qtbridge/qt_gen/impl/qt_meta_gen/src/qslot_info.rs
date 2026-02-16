@@ -2,15 +2,16 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote, ToTokens};
+use quote::{ToTokens, format_ident, quote};
 use syn::{spanned::Spanned, Ident, LitStr};
 use qt_gen_common::case_conv;
 use qt_gen_common::function_with_attributes::{BlockOrSemi, FunctionWithAttributes};
 use qt_gen_common::parse_utils::{parse_name_value, partition_attr_by};
-use qt_gen_common::signature_utils::{get_typed_arg_ident, get_typed_args};
-use qt_gen_common::type_utils::{ValuePass, get_type_pass, remove_ref};
-use qt_gen_common::type_registry::meta_types::{check_meta_call_signature_types, get_qmetatype_support_for_type};
+use qt_gen_common::signature_utils::get_typed_args;
+use qt_gen_common::type_registry::meta_types::check_meta_call_signature_types;
 
+use crate::meta_call_bridge_generator;
+use meta_call_bridge_generator::MetaCallBridgeGenerator;
 use crate::traits::{ExpandTokens, QmlName};
 
 #[derive(Default)]
@@ -60,110 +61,72 @@ impl QSlotInfo {
         get_typed_args(&self.func.sig).count()
     }
 
+    pub fn has_return(&self) -> bool {
+        matches!(&self.func.sig.output, syn::ReturnType::Type(_, _))
+    }
+
     /// Generate code for registration of the given slot in `DynamicMetaObjectBuilder`.
-    /// The output from the function is code like below:
+    ///
+    /// For a slot defined as:
+    /// ```ignore
+    /// #[qslot]
+    /// pub fn do_something(&mut self, i: i32, s: &String) -> String {
+    ///     ...
+    /// }
+    /// ```
+    ///
+    /// the generated output would be:
     /// ```ignore
     /// meta_obj.as_mut().register_slot(
-    ///       "doSomething",
-    ///       &[i32::get_qmetatype(), qt_type_lib::QString::get_qmetatype()],
-    ///       slot_callback_for::<Backend>(|this, args| {
-    ///           let int_arg_ref = unsafe {
-    ///               args[0].cast::<i32>().as_ref()
-    ///           }.expect("Argument #1 is nullptr");
-    ///           let str_arg_ref = unsafe {
-    ///               args[1].cast::<qt_type_lib::QString>().as_ref()
-    ///           }.expect("Argument #2 is nullptr");
-    ///           let int_arg_var: i32 = int_arg_ref.clone();
-    ///           let str_arg_var: <String as ToOwned>::Owned = str_arg_ref.into();
-    ///           this.do_something(int_arg_var, &str_arg_var);
-    ///       }),
-    ///  );
+    ///     "doSomething",
+    ///     &[i32::get_qmetatype(), qt_type_lib::QString::get_qmetatype()],
+    ///     &qt_type_lib::QString::get_qmetatype(),
+    ///     slot_callback_for::<ThisStruct>(|this, inputs, outputs| {
+    ///         let arg_0_ref = unsafe {
+    ///             inputs[0usize].cast::<i32>().as_ref()
+    ///         }.expect("Argument reference is null");
+    ///         let arg_1_ref = unsafe {
+    ///             inputs[1usize].cast::<qt_type_lib::QString>().as_ref()
+    ///         }.expect("Argument reference is null");
+    ///         let arg_0_var: i32 = arg_0_ref.clone();
+    ///         let arg_1_var: <String as ToOwned>::Owned = arg_1_ref.into();
+    ///         let result = this.do_something(arg_0_var, &arg_1_var);
+    ///         let output_0_ptr: *mut qt_type_lib::QString = outputs[0].cast();
+    ///         unsafe { std::ptr::write(output_0_ptr, result.into()) }
+    ///     }));
     /// ```
     pub fn get_meta_registration_code(&self, struct_ident: &syn::Ident) -> syn::Result<TokenStream> {
         let name = self.get_qml_name_span().0;
         let sig = &self.func.sig;
         let method_ident = &sig.ident;
-        let arg_count = sig.inputs.len() - 1;
 
-        // Meta types for the arguments.
-        let mut arg_meta_types = Vec::with_capacity(arg_count);
-
-        // Definitions of references to source parameters cast from input raw pointers.
-        let mut arg_src_refs = Vec::with_capacity(arg_count);
-
-        // Intermediate variables converted from input meta types to be passed to the client callback.
-        let mut arg_inter_vars = Vec::new();
-
-        // Expressions used as arguments to the client callback.
-        let mut arg_pass_list = Vec::with_capacity(arg_count);
-
-        for (idx, arg) in get_typed_args(sig).enumerate() {
-            // Get the type of the current argument in the target function.
-            let arg_type = arg.ty.as_ref();
-            // Remove reference from the argument type, if present.
-            let arg_type_wo_ref = remove_ref(arg_type);
-            // Determine what metatype corresponds to the argument type.
-            let intermediate_meta_type = get_qmetatype_support_for_type(arg_type)?;
-            let arg_meta_type = intermediate_meta_type.as_ref()
-                .unwrap_or(arg_type_wo_ref);
-
-            // Define a typed reference for the given input parameter.
-            let arg_ident = get_typed_arg_ident(arg)?;
-            let arg_ref_ident = format_ident!("{arg_ident}_ref");
-            let null_ptr_err_msg = format!("Argument #{} is nullptr", idx + 1);
-            let arg_src_ref = quote! {
-                let #arg_ref_ident = unsafe {
-                    args[#idx].cast::<#arg_meta_type>().as_ref()
-                }.expect(#null_ptr_err_msg);
-            };
-
-            // Determine how the argument must be passed (by value or reference).
-            let arg_pass = get_type_pass(arg_type);
-
-            // Define a intermediate variable if type conversion is needed
-            // or if argument passed by value.
-            let arg_var_ident = format_ident!("{arg_ident}_var");
-            if intermediate_meta_type.is_some() {
-                arg_inter_vars.push(quote! {
-                    let #arg_var_ident: <#arg_type_wo_ref as ToOwned>::Owned = #arg_ref_ident.into();
-                });
-            }
-            else if matches!(arg_pass, ValuePass::ByValue) {
-                arg_inter_vars.push(quote! {
-                    let #arg_var_ident: #arg_type_wo_ref = #arg_ref_ident.clone();
-                });
-            }
-
-            // Produce the code passing the argument value to the target function.
-            let arg_pass_code = match arg_pass {
-                ValuePass::ByValue => // Pass the intermediate variable by value
-                    quote!{ #arg_var_ident },
-                ValuePass::ByConstReference => {
-                    match intermediate_meta_type.as_ref() {
-                        Some(_) => // Pass the intermediate variable by reference.
-                            quote! { &#arg_var_ident },
-                        None => // Pass input argument reference as is.
-                            quote! { #arg_ref_ident },
-                    }
-                },
-                ValuePass::ByMutReference =>
-                    return Err(syn::Error::new(arg_type.span(),
-                        "Arguments passed by mutable references are not supported"))
-            };
-
-            arg_meta_types.push(arg_meta_type.clone());
-            arg_src_refs.push(arg_src_ref);
-            arg_pass_list.push(arg_pass_code);
+        let bridge_generator = MetaCallBridgeGenerator::new(sig)?;
+        let input_meta_types = bridge_generator.get_input_metatypes()
+            .collect::<Vec<_>>();
+        let output_meta_types = bridge_generator.get_output_metatype();
+        let mut inputs_ident = meta_call_bridge_generator::get_inputs_ident();
+        let mut outputs_ident = meta_call_bridge_generator::get_outputs_ident();
+        if input_meta_types.is_empty() {
+            inputs_ident = format_ident!("_{inputs_ident}")
         }
+        if output_meta_types.is_none() {
+            outputs_ident = format_ident!("_{outputs_ident}")
+        }
+        let result_meta_type = output_meta_types
+            .map(|ty| quote!{ &#ty::get_qmetatype() })
+            .unwrap_or_else(|| quote! { &QMetaType::default()} );
 
-        let register_slot = quote!(
-            meta_obj.as_mut().register_slot(#name, &[#(#arg_meta_types::get_qmetatype()),*],
-                slot_callback_for::<#struct_ident>(|this, args| {
-                    #(#arg_src_refs)*
-                    #(#arg_inter_vars)*
-                    this.#method_ident(#(#arg_pass_list),*);
+        let fn_call = syn::parse_quote! {
+            this.#method_ident()
+        };
+        let bridge_code = bridge_generator.generate_bridge_metacall_to_user_fn(fn_call)?;
+        let register_slot = quote! {
+            meta_obj.as_mut().register_slot(#name, &[#(#input_meta_types::get_qmetatype()),*], #result_meta_type,
+                slot_callback_for::<#struct_ident>(|this, #inputs_ident, #outputs_ident| {
+                    #bridge_code
                 }));
-        );
+        };
+
         Ok(register_slot)
     }
 

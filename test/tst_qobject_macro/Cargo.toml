@@ -16,6 +16,16 @@ path = "tests/slot_tests.rs"
 harness = false
 
 [[test]]
+name = "slot_return_tests"
+path = "tests/slot_return_tests.rs"
+harness = false
+
+[[test]]
+name = "slot_return_vec_tests"
+path = "tests/slot_return_vec_tests.rs"
+harness = false
+
+[[test]]
 name = "slot_vec_tests"
 path = "tests/slot_vec_tests.rs"
 harness = false
