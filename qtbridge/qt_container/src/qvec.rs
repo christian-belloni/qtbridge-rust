@@ -166,18 +166,6 @@ mod qvec
         }
     }
 
-    impl<T> QVec<T>
-    where
-        T: QModelItem + Default + 'static
-    {
-        fn map_role_to_element_id(&self, role: i32) -> i32 {
-            if role > 0x6 {
-                return role - 0x100;
-            }
-            role
-        }
-    }
-
     impl<T> QAbstractItemModel for QVec<T>
     where
         T: QModelItem + Default + 'static
@@ -206,27 +194,9 @@ mod qvec
                 return QVariant::default()
             }
 
-            let role = self.map_role_to_element_id(role);
             let row = index.row() as usize;
 
-            match role {
-                0 => self.data[row].elem0(),
-                1 => self.data[row].elem1(),
-                2 => self.data[row].elem2(),
-                3 => self.data[row].elem3(),
-                4 => self.data[row].elem4(),
-                5 => self.data[row].elem5(),
-                6 => self.data[row].elem6(),
-                7 => self.data[row].elem7(),
-                8 => self.data[row].elem8(),
-                9 => self.data[row].elem9(),
-                10 => self.data[row].elem10(),
-                11 => self.data[row].elem11(),
-                12 => self.data[row].elem12(),
-                13 => self.data[row].elem13(),
-                14 => self.data[row].elem14(),
-                _ => QVariant::default()
-            }
+            self.data[row].get_role(role)
         }
 
         fn set_data(&mut self, index: &QModelIndex, value: &QVariant, role: i32) -> bool {
@@ -234,27 +204,9 @@ mod qvec
                 return false;
             }
 
-            let role = self.map_role_to_element_id(role);
             let indexed_value = &mut self.data[index.row() as usize];
 
-            match role {
-                0 => indexed_value.set_elem0(value),
-                1 => indexed_value.set_elem1(value),
-                2 => indexed_value.set_elem2(value),
-                3 => indexed_value.set_elem3(value),
-                4 => indexed_value.set_elem4(value),
-                5 => indexed_value.set_elem5(value),
-                6 => indexed_value.set_elem6(value),
-                7 => indexed_value.set_elem7(value),
-                8 => indexed_value.set_elem8(value),
-                9 => indexed_value.set_elem9(value),
-                10 => indexed_value.set_elem10(value),
-                11 => indexed_value.set_elem11(value),
-                12 => indexed_value.set_elem12(value),
-                13 => indexed_value.set_elem13(value),
-                14 => indexed_value.set_elem14(value),
-                _ => false,
-            }
+            indexed_value.set_role(role, value)
         }
 
         fn role_names(&self)-> QHash<i32, QByteArray> {

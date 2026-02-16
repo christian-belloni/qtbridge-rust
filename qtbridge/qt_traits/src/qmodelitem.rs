@@ -5,18 +5,46 @@ use std::collections::HashMap;
 
 use qt_type_lib::QVariant;
 
+pub trait QVariantConvertible : Sized {
+    fn to_qvariant(&self) -> QVariant;
+    fn from_qvariant(value: &QVariant) -> Result<Self, ()>;
+}
+
+impl<T> QVariantConvertible for T
+where
+    for<'a> QVariant: From<&'a T>,
+    for<'a> T: TryFrom<&'a QVariant, Error = ()>,
+{
+    fn to_qvariant(&self) -> QVariant {
+        QVariant::from(self)
+    }
+
+    fn from_qvariant(value: &QVariant) -> Result<Self, ()> {
+        <T>::try_from(value)
+    }
+}
+
+fn option_to_qvariant<T: QVariantConvertible>(value: Option<&T>) -> QVariant
+{
+    value.map(<T>::to_qvariant)
+            .unwrap_or_default()
+}
+
+
+
+
 /// Trait representing a single item in a Qt item model.
 ///
 /// This trait is implemented automatically by `#[derive(QModelItem)]`
 /// for structs and tuple structs and an implementation for primitive types
-/// and tuples is provided. It allows a `QVec<T>` to expose fields as Qt
-/// to QML views.
+/// and tuples is provided. It allows QtBridge to use the type in item models
+/// and [`QVec<T>`].
 ///
 /// # Typical usage
 /// Normally, you should **not implement this manually**. Use
 /// `#[derive(QModelItem)]` on your struct:
 ///
-/// ```rust,ignore
+/// ```rust, ignore
 /// #[derive(QModelItem)]
 /// struct Person {
 ///     name: String,
@@ -27,15 +55,14 @@ use qt_type_lib::QVariant;
 /// # Manual Implementation
 /// If your struct contains fields that **cannot be converted to `QVariant`**,
 /// you need to implement `QModelItem` manually. Only include fields that
-/// can be represented as `QVariant` in the `elemN` and `set_elemN` methods,
-/// and adjust the `LEN` constant and `role_names()` accordingly.
+/// are known to QtBridge in the `getN` and `setN` methods, and adjust
+/// `role_names()` accordingly.
 ///
 /// Example:
 ///
 /// ```rust
 ///
 /// use std::collections::HashMap;
-/// use qt_type_lib::QVariant;
 /// use qt_traits::QModelItem;
 ///
 /// struct CustomType {
@@ -44,73 +71,165 @@ use qt_type_lib::QVariant;
 /// }
 ///
 /// impl QModelItem for CustomType {
-///     const LEN: usize = 1; // only expose one field
+///     type T0 = String;
+///     type T1 = ();
+///     type T2 = ();
+///     type T3 = ();
+///     type T4 = ();
+///     type T5 = ();
+///     type T6 = ();
+///     type T7 = ();
+///     type T8 = ();
+///     type T9 = ();
+///     type T10 = ();
+///     type T11 = ();
+///     type T12 = ();
+///     type T13 = ();
+///     type T14 = ();
 ///
-///     fn elem0(&self) -> QVariant {
-///         QVariant::from(&self.name)
+///     fn get0(&self) -> Option<&String> {
+///         Some(&self.name)
 ///     }
 ///
-///     fn set_elem0(&mut self, value: &QVariant) -> bool {
-///         <String>::try_from(value).map(|val| { self.name = val; }).is_ok()
+///     fn set0(&mut self, value: String) {
+///         self.name = value;
 ///     }
 ///
 ///     fn role_names() -> HashMap<i32, String> {
-///         let roles = [(0x100, "name".into())];
-///         roles.iter().cloned().collect()
+///         let roles = [(0x0, "name".into())];
+///         roles.into()
 ///     }
 /// }
 /// ```
 pub trait QModelItem {
-    const LEN: usize;
-    fn elem0(&self) -> QVariant { QVariant::default() }
-    fn elem1(&self) -> QVariant { QVariant::default() }
-    fn elem2(&self) -> QVariant { QVariant::default() }
-    fn elem3(&self) -> QVariant { QVariant::default() }
-    fn elem4(&self) -> QVariant { QVariant::default() }
-    fn elem5(&self) -> QVariant { QVariant::default() }
-    fn elem6(&self) -> QVariant { QVariant::default() }
-    fn elem7(&self) -> QVariant { QVariant::default() }
-    fn elem8(&self) -> QVariant { QVariant::default() }
-    fn elem9(&self) -> QVariant { QVariant::default() }
-    fn elem10(&self) -> QVariant { QVariant::default() }
-    fn elem11(&self) -> QVariant { QVariant::default() }
-    fn elem12(&self) -> QVariant { QVariant::default() }
-    fn elem13(&self) -> QVariant { QVariant::default() }
-    fn elem14(&self) -> QVariant { QVariant::default() }
-    fn set_elem0(&mut self, _value: &QVariant) -> bool { false }
-    fn set_elem1(&mut self, _value: &QVariant) -> bool { false }
-    fn set_elem2(&mut self, _value: &QVariant) -> bool { false }
-    fn set_elem3(&mut self, _value: &QVariant) -> bool { false }
-    fn set_elem4(&mut self, _value: &QVariant) -> bool { false }
-    fn set_elem5(&mut self, _value: &QVariant) -> bool { false }
-    fn set_elem6(&mut self, _value: &QVariant) -> bool { false }
-    fn set_elem7(&mut self, _value: &QVariant) -> bool { false }
-    fn set_elem8(&mut self, _value: &QVariant) -> bool { false }
-    fn set_elem9(&mut self, _value: &QVariant) -> bool { false }
-    fn set_elem10(&mut self, _value: &QVariant) -> bool { false }
-    fn set_elem11(&mut self, _value: &QVariant) -> bool { false }
-    fn set_elem12(&mut self, _value: &QVariant) -> bool { false }
-    fn set_elem13(&mut self, _value: &QVariant) -> bool { false }
-    fn set_elem14(&mut self, _value: &QVariant) -> bool { false }
+    // TODO: When associated type defaults become stable, set () as default type.
+    // https://github.com/rust-lang/rust/issues/29661
+    type T0 : QVariantConvertible;
+    type T1 : QVariantConvertible;
+    type T2 : QVariantConvertible;
+    type T3 : QVariantConvertible;
+    type T4 : QVariantConvertible;
+    type T5 : QVariantConvertible;
+    type T6 : QVariantConvertible;
+    type T7 : QVariantConvertible;
+    type T8 : QVariantConvertible;
+    type T9 : QVariantConvertible;
+    type T10 : QVariantConvertible;
+    type T11 : QVariantConvertible;
+    type T12 : QVariantConvertible;
+    type T13 : QVariantConvertible;
+    type T14 : QVariantConvertible;
+
+    fn get0(&self) -> Option<&Self::T0> { None }
+    fn get1(&self) -> Option<&Self::T1> { None }
+    fn get2(&self) -> Option<&Self::T2> { None }
+    fn get3(&self) -> Option<&Self::T3> { None }
+    fn get4(&self) -> Option<&Self::T4> { None }
+    fn get5(&self) -> Option<&Self::T5> { None }
+    fn get6(&self) -> Option<&Self::T6> { None }
+    fn get7(&self) -> Option<&Self::T7> { None }
+    fn get8(&self) -> Option<&Self::T8> { None }
+    fn get9(&self) -> Option<&Self::T9> { None }
+    fn get10(&self) -> Option<&Self::T10> { None }
+    fn get11(&self) -> Option<&Self::T11> { None }
+    fn get12(&self) -> Option<&Self::T12> { None }
+    fn get13(&self) -> Option<&Self::T13> { None }
+    fn get14(&self) -> Option<&Self::T14> { None }
+
+    fn set0(&mut self, _value: Self::T0) {}
+    fn set1(&mut self, _value: Self::T1) {}
+    fn set2(&mut self, _value: Self::T2) {}
+    fn set3(&mut self, _value: Self::T3) {}
+    fn set4(&mut self, _value: Self::T4) {}
+    fn set5(&mut self, _value: Self::T5) {}
+    fn set6(&mut self, _value: Self::T6) {}
+    fn set7(&mut self, _value: Self::T7) {}
+    fn set8(&mut self, _value: Self::T8) {}
+    fn set9(&mut self, _value: Self::T9) {}
+    fn set10(&mut self, _value: Self::T10) {}
+    fn set11(&mut self, _value: Self::T11) {}
+    fn set12(&mut self, _value: Self::T12) {}
+    fn set13(&mut self, _value: Self::T13) {}
+    fn set14(&mut self, _value: Self::T14) {}
+
+    #[doc(hidden)]
+    fn get_role(&self, id: i32) -> QVariant
+    {
+        match id {
+            0 => option_to_qvariant(self.get0()),
+            1 => option_to_qvariant(self.get1()),
+            2 => option_to_qvariant(self.get2()),
+            3 => option_to_qvariant(self.get3()),
+            4 => option_to_qvariant(self.get4()),
+            5 => option_to_qvariant(self.get5()),
+            6 => option_to_qvariant(self.get6()),
+            7 => option_to_qvariant(self.get7()),
+            8 => option_to_qvariant(self.get8()),
+            9 => option_to_qvariant(self.get9()),
+            10 => option_to_qvariant(self.get10()),
+            11 => option_to_qvariant(self.get11()),
+            12 => option_to_qvariant(self.get12()),
+            13 => option_to_qvariant(self.get13()),
+            14 => option_to_qvariant(self.get14()),
+            _ => QVariant::default(),
+        }
+    }
+
+    #[doc(hidden)]
+    fn set_role(&mut self, id: i32, value: &QVariant) -> bool
+    {
+        match id {
+            0 => <Self::T0>::from_qvariant(value).map(|val| self.set0(val)),
+            1 => <Self::T1>::from_qvariant(value).map(|val| self.set1(val)),
+            2 => <Self::T2>::from_qvariant(value).map(|val| self.set2(val)),
+            3 => <Self::T3>::from_qvariant(value).map(|val| self.set3(val)),
+            4 => <Self::T4>::from_qvariant(value).map(|val| self.set4(val)),
+            5 => <Self::T5>::from_qvariant(value).map(|val| self.set5(val)),
+            6 => <Self::T6>::from_qvariant(value).map(|val| self.set6(val)),
+            7 => <Self::T7>::from_qvariant(value).map(|val| self.set7(val)),
+            8 => <Self::T8>::from_qvariant(value).map(|val| self.set8(val)),
+            9 => <Self::T9>::from_qvariant(value).map(|val| self.set9(val)),
+            10 => <Self::T10>::from_qvariant(value).map(|val| self.set10(val)),
+            11 => <Self::T11>::from_qvariant(value).map(|val| self.set11(val)),
+            12 => <Self::T12>::from_qvariant(value).map(|val| self.set12(val)),
+            13 => <Self::T13>::from_qvariant(value).map(|val| self.set13(val)),
+            14 => <Self::T14>::from_qvariant(value).map(|val| self.set14(val)),
+            _ =>  return false,
+        }.is_ok()
+    }
+
     fn role_names() -> HashMap<i32, String>;
 }
 
 macro_rules! impl_qmodel_item_for_primitive {
     ($t:ty) => {
         impl QModelItem for $t {
-            const LEN: usize = 1;
+            type T0 = $t;
+            type T1 = ();
+            type T2 = ();
+            type T3 = ();
+            type T4 = ();
+            type T5 = ();
+            type T6 = ();
+            type T7 = ();
+            type T8 = ();
+            type T9 = ();
+            type T10 = ();
+            type T11 = ();
+            type T12 = ();
+            type T13 = ();
+            type T14 = ();
 
-            fn elem0(&self) -> QVariant {
-                QVariant::from(self)
+            fn get0(&self) -> Option<&Self::T0> {
+                Some(self)
             }
 
-            fn set_elem0(&mut self, value: &QVariant) -> bool {
-                <$t>::try_from(value).map(|val| *self = val).is_ok()
+            fn set0(&mut self, value: Self::T0) {
+                *self = value;
             }
-
             fn role_names() -> HashMap<i32, String> {
-                let roles = [(0x100, "value".into())];
-                roles.iter().cloned().collect()
+                let roles = [(0x0, "value".into())];
+                roles.into()
             }
         }
     };
@@ -129,215 +248,294 @@ impl_qmodel_item_for_primitive!(f64);
 impl_qmodel_item_for_primitive!(bool);
 impl_qmodel_item_for_primitive!(String);
 
-impl<T0> QModelItem for (T0,)
-where
-    for<'a> QVariant: From<&'a T0>,
-    for<'a> T0: TryFrom<&'a QVariant, Error = ()>,
-{
-    const LEN: usize = 1;
-    fn elem0(&self) -> QVariant { QVariant::from(&self.0) }
-    fn set_elem0(&mut self, value: &QVariant) -> bool {
-        T0::try_from(value).map(|val| self.0 = val).is_ok()
-    }
-    fn role_names() -> HashMap<i32, String> {
-        let roles = [
-            (0x100, "_0".into()),
-        ];
-        roles.iter().cloned().collect()
-    }
-}
-
 impl<T0, T1> QModelItem for (T0, T1)
 where
-    for<'a> QVariant: From<&'a T0>,
-    for<'a> T0: TryFrom<&'a QVariant, Error = ()>,
-    for<'a> QVariant: From<&'a T1>,
-    for<'a> T1: TryFrom<&'a QVariant, Error = ()>,
+    T0: QVariantConvertible,
+    T1: QVariantConvertible
 {
-    const LEN: usize = 2;
-    fn elem0(&self) -> QVariant { QVariant::from(&self.0) }
-    fn elem1(&self) -> QVariant { QVariant::from(&self.1) }
-    fn set_elem0(&mut self, value: &QVariant) -> bool {
-        T0::try_from(value).map(|val| self.0 = val).is_ok()
-    }
-    fn set_elem1(&mut self, value: &QVariant) -> bool {
-        T1::try_from(value).map(|val| self.1 = val).is_ok()
-    }
+    type T0 = T0;
+    type T1 = T1;
+    type T2 = ();
+    type T3 = ();
+    type T4 = ();
+    type T5 = ();
+    type T6 = ();
+    type T7 = ();
+    type T8 = ();
+    type T9 = ();
+    type T10 = ();
+    type T11 = ();
+    type T12 = ();
+    type T13 = ();
+    type T14 = ();
+
+    fn get0(&self) -> Option<&Self::T0> { Some(&self.0) }
+    fn get1(&self) -> Option<&Self::T1> { Some(&self.1) }
+    fn set0(&mut self, value: Self::T0) { self.0 = value; }
+    fn set1(&mut self, value: Self::T1) { self.1 = value; }
+
     fn role_names() -> HashMap<i32, String> {
         let roles= [
-            (0x100, "_0".into()),
-            (0x101, "_1".into()),
+            (0x0, "_0".into()),
+            (0x1, "_1".into()),
         ];
-        roles.iter().cloned().collect()
+        roles.into()
     }
 }
 
 impl<T0, T1, T2> QModelItem for (T0, T1, T2)
 where
-    for<'a> QVariant: From<&'a T0>,
-    for<'a> T0: TryFrom<&'a QVariant, Error = ()>,
-    for<'a> QVariant: From<&'a T1>,
-    for<'a> T1: TryFrom<&'a QVariant, Error = ()>,
-    for<'a> QVariant: From<&'a T2>,
-    for<'a> T2: TryFrom<&'a QVariant, Error = ()>,
+    T0: QVariantConvertible,
+    T1: QVariantConvertible,
+    T2: QVariantConvertible
 {
-    const LEN: usize = 3;
-    fn elem0(&self) -> QVariant { QVariant::from(&self.0) }
-    fn elem1(&self) -> QVariant { QVariant::from(&self.1) }
-    fn elem2(&self) -> QVariant { QVariant::from(&self.2) }
-    fn set_elem0(&mut self, value: &QVariant) -> bool {
-        T0::try_from(value).map(|val| self.0 = val).is_ok()
-    }
-    fn set_elem1(&mut self, value: &QVariant) -> bool {
-        T1::try_from(value).map(|val| self.1 = val).is_ok()
-    }
-    fn set_elem2(&mut self, value: &QVariant) -> bool {
-        T2::try_from(value).map(|val| self.2 = val).is_ok()
-    }
+    type T0 = T0;
+    type T1 = T1;
+    type T2 = T2;
+    type T3 = ();
+    type T4 = ();
+    type T5 = ();
+    type T6 = ();
+    type T7 = ();
+    type T8 = ();
+    type T9 = ();
+    type T10 = ();
+    type T11 = ();
+    type T12 = ();
+    type T13 = ();
+    type T14 = ();
+
+    fn get0(&self) -> Option<&Self::T0> { Some(&self.0) }
+    fn get1(&self) -> Option<&Self::T1> { Some(&self.1) }
+    fn get2(&self) -> Option<&Self::T2> { Some(&self.2) }
+    fn set0(&mut self, value: Self::T0) { self.0 = value; }
+    fn set1(&mut self, value: Self::T1) { self.1 = value; }
+    fn set2(&mut self, value: Self::T2) { self.2 = value; }
+
     fn role_names() -> HashMap<i32, String> {
         let roles= [
-            (0x100, "_0".into()),
-            (0x101, "_1".into()),
-            (0x102, "_2".into()),
+            (0x0, "_0".into()),
+            (0x1, "_1".into()),
+            (0x2, "_2".into()),
         ];
-        roles.iter().cloned().collect()
+        roles.into()
     }
 }
 
 impl<T0, T1, T2, T3> QModelItem for (T0, T1, T2, T3)
 where
-    for<'a> QVariant: From<&'a T0>,
-    for<'a> T0: TryFrom<&'a QVariant, Error = ()>,
-    for<'a> QVariant: From<&'a T1>,
-    for<'a> T1: TryFrom<&'a QVariant, Error = ()>,
-    for<'a> QVariant: From<&'a T2>,
-    for<'a> T2: TryFrom<&'a QVariant, Error = ()>,
-    for<'a> QVariant: From<&'a T3>,
-    for<'a> T3: TryFrom<&'a QVariant, Error = ()>,
+    T0: QVariantConvertible,
+    T1: QVariantConvertible,
+    T2: QVariantConvertible,
+    T3: QVariantConvertible
 {
-    const LEN: usize = 4;
-    fn elem0(&self) -> QVariant { QVariant::from(&self.0) }
-    fn elem1(&self) -> QVariant { QVariant::from(&self.1) }
-    fn elem2(&self) -> QVariant { QVariant::from(&self.2) }
-    fn elem3(&self) -> QVariant { QVariant::from(&self.3) }
-    fn set_elem0(&mut self, value: &QVariant) -> bool {
-        T0::try_from(value).map(|val| self.0 = val).is_ok()
-    }
-    fn set_elem1(&mut self, value: &QVariant) -> bool {
-        T1::try_from(value).map(|val| self.1 = val).is_ok()
-    }
-    fn set_elem2(&mut self, value: &QVariant) -> bool {
-        T2::try_from(value).map(|val| self.2 = val).is_ok()
-    }
-    fn set_elem3(&mut self, value: &QVariant) -> bool {
-        T3::try_from(value).map(|val| self.3 = val).is_ok()
-    }
+    type T0 = T0;
+    type T1 = T1;
+    type T2 = T2;
+    type T3 = T3;
+    type T4 = ();
+    type T5 = ();
+    type T6 = ();
+    type T7 = ();
+    type T8 = ();
+    type T9 = ();
+    type T10 = ();
+    type T11 = ();
+    type T12 = ();
+    type T13 = ();
+    type T14 = ();
+
+    fn get0(&self) -> Option<&Self::T0> { Some(&self.0) }
+    fn get1(&self) -> Option<&Self::T1> { Some(&self.1) }
+    fn get2(&self) -> Option<&Self::T2> { Some(&self.2) }
+    fn get3(&self) -> Option<&Self::T3> { Some(&self.3) }
+    fn set0(&mut self, value: Self::T0) { self.0 = value; }
+    fn set1(&mut self, value: Self::T1) { self.1 = value; }
+    fn set2(&mut self, value: Self::T2) { self.2 = value; }
+    fn set3(&mut self, value: Self::T3) { self.3 = value; }
+
     fn role_names() -> HashMap<i32, String> {
         let roles= [
-            (0x100, "_0".into()),
-            (0x101, "_1".into()),
-            (0x102, "_2".into()),
-            (0x103, "_3".into()),
+            (0x0, "_0".into()),
+            (0x1, "_1".into()),
+            (0x2, "_2".into()),
+            (0x3, "_3".into()),
         ];
-        roles.iter().cloned().collect()
+        roles.into()
     }
 }
 
 impl<T0, T1, T2, T3, T4> QModelItem for (T0, T1, T2, T3, T4)
 where
-    for<'a> QVariant: From<&'a T0>,
-    for<'a> T0: TryFrom<&'a QVariant, Error = ()>,
-    for<'a> QVariant: From<&'a T1>,
-    for<'a> T1: TryFrom<&'a QVariant, Error = ()>,
-    for<'a> QVariant: From<&'a T2>,
-    for<'a> T2: TryFrom<&'a QVariant, Error = ()>,
-    for<'a> QVariant: From<&'a T3>,
-    for<'a> T3: TryFrom<&'a QVariant, Error = ()>,
-    for<'a> QVariant: From<&'a T4>,
-    for<'a> T4: TryFrom<&'a QVariant, Error = ()>,
+    T0: QVariantConvertible,
+    T1: QVariantConvertible,
+    T2: QVariantConvertible,
+    T3: QVariantConvertible,
+    T4: QVariantConvertible
 {
-    const LEN: usize = 5;
-    fn elem0(&self) -> QVariant { QVariant::from(&self.0) }
-    fn elem1(&self) -> QVariant { QVariant::from(&self.1) }
-    fn elem2(&self) -> QVariant { QVariant::from(&self.2) }
-    fn elem3(&self) -> QVariant { QVariant::from(&self.3) }
-    fn elem4(&self) -> QVariant { QVariant::from(&self.4) }
-    fn set_elem0(&mut self, value: &QVariant) -> bool {
-        T0::try_from(value).map(|val| self.0 = val).is_ok()
-    }
-    fn set_elem1(&mut self, value: &QVariant) -> bool {
-        T1::try_from(value).map(|val| self.1 = val).is_ok()
-    }
-    fn set_elem2(&mut self, value: &QVariant) -> bool {
-        T2::try_from(value).map(|val| self.2 = val).is_ok()
-    }
-    fn set_elem3(&mut self, value: &QVariant) -> bool {
-        T3::try_from(value).map(|val| self.3 = val).is_ok()
-    }
-    fn set_elem4(&mut self, value: &QVariant) -> bool {
-        T4::try_from(value).map(|val| self.4 = val).is_ok()
-    }
+    type T0 = T0;
+    type T1 = T1;
+    type T2 = T2;
+    type T3 = T3;
+    type T4 = T4;
+    type T5 = ();
+    type T6 = ();
+    type T7 = ();
+    type T8 = ();
+    type T9 = ();
+    type T10 = ();
+    type T11 = ();
+    type T12 = ();
+    type T13 = ();
+    type T14 = ();
+
+    fn get0(&self) -> Option<&Self::T0> { Some(&self.0) }
+    fn get1(&self) -> Option<&Self::T1> { Some(&self.1) }
+    fn get2(&self) -> Option<&Self::T2> { Some(&self.2) }
+    fn get3(&self) -> Option<&Self::T3> { Some(&self.3) }
+    fn get4(&self) -> Option<&Self::T4> { Some(&self.4) }
+    fn set0(&mut self, value: Self::T0) { self.0 = value; }
+    fn set1(&mut self, value: Self::T1) { self.1 = value; }
+    fn set2(&mut self, value: Self::T2) { self.2 = value; }
+    fn set3(&mut self, value: Self::T3) { self.3 = value; }
+    fn set4(&mut self, value: Self::T4) { self.4 = value; }
+
     fn role_names() -> HashMap<i32, String> {
         let roles= [
-            (0x100, "_0".into()),
-            (0x101, "_1".into()),
-            (0x102, "_2".into()),
-            (0x103, "_3".into()),
-            (0x104, "_4".into()),
+            (0x0, "_0".into()),
+            (0x1, "_1".into()),
+            (0x2, "_2".into()),
+            (0x3, "_3".into()),
+            (0x4, "_4".into()),
         ];
-        roles.iter().cloned().collect()
+        roles.into()
     }
 }
 
 impl<T0, T1, T2, T3, T4, T5> QModelItem for (T0, T1, T2, T3, T4, T5)
 where
-    for<'a> QVariant: From<&'a T0>,
-    for<'a> T0: TryFrom<&'a QVariant, Error = ()>,
-    for<'a> QVariant: From<&'a T1>,
-    for<'a> T1: TryFrom<&'a QVariant, Error = ()>,
-    for<'a> QVariant: From<&'a T2>,
-    for<'a> T2: TryFrom<&'a QVariant, Error = ()>,
-    for<'a> QVariant: From<&'a T3>,
-    for<'a> T3: TryFrom<&'a QVariant, Error = ()>,
-    for<'a> QVariant: From<&'a T4>,
-    for<'a> T4: TryFrom<&'a QVariant, Error = ()>,
-    for<'a> QVariant: From<&'a T5>,
-    for<'a> T5: TryFrom<&'a QVariant, Error = ()>,
+    T0: QVariantConvertible,
+    T1: QVariantConvertible,
+    T2: QVariantConvertible,
+    T3: QVariantConvertible,
+    T4: QVariantConvertible,
+    T5: QVariantConvertible
 {
-    const LEN: usize = 6;
-    fn elem0(&self) -> QVariant { QVariant::from(&self.0) }
-    fn elem1(&self) -> QVariant { QVariant::from(&self.1) }
-    fn elem2(&self) -> QVariant { QVariant::from(&self.2) }
-    fn elem3(&self) -> QVariant { QVariant::from(&self.3) }
-    fn elem4(&self) -> QVariant { QVariant::from(&self.4) }
-    fn elem5(&self) -> QVariant { QVariant::from(&self.5) }
-    fn set_elem0(&mut self, value: &QVariant) -> bool {
-        T0::try_from(value).map(|val| self.0 = val).is_ok()
-    }
-    fn set_elem1(&mut self, value: &QVariant) -> bool {
-        T1::try_from(value).map(|val| self.1 = val).is_ok()
-    }
-    fn set_elem2(&mut self, value: &QVariant) -> bool {
-        T2::try_from(value).map(|val| self.2 = val).is_ok()
-    }
-    fn set_elem3(&mut self, value: &QVariant) -> bool {
-        T3::try_from(value).map(|val| self.3 = val).is_ok()
-    }
-    fn set_elem4(&mut self, value: &QVariant) -> bool {
-        T4::try_from(value).map(|val| self.4 = val).is_ok()
-    }
-    fn set_elem5(&mut self, value: &QVariant) -> bool {
-        T5::try_from(value).map(|val| self.5 = val).is_ok()
-    }
+    type T0 = T0;
+    type T1 = T1;
+    type T2 = T2;
+    type T3 = T3;
+    type T4 = T4;
+    type T5 = T5;
+    type T6 = ();
+    type T7 = ();
+    type T8 = ();
+    type T9 = ();
+    type T10 = ();
+    type T11 = ();
+    type T12 = ();
+    type T13 = ();
+    type T14 = ();
+
+    fn get0(&self) -> Option<&Self::T0> { Some(&self.0) }
+    fn get1(&self) -> Option<&Self::T1> { Some(&self.1) }
+    fn get2(&self) -> Option<&Self::T2> { Some(&self.2) }
+    fn get3(&self) -> Option<&Self::T3> { Some(&self.3) }
+    fn get4(&self) -> Option<&Self::T4> { Some(&self.4) }
+    fn get5(&self) -> Option<&Self::T5> { Some(&self.5) }
+    fn set0(&mut self, value: Self::T0) { self.0 = value; }
+    fn set1(&mut self, value: Self::T1) { self.1 = value; }
+    fn set2(&mut self, value: Self::T2) { self.2 = value; }
+    fn set3(&mut self, value: Self::T3) { self.3 = value; }
+    fn set4(&mut self, value: Self::T4) { self.4 = value; }
+    fn set5(&mut self, value: Self::T5) { self.5 = value; }
+
     fn role_names() -> HashMap<i32, String> {
         let roles= [
-            (0x100, "_0".into()),
-            (0x101, "_1".into()),
-            (0x102, "_2".into()),
-            (0x103, "_3".into()),
-            (0x104, "_4".into()),
-            (0x105, "_5".into()),
+            (0x0, "_0".into()),
+            (0x1, "_1".into()),
+            (0x2, "_2".into()),
+            (0x3, "_3".into()),
+            (0x4, "_4".into()),
+            (0x5, "_5".into()),
         ];
-        roles.iter().cloned().collect()
+        roles.into()
     }
+}
+
+#[cfg(test)]
+macro_rules! test_tuple_index {
+    ($tuple:expr, $set:ident, $get:ident, $field:tt, $value:expr) => {{
+        $tuple.$set($value);
+        assert_eq!(*$tuple.$get().unwrap(), $value);
+        assert_eq!(*$tuple.$get().unwrap(), $tuple.$field);
+    }};
+}
+
+#[cfg(test)]
+macro_rules! assert_role_name {
+    ($type:ty, $idx:expr, $expected:expr) => {
+        assert_eq!(
+            <$type>::role_names().get(&$idx).unwrap(),
+            $expected
+        );
+    };
+}
+
+#[test]
+fn test_tuple_implementation() {
+    let mut tuple2: (i32, i32) = (1, 1);
+    assert_eq!(<(i32, i32)>::role_names().len(), 2);
+    assert_role_name!((i32, i32), 0, "_0");
+    assert_role_name!((i32, i32), 1, "_1");
+    test_tuple_index!(tuple2, set0, get0, 0, 42);
+    test_tuple_index!(tuple2, set1, get1, 1, 43);
+
+    let mut tuple3: (i32, i32, i32) = (1, 1, 1);
+    assert_eq!(<(i32, i32, i32)>::role_names().len(), 3);
+    assert_role_name!((i32, i32, i32), 0, "_0");
+    assert_role_name!((i32, i32, i32), 1, "_1");
+    assert_role_name!((i32, i32, i32), 2, "_2");
+    test_tuple_index!(tuple3, set0, get0, 0, 42);
+    test_tuple_index!(tuple3, set1, get1, 1, 43);
+    test_tuple_index!(tuple3, set2, get2, 2, 44);
+
+    let mut tuple4: (i32, i32, i32, i32) = (1, 1, 1, 1);
+    assert_eq!(<(i32, i32, i32, i32)>::role_names().len(), 4);
+    assert_role_name!((i32, i32, i32, i32), 0, "_0");
+    assert_role_name!((i32, i32, i32, i32), 1, "_1");
+    assert_role_name!((i32, i32, i32, i32), 2, "_2");
+    assert_role_name!((i32, i32, i32, i32), 3, "_3");
+    test_tuple_index!(tuple4, set0, get0, 0, 42);
+    test_tuple_index!(tuple4, set1, get1, 1, 43);
+    test_tuple_index!(tuple4, set2, get2, 2, 44);
+    test_tuple_index!(tuple4, set3, get3, 3, 45);
+
+    let mut tuple5: (i32, i32, i32, i32, i32) = (1, 1, 1, 1, 1);
+    assert_eq!(<(i32, i32, i32, i32, i32)>::role_names().len(), 5);
+    assert_role_name!((i32, i32, i32, i32, i32), 0, "_0");
+    assert_role_name!((i32, i32, i32, i32, i32), 1, "_1");
+    assert_role_name!((i32, i32, i32, i32, i32), 2, "_2");
+    assert_role_name!((i32, i32, i32, i32, i32), 3, "_3");
+    assert_role_name!((i32, i32, i32, i32, i32), 4, "_4");
+    test_tuple_index!(tuple5, set0, get0, 0, 42);
+    test_tuple_index!(tuple5, set1, get1, 1, 43);
+    test_tuple_index!(tuple5, set2, get2, 2, 44);
+    test_tuple_index!(tuple5, set3, get3, 3, 45);
+    test_tuple_index!(tuple5, set4, get4, 4, 46);
+
+    let mut tuple6: (i32, i32, i32, i32, i32, i32) = (1, 1, 1, 1, 1, 1);
+    assert_eq!(<(i32, i32, i32, i32, i32, i32)>::role_names().len(), 6);
+    assert_role_name!((i32, i32, i32, i32, i32, i32), 0, "_0");
+    assert_role_name!((i32, i32, i32, i32, i32, i32), 1, "_1");
+    assert_role_name!((i32, i32, i32, i32, i32, i32), 2, "_2");
+    assert_role_name!((i32, i32, i32, i32, i32, i32), 3, "_3");
+    assert_role_name!((i32, i32, i32, i32, i32, i32), 4, "_4");
+    assert_role_name!((i32, i32, i32, i32, i32, i32), 5, "_5");
+    test_tuple_index!(tuple6, set0, get0, 0, 42);
+    test_tuple_index!(tuple6, set1, get1, 1, 43);
+    test_tuple_index!(tuple6, set2, get2, 2, 44);
+    test_tuple_index!(tuple6, set3, get3, 3, 45);
+    test_tuple_index!(tuple6, set4, get4, 4, 46);
+    test_tuple_index!(tuple6, set5, get5, 5, 47);
 }

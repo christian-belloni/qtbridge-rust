@@ -95,31 +95,32 @@ fn try_derive_qmodelitem(input: TokenStream) -> syn::Result<TokenStream> {
     for (i, f) in field_names.iter().enumerate() {
         if !default_roles.contains_key(f.as_str()){
             while prop_mapping[j] < max_elements {
-                j = j + 1;
+                j += 1;
             }
             prop_mapping[j] = i;
-            j = j + 1;
+            j += 1;
         }
     }
 
-    let (getters, setters): (Vec<_>, Vec<_>) = members.iter()
-        .enumerate()
-        .map(|(i, member)| {
-            let getter_fn_ident = format_ident!("elem{}", prop_mapping[i]);
-            let setter_fn_ident = format_ident!("set_elem{}", prop_mapping[i]);
-            let ty = field_types.get(i).unwrap();
-            (
-                quote! {
-                    fn #getter_fn_ident(&self) -> QVariant {  QVariant::from(&#member) }
-                },
-                quote! {
-                    fn #setter_fn_ident(&mut self, value: &QVariant) -> bool {
-                        <#ty>::try_from(value).map(|val| #member = val).is_ok()
-                    }
-                }
-            )
-        })
-        .unzip();
+    let mut typdefs = Vec::new();
+    let mut getters = Vec::new();
+    let mut setters = Vec::new();
+
+    for (i, member) in members.iter().enumerate() {
+        let getter_fn_ident = format_ident!("get{}", prop_mapping[i]);
+        let setter_fn_ident = format_ident!("set{}", prop_mapping[i]);
+        let type_ident = format_ident!("T{}", prop_mapping[i]);
+        let ty = &field_types[i];
+
+        typdefs.push(quote! { type #type_ident = #ty; });
+        getters.push(quote! { fn #getter_fn_ident(&self) -> Option<&#ty> { Some(&#member) } });
+        setters.push(quote! { fn #setter_fn_ident(&mut self, value: #ty) { #member = value; } });
+    }
+
+    for i in len..15 {
+        let type_ident = format_ident!("T{}", i);
+        typdefs.push(quote! { type #type_ident = (); });
+    }
 
     let mut role_tokens = Vec::new();
 
@@ -134,7 +135,7 @@ fn try_derive_qmodelitem(input: TokenStream) -> syn::Result<TokenStream> {
     Ok(quote! {
         impl QModelItem for #name {
 
-            const LEN: usize = #len;
+            #(#typdefs)*
 
             #(#getters)*
 

@@ -66,6 +66,12 @@ mod qvariant {
         }
     }
 
+    impl From<&()> for QVariant {
+        fn from(_: &()) -> Self {
+            QVariant::default()
+        }
+    }
+
     impl From<&str> for QVariant {
         fn from(value: &str) -> Self {
             let conv_fn = cpp_fn!(|from: &str| -> Self {
@@ -101,6 +107,16 @@ mod qvariant {
                 return QVariant::fromValue(from);
             });
             unsafe { conv_fn(value) }
+        }
+    }
+
+    impl TryFrom<&QVariant> for () {
+        type Error = ();
+        fn try_from(value: &QVariant) -> Result<Self, Self::Error> {
+            match value.is_valid() {
+                true => Err(()),
+                false => Ok(()),
+            }
         }
     }
 

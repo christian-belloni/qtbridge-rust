@@ -27,13 +27,6 @@ pub trait QListModelAdapter {
     fn sibling(&self, row: i32, column: i32, idx: &QModelIndex) -> QModelIndex;
 }
 
-fn map_role_to_element_id(role: i32) -> i32 {
-    if role > 0x6 {
-        return role - 0x100;
-    }
-    role
-}
-
 impl<T> QListModelAdapter for T
 where
     T: QListModelProxyGet + QListModel {
@@ -49,25 +42,7 @@ where
         else {
             return QVariant::default();
         };
-        let element_id = map_role_to_element_id(role);
-        return match element_id {
-            0  => item.elem0(),
-            1  => item.elem1(),
-            2  => item.elem2(),
-            3  => item.elem3(),
-            4  => item.elem4(),
-            5  => item.elem5(),
-            6  => item.elem6(),
-            7  => item.elem7(),
-            8  => item.elem8(),
-            9  => item.elem9(),
-            10 => item.elem10(),
-            11 => item.elem11(),
-            12 => item.elem12(),
-            13 => item.elem13(),
-            14 => item.elem14(),
-            _  => QVariant::default(),
-        };
+        item.get_role(role)
     }
     fn role_names(&self) -> QHash<i32, QByteArray> {
         let names = T::Item::role_names();
@@ -85,25 +60,7 @@ where
         else {
             return false;
         };
-        let element_id = map_role_to_element_id(role);
-        let updated = match element_id {
-            0  => item.set_elem0(value),
-            1  => item.set_elem1(value),
-            2  => item.set_elem2(value),
-            3  => item.set_elem3(value),
-            4  => item.set_elem4(value),
-            5  => item.set_elem5(value),
-            6  => item.set_elem6(value),
-            7  => item.set_elem7(value),
-            8  => item.set_elem8(value),
-            9  => item.set_elem9(value),
-            10 => item.set_elem10(value),
-            11 => item.set_elem11(value),
-            12 => item.set_elem12(value),
-            13 => item.set_elem13(value),
-            14 => item.set_elem14(value),
-            _  => false,
-        };
+        let updated = item.set_role(role, value);
         if updated {
             self.set_unnotified(index.row() as usize, item);
             self.get_rust_proxy_mut().base_data_changed(index, index);

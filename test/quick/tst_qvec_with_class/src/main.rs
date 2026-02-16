@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use qtbridge::qobject;
-use qtbridge::qt_type_lib::{QVariant};
 use qtbridge::{QVec, QModelItem, QApp};
 
 use std::collections::HashMap;
