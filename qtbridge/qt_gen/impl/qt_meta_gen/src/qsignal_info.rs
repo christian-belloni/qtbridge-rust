@@ -11,7 +11,6 @@ use qt_gen_common::function_with_attributes::{FunctionWithAttributes, BlockOrSem
 use qt_gen_common::parse_utils::{parse_name_value, partition_attr_by};
 use qt_gen_common::signature_utils::{get_typed_args, get_typed_args_types};
 use qt_gen_common::type_utils::remove_ref;
-use qt_gen_common::type_qualified_mapping::CallOrigin;
 use qt_gen_common::type_registry::meta_types::{check_meta_call_signature_types, get_qmetatype_support_for_type};
 use crate::meta_call_bridge_generator::MetaCallBridgeGenerator;
 use crate::traits::{ExpandTokens, QmlName};
@@ -26,12 +25,10 @@ pub struct QSignalInfo {
     meta_params: QSignalMetaParams, // Params extracted from qsignal attribute
     vis: syn::Visibility,
     sig: syn::Signature,
-    #[allow(dead_code)]
-    origin: CallOrigin,
 }
 
 impl QSignalInfo {
-    pub fn new(input: FunctionWithAttributes, origin: &CallOrigin) -> syn::Result<Self> {
+    pub fn new(input: FunctionWithAttributes) -> syn::Result<Self> {
         Self::check_signature(&input.sig)?;
 
         let (attrs, signal_attr) = partition_attr_by(input.attrs.clone(), Self::is_for_me);
@@ -51,7 +48,6 @@ impl QSignalInfo {
             meta_params,
             vis: input.vis,
             sig: input.sig,
-            origin: origin.clone(),
         })
     }
 

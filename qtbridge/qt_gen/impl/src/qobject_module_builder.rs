@@ -285,7 +285,7 @@ impl QObjectModuleBuilder {
             self.slots.push(slot);
         }
         else if QSignalInfo::is_for_me(meta_attr) {
-            let signal = QSignalInfo::new(func, &self.origin)?;
+            let signal = QSignalInfo::new(func)?;
             output = signal.expand_tokens()?;
             self.signals.push(signal);
         }
@@ -325,7 +325,7 @@ impl QObjectModuleBuilder {
         };
 
         if QSignalInfo::is_for_me(meta_attr) {
-            let signal = QSignalInfo::new(func, &self.origin)?;
+            let signal = QSignalInfo::new(func)?;
             let output = signal.expand_tokens()?;
             self.signals.push(signal);
             return Ok(Some(output))

@@ -81,7 +81,7 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream, origin: &CallOrigin
     let mut other_methods = Vec::<syn::Signature>::new(); // Methods that are not signal or slot, but potentially can be property setter/getter
 
     for item in &orig_impl.items {
-        let qmeta_item = match extract_qobject_item(&item, origin) {
+        let qmeta_item = match extract_qobject_item(&item) {
             Ok(s) => s,
             Err(err) => return Err(syn::Error::new(err.span(), format!("Failed to process item of 'impl' block. Error: {}", err))),
         };
@@ -209,7 +209,7 @@ pub(crate) enum QObjectImplItem {
 }
 
 /// Returns Result with parsed QSignalInfo/QSlotInfo/QProperty/Overridden method (if found)
-fn extract_qobject_item(item_in: &syn::ImplItem, origin: &CallOrigin) -> syn::Result<Option<QObjectImplItem>> {
+fn extract_qobject_item(item_in: &syn::ImplItem) -> syn::Result<Option<QObjectImplItem>> {
     // TODO: more code validating signal/slot function signature?
 
     match &item_in {
@@ -225,7 +225,7 @@ fn extract_qobject_item(item_in: &syn::ImplItem, origin: &CallOrigin) -> syn::Re
                         result = Some(QObjectImplItem::Slot(QSlotInfo::new(func)?));
                     }
                     else if QSignalInfo::is_for_me(attr) {
-                        result = Some(QObjectImplItem::Signal(QSignalInfo::new(func, origin)?))
+                        result = Some(QObjectImplItem::Signal(QSignalInfo::new(func)?))
                     } else {
                         continue;
                     }
@@ -260,7 +260,7 @@ fn extract_qobject_item(item_in: &syn::ImplItem, origin: &CallOrigin) -> syn::Re
         syn::ImplItem::Verbatim(verb_tokens) => {
             let func = syn::parse2::<FunctionWithAttributes>(verb_tokens.clone())?;
             if func.attrs.iter().any(QSignalInfo::is_for_me) {
-                return Ok(Some(QObjectImplItem::Signal(QSignalInfo::new(func, origin)?)))
+                return Ok(Some(QObjectImplItem::Signal(QSignalInfo::new(func)?)))
             } else {
                 Ok(None)
             }
