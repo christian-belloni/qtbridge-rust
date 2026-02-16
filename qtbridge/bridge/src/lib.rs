@@ -3,7 +3,6 @@
 
 pub mod dynamicmetaobjectbuilder;
 pub mod metacallbacks;
-pub mod metamethodparams;
 pub mod qapp;
 pub mod qmetainfo;
 pub mod qml_register;
