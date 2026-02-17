@@ -3,7 +3,7 @@
 
 use qt_gen_common::type_qualified_mapping::CallOrigin;
 
-use quote::{quote, ToTokens};
+use quote::{ToTokens, format_ident, quote};
 use proc_macro2::TokenStream;
 
 use crate::traits::find_by_qml_name;
@@ -88,29 +88,50 @@ fn generate_meta_reg_use_block(signals: &[QSignalInfo], slots: &[QSlotInfo], pro
     let type_library = origin.type_module();
     let bridge_library = origin.bridge_module();
 
-    let import_type_lib = match origin {
-        CallOrigin::Internal => None,
-        CallOrigin::External => Some(quote! {use #type_library;})
-    };
-
-    let import_meta_type =  quote! {
-        use qt_type_lib::{QMetaType, QMetaTypeId};
-    };
-
-    let is_qmeta_type_get_used = properties.iter()
-        .any(|p| p.is_type_deduced_from_member());
-    let import_get_meta_type_id = is_qmeta_type_get_used
-        .then(|| quote! { use qt_type_lib::get_meta_type_id_of_fn_return_value; });
-
-    let is_typed_arg_present =
-        (!properties.is_empty() && properties.iter()
-            .any(|p| !p.is_type_deduced_from_member())) ||
+    let is_property_with_not_deduced_type =
+        properties.iter()
+            .any(|p| !p.is_type_deduced());
+    let is_qmeta_type_used =
+        is_property_with_not_deduced_type ||
+        slots.iter()
+            .any(|s| !s.has_return());
+    let is_qmeta_type_get_used =
+        properties.iter()
+            .any(|p| p.is_type_deduced()) ||
         signals.iter()
             .any(|s| s.get_typed_arg_count() > 0) ||
         slots.iter()
             .any(|s| s.get_typed_arg_count() > 0 || s.has_return());
-    let import_qmeta_type_get = is_typed_arg_present
-        .then(|| quote! { use qt_type_lib::QMetaTypeGet; });
+
+    let mut type_lib_imports = Vec::new();
+    if is_property_with_not_deduced_type {
+        type_lib_imports.push(format_ident!("get_meta_type_id_of_fn_return_value"));
+    }
+    if is_qmeta_type_used {
+        type_lib_imports.push(format_ident!("QMetaType"));
+    }
+    if is_qmeta_type_get_used {
+        type_lib_imports.push(format_ident!("QMetaTypeGet"));
+    }
+
+    let type_lib_imports = match type_lib_imports.len() {
+        0 => quote!{},
+        1 => {
+            let use_ident = &type_lib_imports[0];
+            quote!{
+                use #type_library;
+                use qt_type_lib::#use_ident;
+            }
+        },
+        _ => {
+            type_lib_imports.sort();
+            quote! {
+                use #type_library;
+                use qt_type_lib::{#(#type_lib_imports),*};
+            }
+        }
+
+    };
 
     let mut meta_callbacks = Vec::new();
     if !slots.is_empty() {
@@ -133,10 +154,7 @@ fn generate_meta_reg_use_block(signals: &[QSignalInfo], slots: &[QSlotInfo], pro
     };
 
     quote! {
-        #import_type_lib
-        #import_meta_type
-        #import_get_meta_type_id
-        #import_qmeta_type_get
+        #type_lib_imports
         #import_metacallbacks
     }
 }

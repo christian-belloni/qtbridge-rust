@@ -52,10 +52,8 @@ impl QPropertyInfo {
         self.constant.is_some()
     }
 
-    pub fn is_type_deduced_from_member(&self) -> bool {
-        self.read_method.is_none() &&
-        self.write_method.is_none() &&
-        self.member.is_some()
+    pub fn is_type_deduced(&self) -> bool {
+        self.deduced_type.is_some()
     }
 
     pub fn get_notify_signal(&self) -> Option<&syn::LitStr> {
