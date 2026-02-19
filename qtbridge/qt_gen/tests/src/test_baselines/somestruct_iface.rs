@@ -130,15 +130,11 @@ mod some_module {
             iface_ref
         }
     }
-    impl SomeStruct {
-        fn try_borrow_mut_proxies_map_impl<F, R>(f: F) -> R
+    impl qtbridge::bridge::QObjectHolder for SomeStruct {
+        type ProxyRust = qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelProxyRust;
+        fn try_borrow_mut_proxies_map<F, R>(f: F) -> R
         where
-            F: FnOnce(
-                &mut std::collections::HashMap<
-                    *const u8,
-                    *const qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelProxyRust,
-                >,
-            ) -> R,
+            F: FnOnce(&mut std::collections::HashMap<*const u8, *const Self::ProxyRust>) -> R,
         {
             use std::cell::BorrowMutError;
             use std::cell::RefCell;
@@ -151,15 +147,6 @@ mod some_module {
                 })
                 .unwrap()
                 .expect("Failed to borrow_mut map of proxies")
-        }
-    }
-    impl qtbridge::bridge::QObjectHolder for SomeStruct {
-        type ProxyRust = qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelProxyRust;
-        fn try_borrow_mut_proxies_map<F, R>(f: F) -> R
-        where
-            F: FnOnce(&mut std::collections::HashMap<*const u8, *const Self::ProxyRust>) -> R,
-        {
-            Self::try_borrow_mut_proxies_map_impl(f)
         }
         fn register_instance_in_map(
             rust_obj_rc: std::rc::Rc<std::cell::RefCell<Self>>,

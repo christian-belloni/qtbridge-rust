@@ -100,12 +100,13 @@ impl InterfaceImpl {
 
         let code = quote! {
 
-            /// Shared map containing all registered instances of given user-defined type (multiton).
-            /// This cannot live in a trait
-            impl #impl_generics #struct_ident #type_generics #where_clause {
-                /// Invoke the provided function if mutable borrowing succeeds.
-                fn try_borrow_mut_proxies_map_impl<F, R>(f: F) -> R
-                where F: FnOnce(&mut std::collections::HashMap<*const u8, *const #iface_library::#iface_module::#proxy_rust>) -> R
+            impl #impl_generics #bridge_library::QObjectHolder for #struct_ident #type_generics #where_clause {
+
+                type ProxyRust = #iface_library::#iface_module::#proxy_rust;
+
+                // Shared map containing all registered instances of given user-defined type (multiton).
+                fn try_borrow_mut_proxies_map<F, R>(f: F) -> R
+                    where F: FnOnce(&mut std::collections::HashMap<*const u8, *const Self::ProxyRust>) -> R
                 {
                     use std::cell::BorrowMutError;
                     use std::cell::RefCell;
@@ -119,17 +120,6 @@ impl InterfaceImpl {
                     })
                     .unwrap()
                     .expect("Failed to borrow_mut map of proxies")
-                }
-            }
-
-            impl #impl_generics #bridge_library::QObjectHolder for #struct_ident #type_generics #where_clause {
-
-                type ProxyRust = #iface_library::#iface_module::#proxy_rust;
-
-                fn try_borrow_mut_proxies_map<F, R>(f: F) -> R
-                    where F: FnOnce(&mut std::collections::HashMap<*const u8, *const Self::ProxyRust>) -> R
-                {
-                    Self::try_borrow_mut_proxies_map_impl(f)
                 }
 
                 fn register_instance_in_map(rust_obj_rc: std::rc::Rc<std::cell::RefCell<Self>>, register_strong: bool)
