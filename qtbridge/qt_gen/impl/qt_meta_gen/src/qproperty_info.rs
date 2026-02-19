@@ -370,7 +370,11 @@ impl syn::parse::Parse for QPropertyInfo {
                 constant = Some(input.parse()?);
             }
             else {
-                return Err(token_begin.error("Unsupported qproperty attribute"));
+                let attr: syn::Ident = input.parse()?;
+                return Err(syn::Error::new(
+                    attr.span(),
+                    format!("Unsupported qproperty attribute: {}", attr),
+                ));
             }
         }
 
