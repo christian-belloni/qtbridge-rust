@@ -103,6 +103,10 @@ pub use qt_gen_macro::*;
 /// Marks the property value as constant. A constant property is not allowed to have `Write` or `Notify` parameter.
 /// Expected as a single keyword without assignment expression.
 ///
+/// **Default**
+///
+/// When a property is marked as default, it becomes the default target for child properties that don't have explicit names.
+///
 /// ### Notes on `qproperty!`
 ///
 /// - Property name is case-sensitive.
@@ -121,6 +125,7 @@ pub use qt_gen_macro::*;
 ///      Member = field_name, [(Read = get_function | Write = set_function),])
 ///     [NOTIFY = "notifySignalName",]
 ///     [Constant,]
+///     [Default,]
 /// );
 /// ```
 ///

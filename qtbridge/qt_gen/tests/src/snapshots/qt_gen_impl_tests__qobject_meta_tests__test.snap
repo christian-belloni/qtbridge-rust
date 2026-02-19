@@ -51,6 +51,9 @@ impl qtbridge::bridge::QMetaInfo for SomeStruct {
             }),
             "thisValueChanged",
         );
+        meta_obj
+            .as_mut()
+            .add_class_info("DefaultProperty", "this_value");
         meta_obj.as_mut().register_property(
             "otherValue",
             &(QMetaType::new(
@@ -73,9 +76,7 @@ impl qtbridge::bridge::QMetaInfo for SomeStruct {
             }),
             "otherValueChanged",
         );
-        meta_obj
-            .as_mut()
-            .add_class_info("DefaultProperty", "this_value");
+        meta_obj.as_mut().add_class_info("Author", "The Qt Company");
         meta_obj.as_mut().end_meta_registration();
     }
     fn get_static_meta_object() -> &'static qtbridge::qt_type_lib::QMetaObject {

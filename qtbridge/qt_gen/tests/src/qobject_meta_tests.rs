@@ -13,9 +13,9 @@ fn test() {
     let input = quote! {
         impl SomeStruct {
 
-            qproperty!("this_value", Read = get_value, Write = set_value, Notify = "thisValueChanged");
+            qproperty!("this_value", Read = get_value, Write = set_value, Notify = "thisValueChanged", Default);
             qproperty!("otherValue", Member = otherValueVar, Notify = "otherValueChanged");
-            qclass_info!(Name = "DefaultProperty", Value = "this_value");
+            qclass_info!(Name = "Author", Value = "The Qt Company");
 
             #[qsignal(qml_name = "thisValueChanged")]
             fn this_value_changed(&self, value: &String);

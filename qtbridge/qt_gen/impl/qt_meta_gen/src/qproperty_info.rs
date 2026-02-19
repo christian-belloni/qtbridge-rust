@@ -21,6 +21,7 @@ pub struct QPropertyInfo{
     notify_signal: Option<syn::LitStr>,
     member: Option<syn::Ident>,
     constant: Option<syn::Ident>,
+    default: Option<syn::Ident>,
 
     /// The type of the property, deduced from getter, setter or member variable. TODO: don't use string here
     deduced_type: Option<syn::Type>,
@@ -210,18 +211,27 @@ impl QPropertyInfo {
 
         let read_callback = self.generate_read_callback(struct_ident)?;
         let write_callback = self.generate_write_callback(struct_ident, signal)?;
-
-        if let Some(write_callback) = write_callback {
-            Ok(quote!{
+        let default_code = if self.default.is_some() {
+            quote! {
+                meta_obj.as_mut().add_class_info("DefaultProperty", #name);
+            }
+        } else {
+            quote! {}
+        };
+        let property_registration = if let Some(write_callback) = write_callback {
+            quote! {
                 meta_obj.as_mut().register_property(#name, &(#metatype_expr), #read_callback, #write_callback, #signal_name);
-            })
-        }
-        else {
+            }
+        } else {
             let is_const = self.is_const();
-            Ok(quote!{
+            quote! {
                 meta_obj.as_mut().register_property_read_only(#name, &(#metatype_expr), #read_callback, #is_const, #signal_name);
-            })
-        }
+            }
+        };
+        Ok(quote! {
+            #property_registration
+            #default_code
+        })
     }
 
     fn generate_read_callback(&self, struct_ident: &syn::Ident) -> syn::Result<TokenStream> {
@@ -322,6 +332,7 @@ mod qproperty_keywords {
     syn::custom_keyword!(Write);
     syn::custom_keyword!(Notify);
     syn::custom_keyword!(Constant);
+    syn::custom_keyword!(Default);
     syn::custom_keyword!(Member);
 }
 
@@ -338,6 +349,7 @@ impl syn::parse::Parse for QPropertyInfo {
         let mut notify_signal = None;
         let mut member = None;
         let mut constant = None;
+        let mut default = None;
 
         while !input.is_empty() {
             let token_begin = input.fork();
@@ -366,6 +378,9 @@ impl syn::parse::Parse for QPropertyInfo {
             else if input.peek(qproperty_keywords::Constant) {
                 constant = Some(input.parse()?);
             }
+            else if input.peek(qproperty_keywords::Default) {
+                 default = Some(input.parse()?);
+            }
             else {
                 let attr: syn::Ident = input.parse()?;
                 return Err(syn::Error::new(
@@ -383,6 +398,7 @@ impl syn::parse::Parse for QPropertyInfo {
             notify_signal,
             member,
             constant,
+            default,
             deduced_type: None,               // Property type is not clear at the moment of parsing. Will be deduced later
             write_value_pass: None,
         })
