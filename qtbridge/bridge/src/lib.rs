@@ -13,6 +13,6 @@ pub mod qmetatypeforqobject;
 
 pub use dynamicmetaobjectbuilder::{DynamicMetaObjectBuilder, create_dynamic_meta_object_builder};
 pub use qapp::QApp;
-pub use qmetainfo::{QMetaInfo, create_dynamic_meta_object_builder_for_type};
+pub use qmetainfo::QMetaInfo;
 pub use qml_register::QmlRegister;
 pub use qobjectholder::QObjectHolder;

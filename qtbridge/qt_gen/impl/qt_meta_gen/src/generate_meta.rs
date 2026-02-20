@@ -31,6 +31,28 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext, origin: &CallOrigin
     let (impl_generics, type_generics, where_clause) = generics.split_for_impl();
 
     let bridge_library = origin.bridge_module();
+    let type_library = origin.type_module();
+
+    let has_generics = !generics.params.is_empty();
+    let get_dyn_meta_object_body = if has_generics {
+        quote! {
+            #bridge_library::qmetainfo::dynamic_meta_type_for_generic::<Self>()
+        }
+    } else {
+        quote! {
+            use std::sync::OnceLock;
+            thread_local! {
+                static DYNAMIC_META_OBJECT: OnceLock<&'static #bridge_library::DynamicMetaObjectBuilder> = OnceLock::new();
+            }
+
+            DYNAMIC_META_OBJECT.with(|cell| {
+                *cell.get_or_init(|| {
+                    let ptr = Self::create_dynamic_meta_object_builder_for_type();
+                    unsafe { ptr.as_ref() }.unwrap()
+                })
+            })
+        }
+    };
 
     Ok(quote! {
         impl #impl_generics #bridge_library::QMetaInfo for #struct_ident #type_generics #where_clause {
@@ -45,33 +67,12 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext, origin: &CallOrigin
                 meta_obj.as_mut().end_meta_registration();
             }
 
+            fn get_static_meta_object() -> &'static #type_library::QMetaObject {
+                <Self as #bridge_library::QObjectHolder>::get_static_meta_object()
+            }
+
             fn get_shared_dynamic_meta_object() -> &'static #bridge_library::DynamicMetaObjectBuilder {
-                use std::any::TypeId;
-                use std::cell::RefCell;
-                use std::collections::HashMap;
-
-                thread_local!(static DYNAMIC_META_MAP: RefCell<HashMap<TypeId, *const #bridge_library::DynamicMetaObjectBuilder>> =
-                    RefCell::new(HashMap::new()));
-
-                let type_id = TypeId::of::<#struct_ident #type_generics>();
-                {
-                    let meta_data_ptr = DYNAMIC_META_MAP.with_borrow(|dynamic_meta_data_map| {
-                        dynamic_meta_data_map.get(&type_id)
-                            .copied()
-                            .unwrap_or_default()
-                    });
-                    if let Some(meta_data_ref) = unsafe { meta_data_ptr.as_ref() } {
-                        return meta_data_ref;
-                    }
-                }
-
-                let meta_data_ptr = #bridge_library::create_dynamic_meta_object_builder_for_type::<#struct_ident #type_generics>();
-                let meta_data_ref = unsafe { meta_data_ptr.as_ref() }.unwrap();
-                DYNAMIC_META_MAP.with_borrow_mut(|dynamic_meta_data_map| {
-                    dynamic_meta_data_map.insert(type_id, meta_data_ptr);
-                });
-
-                meta_data_ref
+                #get_dyn_meta_object_body
             }
         }
     })
