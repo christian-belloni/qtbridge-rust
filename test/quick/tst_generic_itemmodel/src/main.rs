@@ -88,7 +88,6 @@ fn test_qabstractitemmodel() {
 
     use qtbridge::qt_type_lib::QVariantMap;
     use qtbridge::quicktest::quick_test_main_with_properties;
-
     let data = vec![1, 2, 3, 10, 100];
     let test_object = Rc::new(RefCell::new(Backend::<i32>::new(data)));
     Backend::attach_qobject(&test_object);
@@ -108,11 +107,10 @@ fn main() {
     let backend2 = Rc::new(RefCell::new(Backend::<String>::new(data2)));
     Backend::attach_qobject(&backend2);
 
-    use qtbridge::qt_type_lib::QMetaTypeInterfaceGet;
-    let a = <Backend<i32> as QMetaTypeInterfaceGet>::get_qmetatype_interface();
-    let b = <Backend<String> as QMetaTypeInterfaceGet>::get_qmetatype_interface();
-
-    assert!(!::core::ptr::eq(a, b), "QMetaTypeInterfaces are not unique");
+    use qtbridge::qt_type_lib::QMetaTypeGet;
+    let a = <Backend<i32> as QMetaTypeGet>::get_qmetatype().id();
+    let b = <Backend<String> as QMetaTypeGet>::get_qmetatype().id();
+    assert_ne!(a, b, "QMetaTypes are not unique");
 
     let initial_properties = [
         ("rustmodel", backend.borrow().as_qvariant()),

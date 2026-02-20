@@ -7,7 +7,7 @@ use qt_gen_common::function_with_attributes::FunctionWithAttributes;
 use qt_gen_common::parse_utils::is_path_with_segments_str;
 use qt_gen_common::type_utils::get_ident_of_last_path_segment;
 use qt_meta_gen::generate_meta::{QMetaInfoContext, generate_qmetainfo_trait_impl};
-use qt_meta_gen::generate_qmetatype_interface_get::generate_qmeta_type_interface_get;
+use qt_meta_gen::generate_qmetatype_get::{generate_qmeta_type_get};
 use qt_meta_gen::traits::{QmlName, find_duplicate_by_qml_name};
 use qt_meta_gen::{ExpandTokens, QClassInfo, QPropertyInfo, QSignalInfo, QSlotInfo};
 
@@ -105,8 +105,8 @@ impl QObjectModuleBuilder {
         // Generate traits code.
         let qmeta_info_impl_tokens = generate_qmetainfo_trait_impl(&ctx, &self.origin)
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaInfo trait.\nError: {}", err)))?;
-        let qmetatype_iface_get_impl_tokens = generate_qmeta_type_interface_get(&self.struct_ident, &self.struct_generics, &self.origin)
-            .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaTypeInterfaceGet trait.\nError: {}", err)))?;
+        let qmetatype_get_impl_tokens = generate_qmeta_type_get(&self.struct_ident, &self.struct_generics, &self.origin)
+            .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaTypeGet trait.\nError: {}", err)))?;
 
         // Concat additional items to the source items processed
         output_module_items.push(iface_trait.into());                      // Rust implementation of C++ interface methods
@@ -116,7 +116,7 @@ impl QObjectModuleBuilder {
         }
         // TODO: return items below as high level AST but not TokenStreams
         output_module_items.push(syn::parse2(qmeta_info_impl_tokens)?);             // impl qtbridge::bridge::QMetaInfo
-        output_module_items.push(syn::parse2(qmetatype_iface_get_impl_tokens)?);    // impl qtbridge::qt_type_lib::QMetaTypeInterfaceGet
+        output_module_items.push(syn::parse2(qmetatype_get_impl_tokens)?);          // impl qtbridge::qt_type_lib::QMetaTypeGet
 
         // TODO: this is not very elegant. We should probably return Vec<Item> from the function generating this code
         let file: syn::File = syn::parse2(impl_details)?;

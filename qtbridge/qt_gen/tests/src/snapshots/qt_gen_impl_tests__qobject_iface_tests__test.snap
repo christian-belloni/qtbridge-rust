@@ -74,64 +74,14 @@ mod some_module {
             meta_data_ref
         }
     }
-    impl qtbridge::qt_type_lib::QMetaTypeInterfaceGet for SomeStruct {
-        fn get_qmetatype_interface() -> &'static qtbridge::qt_type_lib::QMetaTypeInterface {
-            use qtbridge::qt_type_lib::{QMetaTypeFlag, QMetaTypeInterface};
-            use std::any::TypeId;
-            use std::cell::RefCell;
-            use std::collections::HashMap;
-            thread_local ! (static IFACE_MAP : RefCell < HashMap < TypeId , * const QMetaTypeInterface >> = RefCell :: new (HashMap :: new ()));
-            let type_id = TypeId::of::<SomeStruct>();
-            {
-                let iface_ptr = IFACE_MAP
-                    .with_borrow(|iface_map| iface_map.get(&type_id).copied().unwrap_or_default());
-                if let Some(iface_ref) = unsafe { iface_ptr.as_ref() } {
-                    return iface_ref;
-                }
-            }
-            let flags: u32 = (QMetaTypeFlag::NeedsConstruction as u32)
-                | (QMetaTypeFlag::NeedsDestruction as u32)
-                | (QMetaTypeFlag::NeedsCopyConstruction as u32)
-                | (QMetaTypeFlag::NeedsMoveConstruction as u32)
-                | (QMetaTypeFlag::PointerToQObject as u32);
-            let class_name = std::ffi::CString::new(std::any::type_name::<SomeStruct>())
-                .expect("CString::new failed")
-                .into_bytes_with_nul()
-                .leak();
-            pub extern "C" fn meta_object_fn(
-                _iface: *const qtbridge::qt_type_lib::QMetaTypeInterface,
-            ) -> *mut qtbridge::qt_type_lib::QMetaObject {
-                let meta_obj_data =
-                    <SomeStruct as qtbridge::bridge::QMetaInfo>::get_shared_dynamic_meta_object();
-                meta_obj_data.get_dynamic_qmetaobject().cast_mut()
-            }
-            pub extern "C" fn default_ctor(
-                _iface: *const qtbridge::qt_type_lib::QMetaTypeInterface,
-                addr: *mut u8,
-            ) {
-                let instance =
-                    std::rc::Rc::new(std::cell::RefCell::new(<SomeStruct as Default>::default()));
-                < SomeStruct as qtbridge :: bridge :: QObjectHolder > :: register_instance_in_map_with_cpp_proxy_at (addr , instance) ;
-            }
-            pub extern "C" fn dtor(
-                _iface: *const qtbridge::qt_type_lib::QMetaTypeInterface,
-                obj: *mut u8,
-            ) {
-                qtbridge::qt_type_lib::QObject::destruct(obj.cast());
-            }
-            let iface = qtbridge::qt_type_lib::QMetaTypeInterface::fill_fields(
-                <Self as qtbridge::bridge::QObjectHolder>::get_align_of_cpp_proxy(),
-                <Self as qtbridge::bridge::QObjectHolder>::get_size_of_cpp_proxy(),
-                flags,
-                class_name,
-                meta_object_fn as usize,
-                default_ctor as usize,
-                dtor as usize,
-            );
-            let iface_ref = Box::leak(Box::new(iface));
-            let iface_ptr = std::ptr::from_ref(iface_ref);
-            IFACE_MAP.with_borrow_mut(|iface_map| iface_map.insert(type_id, iface_ptr));
-            iface_ref
+    impl qtbridge::qt_type_lib::QMetaTypeGet for SomeStruct {
+        fn get_qmetatype() -> qtbridge::qt_type_lib::QMetaType {
+            use std::sync::OnceLock;
+            static META_TYPE_INTERFACE: OnceLock<qtbridge::qt_type_lib::QMetaTypeInterface> =
+                OnceLock::new();
+            let iface = META_TYPE_INTERFACE
+                .get_or_init(qtbridge::bridge::qmetatypeforqobject::init_interface_for::<Self>);
+            qtbridge::qt_type_lib::QMetaType::new_with_interface(iface as *const _)
         }
     }
     impl qtbridge::bridge::QObjectHolder for SomeStruct {

@@ -1,5 +1,5 @@
 use std::mem::MaybeUninit;
-use crate::{QMetaTypeInterface, QMetaTypeInterfaceGet};
+use crate::{QMetaTypeInterface};
 
 #[qt_gen::bridge]
 mod qmetatype {
@@ -84,11 +84,4 @@ mod qmetatype {
 #[doc(hidden)]
 pub trait QMetaTypeGet {
     fn get_qmetatype() -> QMetaType;
-}
-
-impl<T: QMetaTypeInterfaceGet> QMetaTypeGet for T {
-    fn get_qmetatype() -> crate::QMetaType {
-        let iface = Self::get_qmetatype_interface();
-        QMetaType::new_with_interface(iface as *const _)
-    }
 }

@@ -9,6 +9,8 @@ mod qmetatypeinterface {
 
     #[doc(hidden)]
     #[namespace = "QtPrivate"]
+    /// If a QMetaType is generated based on QMetaTypeInterface it must have a
+    /// constant address in memory during the whole application run.
     struct QMetaTypeInterface {
         _revision:           MaybeUninit<u16>,
         _alignment:          MaybeUninit<u16>,
@@ -66,11 +68,4 @@ mod qmetatypeinterface {
             });
         cpp(align as u16, size as u32, flags, name, meta_obj_fn, default_ctr_fn, dtor_fn)
     }
-}
-
-#[doc(hidden)]
-pub trait QMetaTypeInterfaceGet {
-    /// Return reference to filled struct QMetaTypeInterface
-    /// that has constant address in memory during the whole application run
-    fn get_qmetatype_interface() -> &'static QMetaTypeInterface;
 }

@@ -9,6 +9,7 @@ pub mod qml_register;
 pub mod qresource;
 pub mod qobjectholder;
 pub mod qrustproxy;
+pub mod qmetatypeforqobject;
 
 pub use dynamicmetaobjectbuilder::{DynamicMetaObjectBuilder, create_dynamic_meta_object_builder};
 pub use qapp::QApp;
