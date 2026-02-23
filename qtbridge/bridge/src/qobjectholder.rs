@@ -32,22 +32,22 @@ pub trait QObjectHolder : QMetaInfo + Default {
     }
 
     /// Return an immutable reference to the Rust proxy linked to the Rust object specified in the argument.
-    fn get_rust_proxy(rust_obj_ref: &Self) -> &Self::ProxyRust
+    fn get_rust_proxy(&self) -> &Self::ProxyRust
     {
-        Self::get_rust_proxy_mut(rust_obj_ref)
+        Self::get_rust_proxy_mut(self)
     }
 
     /// Return a mutable reference to the Rust proxy linked to the Rust object specified in the argument.
-    fn get_rust_proxy_mut(rust_obj_ref: &Self) -> &mut Self::ProxyRust
+    fn get_rust_proxy_mut(&self) -> &mut Self::ProxyRust
     {
-        Self::try_get_rust_proxy_mut(rust_obj_ref)
+        Self::try_get_rust_proxy_mut(self)
             .expect("No proxy registered for given rust object")
     }
 
     /// Return a Result wrapping mutable reference to the Rust proxy associated with the specified object.
-    fn try_get_rust_proxy_mut(rust_obj_ref: &Self) -> Option<&mut Self::ProxyRust>
+    fn try_get_rust_proxy_mut(&self) -> Option<&mut Self::ProxyRust>
     {
-        let rust_obj_ptr = std::ptr::from_ref(rust_obj_ref).cast::<u8>();
+        let rust_obj_ptr = std::ptr::from_ref(self).cast::<u8>();
         let proxy_ptr = Self::try_borrow_mut_proxies_map(|map| {
             map.get(&rust_obj_ptr).copied().unwrap_or_default()
         });

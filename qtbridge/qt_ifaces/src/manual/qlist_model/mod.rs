@@ -5,5 +5,5 @@ pub mod proxy_cpp_bridge;
 pub mod proxy_rust;
 pub mod proxy_rust_bridge;
 pub use proxy_cpp_bridge::ffi::QListModelProxyCpp;
-pub use proxy_rust::{QListModelProxyRust, QListModel, QListModelBase};
-pub use proxy_rust::{QListModelProxyGet, QListModelAdapter};
+pub use proxy_rust::{QListModelProxyRust, QListModelAdapter};
+pub use proxy_rust::{QListModel, QListModelBase};

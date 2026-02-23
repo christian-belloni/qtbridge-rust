@@ -6,5 +6,5 @@ pub mod proxy_cpp_bridge;
 pub mod proxy_rust;
 pub mod proxy_rust_bridge;
 pub use proxy_cpp_bridge::ffi::QAbstractListModelProxyCpp;
-pub use proxy_rust::{QAbstractListModelProxyRust, QAbstractListModel, QAbstractListModelBase};
-pub use proxy_rust::{QAbstractListModelProxyGet, QAbstractListModelAdapter};
+pub use proxy_rust::{QAbstractListModelProxyRust, QAbstractListModelAdapter};
+pub use proxy_rust::{QAbstractListModel, QAbstractListModelBase};

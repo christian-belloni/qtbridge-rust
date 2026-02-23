@@ -8,5 +8,3 @@ pub mod qobject;
 
 pub use qabstract_item_model::{QAbstractItemModel, QAbstractItemModelBase};
 pub use qabstract_list_model::{QAbstractListModel, QAbstractListModelBase};
-pub use qobject::QObjectBase;
-

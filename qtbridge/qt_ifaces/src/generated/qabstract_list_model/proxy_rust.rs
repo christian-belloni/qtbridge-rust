@@ -11,22 +11,7 @@ use qt_type_lib::{QByteArray, QHash, QMetaObject, QMetaType, QModelIndex, QVaria
 use std::cell::RefCell;
 use std::rc::Rc;
 
-pub trait QAbstractListModelProxyGet {
-    fn get_rust_proxy(&self) -> &QAbstractListModelProxyRust;
-    fn get_rust_proxy_mut(&self) -> &mut QAbstractListModelProxyRust;
-    fn get_trait(&self) -> &dyn QAbstractListModelAdapter;
-    fn get_trait_mut(&mut self) ->&mut dyn QAbstractListModelAdapter;
-
-    fn create_rust_proxy(rust_obj_rc: Rc<RefCell<Self>>, construction: ConstructionMode) -> *mut QAbstractListModelProxyRust
-    where
-        Self: QObjectHolder
-    {
-        let dyn_rc: Rc<RefCell<dyn QAbstractListModelProxyGet>> = rust_obj_rc;
-        QAbstractListModelProxyRust::new(&dyn_rc, construction, Self::unregister_instance_in_map)
-    }
-}
-
-pub trait QAbstractListModel : QAbstractListModelProxyGet {
+pub trait QAbstractListModel : QObjectHolder<ProxyRust = QAbstractListModelProxyRust> {
     fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex {
         let proxy = self.get_rust_proxy();
         proxy.base_index(row, column, parent)
@@ -62,8 +47,10 @@ pub trait QAbstractListModelAdapter {
 }
 
 impl<T> QAbstractListModelAdapter for T
-where T:
-    QAbstractListModelProxyGet + QAbstractListModel {
+where
+    T : QAbstractListModel +
+        QObjectHolder<ProxyRust = QAbstractListModelProxyRust>
+{
     fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex {
          <Self as QAbstractListModel>::index(self, row, column, parent)
     }
@@ -87,7 +74,7 @@ where T:
     }
 }
 
-pub trait QAbstractListModelBase : QAbstractListModelProxyGet {
+pub trait QAbstractListModelBase : QObjectHolder<ProxyRust = QAbstractListModelProxyRust> {
     fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex {
         let proxy = self.get_rust_proxy();
         proxy.base_index(row, column, parent)
@@ -148,18 +135,22 @@ pub trait QAbstractListModelBase : QAbstractListModelProxyGet {
     }
 }
 
+impl<T> QAbstractListModelBase for T
+where
+    T : QObjectHolder<ProxyRust = QAbstractListModelProxyRust> {}
+
 pub struct QAbstractListModelProxyRust {
     cpp_proxy: *mut QAbstractListModelProxyCpp,
     #[allow(dead_code)]
-    rust_obj: RustObjAccess<dyn QAbstractListModelProxyGet>,
+    rust_obj: RustObjAccess<dyn QAbstractListModelAdapter>,
     on_drop: fn(rust_obj: *const u8),
 }
 
 impl QRustProxy for QAbstractListModelProxyRust {
     type ProxyCppType = QAbstractListModelProxyCpp;
-    type RcRefCellType = Rc<RefCell<dyn QAbstractListModelProxyGet>>;
+    type RcRefCellType = Rc<RefCell<dyn QAbstractListModelAdapter>>;
 
-    fn new(rust_obj: &Rc<RefCell<dyn QAbstractListModelProxyGet>>, construct: ConstructionMode, on_drop: fn(rust_obj: *const u8)) -> *mut Self {
+    fn new(rust_obj: &Rc<RefCell<dyn QAbstractListModelAdapter>>, construct: ConstructionMode, on_drop: fn(rust_obj: *const u8)) -> *mut Self {
         let raw_rust_obj = rust_obj.as_ptr();
         let boxed_self = Box::new(Self {
             cpp_proxy: std::ptr::null_mut(),

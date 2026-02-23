@@ -85,11 +85,6 @@ impl QObjectModuleBuilder {
         let drop_impl = self.generate_drop_trait_if_missing()?;
         let impl_details = iface_impl.generate_impl_details()
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation details block.\nError:{err}")))?;
-        let iface_proxy_get_trait = iface_impl.generate_iface_proxy_get_trait_impl()
-            .map_err(|err: syn::Error| syn::Error::new(err.span(), format!("Failed to generate code block with interface functions implementation.\nError:{err}")))?;
-        let iface_trait = iface_impl.generate_iface_base_trait_impl()
-            .map_err(|err: syn::Error| syn::Error::new(err.span(), format!("Failed to generate code block with interface functions implementation.\nError:{err}")))?;
-
 
         // TODO: pass QObjectModule to generate_qmetainfo_trait_impl() instead
         let ctx = QMetaInfoContext {
@@ -109,8 +104,6 @@ impl QObjectModuleBuilder {
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaTypeGet trait.\nError: {}", err)))?;
 
         // Concat additional items to the source items processed
-        output_module_items.push(iface_trait.into());                      // Rust implementation of C++ interface methods
-        output_module_items.push(iface_proxy_get_trait.into());
         if let Some(drop) = drop_impl {
             output_module_items.push(drop.into());
         }

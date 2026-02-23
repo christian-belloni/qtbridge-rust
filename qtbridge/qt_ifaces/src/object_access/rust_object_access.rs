@@ -12,7 +12,7 @@ macro_rules! call_rust_trait_impl {
     (mut $self:expr, $method:ident ( $($arg:expr),* )) => {
         $self.rust_obj
             .try_with_borrow_mut(|vtable| {
-                vtable.get_trait_mut().$method($($arg),*)
+                vtable.$method($($arg),*)
             })
             .expect(concat!(
                 "Failed to borrow mutably for ",
@@ -25,7 +25,7 @@ macro_rules! call_rust_trait_impl {
     ($self:expr, $method:ident ( $($arg:expr),* )) => {
         $self.rust_obj
             .try_with_borrow(|vtable| {
-                vtable.get_trait().$method($($arg),*)
+                vtable.$method($($arg),*)
             })
             .expect(concat!(
                 "Failed to borrow for ",

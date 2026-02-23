@@ -14,29 +14,6 @@ mod some_module {
             1
         }
     }
-    impl qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelBase for SomeStruct {}
-    impl qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelProxyGet for SomeStruct {
-        fn get_rust_proxy(
-            &self,
-        ) -> &qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelProxyRust {
-            <Self as qtbridge::bridge::QObjectHolder>::get_rust_proxy(self)
-        }
-        fn get_rust_proxy_mut(
-            &self,
-        ) -> &mut qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelProxyRust {
-            <Self as qtbridge::bridge::QObjectHolder>::get_rust_proxy_mut(self)
-        }
-        fn get_trait(
-            &self,
-        ) -> &dyn qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelAdapter {
-            self
-        }
-        fn get_trait_mut(
-            &mut self,
-        ) -> &mut dyn qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelAdapter {
-            self
-        }
-    }
     impl Drop for SomeStruct {
         fn drop(&mut self) {
             <Self as qtbridge::bridge::QObjectHolder>::detach_qobject(self);
@@ -78,8 +55,11 @@ mod some_module {
             rust_obj_rc: std::rc::Rc<std::cell::RefCell<Self>>,
             construction: qtbridge::bridge::qrustproxy::ConstructionMode,
         ) {
+            use qtbridge::bridge::qrustproxy::QRustProxy;
             let key = (*rust_obj_rc).as_ptr() as *const u8;
-            let proxy = < Self as qtbridge :: qt_ifaces :: qabstract_list_model :: QAbstractListModelProxyGet > :: create_rust_proxy (rust_obj_rc , construction) ;
+            let dyn_rc : < Self :: ProxyRust as qtbridge :: bridge :: qrustproxy :: QRustProxy > :: RcRefCellType = rust_obj_rc ;
+            let proxy =
+                Self::ProxyRust::new(&dyn_rc, construction, Self::unregister_instance_in_map);
             Self::try_borrow_mut_proxies_map(|proxies| {
                 proxies.insert(key, proxy as *const u8);
             })

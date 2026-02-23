@@ -11,55 +11,26 @@ use qt_type_lib::{QMetaObject, QMetaType};
 use std::cell::RefCell;
 use std::rc::Rc;
 
+/* QObject trait left out on purpose */
 
-pub trait QObjectProxyGet {
-    fn get_rust_proxy(&self) -> &QObjectProxyRust;
-    fn get_rust_proxy_mut(&self) -> &mut QObjectProxyRust;
-    fn get_trait(&self) -> &dyn QObjectAdapter;
-    fn get_trait_mut(&mut self) ->&mut dyn QObjectAdapter;
-
-    fn create_rust_proxy(rust_obj_rc: Rc<RefCell<Self>>, construction: ConstructionMode) -> *mut QObjectProxyRust
-    where
-        Self: QObjectHolder
-    {
-        let dyn_rc: Rc<RefCell<dyn QObjectProxyGet>> = rust_obj_rc;
-        QObjectProxyRust::new(&dyn_rc, construction, Self::unregister_instance_in_map)
-    }
-}
-
-/* QObject trait left out on purpose
-pub trait QObject : QObjectProxyGet {
-
-}
-*/
-
-pub trait QObjectAdapter {
-
-}
+pub trait QObjectAdapter {}
 
 impl<T> QObjectAdapter for T
-where
-    T: QObjectProxyGet {
-
-}
-
-pub trait QObjectBase : QObjectProxyGet {
-
-}
+where T: QObjectHolder<ProxyRust = QObjectProxyRust> {}
 
 pub struct QObjectProxyRust {
     cpp_proxy: *mut QObjectProxyCpp,
     #[allow(dead_code)]
-    rust_obj: RustObjAccess<dyn QObjectProxyGet>,
+    rust_obj: RustObjAccess<dyn QObjectAdapter>,
     on_drop: fn(rust_obj: *const u8),
 }
 
 impl QRustProxy for QObjectProxyRust {
 
     type ProxyCppType = QObjectProxyCpp;
-    type RcRefCellType = Rc<RefCell<dyn QObjectProxyGet>>;
+    type RcRefCellType = Rc<RefCell<dyn QObjectAdapter>>;
 
-    fn new(rust_obj: &Rc<RefCell<dyn QObjectProxyGet>>, construct: ConstructionMode, on_drop: fn(rust_obj: *const u8)) -> *mut Self {
+    fn new(rust_obj: &Rc<RefCell<dyn QObjectAdapter>>, construct: ConstructionMode, on_drop: fn(rust_obj: *const u8)) -> *mut Self {
         let raw_rust_obj = rust_obj.as_ptr();
         let boxed_self = Box::new(Self {
             cpp_proxy: std::ptr::null_mut(),

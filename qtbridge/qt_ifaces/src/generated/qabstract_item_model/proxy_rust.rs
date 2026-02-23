@@ -11,21 +11,6 @@ use qt_type_lib::{QByteArray, QHash, QMetaObject, QMetaType, QModelIndex, QVaria
 use std::cell::RefCell;
 use std::rc::Rc;
 
-pub trait QAbstractItemModelProxyGet {
-    fn get_rust_proxy(&self) -> &QAbstractItemModelProxyRust;
-    fn get_rust_proxy_mut(&self) -> &mut QAbstractItemModelProxyRust;
-    fn get_trait(&self) -> &dyn QAbstractItemModelAdapter;
-    fn get_trait_mut(&mut self) ->&mut dyn QAbstractItemModelAdapter;
-
-    fn create_rust_proxy(rust_obj_rc: Rc<RefCell<Self>>, construct: ConstructionMode) -> *mut QAbstractItemModelProxyRust
-    where
-        Self: QObjectHolder
-    {
-        let dyn_rc: Rc<RefCell<dyn QAbstractItemModelProxyGet>> = rust_obj_rc;
-        QAbstractItemModelProxyRust::new(&dyn_rc, construct, Self::unregister_instance_in_map)
-    }
-}
-
 pub trait QAbstractItemModelAdapter {
     fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex;
     fn parent(&self, child: &QModelIndex) -> QModelIndex;
@@ -40,7 +25,7 @@ pub trait QAbstractItemModelAdapter {
 
 impl<T> QAbstractItemModelAdapter for T
 where
-    T: QAbstractItemModelProxyGet + QAbstractItemModel {
+    T: QAbstractItemModel {
     fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex {
         <Self as QAbstractItemModel>::index(self, row, column, parent)
     }
@@ -70,7 +55,7 @@ where
     }
 }
 
-pub trait QAbstractItemModel : QAbstractItemModelProxyGet {
+pub trait QAbstractItemModel : QObjectHolder<ProxyRust = QAbstractItemModelProxyRust> {
     fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex;
     fn parent(&self, child: &QModelIndex) -> QModelIndex;
     fn row_count(&self, parent: &QModelIndex) -> i32;
@@ -94,8 +79,8 @@ pub trait QAbstractItemModel : QAbstractItemModelProxyGet {
     }
 }
 
-pub trait QAbstractItemModelBase : QAbstractItemModelProxyGet {
-    fn role_names(&self) -> qt_type_lib::QHash<i32, qt_type_lib::QByteArray> {
+pub trait QAbstractItemModelBase : QObjectHolder<ProxyRust = QAbstractItemModelProxyRust> {
+fn role_names(&self) -> qt_type_lib::QHash<i32, qt_type_lib::QByteArray> {
         let proxy = self.get_rust_proxy();
         proxy.base_role_names()
     }
@@ -249,18 +234,21 @@ pub trait QAbstractItemModelBase : QAbstractItemModelProxyGet {
     }
 }
 
+impl<T> QAbstractItemModelBase for T
+where T: QObjectHolder<ProxyRust = QAbstractItemModelProxyRust> {}
+
 pub struct QAbstractItemModelProxyRust {
     cpp_proxy: *mut QAbstractItemModelProxyCpp,
     #[allow(dead_code)]
-    rust_obj: RustObjAccess<dyn QAbstractItemModelProxyGet>,
+    rust_obj: RustObjAccess<dyn QAbstractItemModelAdapter>,
     on_drop: fn(rust_obj: *const u8),
 }
 
 impl QRustProxy for QAbstractItemModelProxyRust {
     type ProxyCppType = QAbstractItemModelProxyCpp;
-    type RcRefCellType = Rc<RefCell<dyn QAbstractItemModelProxyGet>>;
+    type RcRefCellType = Rc<RefCell<dyn QAbstractItemModelAdapter>>;
 
-    fn new(rust_obj: &Rc<RefCell<dyn QAbstractItemModelProxyGet>>, construct: ConstructionMode, on_drop: fn(rust_obj: *const u8)) -> *mut Self {
+    fn new(rust_obj: &Rc<RefCell<dyn QAbstractItemModelAdapter>>, construct: ConstructionMode, on_drop: fn(rust_obj: *const u8)) -> *mut Self {
         let raw_rust_obj = rust_obj.as_ptr();
         let boxed_self = Box::new(Self {
             cpp_proxy: std::ptr::null_mut(),

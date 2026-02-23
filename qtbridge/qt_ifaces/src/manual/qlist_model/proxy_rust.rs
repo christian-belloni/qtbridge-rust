@@ -11,22 +11,6 @@ use std::rc::Rc;
 use qt_traits::QModelItem;
 
 #[doc(hidden)]
-pub trait QListModelProxyGet {
-    fn get_rust_proxy(&self) -> &QListModelProxyRust;
-    fn get_rust_proxy_mut(&self) -> &mut QListModelProxyRust;
-    fn get_trait(&self) -> &dyn QListModelAdapter;
-    fn get_trait_mut(&mut self) ->&mut dyn QListModelAdapter;
-
-    fn create_rust_proxy(rust_obj_rc: Rc<RefCell<Self>>, construction: ConstructionMode) -> *mut QListModelProxyRust
-    where
-        Self: QObjectHolder
-    {
-        let dyn_rc: Rc<RefCell<dyn QListModelProxyGet>> = rust_obj_rc;
-        QListModelProxyRust::new(&dyn_rc, construction, Self::unregister_instance_in_map)
-    }
-}
-
-#[doc(hidden)]
 pub trait QListModelAdapter {
     fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex;
     fn row_count(&self, parent: &QModelIndex) -> i32;
@@ -39,9 +23,9 @@ pub trait QListModelAdapter {
 
 impl<T> QListModelAdapter for T
 where
-    T: QListModelProxyGet + QListModel {
+    T: QListModel + QObjectHolder<ProxyRust = QListModelProxyRust> {
     fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex {
-        let proxy = <Self as QListModelProxyGet>::get_rust_proxy(self);
+        let proxy = <Self as QObjectHolder>::get_rust_proxy(self);
         proxy.base_index(row, column, parent)
     }
     fn row_count(&self, _parent: &QModelIndex) -> i32 {
@@ -91,7 +75,7 @@ where
         true
     }
     fn sibling(&self, row: i32, column: i32, idx: &QModelIndex) -> QModelIndex {
-        let proxy = <Self as QListModelProxyGet>::get_rust_proxy(self);
+        let proxy = self.get_rust_proxy();
         proxy.base_sibling(row, column, idx)
     }
 }
@@ -168,7 +152,7 @@ where
 /// }
 /// ```
 
-pub trait QListModel : QListModelProxyGet {
+pub trait QListModel {
     /// The item type stored in the model.
     ///
     /// Items must:
@@ -291,7 +275,7 @@ pub trait QListModel : QListModelProxyGet {
 /// * No additional structural changes occur.
 ///
 /// Violating this contract may result in undefined behavior in Qt views.
-pub trait QListModelBase : QListModelProxyGet + QListModel {
+pub trait QListModelBase : QListModel + QObjectHolder<ProxyRust = QListModelProxyRust> {
     /// Sets the item at `index` and notifies any attached views about
     /// the change, if the operation is successful.
     ///
@@ -302,7 +286,7 @@ pub trait QListModelBase : QListModelProxyGet + QListModel {
     /// was out of bounds or validation failed).
     fn set(&mut self, index: usize, value: <Self as QListModel>::Item) -> bool {
         if self.set_unnotified(index, value) {
-            let model_index = <Self as QListModelProxyGet>::get_rust_proxy(self).base_index(index as i32, 0 , &QModelIndex::default());
+            let model_index = self.get_rust_proxy().base_index(index as i32, 0 , &QModelIndex::default());
             self.get_rust_proxy_mut().base_data_changed(&model_index, &model_index);
             true
         } else {
@@ -367,19 +351,22 @@ pub trait QListModelBase : QListModelProxyGet + QListModel {
     }
 }
 
+impl<T> QListModelBase for T
+where T: QListModel + QObjectHolder<ProxyRust = QListModelProxyRust> { }
+
 pub struct QListModelProxyRust {
     cpp_proxy: *mut QListModelProxyCpp,
     #[allow(dead_code)]
-    rust_obj: RustObjAccess<dyn QListModelProxyGet>,
+    rust_obj: RustObjAccess<dyn QListModelAdapter>,
     on_drop: fn(rust_obj: *const u8),
 }
 
 impl QRustProxy for QListModelProxyRust {
 
     type ProxyCppType = QListModelProxyCpp;
-    type RcRefCellType = Rc<RefCell<dyn QListModelProxyGet>>;
+    type RcRefCellType = Rc<RefCell<dyn QListModelAdapter>>;
 
-    fn new(rust_obj: &Rc<RefCell<dyn QListModelProxyGet>>, construct: ConstructionMode, on_drop: fn(rust_obj: *const u8)) -> *mut Self {
+    fn new(rust_obj: &Rc<RefCell<dyn QListModelAdapter>>, construct: ConstructionMode, on_drop: fn(rust_obj: *const u8)) -> *mut Self {
         let raw_rust_obj = rust_obj.as_ptr();
         let boxed_self = Box::new(Self {
             cpp_proxy: std::ptr::null_mut(),

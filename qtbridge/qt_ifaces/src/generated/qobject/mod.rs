@@ -6,5 +6,4 @@ pub mod proxy_cpp_bridge;
 pub mod proxy_rust;
 pub mod proxy_rust_bridge;
 pub use proxy_cpp_bridge::ffi::QObjectProxyCpp;
-pub use proxy_rust::{QObjectProxyRust, QObjectBase};
-pub use proxy_rust::{QObjectProxyGet, QObjectAdapter};
+pub use proxy_rust::{QObjectProxyRust, QObjectAdapter};
