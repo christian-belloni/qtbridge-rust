@@ -7,7 +7,7 @@ use syn::{parse::Parse, spanned::Spanned};
 
 use qt_gen_common::parse_utils::parse_name_value;
 use qt_gen_common::type_registry::meta_types::get_qmetatype_support_for_type;
-use qt_gen_common::type_to_string::type_to_string_fallback;
+use qt_gen_common::type_to_string::{type_to_string, type_to_string_fallback};
 use qt_gen_common::type_utils::{ValuePass, get_take_value_code, get_type_pass, remove_ref, remove_ref_to_string};
 use crate::qproperty_type_deduction::{deduce_type_from_getter, deduce_type_from_member, deduce_type_from_setter};
 use crate::QSignalInfo;
@@ -255,12 +255,13 @@ impl QPropertyInfo {
             // Generate write callback that calls given setter
             let ty = self.get_deduced_type()
                 .ok_or_else(|| syn::Error::new(self.span, "Failed to generate write property callback. Type is not deduced"))?;
-            let ty_str = remove_ref_to_string(ty)?;
+            let ty_wo_ref = remove_ref(ty);
+            let ty_str = type_to_string(ty_wo_ref)?;
             let pass_arg = get_take_value_code(&format_ident!("value"), self.write_value_pass.unwrap_or(ValuePass::ByValue));
 
             return Ok(Some(quote! {
                 property_write_callback_for::<#struct_ident>(|this, value| {
-                    let Ok(value) = TryInto::try_into(value) else {
+                    let Ok(value) = TryInto::<<#ty_wo_ref as ToOwned>::Owned>::try_into(value) else {
                         panic!("Failed to convert value '{}' to type '{}' in qproperty '{}'", value.to_string(), #ty_str, #name);
                     };
                     this.#setter_fn(#pass_arg);
