@@ -1,7 +1,10 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 #![cfg(test)]
+mod common;
+
 use qtbridge::{QApp, QObjectHolder, qobject};
+use common::{capitalize_first_char, get_type_name};
 
 #[qobject]
 pub mod test_object {
@@ -83,14 +86,8 @@ fn get_qml_code_for(type_suffix: &str) -> String {
 
 fn test_type<T>(emit_fn: fn(&TestObject), check_fn: fn(&TestObject) -> bool)
 {
-    let type_str = std::any::type_name::<T>()
-        .split("::")
-        .last()
-        .unwrap()
-        .to_ascii_lowercase();
-    // Capitalize the first char of the type name.
-    let mut chars = type_str.chars();
-    let suffix = format!("{}{}", chars.next().unwrap().to_uppercase(), chars.as_str());
+    let type_str = get_type_name::<T>();
+    let suffix = capitalize_first_char(&type_str);
 
     // Patch qml code.
     let qml = get_qml_code_for(&suffix);

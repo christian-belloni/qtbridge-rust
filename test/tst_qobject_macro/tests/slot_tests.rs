@@ -1,8 +1,10 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 #![cfg(test)]
-use qtbridge::{QApp, qobject};
-use qtbridge::QObjectHolder;
+mod common;
+
+use qtbridge::{QApp, QObjectHolder, qobject};
+use common::capitalize_first_char;
 
 #[qobject]
 pub mod test_object {
@@ -152,9 +154,7 @@ fn get_qml_code_for(slot_type_suffix: &str, arg_value: &str) -> String {
 fn test_type<F>(arg_type_suffix: &str, arg_value: &str, check_fn: F)
     where F: FnOnce(&TestObject) -> bool
 {
-    // Capitalize the first char of `arg_type_suffix`.
-    let mut chars = arg_type_suffix.chars();
-    let suffix = format!("{}{}", chars.next().unwrap().to_uppercase(), chars.as_str());
+    let suffix = capitalize_first_char(arg_type_suffix);
 
     // Run QApp with QML code for the given slot.
     let obj = TestObject::default_with_attached_qobject();

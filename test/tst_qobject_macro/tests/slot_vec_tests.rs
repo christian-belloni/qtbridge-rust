@@ -1,7 +1,10 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 #![cfg(test)]
+mod common;
+
 use qtbridge::{QApp, QObjectHolder, qobject};
+use common::{MAX_SAFE_INTEGER, MIN_SAFE_INTEGER, capitalize_first_char};
 
 #[qobject]
 pub mod test_object {
@@ -142,9 +145,8 @@ fn get_qml_code_for(slot_type_suffix: &str, arg_value: &str) -> String {
 fn test_type<F>(arg_type_suffix: &str, arg_value: &str, check_fn: F)
     where F: FnOnce(&TestObject) -> bool
 {
-    // Capitalize the first char of `arg_type_suffix`.
-    let mut chars = arg_type_suffix.chars();
-    let suffix = format!("{}{}", chars.next().unwrap().to_uppercase(), chars.as_str());
+    let suffix = capitalize_first_char(arg_type_suffix);
+
     // Run QApp with QML code for the given slot.
     let obj = TestObject::default_with_attached_qobject();
     let mut app = QApp::new();
@@ -161,7 +163,7 @@ fn test_slot_types_vec_values() {
     test_type("u16", "[0, 1, 2, 32767, 65535]",            |obj| obj.arg_vec_u16 == Some(vec![0, 1, 2, 32767, 65535]));
     test_type("i32", "[0, 1, 2, -2147483648, 2147483647]", |obj| obj.arg_vec_i32 == Some(vec![0, 1, 2, -2147483648, 2147483647]));
     test_type("u32", "[0, 1, 2, 2147483648, 4294967295]",  |obj| obj.arg_vec_u32 == Some(vec![0, 1, 2, 2147483648, 4294967295]));
-    test_type("i64", "[0, 1, 2, Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]", |obj| obj.arg_vec_i64 == Some(vec![0, 1, 2, -9007199254740991, 9007199254740991]));
+    test_type("i64", "[0, 1, 2, Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]", |obj| obj.arg_vec_i64 == Some(vec![0, 1, 2, MIN_SAFE_INTEGER, MAX_SAFE_INTEGER as i64]));
     test_type("u64", "[0, 1, 2, Number.MAX_SAFE_INTEGER]", |obj| obj.arg_vec_u64 == Some(vec![0, 1, 2, 9007199254740991]));
     test_type("string", "[\"abc\", \"def\", \"ghi\"]",     |obj| obj.arg_vec_string == Some(vec!["abc".into(), "def".into(), "ghi".into()]));
 }
@@ -174,7 +176,7 @@ fn test_slot_types_vec_references() {
     test_type("u16Ref", "[0, 1, 2, 32767, 65535]",            |obj| obj.arg_vec_u16 == Some(vec![0, 1, 2, 32767, 65535]));
     test_type("i32Ref", "[0, 1, 2, -2147483648, 2147483647]", |obj| obj.arg_vec_i32 == Some(vec![0, 1, 2, -2147483648, 2147483647]));
     test_type("u32Ref", "[0, 1, 2, 2147483648, 4294967295]",  |obj| obj.arg_vec_u32 == Some(vec![0, 1, 2, 2147483648, 4294967295]));
-    test_type("i64Ref", "[0, 1, 2, Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]", |obj| obj.arg_vec_i64 == Some(vec![0, 1, 2, -9007199254740991, 9007199254740991]));
+    test_type("i64Ref", "[0, 1, 2, Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]", |obj| obj.arg_vec_i64 == Some(vec![0, 1, 2, MIN_SAFE_INTEGER, MAX_SAFE_INTEGER as i64]));
     test_type("u64Ref", "[0, 1, 2, Number.MAX_SAFE_INTEGER]", |obj| obj.arg_vec_u64 == Some(vec![0, 1, 2, 9007199254740991]));
     test_type("stringRef", "[\"abc\", \"def\", \"ghi\"]",     |obj| obj.arg_vec_string == Some(vec!["abc".into(), "def".into(), "ghi".into()]));
 }
