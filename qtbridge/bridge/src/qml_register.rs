@@ -9,8 +9,8 @@ pub trait QmlRegister : QMetaTypeGet + QMetaInfo + QObjectHolder + Default
 {
     const URI: &str;
     const ELEMENT_NAME: &str;
-    const MINOR_VERSION: &str;
-    const MAJOR_VERSION: &str;
+    const MINOR_VERSION: u8;
+    const MAJOR_VERSION: u8;
     const IS_SINGLETON: bool;
 
     fn qml_register() {
@@ -21,22 +21,14 @@ pub trait QmlRegister : QMetaTypeGet + QMetaInfo + QObjectHolder + Default
                 .as_ref()
                 .expect("Failed to get QMetaObject")
         };
-        let uri = Self::URI.trim_start_matches(char::is_numeric)
-            .chars()
-            .map(|ch| if ch.is_alphanumeric() { ch } else { '_' })
-            .collect::<String>();
-        let version_major = Self::MAJOR_VERSION.parse()
-            .expect("Failed to parse package major version");
-        let version_minor = Self::MINOR_VERSION.parse()
-            .expect("Failed to parse package major version");
 
         if Self::IS_SINGLETON {
             qt_type_lib::qml_register_singleton(
                 <Self as QMetaTypeGet>::get_qmetatype(),
                 monomorphize_singleton_ctor::<Self>(),
-                uri.as_bytes(),
-                version_major,
-                version_minor,
+                Self::URI.as_bytes(),
+                Self::MAJOR_VERSION,
+                Self::MINOR_VERSION,
                 Self::ELEMENT_NAME.as_bytes(),
                 meta_obj,
             )
@@ -46,9 +38,9 @@ pub trait QmlRegister : QMetaTypeGet + QMetaInfo + QObjectHolder + Default
                 Self::get_qmetatype_list_of_cpp_proxy(),
                 Self::get_size_of_cpp_proxy() as u32,
                 monomorphize_element_ctor::<Self>(),
-                uri.as_bytes(),
-                version_major,
-                version_minor,
+                Self::URI.as_bytes(),
+                Self::MAJOR_VERSION,
+                Self::MINOR_VERSION,
                 Self::ELEMENT_NAME.as_bytes(),
                 meta_obj,
             );

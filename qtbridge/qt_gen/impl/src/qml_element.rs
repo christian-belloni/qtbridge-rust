@@ -1,4 +1,4 @@
-use proc_macro2::TokenStream;
+use proc_macro2::{Span, TokenStream};
 use quote::{ToTokens, format_ident, quote};
 
 pub fn qml_element(args: TokenStream, input: TokenStream) -> syn::Result<TokenStream> {
@@ -17,6 +17,21 @@ pub fn qml_element(args: TokenStream, input: TokenStream) -> syn::Result<TokenSt
     let qml_register_fn_indent = format_ident!("qml_register_{struct_ident}");
     let struct_name = struct_ident.to_string();
 
+    let uri = std::env::var("CARGO_PKG_NAME")
+        .map_err(|err| syn::Error::new(Span::call_site(), format!("Failed to get CARGO_PKG_NAME: {err}")))?
+        .trim_start_matches(char::is_numeric)
+        .chars()
+        .map(|ch| if ch.is_alphanumeric() { ch } else { '_' })
+        .collect::<String>();
+    let minor_version: u8 = std::env::var("CARGO_PKG_VERSION_MINOR")
+        .map_err(|err| syn::Error::new(Span::call_site(), format!("Failed to get CARGO_PKG_VERSION_MINOR: {err}")))?
+        .parse()
+        .expect("Failed to parse CARGO_PKG_VERSION_MINOR");
+    let major_version: u8 = std::env::var("CARGO_PKG_VERSION_MAJOR")
+        .map_err(|err| syn::Error::new(Span::call_site(), format!("Failed to get CARGO_PKG_VERSION_MAJOR: {err}")))?
+        .parse()
+        .expect("Failed to parse CARGO_PKG_VERSION_MAJOR");
+
     let qmlregister_code = quote! {
         // TODO: make auto registration via 'linkme' dependency an optional cargo feature?
         #[linkme::distributed_slice(qtbridge::qt_type_lib::QML_REGISTER_CALLBACKS)]
@@ -26,10 +41,10 @@ pub fn qml_element(args: TokenStream, input: TokenStream) -> syn::Result<TokenSt
         }
 
         impl qtbridge::bridge::QmlRegister for #struct_ident {
-            const URI: &str = env!("CARGO_PKG_NAME");
+            const URI: &str = #uri;
             const ELEMENT_NAME: &str = #struct_name;
-            const MINOR_VERSION: &str = env!("CARGO_PKG_VERSION_MINOR");
-            const MAJOR_VERSION: &str = env!("CARGO_PKG_VERSION_MAJOR");
+            const MINOR_VERSION: u8 = #minor_version;
+            const MAJOR_VERSION: u8 = #major_version;
             const IS_SINGLETON: bool = #is_singleton;
         }
     };
