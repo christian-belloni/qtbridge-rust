@@ -8,7 +8,7 @@ use qt_type_lib::{QObject, QMetaType};
 use crate::QMetaInfo;
 
 /// Trait to enable access to the bridge between C++ and Rust. This trait is
-/// automatically implemented by the 'qobject_impl' macro and should not be implemnted
+/// automatically implemented by the 'qobject_impl' macro and should not be implemented
 /// manually.
 ///
 /// The functions are meant to be called by other generated code and should not
