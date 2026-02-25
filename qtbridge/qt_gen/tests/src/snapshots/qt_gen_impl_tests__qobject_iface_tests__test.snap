@@ -1,3 +1,7 @@
+---
+source: qtbridge/qt_gen/tests/src/qobject_iface_tests.rs
+expression: formatted
+---
 mod some_module {
     #[derive(Default)]
     struct SomeStruct {}

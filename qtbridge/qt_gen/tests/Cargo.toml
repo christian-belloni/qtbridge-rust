@@ -16,4 +16,5 @@ syn.workspace = true
 
 [dev-dependencies]
 pretty_assertions = "1"
+insta = { version = "1", features = ["glob"] }
 
