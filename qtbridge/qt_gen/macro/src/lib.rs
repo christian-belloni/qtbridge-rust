@@ -135,7 +135,7 @@ pub fn qobject_internal(args: TokenStream, input: TokenStream) -> TokenStream {
 /// The currently supported types are:
 /// - **Scalar types**: `i8`, `u8`, `i16`, `u16`, `i32`, `u32`, `i64`, `u64`, `isize`, `usize`, `f32`, `f64`.
 /// - **String types**: `String` and `&str`.
-/// - **Collections**: `Vec<String>`.
+/// - **Collections**: `Vec<T>`, where `T` is one of the supported scalar types or `String`.
 /// - **Qt-specific types**: `QModelIndex` (internal implementation type).
 ///
 /// # Object creation / destruction
