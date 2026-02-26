@@ -199,8 +199,6 @@ macro_rules! test_helper {
 }
 
 mod tests {
-    use super::*;
-
     #[test]
     fn test_qproperty_syntax() {
 

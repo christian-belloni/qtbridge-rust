@@ -65,12 +65,12 @@ fn monomorphize_element_ctor<T: QmlRegister>() -> usize {
     extern "C" fn default_ctor<T: QmlRegister>(addr: *mut u8, userdata: *mut u8) {
         element_ctor::<T>(addr, userdata)
     }
-    default_ctor::<T> as usize
+    default_ctor::<T> as *const () as usize
 }
 
 fn monomorphize_singleton_ctor<T: QmlRegister>() -> usize {
     extern "C" fn default_ctor<T: QmlRegister>() -> *mut QObject {
         singleton_ctor::<T>()
     }
-    default_ctor::<T> as usize
+    default_ctor::<T> as *const () as usize
 }

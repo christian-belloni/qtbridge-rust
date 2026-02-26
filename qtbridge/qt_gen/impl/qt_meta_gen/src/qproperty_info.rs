@@ -349,8 +349,6 @@ impl syn::parse::Parse for QPropertyInfo {
                 break; // Stop after a trailing coma
             }
 
-            let token_begin = input.fork();
-
             // Try to parse attribute name-value pair. Like
             //     Name = Value
             if input.peek(qproperty_keywords::Read) {
