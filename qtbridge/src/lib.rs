@@ -41,7 +41,7 @@
 //!
 //! impl Drop for Backend {
 //!     fn drop(&mut self) {
-//!         self.detach_qobject();
+//!         <Self as qtbridge::QObjectHolder>::detach_qobject(&self);
 //!    }
 //! }
 //!
