@@ -41,7 +41,6 @@ mod qmetatypeinterface {
                 auto metaObjFn = reinterpret_cast<QMetaTypeInterface::MetaObjectFn>(meta_obj_fn);
                 auto defaultCtr = reinterpret_cast<QMetaTypeInterface::DefaultCtrFn>(default_ctr_fn);
                 auto dtor = reinterpret_cast<QMetaTypeInterface::DtorFn>(dtor_fn);
-                auto nameBa = QByteArray(reinterpret_cast<const char*>(name.data()), static_cast<qsizetype>(name.size()));
 
                 // Initialize value at return to enable copy elision
                 // and avoid compilation error due to deleted copy constructor
@@ -52,7 +51,7 @@ mod qmetatypeinterface {
                     /* flags */ flags,
                     /* typeId */ { 0 },
                     /* metaObjectFn */ metaObjFn,
-                    /* name */ nameBa.data(),
+                    /* name */ reinterpret_cast<const char*>(name.data()),
                     /* defaultCtr */ defaultCtr,
                     /* copyCtr */ nullptr,
                     /* moveCtr */ nullptr,
