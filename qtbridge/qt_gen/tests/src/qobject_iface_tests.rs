@@ -5,7 +5,6 @@
 use insta::assert_snapshot;
 use qt_gen_impl::QObjectModuleBuilder;
 use quote::{ToTokens, quote};
-use crate::tst_assert::assert_tokens_eq;
 use qt_gen_common::type_qualified_mapping::CallOrigin;
 use qt_gen_common::format_code::{format_rust_code, strip_docs};
 
