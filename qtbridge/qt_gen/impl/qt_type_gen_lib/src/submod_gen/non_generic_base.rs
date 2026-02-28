@@ -10,6 +10,7 @@ use syn::spanned::Spanned;
 use qt_gen_common_no_types::cpp_include::CppInclude;
 use qt_gen_common_no_types::type_registry::qt::monomorphed::QtMonomorphedType;
 use qt_gen_common_no_types::type_registry::type_traits::{FindType, TypeInfo};
+use qt_gen_common_no_types::type_tokens::TypeTokens;
 use qt_gen_common_no_types::function_bridge::CppFunctionBridge;
 use qt_gen_common_no_types::multi_type_mapping::MultiTypeMapping;
 use qt_gen_common_no_types::naming;
@@ -234,18 +235,27 @@ impl NonGenericSubmoduleGeneratorBase {
         let bridge_header = self.get_include_path()
             .map_err(|err| syn::Error::new(self.struct_ident().span(), format!("Failed to get input path: {err}")))?;
         let struct_bridge_decl = self.get_struct_bridge_decl();
+
+        let bridge_namespace = naming::cpp::namespace::type_bridge(&submodule_name);
+        let def_traits_funcs = self.get_def_cpp_traits_bridge_funcs()?;
+        let qmetatype_get_trait_bridge = self.get_qmetatype_get_trait_bridge_code()?;
+        let inline_cpp_funcs_bridges = self.get_inline_cpp_functions_bridges()?;
+        let all_funcs = def_traits_funcs.into_iter()
+            .chain(qmetatype_get_trait_bridge.into_iter())
+            .chain(inline_cpp_funcs_bridges.into_iter())
+            .collect::<Vec<_>>();
+
+        let mut bridge_tokens = TypeTokens::default();
+        all_funcs.iter()
+            .try_for_each(|func_brdige| bridge_tokens.collect_from_signature(func_brdige.signature()))?;
         let mut bridge_imports = qt_types_to_bridge_imports(
-            self.type_tokens().bridge().iter_qt(), true
+            bridge_tokens.iter_qt(), true
         )?;
         // Avoid defining type alias and importing the same type twice
         // (one in #struct_bridge_decl and second time in #bridge_imports)
         if let Some(struct_ident) = self.struct_ident() {
             bridge_imports.retain(|imp| imp.type_name() != struct_ident);
         }
-        let bridge_namespace = naming::cpp::namespace::type_bridge(&submodule_name);
-        let def_traits_funcs = self.get_def_cpp_traits_bridge_funcs()?;
-        let qmetatype_get_trait_bridge = self.get_qmetatype_get_trait_bridge_code()?;
-        let inline_cpp_funcs_bridges = self.get_inline_cpp_functions_bridges()?;
 
         Ok(quote! {
             unsafe extern "C++" {
@@ -257,9 +267,7 @@ impl NonGenericSubmoduleGeneratorBase {
 
             #[namespace = #bridge_namespace]
             unsafe extern "C++" {
-                #(#def_traits_funcs)*
-                #qmetatype_get_trait_bridge
-                #(#inline_cpp_funcs_bridges)*
+                #(#all_funcs)*
             }
         })
     }
