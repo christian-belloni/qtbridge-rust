@@ -766,11 +766,9 @@ namespace {bridge_namespace} {{
 
             if self.is_qmetatypeid_func_needed() {
                 // We generate bridge function that returns QMetaType for given type
-                tokens.bridge_mut().insert_ident_type(format_ident!("QMetaType"));
+                tokens.all_mut().insert_ident_type(format_ident!("QMetaType"));
             }
         }
-
-        tokens.merge_bridge_to_all();
 
         self.type_tokens = tokens;
         Ok(())

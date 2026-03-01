@@ -333,8 +333,6 @@ impl GenericSubmoduleGenerator {
         let path_w_args_path = syn::parse_str(&path_w_args_str)?;
         tokens.remove_qt_and_unclassified(&path_w_args_path);
 
-        tokens.merge_bridge_to_all();
-
         self.type_tokens = tokens;
         Ok(())
     }
