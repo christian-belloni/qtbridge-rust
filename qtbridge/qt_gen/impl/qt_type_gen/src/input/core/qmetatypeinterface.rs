@@ -33,15 +33,16 @@ mod qmetatypeinterface {
 
     pub fn fill_fields(
         align: usize, size: usize, flags: u32, name: &[u8],
-        meta_obj_fn: usize, default_ctr_fn: usize, dtor_fn: usize,
+        meta_obj_fn: usize, default_ctr_fn: usize, copy_ctr_fn: usize, dtor_fn: usize,
     ) -> QMetaTypeInterface {
 
         let cpp = cpp_fn!(|align: u16, size: u32, flags: u32, name: &[u8],
-                meta_obj_fn: usize, default_ctr_fn: usize, dtor_fn: usize
+                meta_obj_fn: usize, default_ctr_fn: usize, copy_ctr_fn: usize, dtor_fn: usize
                 | -> QMetaTypeInterface
             {
                 auto metaObjFn = reinterpret_cast<QMetaTypeInterface::MetaObjectFn>(meta_obj_fn);
                 auto defaultCtr = reinterpret_cast<QMetaTypeInterface::DefaultCtrFn>(default_ctr_fn);
+                auto copyCtr = reinterpret_cast<QMetaTypeInterface::CopyCtrFn>(copy_ctr_fn);
                 auto dtor = reinterpret_cast<QMetaTypeInterface::DtorFn>(dtor_fn);
 
                 // Initialize value at return to enable copy elision
@@ -55,7 +56,7 @@ mod qmetatypeinterface {
                     /* metaObjectFn */ metaObjFn,
                     /* name */ reinterpret_cast<const char*>(name.data()),
                     /* defaultCtr */ defaultCtr,
-                    /* copyCtr */ nullptr,
+                    /* copyCtr */ copyCtr,
                     /* moveCtr */ nullptr,
                     /* dtor */ dtor,
                     /* equals */ nullptr,
@@ -66,6 +67,6 @@ mod qmetatypeinterface {
                     /* legacyRegisterOp */ nullptr
                 };
             });
-        cpp(align as u16, size as u32, flags, name, meta_obj_fn, default_ctr_fn, dtor_fn)
+        cpp(align as u16, size as u32, flags, name, meta_obj_fn, default_ctr_fn, copy_ctr_fn, dtor_fn)
     }
 }

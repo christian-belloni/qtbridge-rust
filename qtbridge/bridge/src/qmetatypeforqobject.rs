@@ -70,6 +70,7 @@ pub fn init_interface_for<T: QObjectHolder + 'static>()-> QMetaTypeInterface {
         class_name,
         monomorphize_meta_object_fn::<T>() as usize,
         monomorphize_default_ctor::<T>() as usize,
+        0,
         monomorphize_dtor::<T>() as usize,
     )
 }
