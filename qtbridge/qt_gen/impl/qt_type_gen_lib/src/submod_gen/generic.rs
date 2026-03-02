@@ -1,7 +1,7 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashSet};
 use std::rc::Rc;
 
 use proc_macro2::TokenStream;
@@ -130,7 +130,7 @@ impl GenericSubmoduleGenerator {
             .cloned()
             .collect();
 
-        let bound_predicates = gen_types.iter()
+        let map: BTreeMap<String, TokenStream> = gen_types.iter()
             .map(|path| {
                 let path_str = path_to_string(path)?;
                 let gen_ident = get_ident_of_last_path_segment(path)
@@ -139,9 +139,11 @@ impl GenericSubmoduleGenerator {
                     .ok_or_else(|| syn::Error::new(path.span(), "Supposed to be path with angle bracketed arguments"))?;
                 let args_str = angle_bracketed_generic_arguments_to_string(gen_args)?;
                 let str = format!("{path_str}: crate::{gen_ident}Impl<{args_str}>");
-                syn::parse_str(&str)
+                let tokens = syn::parse_str(&str)?;
+                Ok((path_str, tokens))
             })
-            .collect::<syn::Result<Vec<TokenStream>>>()?;
+            .collect::<syn::Result<_>>()?;
+        let bound_predicates = map.into_values();
 
         Ok(quote! { #(#bound_predicates),* })
     }
