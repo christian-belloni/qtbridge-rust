@@ -46,16 +46,14 @@ impl InterfaceImpl {
 
                 type ProxyRust = #iface_library::#iface_module::#proxy_rust;
 
-                fn register_instance_in_map(rust_obj_rc: std::rc::Rc<std::cell::RefCell<Self>>, construction: #bridge_library::qrustproxy::ConstructionMode)
+                fn as_adaptor_trait(
+                    rust_obj_rc: std::rc::Rc<std::cell::RefCell<Self>>
+                ) -> std::rc::Rc<std::cell::RefCell<
+                    <Self::ProxyRust as #bridge_library::qrustproxy::QRustProxy>::AdapterType>>
                 {
-                    use #bridge_library::qrustproxy::QRustProxy;
-                    let key = (*rust_obj_rc).as_ptr() as *const u8;
-                    let dyn_rc: <Self::ProxyRust as #bridge_library::qrustproxy::QRustProxy>::RcRefCellType = rust_obj_rc;
-                    let proxy = Self::ProxyRust::new(&dyn_rc, construction, Self::unregister_instance_in_map);
-                    Self::try_borrow_mut_proxies_map(|proxies| {
-                        proxies.insert(key, proxy as *const u8);
-                    })
+                    rust_obj_rc
                 }
+
             }
         };
         Ok(code)

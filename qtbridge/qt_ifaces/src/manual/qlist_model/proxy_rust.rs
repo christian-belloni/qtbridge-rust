@@ -364,7 +364,7 @@ pub struct QListModelProxyRust {
 impl QRustProxy for QListModelProxyRust {
 
     type ProxyCppType = QListModelProxyCpp;
-    type RcRefCellType = Rc<RefCell<dyn QListModelAdapter>>;
+    type AdapterType = dyn QListModelAdapter;
 
     fn new(rust_obj: &Rc<RefCell<dyn QListModelAdapter>>, construct: ConstructionMode, on_drop: fn(rust_obj: *const u8)) -> *mut Self {
         let raw_rust_obj = rust_obj.as_ptr();

@@ -51,18 +51,14 @@ mod some_module {
     }
     impl qtbridge::bridge::QObjectHolder for SomeStruct {
         type ProxyRust = qtbridge::qt_ifaces::qabstract_list_model::QAbstractListModelProxyRust;
-        fn register_instance_in_map(
+        fn as_adaptor_trait(
             rust_obj_rc: std::rc::Rc<std::cell::RefCell<Self>>,
-            construction: qtbridge::bridge::qrustproxy::ConstructionMode,
-        ) {
-            use qtbridge::bridge::qrustproxy::QRustProxy;
-            let key = (*rust_obj_rc).as_ptr() as *const u8;
-            let dyn_rc : < Self :: ProxyRust as qtbridge :: bridge :: qrustproxy :: QRustProxy > :: RcRefCellType = rust_obj_rc ;
-            let proxy =
-                Self::ProxyRust::new(&dyn_rc, construction, Self::unregister_instance_in_map);
-            Self::try_borrow_mut_proxies_map(|proxies| {
-                proxies.insert(key, proxy as *const u8);
-            })
+        ) -> std::rc::Rc<
+            std::cell::RefCell<
+                <Self::ProxyRust as qtbridge::bridge::qrustproxy::QRustProxy>::AdapterType,
+            >,
+        > {
+            rust_obj_rc
         }
     }
 }

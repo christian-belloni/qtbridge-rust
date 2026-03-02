@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use qt_type_lib::{QMetaObject, QMetaType};
+use std::rc::Rc;
+use std::cell::RefCell;
 
 pub enum ConstructionMode {
     Strong,
@@ -59,8 +61,8 @@ pub enum ConstructionMode {
 ///
 pub trait QRustProxy {
     type ProxyCppType;
-    type RcRefCellType;
-    fn new(rust_obj: &Self::RcRefCellType, construction: ConstructionMode, on_drop: fn(rust_obj: *const u8)) -> *mut Self;
+    type AdapterType: ?Sized;
+    fn new(rust_obj: &Rc<RefCell<Self::AdapterType>>, construction: ConstructionMode, on_drop: fn(rust_obj: *const u8)) -> *mut Self;
     fn drop_self(raw_self: *mut Self, rust_obj_ptr: *const u8);
     fn get_static_meta_object() -> &'static QMetaObject;
     fn get_size_of_cpp_proxy() -> usize;

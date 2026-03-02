@@ -28,7 +28,7 @@ pub struct QObjectProxyRust {
 impl QRustProxy for QObjectProxyRust {
 
     type ProxyCppType = QObjectProxyCpp;
-    type RcRefCellType = Rc<RefCell<dyn QObjectAdapter>>;
+    type AdapterType = dyn QObjectAdapter;
 
     fn new(rust_obj: &Rc<RefCell<dyn QObjectAdapter>>, construct: ConstructionMode, on_drop: fn(rust_obj: *const u8)) -> *mut Self {
         let raw_rust_obj = rust_obj.as_ptr();

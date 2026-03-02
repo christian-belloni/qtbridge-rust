@@ -72,11 +72,20 @@ pub trait QObjectHolder : QMetaInfo + Default {
             .expect("QObject is not attached")
     }
 
+    fn as_adaptor_trait(rust_obj_rc: Rc<RefCell<Self>>) -> Rc<RefCell<<Self::ProxyRust as QRustProxy>::AdapterType>>;
+
     /// Register the given Rust object instance in the multiton.
     /// Create Rust and C++ proxies and links them to the Rust object.
     /// If a memory address is provided, the C++ proxy is created using
     /// placement new operator at respective address
-    fn register_instance_in_map(rust_obj_rc: Rc<RefCell<Self>>, construction: ConstructionMode);
+    fn register_instance_in_map(rust_obj_rc: Rc<RefCell<Self>>, construction: ConstructionMode) {
+        let key = (*rust_obj_rc).as_ptr() as *const u8;
+        let dyn_rc = Self::as_adaptor_trait(rust_obj_rc);
+        let proxy = Self::ProxyRust::new(&dyn_rc, construction, Self::unregister_instance_in_map);
+        Self::try_borrow_mut_proxies_map(|proxies| {
+            proxies.insert(key, proxy as *const u8);
+        })
+    }
 
     /// Removes the entry associated with the specified Rust object from the multiton map.
     fn unregister_instance_in_map(rust_obj_ptr: *const u8) {
