@@ -4,7 +4,6 @@
 
 pub mod qabstract_item_model;
 pub mod qabstract_list_model;
-pub mod qobject;
 
 pub use qabstract_item_model::{QAbstractItemModel, QAbstractItemModelBase};
 pub use qabstract_list_model::{QAbstractListModel, QAbstractListModelBase};

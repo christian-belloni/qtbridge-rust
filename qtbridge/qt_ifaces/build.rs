@@ -8,17 +8,17 @@ const FILES_BRIDGE: [&'static str; 8] = [
     "src/generated/qabstract_item_model/proxy_rust_bridge.rs",
     "src/generated/qabstract_list_model/proxy_cpp_bridge.rs",
     "src/generated/qabstract_list_model/proxy_rust_bridge.rs",
-    "src/generated/qobject/proxy_cpp_bridge.rs",
-    "src/generated/qobject/proxy_rust_bridge.rs",
     "src/manual/qlist_model/proxy_cpp_bridge.rs",
     "src/manual/qlist_model/proxy_rust_bridge.rs",
+    "src/manual/qobject/proxy_cpp_bridge.rs",
+    "src/manual/qobject/proxy_rust_bridge.rs",
 ];
 
 const FILES_CPP: [&'static str; 4] = [
     "src/generated/qabstract_item_model/cpp/QAbstractItemModelProxyCpp.cpp",
     "src/generated/qabstract_list_model/cpp/QAbstractListModelProxyCpp.cpp",
-    "src/generated/qobject/cpp/QObjectProxyCpp.cpp",
     "src/manual/qlist_model/cpp/QListModelProxyCpp.cpp",
+    "src/manual/qobject/cpp/QObjectProxyCpp.cpp",
 ];
 
 fn main() {
