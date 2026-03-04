@@ -93,8 +93,8 @@ impl syn::parse::Parse for ModuleItem {
                 // Parsing as custom item has failed.
                 // Try to parse as a regular syn::Item.
                 let regular_item: syn::Item = input.parse()?;
-                if let Some(_) = find_token(regular_item.to_token_stream(),
-                    &|token| token == "cpp_fn") {
+                if find_token(regular_item.to_token_stream(),
+                    &|token| token == "cpp_fn").is_some() {
                         return Err(syn::Error::new(err.span(),
                             format!("Found cpp_fn! but failed to parse as qtgen::bridge item.\nError: {err}")));
                 }

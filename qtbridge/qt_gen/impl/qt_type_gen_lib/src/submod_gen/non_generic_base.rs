@@ -52,8 +52,7 @@ impl NonGenericSubmoduleGeneratorBase {
 
         struct_ident = struct_ident
             .or_else(|| struct_.map(|s| s.ident().clone()));
-        let struct_path: syn::Path = struct_ident.as_ref()
-            .map(|i| i.clone())
+        let struct_path: syn::Path = struct_ident.clone()
             .unwrap_or_else(|| {
                 format_ident!("dummy")
             })
@@ -75,7 +74,7 @@ impl NonGenericSubmoduleGeneratorBase {
         };
         let qmetatype_id = qmetatype.map(|q| q.id().unwrap_or_default());
 
-        let funcs_substituted = get_functions_substituted(&src_module.functions(), &struct_path, &type_map)?;
+        let funcs_substituted = get_functions_substituted(src_module.functions(), &struct_path, &type_map)?;
         let traits_substituted = match inst.as_ref() {
             Some(inst) =>get_traits_substituted(
                 src_module.traits().iter()
@@ -126,7 +125,7 @@ impl NonGenericSubmoduleGeneratorBase {
     }
 
     pub fn qmetatype_id(&self) -> Option<i32> {
-        self.qmetatype_id.clone()
+        self.qmetatype_id
     }
 
     pub fn is_qmetatypeid_func_needed(&self) -> bool {
@@ -241,8 +240,8 @@ impl NonGenericSubmoduleGeneratorBase {
         let qmetatype_get_trait_bridge = self.get_qmetatype_get_trait_bridge_code()?;
         let inline_cpp_funcs_bridges = self.get_inline_cpp_functions_bridges()?;
         let all_funcs = def_traits_funcs.into_iter()
-            .chain(qmetatype_get_trait_bridge.into_iter())
-            .chain(inline_cpp_funcs_bridges.into_iter())
+            .chain(qmetatype_get_trait_bridge)
+            .chain(inline_cpp_funcs_bridges)
             .collect::<Vec<_>>();
 
         let mut bridge_tokens = TypeTokens::default();
@@ -524,8 +523,7 @@ impl NonGenericSubmoduleGeneratorBase {
         let bridge_namespace = naming::cpp::namespace::type_bridge(&submodule_name);
 
         let namespace = struct_
-            .map(|s| s.namespace())
-            .flatten();
+            .and_then(|s| s.namespace());
         let (maybe_namespace_w_colons, maybe_using_namespace) = namespace
             .map(|ns| (format!("{ns}::"), format!("using namespace {ns};\n")) )
             .unwrap_or_default();
@@ -555,8 +553,7 @@ impl NonGenericSubmoduleGeneratorBase {
         let maybe_qmetatype_id_check = self.get_static_qmetatype_id_check_cpp_code()
             .unwrap_or_default();
         let (cpp_func_decl, cpp_func_def) = self.get_inline_cpp_functions_cpp_code()?;
-        let maybe_reallocatable_struct = self.is_shared_struct() // TODO: and is_relocatable()
-            .then(|| {
+        let maybe_reallocatable_struct = if self.is_shared_struct() { {
                 let ident = self.struct_ident().unwrap();
                 format!(
 r#"
@@ -568,8 +565,7 @@ struct IsRelocatable<::{maybe_namespace_w_colons}{ident}> : ::std::true_type {{}
  }} // namespace rust
 
 "#)
-            })
-            .unwrap_or_default();
+            } } else { Default::default() };
 
         // Generate header code
         let header = format!(

@@ -53,7 +53,7 @@ pub fn get_submod_ident(module: &Module, inst: Option<&GenericInstantiationTypes
 
 pub fn get_traits_substituted<'a>(src: impl Iterator<Item = &'a TraitImpl>, type_map: &TypeMappingNested<MultiTypeMapping>) -> syn::Result<Vec<TraitImpl>> {
     let result = src
-        .map(|tr| tr.get_instantiations_with_types_substituted(&type_map))
+        .map(|tr| tr.get_instantiations_with_types_substituted(type_map))
         .collect::<syn::Result<Vec<_>>>()?
         .into_iter()
         .flatten()
@@ -69,13 +69,12 @@ pub fn get_functions_substituted(src: &[Function], self_type: &syn::Path, type_m
 
 pub fn get_unresolved_type_dependencies(type_tokens: &SubmoduleTypeTokens) -> Vec<syn::Path> {
     type_tokens.all()
-        .iter_unclassified()
-        .map(|token| token.clone())
+        .iter_unclassified().cloned()
         .collect()
 }
 
 pub fn file_path_to_qualified_path_before_name(src: &Path) -> Result<String, String> {
-    file_path_str_to_qualified_path_before_name(&src.to_string_lossy().to_string())
+    file_path_str_to_qualified_path_before_name(src.to_string_lossy().as_ref())
 }
 
 pub fn file_path_str_to_qualified_path_before_name(src: &str) -> Result<String, String> {

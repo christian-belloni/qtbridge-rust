@@ -29,7 +29,7 @@ use super::submodule_generator::SubmoduleGenerator;
 /// In this submodule we put:
 /// * declaration of generic struct
 /// * declaration of the 'Impl' trait (containing all the functions of struct
-///     that needs to be implemented specifically per monomorphization)
+///   that needs to be implemented specifically per monomorphization)
 /// * functions of struct calling corresponding functions of the 'Impl' trait
 pub struct GenericSubmoduleGenerator {
     src_module: Rc<Module>,
@@ -189,12 +189,13 @@ impl GenericSubmoduleGenerator {
 
         // Collect types unmentioned in struct fields
         let phantom_types_vec: Vec<_> = self.generics().list().iter()
-            .filter_map(|gen_ident| {
-                let gen_path: syn::Path = gen_ident.clone().into();
-                (!type_tokens.contains_unclassified(&gen_path))
-                    .then_some(gen_ident)
+            .filter(|gen_ident| {
+                let gen_path: syn::Path = (*gen_ident).clone().into();
+                !type_tokens.contains_unclassified(&gen_path)
             })
+            .cloned() 
             .collect();
+
         if phantom_types_vec.is_empty() {
             // No need in phantom field
             return Ok(TokenStream::new())
@@ -234,13 +235,13 @@ impl GenericSubmoduleGenerator {
         let prefix = Function::get_inline_functions_default_prefix();
         let mut result = TokenStream::new();
         for function in self.module().functions() {
-            let func_tokens = if function.cpp_functions().len() > 0 {
+            let func_tokens = if !function.cpp_functions().is_empty() {
                 let docs = function.docs();
                 let vis = function.visibility();
                 let sign = function.signature();
                 let sign_ident = &sign.ident;
                 let args = sign.inputs.iter()
-                    .map(|arg| get_arg_ident(arg))
+                    .map(get_arg_ident)
                     .collect::<syn::Result<Vec<_>>>()?;
                 quote! {
                     #(#docs)*
@@ -310,7 +311,7 @@ impl GenericSubmoduleGenerator {
         // If function has inline C++ block - put it to the 'Impl' trait
         // Maybe logic must be more complicate here
         self.module().functions().iter()
-            .filter(|f| f.cpp_functions().len() > 0)
+            .filter(|f| !f.cpp_functions().is_empty())
     }
 
     fn collect_type_tokens(&mut self) -> syn::Result<()> {
@@ -319,8 +320,8 @@ impl GenericSubmoduleGenerator {
         let generics = struct_.generics().list();
 
         let mut tokens = SubmoduleTypeTokens::new_for_generic(generics);
-        tokens.collect_from_functions(&module.functions())?;
-        tokens.collect_from_traits(&module.traits())?;
+        tokens.collect_from_functions(module.functions())?;
+        tokens.collect_from_traits(module.traits())?;
         tokens.remove_self();
 
         // Remove self under different names

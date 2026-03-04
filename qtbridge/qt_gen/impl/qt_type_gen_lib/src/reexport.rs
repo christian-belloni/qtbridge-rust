@@ -12,6 +12,12 @@ pub struct Reexport {
     others: BTreeSet<syn::Ident>,
 }
 
+impl Default for Reexport {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Reexport {
     pub fn new() -> Self {
         Self {
@@ -32,8 +38,7 @@ impl Reexport {
 
     pub fn all(&self) -> BTreeSet<syn::Ident> {
         self.types.iter()
-            .chain(self.others.iter())
-            .map(|ident| ident.clone())
+            .chain(self.others.iter()).cloned()
             .collect()
     }
 
@@ -57,7 +62,7 @@ impl Reexport {
             syn::Item::Trait(trait_) => self.collect_other_if_pub(&trait_.vis, &trait_.ident),
             syn::Item::Type(type_) => self.collect_type_if_pub(&type_.vis, &type_.ident),
             syn::Item::Union(union_) => self.collect_type_if_pub(&union_.vis, &union_.ident),
-            syn::Item::Use(use_) => self.collect_from_item_use(&use_.vis, &use_),
+            syn::Item::Use(use_) => self.collect_from_item_use(&use_.vis, use_),
             syn::Item::Verbatim(tokens) => self.collect_from_verbatim(tokens.clone())?,
             _ => {},
         }
@@ -88,14 +93,13 @@ impl Reexport {
         let parser = |input: syn::parse::ParseStream| -> syn::Result<()> {
             let _attrs = input.call(syn::Attribute::parse_outer)?;
             let vis = input.parse::<syn::Visibility>()?;
-            if is_pub_vis(&vis) {
-                if input.peek(syn::Token![static]) {
+            if is_pub_vis(&vis)
+                && input.peek(syn::Token![static]) {
                     input.parse::<syn::Token![static]>()?;
                     let ident: syn::Ident = input.parse()?;
                     self.others.insert(ident);
                 }
                 // TBD: more specific cases handled here
-            }
 
             let _rest = input.parse::<TokenStream>();
             Ok(())
@@ -126,8 +130,5 @@ impl Reexport {
 }
 
 fn is_pub_vis(vis: &syn::Visibility) -> bool {
-    match vis {
-        syn::Visibility::Public(_) => true,
-        _ => false,
-    }
+    matches!(vis, syn::Visibility::Public(_))
 }

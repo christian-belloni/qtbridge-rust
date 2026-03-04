@@ -36,8 +36,7 @@ pub struct QMetaTypeAttribute {
 impl QMetaTypeAttribute {
     pub fn id(&self) -> Option<i32> {
         self.id.as_ref()
-            .map(|lit| lit.base10_parse().ok())
-            .flatten()
+            .and_then(|lit| lit.base10_parse().ok())
     }
 
     pub fn id_span(&self) -> Option<Span> {

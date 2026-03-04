@@ -42,7 +42,7 @@ impl CppFun {
 
     pub fn get_code(&self, cpp_name: &str) -> syn::Result<(String, String)> {
         let rust_sign = self.signature();
-        let cpp_sign = CppFnSign::new_from_rust_sig(&rust_sign, Some(cpp_name.to_owned()), ExpectSelfRef::Maybe)?;
+        let cpp_sign = CppFnSign::new_from_rust_sig(rust_sign, Some(cpp_name.to_owned()), ExpectSelfRef::Maybe)?;
         let mut decl = cpp_sign.to_declaration_string(true);
         let def = format!("{decl}\n{{\n{}\n}}\n", token_stream_to_code(&self.cpp_func_code));
         decl.push(';');
@@ -73,8 +73,8 @@ impl CppFun {
         }
         else {
             replace_idents_in_token_stream(self.cpp_func_code.clone(), &|ident|
-                cpp_type_map.get(&ident)
-                    .map(|new_ident| syn::Ident::new(&new_ident, ident.span())))
+                cpp_type_map.get(ident)
+                    .map(|new_ident| syn::Ident::new(new_ident, ident.span())))
         };
 
         Self {

@@ -43,7 +43,7 @@ impl Function {
 
         // TODO: add mapping for Self here locally?
         let new_cpp_funcs = self.cpp_funcs.iter()
-            .map(|cpp_func| cpp_func.substitute_types(&type_map, self_type))
+            .map(|cpp_func| cpp_func.substitute_types(type_map, self_type))
             .collect();
 
         Ok(Self {
@@ -87,7 +87,7 @@ impl Function {
     pub fn get_rust_func(&self, name_prefix: &str) -> syn::ItemFn {
 
         // replace inline function names
-        let ident_map: BTreeMap<syn::Ident, syn::Path> = (0..self.cpp_funcs.len()).into_iter()
+        let ident_map: BTreeMap<syn::Ident, syn::Path> = (0..self.cpp_funcs.len())
             .map(|idx| {
                 let from_str = case_conv::camel_to_snake(&CppFunProcessor::inline_function_cpp_name_for_num(idx));
                 let to_str = self.get_cpp_func_name(name_prefix, idx).1;

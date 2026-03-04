@@ -50,13 +50,13 @@ impl StructureAttributes {
                     match ident.to_string().as_str() {
                         "derive" => {
                             let list = meta_list.parse_args_with(|input: &syn::parse::ParseBuffer|
-                                Punctuated::<syn::Ident, syn::Token![,]>::parse_separated_nonempty(&input)
+                                Punctuated::<syn::Ident, syn::Token![,]>::parse_separated_nonempty(input)
                             )?;
                             derive_traits.extend(list.iter().map(|i| i.to_string()));
                         },
                         "derive_cpp" => {
                             let list = meta_list.parse_args_with(|input: &syn::parse::ParseBuffer|
-                                Punctuated::<syn::Ident, syn::Token![,]>::parse_separated_nonempty(&input)
+                                Punctuated::<syn::Ident, syn::Token![,]>::parse_separated_nonempty(input)
                             )?;
                             derive_cpp_traits.extend(list.iter().map(|i| i.to_string()));
                         },
@@ -89,13 +89,12 @@ impl StructureAttributes {
             }
         }
 
-        if let Some(qmetatype) = qmetatype.as_ref() {
-            if qmetatype.id().is_some() && instantiations.is_some() {
+        if let Some(qmetatype) = qmetatype.as_ref()
+            && qmetatype.id().is_some() && instantiations.is_some() {
                 let span = qmetatype.id_span()
-                    .unwrap_or_else(|| Span::call_site());
+                    .unwrap_or_else(Span::call_site);
                 return Err(syn::Error::new(span, "Can't specify QMetaType id for generic struct"))
             }
-        }
 
         Ok(Self {
             derive_traits,

@@ -98,7 +98,7 @@ impl BridgeTypesGenerator {
                 return Err(format!("Name of bridge module must match the name of input file ({module_ident} vs {module_name})", ))
             }
 
-            let submodules_generators = Self::create_generators_for_module(Rc::new(qt_bridge_mod_item.clone()), &rel_input_path.to_string_lossy().as_ref())
+            let submodules_generators = Self::create_generators_for_module(Rc::new(qt_bridge_mod_item.clone()), rel_input_path.to_string_lossy().as_ref())
                 .map_err(|err| format!("Error trying to create generators for module {module_name}:\n{err}"))?;
 
             let file = Rc::new(file);

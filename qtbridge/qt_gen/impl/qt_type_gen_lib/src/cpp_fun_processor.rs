@@ -16,6 +16,12 @@ pub struct CppFunProcessor {
     inline_cpps: Vec<CppFun>,    // Collection of C++ functions inlined in Rust function
 }
 
+impl Default for CppFunProcessor {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CppFunProcessor {
     pub fn new() -> Self {
         Self {
@@ -60,15 +66,15 @@ impl CppFunProcessor {
         let new_stmt = match src {
             syn::Stmt::Local(local) =>
                 self.expand_local(local)?
-                    .map(|new_local| syn::Stmt::Local(new_local)),
+                    .map(syn::Stmt::Local),
 
             syn::Stmt::Item(item) =>
                 self.expand_item(item)?
-                    .map(|new_item| syn::Stmt::Item(new_item)),
+                    .map(syn::Stmt::Item),
 
             syn::Stmt::Expr(expr, semi) =>
                 self.expand_expr(expr)?
-                    .map(|new_expr| syn::Stmt::Expr(new_expr, semi.clone())),
+                    .map(|new_expr| syn::Stmt::Expr(new_expr, *semi)),
 
             _ => None,
         };
@@ -101,24 +107,21 @@ impl CppFunProcessor {
     fn expand_local_init(&mut self, src: &syn::LocalInit) -> syn::Result<Option<syn::LocalInit>>{
         let mut new_init = None;
 
-        if let syn::Expr::Macro(expr_macro) = src.expr.as_ref() {
-            if let Some(new_expr) = self.expand_expr_macro(expr_macro)? {
+        if let syn::Expr::Macro(expr_macro) = src.expr.as_ref()
+            && let Some(new_expr) = self.expand_expr_macro(expr_macro)? {
                 new_init = Some(syn::LocalInit{
                     expr: Box::new(new_expr),
                     ..src.clone()
                 })
             }
-        }
 
-        if let Some((else_token, else_expr)) = &src.diverge {
-            if let syn::Expr::Macro(expr_macro) = else_expr.as_ref() {
-                if let Some(new_expr) = self.expand_expr_macro(expr_macro)? {
+        if let Some((else_token, else_expr)) = &src.diverge
+            && let syn::Expr::Macro(expr_macro) = else_expr.as_ref()
+                && let Some(new_expr) = self.expand_expr_macro(expr_macro)? {
                     let mut init = new_init.unwrap_or_else(|| src.clone());
-                    init.diverge = Some((else_token.clone(), Box::new(new_expr)));
+                    init.diverge = Some((*else_token, Box::new(new_expr)));
                     new_init = Some(init);
                 }
-            }
-        }
 
         Ok(new_init)
     }
@@ -174,7 +177,7 @@ impl CppFunProcessor {
             block: new_block,
             ..src.clone()
         };
-        return Ok(Some(new_expr_block))
+        Ok(Some(new_expr_block))
     }
 
     // Handle invoke of function returned from cpp_fn macro
@@ -189,11 +192,8 @@ impl CppFunProcessor {
         let src_func = src.func.as_ref();
 
         let mut new_func = None;
-        match src_func {
-            syn::Expr::Macro(expr_macro) => {
-                new_func = self.expand_expr_macro(expr_macro)?;
-            },
-            _ => {},
+        if let syn::Expr::Macro(expr_macro) = src_func {
+            new_func = self.expand_expr_macro(expr_macro)?;
         }
 
         // Check arguments of the call
@@ -207,7 +207,7 @@ impl CppFunProcessor {
                 .enumerate()
                 .map(|(idx, arg_expr)| arg_expr.unwrap_or_else(|| src.args[idx].clone()))
                 .collect();
-            new_args = Some(Punctuated::from_iter(args.into_iter()));
+            new_args = Some(Punctuated::from_iter(args));
         }
 
         if new_func.is_none() && new_args.is_none() {
@@ -258,6 +258,6 @@ impl CppFunProcessor {
         let num = &mut self.inline_fn_counter;
         let result = Self::inline_function_cpp_name_for_num(*num);
         *num += 1;
-        return result;
+        result
     }
 }

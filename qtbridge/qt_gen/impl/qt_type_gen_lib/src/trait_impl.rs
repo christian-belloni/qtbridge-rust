@@ -99,7 +99,7 @@ impl TraitImpl {
             .collect();
 
         let funcs = self.funcs.iter()
-            .map(|f| f.substitute_types(&type_map, &self_type))
+            .map(|f| f.substitute_types(type_map, &self_type))
             .collect::<syn::Result<_>>()?;
 
         Ok(Self {

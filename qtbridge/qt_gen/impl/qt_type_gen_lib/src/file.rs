@@ -13,10 +13,7 @@ pub enum Item {
 
 impl Item {
     pub fn is_cxx_bridge(&self) -> bool {
-        match self {
-            Item::CxxBridge(_) => true,
-            _ => false,
-        }
+        matches!(self, Item::CxxBridge(_))
     }
 }
 
