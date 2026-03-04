@@ -3,5 +3,7 @@
 
 pub mod qlist_model;
 pub mod qobject;
+pub mod qtable_model;
 
 pub use qlist_model::{QListModel, QListModelBase};
+pub use qtable_model::{QTableModel, QTableModelBase};

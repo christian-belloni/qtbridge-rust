@@ -102,3 +102,4 @@ pub use bridge::{QApp, run_simple_app, qresource, QObjectHolder};
 pub use qt_ifaces::{QAbstractItemModel, QAbstractItemModelBase};
 pub use qt_ifaces::{QAbstractListModel,QAbstractListModelBase};
 pub use qt_ifaces::{QListModel, QListModelBase};
+pub use qt_ifaces::{QTableModel, QTableModelBase};

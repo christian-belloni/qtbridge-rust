@@ -51,6 +51,7 @@ members = [
     "test/quick/tst_qvec_with_tupleclass",
     "test/quick/tst_qresource",
     "test/quick/tst_qlistmodel",
+    "test/quick/tst_qtablemodel",
 ]
 
 [profile.release.build-override]

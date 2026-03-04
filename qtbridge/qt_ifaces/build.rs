@@ -3,7 +3,7 @@
 
 use build_common::qt_build::{link_qt_modules, qt_include_dirs};
 
-const FILES_BRIDGE: [&'static str; 8] = [
+const FILES_BRIDGE: [&'static str; 10] = [
     "src/generated/qabstract_item_model/proxy_cpp_bridge.rs",
     "src/generated/qabstract_item_model/proxy_rust_bridge.rs",
     "src/generated/qabstract_list_model/proxy_cpp_bridge.rs",
@@ -12,13 +12,16 @@ const FILES_BRIDGE: [&'static str; 8] = [
     "src/manual/qlist_model/proxy_rust_bridge.rs",
     "src/manual/qobject/proxy_cpp_bridge.rs",
     "src/manual/qobject/proxy_rust_bridge.rs",
+    "src/manual/qtable_model/proxy_cpp_bridge.rs",
+    "src/manual/qtable_model/proxy_rust_bridge.rs",
 ];
 
-const FILES_CPP: [&'static str; 4] = [
+const FILES_CPP: [&'static str; 5] = [
     "src/generated/qabstract_item_model/cpp/QAbstractItemModelProxyCpp.cpp",
     "src/generated/qabstract_list_model/cpp/QAbstractListModelProxyCpp.cpp",
     "src/manual/qlist_model/cpp/QListModelProxyCpp.cpp",
     "src/manual/qobject/cpp/QObjectProxyCpp.cpp",
+    "src/manual/qtable_model/cpp/QTableModelProxyCpp.cpp",
 ];
 
 fn main() {
