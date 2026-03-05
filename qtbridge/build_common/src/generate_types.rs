@@ -35,10 +35,7 @@ impl FileType {
     }
 
     pub fn is_cpp(&self) -> bool {
-        match self {
-            FileType::Cpp => true,
-            _ => false,
-        }
+        matches!(self, FileType::Cpp)
     }
 }
 
@@ -332,7 +329,7 @@ fn get_mod_dir_content(dirs: &[PathBuf], reexport: &[String]) -> Result<String, 
         .map(|mod_dir| {
             let mod_name = mod_dir
                 .components()
-                .last()?
+                .next_back()?
                 .as_os_str()
                 .to_string_lossy();
             Some(format!("pub mod {mod_name};"))

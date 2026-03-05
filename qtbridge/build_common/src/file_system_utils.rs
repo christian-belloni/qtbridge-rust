@@ -44,7 +44,6 @@ pub fn get_workspace_dir() -> Result<PathBuf, String> {
         Ok(dir) => dir,
         Err(_) => std::env::current_dir()
             .expect("Failed to get current dir")
-            .into()
     };
 
     find_file_upwards(&start_dir, "Cargo.lock", 10)
@@ -183,6 +182,6 @@ pub fn parent_dir(path: &Path) -> Result<PathBuf, String> {
 }
 
 pub fn create_dirs(path: &Path) -> Result<(), String> {
-    fs::create_dir_all(&path)
+    fs::create_dir_all(path)
         .map_err(|err| format!("Failed to create output directory '{}': {err}", path.display()))
 }

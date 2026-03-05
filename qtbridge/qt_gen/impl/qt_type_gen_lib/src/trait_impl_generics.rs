@@ -5,6 +5,7 @@ use syn::parse::Parse;
 /// Supported options so far:
 /// ident specifying a type (e.g. T, K, V, etc.)
 /// const param (e.g., 'const N: usize')
+#[allow(clippy::large_enum_variant)]
 #[derive(Clone)]
 pub enum TraitImplGeneric {
     Ident(syn::Ident),
