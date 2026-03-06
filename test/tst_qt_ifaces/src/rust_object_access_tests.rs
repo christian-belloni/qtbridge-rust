@@ -257,35 +257,34 @@ fn require_that_try_with_borrow_mut_fails_when_class_is_constructed_with_weak_po
 
 
 #[test]
-fn require_that_try_with_assuming_borrowed_succeeds_when_called_on_object_borrowed_immutably() {
+fn require_that_try_store_handle_and_call_qml_succeeds_when_called_on_object_borrowed_immutably() {
     let rc = Rc::new(RefCell::new(44));
     let instance = RustObjAccess::new_strong(rc.clone());
     let _b = rc.borrow();
-    let result = instance.try_with_assuming_borrowed(|value| value + 6);
+    let result = instance.try_store_handle_and_call_qml(|value| value + 6);
     assert!(result.is_ok());
     assert_eq!(result.unwrap(), 50);
 }
 
 #[test]
-fn require_that_try_with_assuming_borrowed_mut_succeeds_when_called_on_object_borrowed_mutably() {
+fn require_that_try_store_handle_and_call_qml_mut_succeeds_when_called_on_object_borrowed_mutably() {
     let rc = Rc::new(RefCell::new(45));
     let instance = RustObjAccess::new_strong(rc.clone());
     let result;
     {
         let _b = rc.borrow_mut();
-        result = instance.try_with_assuming_borrowed_mut(|value| *value += 6);
+        result = instance.try_store_handle_and_call_qml_mut(|value| *value += 6);
     }
     assert!(result.is_ok());
     assert_eq!(*rc.borrow(), 51);
 }
 
-
 #[test]
-fn require_that_try_with_borrow_succeeds_when_called_after_try_with_assuming_borrowed_on_object_borrowed_immutably() {
+fn require_that_try_with_borrow_succeeds_when_called_after_try_store_handle_and_call_qml_on_object_borrowed_immutably() {
     let rc = Rc::new(RefCell::new(46));
     let instance = RustObjAccess::new_strong(rc.clone());
     let _b = rc.borrow();
-    let result = instance.try_with_assuming_borrowed(|_value| {
+    let result = instance.try_store_handle_and_call_qml(|_value| {
         instance.try_with_borrow(|value2| value2 + 8)
     });
 
@@ -296,13 +295,13 @@ fn require_that_try_with_borrow_succeeds_when_called_after_try_with_assuming_bor
 }
 
 #[test]
-fn require_that_try_with_borrow_mut_succeeds_when_called_after_try_with_assuming_borrowed_mut_on_object_borrowed_mutably() {
+fn require_that_try_with_borrow_mut_succeeds_when_called_after_try_store_handle_and_call_qml_mut_on_object_borrowed_mutably() {
     let rc = Rc::new(RefCell::new(47));
     let instance = RustObjAccess::new_strong(rc.clone());
     let result;
     {
         let _b = rc.borrow_mut();
-        result = instance.try_with_assuming_borrowed_mut(|_value| {
+        result = instance.try_store_handle_and_call_qml_mut(|_value| {
             instance.try_with_borrow_mut(|value2| *value2 += 8)
         });
     }
@@ -312,42 +311,42 @@ fn require_that_try_with_borrow_mut_succeeds_when_called_after_try_with_assuming
 }
 
 #[test]
-fn require_that_try_with_assuming_borrowed_fails_when_called_on_object_not_borrowed() {
+fn require_that_try_store_handle_and_call_qml_fails_when_called_on_object_not_borrowed() {
     let rc = Rc::new(RefCell::new(48));
     let instance = RustObjAccess::new_strong(rc.clone());
-    let result = instance.try_with_assuming_borrowed(|_value| { panic!("Not supposed to be called") });
+    let result = instance.try_store_handle_and_call_qml(|_value| { panic!("Not supposed to be called") });
     assert!(result.is_err());
     assert!(matches!(result.unwrap_err(), RustObjAccessError::ExpectedBorrowed));
 }
 
 // TODO: uncomments the test below once borrowing in metacalls is in place
 // #[test]
-// fn require_that_try_with_assuming_borrowed_mut_fails_when_called_on_object_not_borrowed() {
+// fn require_that_try_store_handle_and_call_qml_mut_fails_when_called_on_object_not_borrowed() {
 //     let rc = Rc::new(RefCell::new(49));
 //     let instance = RustObjAccess::new_strong(rc.clone());
-//     let result = instance.try_with_assuming_borrowed_mut(|_value| { panic!("Not supposed to be called") });
+//     let result = instance.try_store_handle_and_call_qml_mut(|_value| { panic!("Not supposed to be called") });
 //     assert!(result.is_err());
 //     assert!(matches!(result.unwrap_err(), RustObjAccessError::ExpectedBorrowedMut));
 // }
 
 // TODO: uncomments the test below once borrowing in metacalls is in place
 // #[test]
-// fn require_that_try_with_assuming_borrowed_fails_when_called_on_object_borrowed_mutably_before_the_call() {
+// fn require_that_try_store_handle_and_call_qml_fails_when_called_on_object_borrowed_mutably_before_the_call() {
 //     let rc = Rc::new(RefCell::new(50));
 //     let instance = RustObjAccess::new_strong(rc.clone());
 //     let _b = rc.borrow_mut();
-//     let result = instance.try_with_assuming_borrowed(|_value| { panic!("Not supposed to be called") });
+//     let result = instance.try_store_handle_and_call_qml(|_value| { panic!("Not supposed to be called") });
 //     assert!(result.is_err());
 //     assert!(matches!(result.unwrap_err(), RustObjAccessError::ExpectedBorrowed));
 // }
 
 // TODO: uncomments the test below once borrowing in metacalls is in place
 // #[test]
-// fn require_that_try_with_assuming_borrowed_mut_fails_when_called_on_object_borrowed_immutably_before_the_call() {
+// fn require_that_try_store_handle_and_call_qml_mut_fails_when_called_on_object_borrowed_immutably_before_the_call() {
 //     let rc = Rc::new(RefCell::new(51));
 //     let instance = RustObjAccess::new_strong(rc.clone());
 //     let _b = rc.borrow();
-//     let result = instance.try_with_assuming_borrowed_mut(|_value| { panic!("Not supposed to be called") });
+//     let result = instance.try_store_handle_and_call_qml_mut(|_value| { panic!("Not supposed to be called") });
 //     assert!(result.is_err());
 //     assert!(matches!(result.unwrap_err(), RustObjAccessError::ExpectedBorrowedMut));
 // }

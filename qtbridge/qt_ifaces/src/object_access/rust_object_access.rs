@@ -45,7 +45,7 @@ macro_rules! call_cpp_impl {
         };
         let proxy_pinned = unsafe { std::pin::Pin::new_unchecked(proxy) };
         $self.rust_obj
-            .try_with_assuming_borrowed_mut(|_| proxy_pinned.$method($($arg),*))
+            .try_store_handle_and_call_qml_mut(|_| proxy_pinned.$method($($arg),*))
             .expect(concat!(
                 "Failed to borrow mutably for ",
                 stringify!($method),
@@ -60,7 +60,7 @@ macro_rules! call_cpp_impl {
                 .expect("cpp_proxy was null")
         };
         $self.rust_obj
-            .try_with_assuming_borrowed(|_| proxy.$method($($arg),*))
+            .try_store_handle_and_call_qml(|_| proxy.$method($($arg),*))
             .expect(concat!(
                 "Failed to borrow for ",
                 stringify!($method),
@@ -96,45 +96,43 @@ macro_rules! call_cpp_impl {
 /// normal `Rc<RefCell<T>>`.
 pub struct RustObjAccess<T: ?Sized + 'static>
 {
-    /// Pointer to Rust object we provide access to
-    obj_ptr: RustObjPtr<T>,
-
-    /// Reference to borrowed object
-    borrowed: Cell<*mut RustObjBorrowed<'static, T>>,
+    shared_reference: SharedReferenceWithQml<T>,
+    borrow_handle: Cell<*mut RustObjBorrowHandle<'static, T>>,
 }
 
 impl<T: ?Sized> RustObjAccess<T> {
     pub fn new_strong(ptr: Rc<RefCell<T>>) -> Self {
         Self {
-            obj_ptr: RustObjPtr::Strong(ptr),
-            borrowed: Cell::new(ptr::null_mut()),
+            shared_reference: SharedReferenceWithQml::OwnedByRust(ptr),
+            borrow_handle: Cell::new(ptr::null_mut()),
         }
     }
 
     pub fn new_weak(ptr: Weak<RefCell<T>>) -> Self {
         Self {
-            obj_ptr: RustObjPtr::Weak(ptr),
-            borrowed: Cell::new(ptr::null_mut()),
+            shared_reference: SharedReferenceWithQml::OwnedByQml(ptr),
+            borrow_handle: Cell::new(ptr::null_mut()),
         }
     }
 
     pub fn try_with_borrow<F, R>(&self, f: F) -> Result<R, RustObjAccessError>
     where F:FnOnce(&T) -> R
     {
-        let ptr_to_borrowed = self.borrowed.get();
+        // We already borrowed and store a reference and can execute on it
+        let ptr_to_borrowed = self.borrow_handle.get();
         if let Some(borrowed) = unsafe { ptr_to_borrowed.as_ref() } {
             return Ok(f(borrowed.obj_ref.deref()))
         };
 
-        // Create struct holding reference on the stack
-        let rc = self.obj_ptr.get_rc()
+        // Create struct holding a reference on the stack
+        let rc = self.shared_reference.get_rc()
             .ok_or(RustObjAccessError::ExpiredWeakPtr)?;
-        let mut borrowed = RustObjBorrowed::new(rc, false)?;
+        let mut borrowed = RustObjBorrowHandle::new(rc, false)?;
 
         // Write the pointer to this object on the stack to self.borrowed
-        self.borrowed.set(&mut borrowed);
+        self.borrow_handle.set(&mut borrowed);
         let result = f(borrowed.obj_ref.deref());
-        self.borrowed.set(ptr::null_mut());
+        self.borrow_handle.set(ptr::null_mut());
 
         Ok(result)
     }
@@ -142,48 +140,63 @@ impl<T: ?Sized> RustObjAccess<T> {
     pub fn try_with_borrow_mut<F, R>(&self, f: F) -> Result<R, RustObjAccessError>
     where F:FnOnce(&mut T) -> R
     {
-        let ptr_to_borrowed = self.borrowed.get();
+        let ptr_to_borrowed = self.borrow_handle.get();
         if let Some(borrowed) = unsafe { ptr_to_borrowed.as_mut() } {
             match &mut borrowed.obj_ref {
-                RustObjRef::Immutable(_) |
-                RustObjRef::ImmutableBorrowedExternally(_) => {
+                RustHandle::Immutable(_) |
+                RustHandle::ImmutableUnguardedBorrow(_) => {
                     // Call try_borrow_mut() to get BorrowMutError and return it from the function
                     let _ref = borrowed.obj_rc.try_borrow_mut()
                         .map_err(|err| RustObjAccessError::BorrowMutError(err))?;
                     unreachable!()
                 },
-                RustObjRef::Mutable(_) |
-                RustObjRef::MutableBorrowedExternally(_) => {
+                RustHandle::Mutable(_) |
+                RustHandle::MutableUnguardedBorrow(_) => {
                     return Ok(f(borrowed.obj_ref.deref_mut().unwrap()))
                 }
             }
         }
 
-        let rc = self.obj_ptr.get_rc()
+        let rc = self.shared_reference.get_rc()
             .ok_or(RustObjAccessError::ExpiredWeakPtr)?;
-        let mut borrowed = RustObjBorrowed::new(rc, true)?;
+        let mut borrowed = RustObjBorrowHandle::new(rc, true)?;
 
-        self.borrowed.set(&mut borrowed);
+        self.borrow_handle.set(&mut borrowed);
         let result = f(borrowed.obj_ref.deref_mut().unwrap());
-        self.borrowed.set(ptr::null_mut());
+        self.borrow_handle.set(ptr::null_mut());
 
         Ok(result)
     }
 
-    /// Try to execute functor on `Rc<RefCell<T>>` assuming that it was already borrowed externally (not inside this struct).
-    /// This might be the case when borrowing happens in the user code via borrowing functions of `Rc<RefCell<T>>` that we share with the user.
-    /// This function does not actually borrow, but remembers that the borrowing already occurred in the caller code outside of this call.
-    /// Performs checks to verify the assumption that the borrowing was done externally.
-    /// Access to the target object is performed via a raw pointer obtained from `Rc::as_ptr()`.
-    pub fn try_with_assuming_borrowed<F, R>(&self, f: F) -> Result<R, RustObjAccessError>
+    /// Executes `f` on the inner `T` assuming that a valid `RefCell` borrow
+    /// already exists somewhere in the current call stack.
+    ///
+    /// This is intended for Rust -> C++/QML -> Rust re-entry scenarios:
+    /// Rust code borrows from `Rc<RefCell<T>>` and calls into C++/QML code.
+    /// That code may call back into Rust. Borrowing the `RefCell` again when
+    /// re-entering Rust would normally fail, because the original borrow is
+    /// still active.
+    ///
+    /// To support this case, the function stores access to the object and
+    /// invokes `f` using a raw pointer obtained via `Rc::as_ptr()`, bypassing
+    /// the `RefCell` borrow mechanism.
+    ///
+    /// This must only be used when the caller can guarantee that a valid
+    /// borrow of the `RefCell` already exists externally. Rust code that
+    /// directly accesses the object should use the normal `borrow()` or
+    /// `borrow_mut()` APIs instead.
+    ///
+    /// The function performs runtime checks to validate the assumption that
+    /// the borrow originates outside this call.
+    pub fn try_store_handle_and_call_qml<F, R>(&self, f: F) -> Result<R, RustObjAccessError>
     where F:FnOnce(&T) -> R
     {
-        let ptr_to_borrowed = self.borrowed.get();
+        let ptr_to_borrowed = self.borrow_handle.get();
         if let Some(borrowed) = unsafe { ptr_to_borrowed.as_ref() } {
             return Ok(f(borrowed.obj_ref.deref()))
         }
 
-        let rc = self.obj_ptr.get_rc()
+        let rc = self.shared_reference.get_rc()
             .ok_or(RustObjAccessError::ExpiredWeakPtr)?;
 
         // Check that object is actually borrowed immutably at the moment.
@@ -201,36 +214,37 @@ impl<T: ?Sized> RustObjAccess<T> {
             //     .map_err(|_err| RustObjAccessError::ExpectedBorrowed)?;
         }
 
-        let mut borrowed = RustObjBorrowed::new_borrowed_externally(rc, false);
+        let mut borrowed = RustObjBorrowHandle::new_unguarded(rc, false);
 
-        self.borrowed.set(&mut borrowed);
+        self.borrow_handle.set(&mut borrowed);
         let result = f(borrowed.obj_ref.deref());
-        self.borrowed.set(ptr::null_mut());
+        self.borrow_handle.set(ptr::null_mut());
 
         Ok(result)
     }
 
-    pub fn try_with_assuming_borrowed_mut<F, R>(&self, f: F) -> Result<R, RustObjAccessError>
+    /// Similar to [`try_store_handle_and_call_qml`].
+    pub fn try_store_handle_and_call_qml_mut<F, R>(&self, f: F) -> Result<R, RustObjAccessError>
     where F:FnOnce(&mut T) -> R
     {
-        let ptr_to_borrowed = self.borrowed.get();
+        let ptr_to_borrowed = self.borrow_handle.get();
         if let Some(borrowed) = unsafe { ptr_to_borrowed.as_mut() } {
              match &mut borrowed.obj_ref {
-                RustObjRef::Immutable(_) |
-                RustObjRef::ImmutableBorrowedExternally(_) => {
+                RustHandle::Immutable(_) |
+                RustHandle::ImmutableUnguardedBorrow(_) => {
                     // Call try_borrow_mut() to get BorrowMutError and return it from the function
                     let _ref = borrowed.obj_rc.try_borrow_mut()
                         .map_err(|err| RustObjAccessError::BorrowMutError(err))?;
                     panic!("Object assumed to be borrowed but it is not")
                 },
-                RustObjRef::Mutable(_) |
-                RustObjRef::MutableBorrowedExternally(_) => {
+                RustHandle::Mutable(_) |
+                RustHandle::MutableUnguardedBorrow(_) => {
                     return Ok(f(borrowed.obj_ref.deref_mut().unwrap()))
                 }
             }
         }
 
-        let rc = self.obj_ptr.get_rc()
+        let rc = self.shared_reference.get_rc()
             .ok_or(RustObjAccessError::ExpiredWeakPtr)?;
 
         // Check that object is actually borrowed mutably
@@ -250,11 +264,11 @@ impl<T: ?Sized> RustObjAccess<T> {
             // }
         }
 
-        let mut borrowed = RustObjBorrowed::new_borrowed_externally(rc, true);
+        let mut borrowed = RustObjBorrowHandle::new_unguarded(rc, true);
 
-        self.borrowed.set(&mut borrowed);
+        self.borrow_handle.set(&mut borrowed);
         let result = f(borrowed.obj_ref.deref_mut().unwrap());
-        self.borrowed.set(ptr::null_mut());
+        self.borrow_handle.set(ptr::null_mut());
 
         Ok(result)
     }
@@ -284,49 +298,46 @@ impl From<BorrowMutError> for RustObjAccessError {
     }
 }
 
-
-/// Strong (if created on the Rust side) or weak (if created from Qml)
-/// pointer to Rust object.
-pub enum RustObjPtr<T: ?Sized> {
-    Strong(Rc<RefCell<T>>),
-    Weak(Weak<RefCell<T>>),
+pub enum SharedReferenceWithQml<T: ?Sized> {
+    OwnedByRust(Rc<RefCell<T>>),
+    OwnedByQml(Weak<RefCell<T>>),
 }
 
-impl<T: ?Sized> RustObjPtr<T> {
+impl<T: ?Sized> SharedReferenceWithQml<T> {
     fn get_rc(&self) -> Option<Rc<RefCell<T>>> {
         match self {
-            RustObjPtr::Strong(rc) => Some(rc.clone()),
-            RustObjPtr::Weak(weak) => weak.upgrade()
+            SharedReferenceWithQml::OwnedByRust(rc) => Some(rc.clone()),
+            SharedReferenceWithQml::OwnedByQml(weak) => weak.upgrade()
         }
     }
 }
 
 /// Struct with a borrowed object
-struct RustObjBorrowed<'a, T: ?Sized> {
+struct RustObjBorrowHandle<'a, T: ?Sized> {
     /// Strong pointer being held to make sure referenced object is alive while borrowed.
     obj_rc: Rc<RefCell<T>>,
 
     /// Ref or RefMut obtained by borrowing from RefCell.
-    obj_ref: RustObjRef<'a, T>,
+    obj_ref: RustHandle<'a, T>,
 }
 
-impl<'a, T: ?Sized> RustObjBorrowed<'a, T> {
+impl<'a, T: ?Sized> RustObjBorrowHandle<'a, T> {
     fn new(rc: Rc<RefCell<T>>, is_mutable: bool) -> Result<Self, RustObjAccessError> {
         let mut uninit: MaybeUninit<Self> = MaybeUninit::uninit();
         let ptr = uninit.as_mut_ptr();
         unsafe {
             addr_of_mut!((*ptr).obj_rc).write(rc.clone());
-            addr_of_mut!((*ptr).obj_ref).write(RustObjRef::new(&(*ptr).obj_rc, is_mutable)?);
+            addr_of_mut!((*ptr).obj_ref).write(RustHandle::new(&(*ptr).obj_rc, is_mutable)?);
             Ok(uninit.assume_init())
         }
     }
 
-    fn new_borrowed_externally(rc: Rc<RefCell<T>>, is_mutable: bool) -> Self {
+    fn new_unguarded(rc: Rc<RefCell<T>>, is_mutable: bool) -> Self {
         let mut uninit: MaybeUninit<Self> = MaybeUninit::uninit();
         let ptr = uninit.as_mut_ptr();
         unsafe {
             addr_of_mut!((*ptr).obj_rc).write(rc.clone());
-            addr_of_mut!((*ptr).obj_ref).write(RustObjRef::new_borrowed_externally(&(*ptr).obj_rc, is_mutable));
+            addr_of_mut!((*ptr).obj_ref).write(RustHandle::new_unguarded(&(*ptr).obj_rc, is_mutable));
             uninit.assume_init()
         }
     }
@@ -335,14 +346,14 @@ impl<'a, T: ?Sized> RustObjBorrowed<'a, T> {
 /// Mutable or immutable reference to Rust object
 /// obtained via RefCell::try_borrow()/try_borrow_mut()
 /// or RefCell::as_ptr() if the object was already borrowed externally
-enum RustObjRef<'a, T: ?Sized> {
+enum RustHandle<'a, T: ?Sized> {
     Immutable(Ref<'a, T>),
     Mutable(RefMut<'a, T>),
-    ImmutableBorrowedExternally(NonNull<T>),
-    MutableBorrowedExternally(NonNull<T>),
+    ImmutableUnguardedBorrow(NonNull<T>),
+    MutableUnguardedBorrow(NonNull<T>),
 }
 
-impl<'a, T: ?Sized> RustObjRef<'a, T> {
+impl<'a, T: ?Sized> RustHandle<'a, T> {
     fn new(rc: &'a Rc<RefCell<T>>, is_mutable: bool) -> Result<Self, RustObjAccessError> {
         match is_mutable {
             true => Ok(Self::Mutable(
@@ -356,13 +367,13 @@ impl<'a, T: ?Sized> RustObjRef<'a, T> {
         }
     }
 
-    fn new_borrowed_externally(rc: &'a Rc<RefCell<T>>, is_mutable: bool) -> Self {
+    fn new_unguarded(rc: &'a Rc<RefCell<T>>, is_mutable: bool) -> Self {
         // This Rc is stored in parent struct
         // so there is no risk of input rc getting out of scope.
         let nn = NonNull::new(rc.as_ptr()).unwrap();
         match is_mutable {
-            true => Self::MutableBorrowedExternally(nn),
-            false => Self::ImmutableBorrowedExternally(nn),
+            true => Self::MutableUnguardedBorrow(nn),
+            false => Self::ImmutableUnguardedBorrow(nn),
         }
     }
 
@@ -370,17 +381,17 @@ impl<'a, T: ?Sized> RustObjRef<'a, T> {
         match self {
             Self::Immutable(ref_) => ref_,
             Self::Mutable(ref_mut) => ref_mut,
-            Self::ImmutableBorrowedExternally(ptr) => unsafe { ptr.as_ref() },
-            Self::MutableBorrowedExternally(ptr) => unsafe {ptr.as_ref() },
+            Self::ImmutableUnguardedBorrow(ptr) => unsafe { ptr.as_ref() },
+            Self::MutableUnguardedBorrow(ptr) => unsafe {ptr.as_ref() },
         }
     }
 
     fn deref_mut(&mut self) -> Option<&mut T> {
         match self {
             Self::Immutable(_) => None,
-            Self::ImmutableBorrowedExternally(_) => None,
+            Self::ImmutableUnguardedBorrow(_) => None,
             Self::Mutable(ref_mut) => Some(ref_mut),
-            Self::MutableBorrowedExternally(ptr) => Some(unsafe {ptr.as_mut() }),
+            Self::MutableUnguardedBorrow(ptr) => Some(unsafe {ptr.as_mut() }),
         }
     }
 }
