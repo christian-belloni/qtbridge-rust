@@ -6,10 +6,26 @@
 //! This crate provides proxies for various Qt (C++) interfaces using Cxx.
 //! Proxies serve as the bridge between Rust and C++ implementations of Qt
 //! interfaces, allowing Rust types to implement behavior expected by C++
-//! code and to safely access C++ functionality from Rust.
+//! code and to access C++ functionality from Rust.
 //!
-//! Each Qt interface has a corresponding **proxy** in Rust. A proxy works together
-//! with a set of traits to provide three main capabilities:
+//! ## The proxy
+//!
+//! Each Qt interface has a corresponding **proxy** in Rust. This proxy has
+//! to implement the [`QRustProxy`] trait and interacts mostly with the [`QObjectHolder`]
+//! trait, that is automatically implemented for all user types by qt_gen.
+//!
+//! The demands on proxies are baked into the [`QRustProxy`] trait. For example, there
+//! is the demand to provide a Qt static meta object, usually from the "base" this proxy
+//! is derived from. Further, the proxy has to provide a marker trait called `AdapterType`
+//! that is at a minimum used to store a reference to the user object as
+//! `Rc<RefCell<dyn AdapterType>>`. Otherwise the proxy is mostly free in its design.
+//!
+//! All proxies provided in this module follow a similar architecture. The proxy works
+//! together with a set of traits. The QObject proxy is very different since it is the
+//! proxy that is used if only QMetaObject functionality needs to be provided but no
+//! interface implementation.
+//!
+//! ## Traits
 //!
 //! 1. **User-implemented functionality**: Rust implementations of Qt virtual functions.
 //! 2. **Rust access to C++ functionality**: Rust wrappers around C++ methods of the interface.
@@ -22,38 +38,27 @@
 //! ### 1. `QListModel`
 //! * **Responsibility**: Must be implemented by the user.
 //! * **Purpose**: Functions in this trait are called from C++ via the proxy, providing Rust
-//!   implementations of Qt virtual functions.
+//!   implementations of Qt virtual functions. Some modifications can be done in the functions
+//!   to shape the API and to erase Qt types (e.g. QVariant and QModelIndex).
 //! * **Associated Types**: Defines types (e.g., `Item`) that are part of the interface contract.
-//! * **Notes**: Users implement the logic of each function according to the Qt behavior
-//!   expected by the C++ side. Default implementation can exist for non-pure virtual functions.
+//! * **Notes**: Users implement function as expected from the Qt API. Default implementation
+//!   can exist for non-pure virtual functions.
 //!
 //! ### 2. `QListModelBase`
-//! * **Responsibility**: Implemented automatically by `qt_gen` for all Rust types that have
-//!   `QListModel` as a base. Has generic or default implementations for most interface functions.
+//! * **Responsibility**: Default / blank implementation for all `QListModel`.
 //! * **Purpose**: Provides access to C++ functions from Rust and other convenience functions
 //!   that should not be overridden. Serves as a bridge between user logic and C++ functionality.
-//! * **Notes**: This trait forms the core Rust interface to the C++ side for types implementing
+//!   Functions that should not be overridden by the user are implemented here.
+//! * **Notes**: This trait forms the core Rust interface to call C++ functions for types implementing
 //!   `QListModel`.
 //!
-//! ### 3. `QListModelProxyGet` (Internal Only)
-//! * **Responsibility**: Fully implemented by `qt_gen` for all types that have `QListModel` as a base.
-//! * **Purpose**: Provides internal access to proxies and related interfaces. Required for machinery
-//!   that serves to connect a Rust object to corresponding proxy object.
-//! * **Notes**: Never called or implemented by end users. Contains functions generated once `qt_gen`
-//!   knows all traits and proxies for a specific type. Serves as internal glue between all the different
-//!   parts of the language bridge.
-//!
-//! ### 4. `QListModelAdapter` (Internal Only)
-//! * **Responsibility**: Fully implemented by `qt_gen` for all types with `QListModel` as a base.
+//! ### 3. `QListModelAdapter` (Internal Only)
+//! * **Responsibility**: Default / blank implementation for all `QListModel`.
 //! * **Purpose**: Provides a type-erased interface for internal machinery. Traits with associated
 //!   types (like `QListModel::Item`) cannot be used as `dyn` traits in Rust. `QListModelAdapter`
 //!   erases unknown types while exposing the necessary interface internally.
 //! * **Notes**: Never meant for user implementation or usage. Facilitates dynamic behavior and
 //!   internal bridging without exposing associated types to user code.
-
-// TODO
-// - Define what is meant with "base". We will probably change it soon.
-// - Clarify the role of `qt_gen` and how it interacts with proxies and internal traits.
 
 mod generated;
 pub use generated::*;
