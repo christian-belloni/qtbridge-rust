@@ -14,7 +14,7 @@ pub trait QmlRegister : QMetaTypeGet + QMetaInfo + QObjectHolder + Default
     const MAJOR_VERSION: u8;
     const IS_SINGLETON: bool;
 
-    fn qml_register() {
+    fn register() {
         let meta_obj_data = <Self as QMetaInfo>::get_shared_dynamic_meta_object();
         let meta_obj = unsafe {
             meta_obj_data

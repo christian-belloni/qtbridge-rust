@@ -326,112 +326,112 @@ pub fn qslot(_: TokenStream, _: TokenStream) -> TokenStream {
     panic!("#[qslot] proc macro called outside #[qobject] or #[qobject_impl].")
 }
 
-/// The macro that registers a user-defined Rust `struct` type as a QML [object type](https://doc.qt.io/qt-6/qtqml-typesystem-objecttypes.html).
-///
-/// Once a `struct` is registered in the QML type system, it can be imported and instantiated from QML like any other object type.
-/// In QML syntax, the initialization of an object can be done by specifying the type name followed by curly brackets that contain the object's properties initializers.
-/// For example, QML initialization can look like:
-///
-/// ### Example
-///
-/// ```javascript,ignore
-/// import QtQuick
-/// import QtQuick.Controls
-/// import address_book
-///
-/// ApplicationWindow {
-///     ...
-///     property Address address: Address {
-///         city: "London"
-///         street: "Baker Street"
-///         house: 221
-///     }
-///     ...
-/// }
-/// ```
-///
-/// for the `struct` defined on the Rust side as follows:
-///
-/// ```rust,ignore
-/// #[qml_element]
-/// struct Address {
-///     city: String,
-///     street: String,
-///     house: i32,
-/// }
-/// #[qobject_impl]
-/// impl Address {
-///     qproperty!("city", Member = city, Notify = "cityChanged");
-///     qproperty!("street", Member = street, Notify = "streetChanged");
-///     qproperty!("house", Member = house, Notify = "houseChanged");
-///
-///     #[qsignal]
-///     fn city_changed(&self);
-///     #[qsignal]
-///     fn street_changed(&self);
-///     #[qsignal]
-///     fn house_changed(&self);
-/// }
-/// ```
-///
-/// Currently, the name of the QML module that must be imported in QML code is derived
-/// from the `name` value in the `package` section of the corresponding manifest file ('Cargo.toml'),
-/// by applying the following transformations:
-/// - All leading digits are removed.
-/// - All characters that are neither alphabetic not digits are replaced with '_'.
-///
-/// Once an instance is created in QML, its exposed method and properties can be accessed and manipulated directly from QML code.
-///
-///
-/// ### Singleton support
-///
-/// Optionally, a QML element can be registered as a [singleton](https://doc.qt.io/qt-6/qml-singleton.html) by using `#[qml_element(singleton)]`.
-/// In this case, QML code accesses a single shared instance of the object directly, using the **type name itself** as identifier.
-/// This is useful for application-wide data, global settings, or service objects.
-///
-/// Example:
-///
-/// ```rust
-/// use qtbridge::{qobject_impl, qml_element};
-///
-/// #[derive(Default)]
-/// pub struct Backend {
-/// }
-///
-/// #[qobject_impl]
-/// #[qml_element(singleton)]
-/// impl Backend {
-///     #[qslot]
-///     fn say_hello(&self) {
-///         println!("Hello World!")
-///     }
-/// }
-/// ```
-///
-/// Then QML can refer to it by type name "Backend":
-///
-/// ```javascript,ignore
-/// import QtQuick
-/// import QtQuick.Controls
-/// import hello_world
-///
-/// ApplicationWindow {
-///     visible: true
-///
-///     Button {
-///         anchors.centerIn: parent
-///         text: "Hello World!"
-///         onClicked: Backend.sayHello()
-///     }
-/// }
-/// ```
-///
-///
-#[proc_macro_attribute]
-pub fn qml_element(args: TokenStream, input: TokenStream) -> TokenStream {
-    let output = match qt_gen_impl::qml_element(args.into(), input.into()) {
-        Ok(tokens) => tokens,
-        Err(err) => err.to_compile_error(),
-    };
-    output.into()
-}
+// The macro that registers a user-defined Rust `struct` type as a QML [object type](https://doc.qt.io/qt-6/qtqml-typesystem-objecttypes.html).
+//
+// Once a `struct` is registered in the QML type system, it can be imported and instantiated from QML like any other object type.
+// In QML syntax, the initialization of an object can be done by specifying the type name followed by curly brackets that contain the object's properties initializers.
+// For example, QML initialization can look like:
+//
+// ### Example
+//
+// ```javascript,ignore
+// import QtQuick
+// import QtQuick.Controls
+// import address_book
+//
+// ApplicationWindow {
+//     ...
+//    property Address address: Address {
+//         city: "London"
+//         street: "Baker Street"
+//         house: 221
+//     }
+//     ...
+// }
+// ```
+//
+// for the `struct` defined on the Rust side as follows:
+//
+// ```rust,ignore
+// #[qml_element]
+// struct Address {
+//     city: String,
+//     street: String,
+//     house: i32,
+// }
+// #[qobject_impl]
+// impl Address {
+//     qproperty!("city", Member = city, Notify = "cityChanged");
+//    qproperty!("street", Member = street, Notify = "streetChanged");
+//     qproperty!("house", Member = house, Notify = "houseChanged");
+//
+//     #[qsignal]
+//     fn city_changed(&self);
+//     #[qsignal]
+//     fn street_changed(&self);
+//     #[qsignal]
+//     fn house_changed(&self);
+// }
+// ```
+//
+// Currently, the name of the QML module that must be imported in QML code is derived
+// from the `name` value in the `package` section of the corresponding manifest file ('Cargo.toml'),
+// by applying the following transformations:
+// - All leading digits are removed.
+// - All characters that are neither alphabetic not digits are replaced with '_'.
+//
+// Once an instance is created in QML, its exposed method and properties can be accessed and manipulated directly from QML code.
+//
+//
+// ### Singleton support
+//
+// Optionally, a QML element can be registered as a [singleton](https://doc.qt.io/qt-6/qml-singleton.html) by using `#[qml_element(singleton)]`.
+// In this case, QML code accesses a single shared instance of the object directly, using the **type name itself** as identifier.
+// This is useful for application-wide data, global settings, or service objects.
+//
+// Exmaple:
+//
+// ```rust
+// use qtbridge::{qobject_impl, qml_element};
+//
+// #[derive(Default)]
+// pub struct Backend {
+// }
+//
+// #[qobject_impl]
+// #[qml_element(singleton)]
+// impl Backend {
+//     #[qslot]
+//     fn say_hello(&self) {
+//         println!("Hello World!")
+//     }
+// }
+// ```
+//
+// Then QML can refer to it by type name "Backend":
+//
+// ```javascript,ignore
+// import QtQuick
+// import QtQuick.Controls
+// import hello_world
+//
+// ApplicationWindow {
+//     visible: true
+//
+//     Button {
+//         anchors.centerIn: parent
+//         text: "Hello World!"
+//         onClicked: Backend.sayHello()
+//     }
+// }
+// ```
+//
+//
+// #[proc_macro_attribute]
+// pub fn qml_element(args: TokenStream, input: TokenStream) -> TokenStream {
+//     let output = match qt_gen_impl::qml_element(args.into(), input.into()) {
+//         Ok(tokens) => tokens,
+//         Err(err) => err.to_compile_error(),
+//     };
+//     output.into()
+// }

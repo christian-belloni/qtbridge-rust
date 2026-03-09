@@ -97,8 +97,8 @@ pub use quicktest;
 
 #[cfg(doc)]
 pub use qt_gen::{qsignal, qslot, qproperty};
-pub use qt_gen::{qobject, qobject_impl, qml_element};
-pub use bridge::{QApp, run_simple_app, qresource, QObjectHolder};
+pub use qt_gen::{qobject, qobject_impl};
+pub use bridge::{QApp, run_simple_app, qresource, QObjectHolder, QmlRegister};
 pub use qt_ifaces::{QAbstractItemModel, QAbstractItemModelBase};
 pub use qt_ifaces::{QAbstractListModel,QAbstractListModelBase};
 pub use qt_ifaces::{QListModel, QListModelBase};

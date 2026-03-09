@@ -8,5 +8,4 @@ edition = "2024"
 description = "A hello world with Qt"
 
 [dependencies]
-linkme = "0.3.35"
 qtbridge = { path = "../../qtbridge" }

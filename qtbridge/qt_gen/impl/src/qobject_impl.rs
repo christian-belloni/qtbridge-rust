@@ -3,12 +3,13 @@
 
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
-use syn::{spanned::Spanned, Ident};
+use syn::{spanned::Spanned};
 
-use qt_gen_common::parse_utils::parse_name_value;
 use qt_gen_common::function_with_attributes::FunctionWithAttributes;
 use qt_gen_common::type_qualified_mapping::CallOrigin;
+use crate::qobject_macro_params::QObjectMacroParams;
 use crate::iface_impl::InterfaceImpl;
+use crate::qml_element::qml_element;
 use qt_meta_gen::generate_meta::{generate_qmetainfo_trait_impl, QMetaInfoContext};
 use qt_meta_gen::generate_qmetatype_get::generate_qmeta_type_get;
 use qt_meta_gen::traits::{ExpandTokens, QmlName, find_duplicate_by_qml_name};
@@ -26,19 +27,23 @@ pub struct QObjectImplOutput {
 
     /// Implementation details
     pub impl_details: TokenStream,
+
+    /// QML_ELEMENT registration
+    pub qml_registration: TokenStream,
 }
 
 impl QObjectImplOutput {
     // Implement as regular function but not as ToTokens trait
     // not to add a 'quote' dependency to qt_gen project
     pub fn to_token_stream(&self) -> TokenStream {
-        let Self{ new_impl, qmeta_info_impl, qmetatype_get_impl, impl_details } = &self;
+        let Self{ new_impl, qmeta_info_impl, qmetatype_get_impl, impl_details , qml_registration} = &self;
 
         quote!{
             #new_impl
             #qmeta_info_impl
             #qmetatype_get_impl
             #impl_details
+            #qml_registration
         }
     }
 }
@@ -49,7 +54,7 @@ impl QObjectImplOutput {
 /// Generate code needed to make it work.
 pub fn qobject_impl(input: TokenStream, params: TokenStream, origin: &CallOrigin) -> syn::Result<QObjectImplOutput> {
     // Parsing input parameters of this macro
-    let params = syn::parse2::<QObjectImplParams>(params)
+    let params = syn::parse2::<QObjectMacroParams>(params)
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to parse input params.\nError: {err}")))?;
 
     // Parsing code the macro is applied to
@@ -153,39 +158,17 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream, origin: &CallOrigin
     let new_impl = syn::ItemImpl{ items: items_out, ..orig_impl }
         .to_token_stream();
 
+    let qml_registration = qml_element(struct_ident, &params)
+        .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QmlRegister trait.\nError: {}", err)))?;
+
     Ok(QObjectImplOutput {
         new_impl,
         qmeta_info_impl,
         qmetatype_get_impl,
         impl_details,
+        qml_registration,
     })
 }
-
-struct QObjectImplParams {
-    base: Option<syn::Ident>,
-}
-
-mod qobject_impl_params_keywords {
-    syn::custom_keyword!(Base);
-}
-
-impl syn::parse::Parse for QObjectImplParams {
-    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let mut base = None;
-
-        while !input.is_empty() {
-            if input.peek(qobject_impl_params_keywords::Base) {
-                base = Some(parse_name_value::<Ident, Ident>(input)?.1);
-            } else {
-                return Err(input.error("Unsupported attribute of qobject_impl macro"));
-            }
-        }
-        Ok(QObjectImplParams {
-            base,
-        })
-    }
-}
-
 
 pub(crate) enum QObjectImplItem {
     Signal(QSignalInfo),

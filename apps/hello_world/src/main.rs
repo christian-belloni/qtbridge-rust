@@ -3,12 +3,10 @@
 
 use qtbridge::{QApp, qobject};
 
-#[qobject]
+#[qobject(Singleton)]
 mod backend {
-    use qtbridge::qml_element;
 
     #[derive(Default)]
-    #[qml_element(singleton)]
     pub struct Backend {
     }
 
@@ -21,6 +19,7 @@ mod backend {
 }
 
 fn main() {
+    <backend::Backend as qtbridge::QmlRegister>::register();
     QApp::new()
         .load_qml(include_bytes!("Main.qml"))
         .run();

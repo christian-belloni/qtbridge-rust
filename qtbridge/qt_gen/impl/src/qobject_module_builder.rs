@@ -1,3 +1,6 @@
+// Copyright (C) 2025 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
+
 use proc_macro2::TokenStream;
 use qt_gen_common::type_qualified_mapping::CallOrigin;
 use quote::{ToTokens, format_ident, quote};
@@ -11,11 +14,12 @@ use qt_meta_gen::generate_qmetatype_get::{generate_qmeta_type_get};
 use qt_meta_gen::traits::{QmlName, find_duplicate_by_qml_name};
 use qt_meta_gen::{ExpandTokens, QClassInfo, QPropertyInfo, QSignalInfo, QSlotInfo};
 
-use crate::qobject_module_params::QObjectModuleParams;
+use crate::qobject_macro_params::QObjectMacroParams;
 use crate::iface_impl::InterfaceImpl;
+use crate::qml_element::qml_element;
 
 pub struct QObjectModuleBuilder {
-    params: QObjectModuleParams,
+    params: QObjectMacroParams,
     origin: CallOrigin,
     struct_ident: syn::Ident,
     struct_generics: syn::Generics,
@@ -28,11 +32,14 @@ pub struct QObjectModuleBuilder {
     is_drop_found: bool,
 }
 
-
 impl QObjectModuleBuilder {
+    pub fn struct_is_generic(&self) -> bool {
+        !self.struct_generics.params.is_empty()
+    }
+
     pub fn new(origin: CallOrigin) -> Self {
         Self {
-            params: QObjectModuleParams::default(),
+            params: QObjectMacroParams::default(),
             origin,
             struct_ident: format_ident!("dummy"),
             struct_generics: syn::Generics::default(),
@@ -53,7 +60,7 @@ impl QObjectModuleBuilder {
 
     pub fn build(&mut self, input: TokenStream, params: TokenStream) -> syn::Result<syn::ItemMod> {
         // Parse input parameters of this macro,
-        self.params = syn::parse2::<QObjectModuleParams>(params)
+        self.params = syn::parse2::<QObjectMacroParams>(params)
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to parse input params.\nError: {err}")))?;
 
         // Parse input token stream as 'mod' item,
@@ -115,6 +122,15 @@ impl QObjectModuleBuilder {
         // TODO: return items below as high level AST but not TokenStreams
         output_module_items.push(syn::parse2(qmeta_info_impl_tokens)?);             // impl qtbridge::bridge::QMetaInfo
         output_module_items.push(syn::parse2(qmetatype_get_impl_tokens)?);          // impl qtbridge::qt_type_lib::QMetaTypeGet
+
+        if !self.struct_is_generic() {
+            let qml_registration = qml_element(self.struct_ident.clone(), &self.params)
+                .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QmlRegister trait.\nError: {}", err)))?;
+            let qml_impl_file: syn::File = syn::parse2(qml_registration)?;
+            output_module_items.extend(qml_impl_file.items);
+        } else if self.params.singleton {
+            return Err(syn::Error::new(self.struct_ident.span(), format!("Singleton is not availale for generic structs.")));
+        }
 
         // TODO: this is not very elegant. We should probably return Vec<Item> from the function generating this code
         let file: syn::File = syn::parse2(impl_details)?;

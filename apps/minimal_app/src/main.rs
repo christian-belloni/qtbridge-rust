@@ -6,11 +6,9 @@ use qtbridge::{QApp, qobject};
 #[qobject(Base = QListModel)]
 mod backend {
 
-    use qtbridge::qml_element;
     use qtbridge::{QListModel, QListModelBase};
 
     #[derive(Default)]
-    #[qml_element]
     pub struct Backend {
         string_list: Vec<String>,
     }
@@ -52,6 +50,7 @@ mod backend {
 }
 
 fn main() {
+    <backend::Backend as qtbridge::QmlRegister>::register();
     QApp::new()
         .load_qml(include_bytes!("Main.qml"))
         .run();

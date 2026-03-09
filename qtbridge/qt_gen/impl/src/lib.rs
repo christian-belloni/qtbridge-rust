@@ -4,7 +4,7 @@
 pub mod qml_element;
 pub mod qobject_impl;
 pub mod qobject_module_builder;
-pub mod qobject_module_params;
+pub mod qobject_macro_params;
 pub mod iface_impl;
 
 pub use qml_element::qml_element;
