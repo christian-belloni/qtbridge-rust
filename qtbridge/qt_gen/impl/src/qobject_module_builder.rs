@@ -15,6 +15,7 @@ use crate::qobject_module_params::QObjectModuleParams;
 use crate::iface_impl::InterfaceImpl;
 
 pub struct QObjectModuleBuilder {
+    params: QObjectModuleParams,
     origin: CallOrigin,
     struct_ident: syn::Ident,
     struct_generics: syn::Generics,
@@ -31,6 +32,7 @@ pub struct QObjectModuleBuilder {
 impl QObjectModuleBuilder {
     pub fn new(origin: CallOrigin) -> Self {
         Self {
+            params: QObjectModuleParams::default(),
             origin,
             struct_ident: format_ident!("dummy"),
             struct_generics: syn::Generics::default(),
@@ -51,7 +53,7 @@ impl QObjectModuleBuilder {
 
     pub fn build(&mut self, input: TokenStream, params: TokenStream) -> syn::Result<syn::ItemMod> {
         // Parse input parameters of this macro,
-        let params = syn::parse2::<QObjectModuleParams>(params)
+        self.params = syn::parse2::<QObjectModuleParams>(params)
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to parse input params.\nError: {err}")))?;
 
         // Parse input token stream as 'mod' item,
@@ -73,7 +75,7 @@ impl QObjectModuleBuilder {
 
         // Code generation for QObject interface implementation
         // Load interface from description file
-        let iface_ident = match params.base() {
+        let iface_ident = match self.params.base.as_ref() {
             Some(base) => base.clone(),
             None => syn::parse_str::<syn::Ident>("QObject")?,
         };
@@ -82,7 +84,10 @@ impl QObjectModuleBuilder {
         let iface_impl = InterfaceImpl::new(self.struct_ident.clone(), iface_ident.clone(), self.struct_generics.clone(), self.origin.clone())?;
 
         // Generate blocks of code that will be added to expanded code.
-        let drop_impl = self.generate_drop_trait_if_missing()?;
+        let drop_impl = match self.params.no_drop {
+            true => None,
+            false => self.generate_drop_trait_if_missing()?,
+        };
         let impl_details = iface_impl.generate_impl_details()
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation details block.\nError:{err}")))?;
 
@@ -177,11 +182,13 @@ impl QObjectModuleBuilder {
 
         match last_seg_ident.to_string().as_str() {
             "Drop" => {
-                if path.is_ident("Drop") ||
-                   is_path_with_segments_str(path, "std::ops::Drop") ||
-                   is_path_with_segments_str(path, "core::ops::Drop")
-                {
-                    return self.handle_impl_drop_trait(input)
+                if !self.params.no_drop {
+                    if path.is_ident("Drop") ||
+                    is_path_with_segments_str(path, "std::ops::Drop") ||
+                    is_path_with_segments_str(path, "core::ops::Drop")
+                    {
+                        return self.handle_impl_drop_trait(input)
+                    }
                 }
             },
             _ => {},
