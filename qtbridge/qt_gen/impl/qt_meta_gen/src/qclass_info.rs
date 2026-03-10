@@ -82,7 +82,7 @@ fn read_attribute<T: Parse>(input: syn::parse::ParseStream, dst: &mut Option<T>,
         return Err(syn::Error::new(input.span(), format!("'{name}' attribute is already defined for the property")));
     }
 
-    *dst = Some(parse_name_value::<syn::Ident, T>(&input)?.1);
+    *dst = Some(parse_name_value::<syn::Ident, T>(input)?.1);
 
     Ok(())
 }

@@ -75,7 +75,7 @@ impl<'a> MetaCallBridgeGenerator<'a> {
             .map(|(idx, arg)| arg.generate_store_argv_input_to_variable(idx));
 
         // Append user provided arguments (if any) with arguments taken from the input signature.
-        fn_call.args.extend(input_pass.into_iter());
+        fn_call.args.extend(input_pass);
 
         // Invoke the Rust function. Store its result in argv[0] if the function returns a value.
         let invoke_and_maybe_write_result = match &self.output {
@@ -123,7 +123,7 @@ impl<'a> MetaCallBridgeGenerator<'a> {
         let mut arg_vars = Vec::new();
         let mut argv_arr_init = Vec::with_capacity(argv_size);
         for (idx, arg) in self.inputs.iter().enumerate() {
-            let arg_pass = get_type_pass(&arg.ty.user_type);
+            let arg_pass = get_type_pass(arg.ty.user_type);
             let arg_ident = &arg.ident;
 
             match arg.ty.intermediate_meta_type() {
@@ -213,7 +213,7 @@ impl<'a> MetaCallType<'a> {
 
     fn meta_type(&self) -> &syn::Type {
         self.intermediate_meta_type()
-            .unwrap_or_else(|| remove_ref(&self.user_type))
+            .unwrap_or_else(|| remove_ref(self.user_type))
     }
 
     /// Generates a definition of a typed immutable reference to the given input parameter.
@@ -260,7 +260,7 @@ impl<'a> MetaCallType<'a> {
             })
         }
 
-        match get_type_pass(&self.user_type) {
+        match get_type_pass(self.user_type) {
             ValuePass::ByValue =>
                 // Variable is needed to hold value that will be passed to the user function.
                 Some(parse_quote! {
@@ -275,7 +275,7 @@ impl<'a> MetaCallType<'a> {
         let var_ident = get_arg_intermediate_var_ident(idx);
         let ref_ident = get_input_ref_ident(idx);
 
-        let expr = match get_type_pass(&self.user_type) {
+        let expr = match get_type_pass(self.user_type) {
             ValuePass::ByValue => // Pass the intermediate variable by value.
                 parse_quote!{ #var_ident },
             ValuePass::ByConstReference => {

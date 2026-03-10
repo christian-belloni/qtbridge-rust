@@ -35,11 +35,10 @@ impl QSignalInfo {
         let signal = signal_attr
             .ok_or_else(|| syn::Error::new(input.sig.span(), "qsignal attribute was not found for the function"))?;
 
-        if let BlockOrSemi::Block(block) = input.block {
-            if !block.stmts.is_empty() {
+        if let BlockOrSemi::Block(block) = input.block
+            && !block.stmts.is_empty() {
                 return Err(syn::Error::new(block.span(), "qsignal must not contain any code in brackets"));
             }
-        }
 
         let meta_params = get_qsignal_meta_params(&signal)?;
 
@@ -89,7 +88,7 @@ impl QSignalInfo {
     }
 
     fn check_signature(sign: &syn::Signature) -> syn::Result<()> {
-        check_meta_call_signature_types(&sign)
+        check_meta_call_signature_types(sign)
     }
 }
 

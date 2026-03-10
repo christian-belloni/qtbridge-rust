@@ -131,7 +131,7 @@ impl QSlotInfo {
     }
 
     fn check_signature(sign: &syn::Signature) -> syn::Result<()> {
-        check_meta_call_signature_types(&sign)
+        check_meta_call_signature_types(sign)
     }
 }
 

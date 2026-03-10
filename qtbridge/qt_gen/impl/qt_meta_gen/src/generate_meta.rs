@@ -190,7 +190,7 @@ fn generate_properties_meta_registration(struct_ident: &syn::Ident, properties: 
         let mut signal = None;
         if let Some(notify_signal) = property.get_notify_signal() {
             let notify_signal_name = notify_signal.value();
-            signal = find_by_qml_name(&notify_signal_name, &signals);
+            signal = find_by_qml_name(&notify_signal_name, signals);
             if signal.is_none() {
                 return Err(syn::Error::new(notify_signal.span(), format!("Failed to find signal with name '{notify_signal_name}'")));
             }

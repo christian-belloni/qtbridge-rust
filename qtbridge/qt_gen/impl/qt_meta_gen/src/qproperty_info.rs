@@ -182,7 +182,7 @@ impl QPropertyInfo {
         let metatype_expr = match &deduced_type {
             // Type of property is deduced from getter, setter or member (works for #[qobject] but not for #[qobject_impl] macro)
             Some(ty) => {
-                let meta_type = get_qmetatype_support_for_type(&ty)
+                let meta_type = get_qmetatype_support_for_type(ty)
                     .map_err(|err| syn::Error::new(*span, format!("Type '{}' of qproperty can not be mapped to qt.\nError: {err}", type_to_string_fallback(ty))))?
                     .unwrap_or_else(|| ty.clone());
                 quote! {
@@ -411,7 +411,7 @@ fn read_attribute<T: Parse>(input: syn::parse::ParseStream, dst: &mut Option<T>,
         return Err(syn::Error::new(input.span(), format!("'{name}' attribute is already defined for the property")));
     }
 
-    *dst = Some(parse_name_value::<syn::Ident, T>(&input)?.1);
+    *dst = Some(parse_name_value::<syn::Ident, T>(input)?.1);
 
     Ok(())
 }
