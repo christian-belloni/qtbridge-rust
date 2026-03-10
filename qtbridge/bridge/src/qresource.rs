@@ -2,9 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 
-//! This module contains functions to register files with the
-//! [Qt Resource System](https://doc.qt.io/qt-6/resources.html). This
-//! enables a simple import of artifacts into QML applications.
+//! This module contains functions to import of artifacts the
+//! [Qt Resource System](https://doc.qt.io/qt-6/resources.html).
 //!
 //! All artifacts must be compiled into dynamic resources with the
 //! [`rcc` tool](https://doc.qt.io/qt-6/rcc.html):

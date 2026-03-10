@@ -5,6 +5,7 @@ use std::collections::HashMap;
 
 use qt_type_lib::QVariant;
 
+#[doc(hidden)]
 pub trait QVariantConvertible : Sized {
     fn to_qvariant(&self) -> QVariant;
     fn from_qvariant(value: &QVariant) -> Result<Self, ()>;
@@ -37,8 +38,7 @@ fn option_to_qvariant<T: QVariantConvertible>(value: Option<&T>) -> QVariant
 ///
 /// This trait is implemented automatically by `#[derive(QModelItem)]`
 /// for structs and tuple structs and an implementation for primitive types
-/// and tuples is provided. It allows QtBridge to use the type in item models
-/// and [`QVec<T>`].
+/// and tuples is provided. It allows QtBridge to use the type in item models.
 ///
 /// # Typical usage
 /// Normally, you should **not implement this manually**. Use

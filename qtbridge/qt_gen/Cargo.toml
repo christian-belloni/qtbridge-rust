@@ -7,6 +7,5 @@ version = "0.1.0"
 edition.workspace = true
 description = "Entry point for generative code"
 
-
 [dependencies]
 qt_gen_macro = { path = "macro" }

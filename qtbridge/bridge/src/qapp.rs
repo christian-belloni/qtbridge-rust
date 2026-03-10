@@ -44,6 +44,7 @@ macro_rules! run_simple_app {
 }
 
 /// This struct represents a Qt QML application and acts as the entry point for all applications.
+///
 /// QApp allows running QML code and injecting Rust objects into its context. Aside from the
 /// initialization of the backend logic this should be the only code in your main function.
 ///
