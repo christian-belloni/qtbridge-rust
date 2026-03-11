@@ -48,6 +48,7 @@ members = [
     "test/quick/tst_qresource",
     "test/quick/tst_qlistmodel",
     "test/quick/tst_qtablemodel",
+    "test/quick/tst_qml_element",
 ]
 
 [profile.release.build-override]
