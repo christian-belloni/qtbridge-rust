@@ -34,8 +34,6 @@ TestCase {
         for (let i = 0; i < rustmodel.rowCount(); ++i) {
             for (let j = 0; j < rustmodel.columnCount(); ++j) {
                 let index = rustmodel.index(i, j)
-                console.log("("+i+","+j+")"+tableview.itemAtCell(Qt.point(i,j)))
-
                 compare(tableview.itemAtCell(Qt.point(i,j)).value, rustmodel.data(index, 2), "[" + i + "," +j + "].value")
                 compare(tableview.itemAtCell(Qt.point(i,j)).decoration, rustmodel.data(index, 1), "[" + i + "," +j + "].decoration")
                 compare(tableview.itemAtCell(Qt.point(i,j)).display, rustmodel.data(index, 0), "[" + i + "," +j + "].display")

@@ -443,7 +443,7 @@ pub trait QTableModelBase : QTableModel + QObjectHolder<ProxyRust = QTableModelP
         if self.column_count() == 0 {
             return None;
         }
-        self.get_rust_proxy_mut().base_begin_remove_columns(&QModelIndex::default(), self.row_count() as i32 - 1, self.row_count() as i32 - 1);
+        self.get_rust_proxy_mut().base_begin_remove_columns(&QModelIndex::default(), self.column_count() as i32 - 1, self.column_count() as i32 - 1);
         let values = self.pop_column_unnotified();
         self.get_rust_proxy_mut().base_end_remove_columns();
         values
