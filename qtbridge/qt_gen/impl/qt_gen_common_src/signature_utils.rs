@@ -37,11 +37,10 @@ pub fn check_signature(sign: &syn::Signature, expect_self: ExpectSelfRef) -> syn
             }
         },
         ExpectSelfRef::No => {
-            if let Some(first_arg) = inputs.first() {
-                if is_arg_self_ref(first_arg, None) {
+            if let Some(first_arg) = inputs.first()
+                && is_arg_self_ref(first_arg, None) {
                     return Err(syn::Error::new(first_arg.span(), "First argument must not be &self"));
-                }
-            };
+                };
         },
         _ => {},
     }

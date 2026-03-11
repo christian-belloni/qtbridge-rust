@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use std::io::{self, Write};
-use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::sync::LazyLock;
 use build_common::file_system_utils::{find_file_upwards, get_manifest_dir};
@@ -31,9 +30,8 @@ impl VisitMut for StripDocs {
     }
 
     fn visit_impl_item_mut(&mut self, item: &mut ImplItem) {
-        match item {
-            ImplItem::Fn(item_fn) => item_fn.attrs.retain(is_not_doc_attribute),
-            _ => {}
+        if let ImplItem::Fn(item_fn) = item {
+            item_fn.attrs.retain(is_not_doc_attribute)
         }
         syn::visit_mut::visit_impl_item_mut(self, item);
     }
@@ -115,8 +113,8 @@ pub fn token_stream_to_code(src: &TokenStream) -> String {
 fn find_clang_format_style_file() -> Option<String> {
 
     // Start from the package root
-    let manifest_dir = PathBuf::from(get_manifest_dir()
-        .ok()?); // If get_manifest_dir() fails then probably called not from the build script
+    let manifest_dir = get_manifest_dir()
+        .ok()?; // If get_manifest_dir() fails then probably called not from the build script
 
     find_file_upwards(&manifest_dir, ".clang-format", 5)
         .map(|path| path.to_string_lossy().to_string())

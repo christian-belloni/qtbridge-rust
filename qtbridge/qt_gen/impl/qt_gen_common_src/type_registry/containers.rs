@@ -33,7 +33,7 @@ impl TypeName for StandardContainer {
 
 impl TypeInfo for StandardContainer {
     fn cpp_name(&self) -> Option<&'static str> {
-        self.cpp_name.clone()
+        self.cpp_name
     }
 
     fn cpp_include(&self) -> Option<String> {

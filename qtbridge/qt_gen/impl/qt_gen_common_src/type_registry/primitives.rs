@@ -95,7 +95,7 @@ pub struct IntType(ArithmeticTypeData);
 
 impl IntType {
     const fn new(rust_name: &'static str, cpp_name: &'static str, metatype_id: i32) -> Self {
-        Self { 0: ArithmeticTypeData::new(rust_name, cpp_name, metatype_id) }
+        Self(ArithmeticTypeData::new(rust_name, cpp_name, metatype_id))
     }
 
     pub fn dyn_type_info(&self) -> &dyn TypeInfo {
@@ -160,7 +160,7 @@ pub struct FloatType(ArithmeticTypeData);
 
 impl FloatType {
     const fn new(rust_name: &'static str, cpp_name: &'static str, metatype_id: i32) -> Self{
-        Self { 0: ArithmeticTypeData { rust_name, cpp_name, metatype_id } }
+        Self(ArithmeticTypeData { rust_name, cpp_name, metatype_id })
     }
 
     pub fn dyn_type_info(&self) -> &dyn TypeInfo {
@@ -249,7 +249,7 @@ impl TypeInfo for NonArithmeticType {
     }
 
     fn cpp_include(&self) -> Option<String> {
-        (self.include.len() > 0)
+        (!self.include.is_empty())
             .then_some(self.include.into())
     }
 

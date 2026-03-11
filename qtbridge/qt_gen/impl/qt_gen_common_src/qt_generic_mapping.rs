@@ -11,6 +11,12 @@ pub struct QtGenericMapping {
     last_error: syn::Result<()>,
 }
 
+impl Default for QtGenericMapping {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl QtGenericMapping {
     pub fn new() -> Self {
         Self { last_error: Ok(()) }

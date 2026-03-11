@@ -31,7 +31,7 @@ pub fn camel_to_snake(input: &str) -> String {
             if pos - last_capital_pos > 1 && last_ch != '_' {
                 result.push('_');
             }
-            last_capital_pos = pos as i32;
+            last_capital_pos = pos;
         }
         result.push(ch_lc);
         last_ch = ch_lc;

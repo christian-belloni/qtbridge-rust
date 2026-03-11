@@ -21,12 +21,8 @@ pub fn remove_ref_to_string(ty: &syn::Type) -> syn::Result<String> {
 /// Recursively unwraps the type until non-reference type is found
 pub fn remove_ref(ty: &syn::Type) -> &syn::Type {
     let mut unwrapped = ty;
-    loop {
-        match unwrapped {
-            syn::Type::Reference(type_ref) =>
-                unwrapped = &type_ref.elem.as_ref(),
-            _ => break
-        }
+    while let syn::Type::Reference(type_ref) = unwrapped {
+        unwrapped = type_ref.elem.as_ref()
     }
     unwrapped
 }

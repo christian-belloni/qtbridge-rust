@@ -40,7 +40,7 @@ impl TypeInfo for PointerType {
     }
 
     fn cpp_name(&self) -> Option<&str> {
-        self.cpp_name.clone()
+        self.cpp_name
     }
 
     fn cpp_include(&self) -> Option<String> {

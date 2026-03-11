@@ -84,7 +84,7 @@ impl CppFnSign {
         }
 
         let typed_arguments = src_typed_args
-            .map(|arg| CppFnArg::try_from(arg))
+            .map(CppFnArg::try_from)
             .collect::<syn::Result<_>>()?;
 
         Ok(Self{

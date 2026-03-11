@@ -25,7 +25,7 @@ pub fn type_to_cpp(src: &syn::Type) -> syn::Result<String> {
         syn::Type::Slice(type_slice) =>
             type_slice_to_cpp(type_slice),
         _ =>
-            return Err(syn::Error::new(src.span(), format!("Unsupported type category {:?} of type {}", std::mem::discriminant(src), src.to_token_stream()))),
+            Err(syn::Error::new(src.span(), format!("Unsupported type category {:?} of type {}", std::mem::discriminant(src), src.to_token_stream()))),
     }
 }
 
@@ -90,7 +90,7 @@ fn type_ref_to_cpp(src: &syn::TypeReference) -> syn::Result<String> {
         },
         syn::Type::Path(type_path) => {
             if type_path.path.is_ident("str") {
-                return Ok(format!("rust::Str"))
+                return Ok("rust::Str".to_string())
             }
         },
         _ => {}
@@ -146,7 +146,7 @@ pub fn path_to_cpp(src: &syn::Path) -> syn::Result<String> {
         _ => {},
     }
 
-    return Err(syn::Error::new(src.span(), format!("Conversion of unsupported type to C++: {}", segments.to_token_stream())))
+    Err(syn::Error::new(src.span(), format!("Conversion of unsupported type to C++: {}", segments.to_token_stream())))
 }
 
 pub fn type_ident_to_cpp(src: &syn::Ident, category: Option<&TypeCategory>) -> syn::Result<String> {

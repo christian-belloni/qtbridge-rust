@@ -199,7 +199,7 @@ impl TypeTokens {
         });
         self.unclassified = unclassified;
 
-        error.map_or(Ok(()), |err| Err(err))
+        error.map_or(Ok(()), Err)
     }
 
     pub fn extend(&mut self, src: &Self) {
@@ -315,7 +315,7 @@ impl<'a> Visitor<'a> {
             self.tokens.insert_qt(QtTypeSpanned::new(qt_type, src.span()));
         }
 
-        return Ok(())
+        Ok(())
     }
 
 }

@@ -116,10 +116,10 @@ fn get_intermediate_type_container(src: &StandardContainer, src_path: &syn::Path
             return Err(syn::Error::new(src_path.span(), format!("Standard container: '{src_name}' is not supported for metacalls")))
     };
 
-    let args: Vec<QtGenericArg> = (0..src.generic_arg_count()).into_iter()
+    let args: Vec<QtGenericArg> = (0..src.generic_arg_count())
         .map(|arg_idx| {
             let src_arg_type = get_generic_arg_type_path(src_path, arg_idx)?;
-            let inter_arg_type_ = get_qmetatype_support_for_type(&src_arg_type)?
+            let inter_arg_type_ = get_qmetatype_support_for_type(src_arg_type)?
                 .unwrap_or_else(|| src_arg_type.clone());
             let syn::Type::Path(arg_type_path) = inter_arg_type_ else {
                 return Err(syn::Error::new(inter_arg_type_.span(), format!("Type '{}' is unsupported as argument in {src_name} container", inter_arg_type_.to_token_stream())))

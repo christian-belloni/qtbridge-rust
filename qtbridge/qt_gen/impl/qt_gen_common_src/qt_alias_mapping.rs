@@ -12,6 +12,12 @@ pub struct QtAliasMapping {
     last_error: syn::Result<()>,
 }
 
+impl Default for QtAliasMapping {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl QtAliasMapping {
     pub fn new() -> Self {
         Self {

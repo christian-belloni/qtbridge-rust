@@ -25,13 +25,13 @@ pub fn relative_input_file_path_to_path_qualified(src: &str) -> Result<Vec<Strin
     if let Some(new_stem) = last_comp.strip_suffix(".rs") {
         *last_comp = new_stem.into();
     }
-    return Ok(comps)
+    Ok(comps)
 }
 
 pub fn file_path_to_module_name(src: &Path) -> Result<String, String> {
     let last_comp = src
         .components()
-        .last()
+        .next_back()
         .map(|comp| comp.as_os_str()
             .to_string_lossy()
             .to_string()

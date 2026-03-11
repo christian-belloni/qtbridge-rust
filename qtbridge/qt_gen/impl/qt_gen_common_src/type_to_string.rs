@@ -259,10 +259,7 @@ fn str_to_ident_str(mut str: String) -> String {
     str = str.replace("*", "ptr ");
 
     fn is_replace_needed(ch: char) -> bool {
-        match ch {
-            ':' | '<' | '>' | ']' | ')' |'&' | ',' | ';' | ' ' => true,
-            _ => false,
-        }
+        matches!(ch, ':' | '<' | '>' | ']' | ')' |'&' | ',' | ';' | ' ')
     }
 
     let mut result = String::with_capacity(str.len());

@@ -43,6 +43,6 @@ impl From<BTreeMap<syn::Ident, syn::Path>> for MultiTypeMapping {
 
 impl TypeMapping for MultiTypeMapping {
     fn map(&self, key: &syn::Ident) -> Option<syn::Path> {
-        self.map.get(key).map(|path| path.clone())
+        self.map.get(key).cloned()
     }
 }

@@ -83,12 +83,11 @@ impl FindType for QtType {
         let qt_type = find_type_by_partial_path::<Self>(path)?;
 
         // If type is generic with args specified - try to find monomorphed form
-        if let Self::GenericWithoutArgs(qt_generic) = &qt_type {
-            if let Some(ab) = get_angle_bracketed_generic_arguments_of_last_path_segment(path) {
+        if let Self::GenericWithoutArgs(qt_generic) = &qt_type
+            && let Some(ab) = get_angle_bracketed_generic_arguments_of_last_path_segment(path) {
                 let qt_generic_w_types = qt_generic.set_args_from_syn_generic_args(ab)
                     .ok()?;
                 return Some(qt_generic_w_types.into())
-            }
         };
 
         Some(qt_type)

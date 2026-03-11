@@ -32,13 +32,13 @@ impl TypeName for CxxType {
     }
 
     fn path_before_name(&self) -> Option<&str> {
-        self.path_before_name.clone()
+        self.path_before_name
     }
 }
 
 impl TypeInfo for CxxType {
     fn cpp_name(&self) -> Option<&'static str> {
-        self.cpp_name.clone()
+        self.cpp_name
     }
 
     fn cpp_include(&self) -> Option<String> {

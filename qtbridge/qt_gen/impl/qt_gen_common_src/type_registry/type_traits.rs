@@ -73,10 +73,9 @@ pub trait TypeName {
 
     fn qualified_path_string(&self) -> String {
         let name = self.full_name();
-        if let Some(path_before) = self.path_before_name() {
-            if !path_before.is_empty() {
+        if let Some(path_before) = self.path_before_name()
+            && !path_before.is_empty() {
                 return format!("{path_before}::{name}")
-            }
         }
 
         name.into()
