@@ -6,7 +6,7 @@ use quote::{format_ident, quote};
 use syn::Ident;
 use crate::qobject_macro_params::QObjectMacroParams;
 
-pub fn qml_element(struct_ident: Ident, params: &QObjectMacroParams) -> syn::Result<TokenStream> {
+pub fn qml_element(struct_ident: &Ident, params: &QObjectMacroParams) -> syn::Result<TokenStream> {
 
     if params.no_qml_element {
         return Ok(TokenStream::new())

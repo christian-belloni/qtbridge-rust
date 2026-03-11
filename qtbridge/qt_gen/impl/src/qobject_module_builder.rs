@@ -3,7 +3,7 @@
 
 use proc_macro2::TokenStream;
 use qt_gen_common::type_qualified_mapping::CallOrigin;
-use quote::{ToTokens, format_ident, quote};
+use quote::{ToTokens, format_ident};
 use syn::spanned::Spanned;
 
 use qt_gen_common::function_with_attributes::FunctionWithAttributes;
@@ -17,6 +17,7 @@ use qt_meta_gen::{ExpandTokens, QClassInfo, QPropertyInfo, QSignalInfo, QSlotInf
 use crate::qobject_macro_params::QObjectMacroParams;
 use crate::iface_impl::InterfaceImpl;
 use crate::qml_element::qml_element;
+use crate::drop_impl::{adjust_drop_impl, generate_drop};
 
 pub struct QObjectModuleBuilder {
     params: QObjectMacroParams,
@@ -124,7 +125,7 @@ impl QObjectModuleBuilder {
         output_module_items.push(syn::parse2(qmetatype_get_impl_tokens)?);          // impl qtbridge::qt_type_lib::QMetaTypeGet
 
         if !self.struct_is_generic() {
-            let qml_registration = qml_element(self.struct_ident.clone(), &self.params)
+            let qml_registration = qml_element(&self.struct_ident, &self.params)
                 .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QmlRegister trait.\nError: {}", err)))?;
             let qml_impl_file: syn::File = syn::parse2(qml_registration)?;
             output_module_items.extend(qml_impl_file.items);
@@ -203,7 +204,8 @@ impl QObjectModuleBuilder {
                     is_path_with_segments_str(path, "std::ops::Drop") ||
                     is_path_with_segments_str(path, "core::ops::Drop")
                     {
-                        return self.handle_impl_drop_trait(input)
+                        self.is_drop_found = true;
+                        return adjust_drop_impl(input, &self.origin)
                     }
                 }
             },
@@ -212,39 +214,6 @@ impl QObjectModuleBuilder {
 
         // Will be handled later
         Ok(input.clone())
-    }
-
-    fn handle_impl_drop_trait(&mut self, input: &syn::ItemImpl) -> syn::Result<syn::ItemImpl> {
-        self.is_drop_found = true;
-
-        let items = &input.items;
-        if items.len() != 1 {
-            return Err(syn::Error::new(input.span(), "Drop traits expected to have one item"))
-        }
-        let item = &input.items[0];
-        let syn::ImplItem::Fn(item_fn) = item else {
-            return Err(syn::Error::new(input.span(), format!("Expected drop() function. Found: {}", item.to_token_stream())))
-        };
-
-        let mut new_item_fn = item_fn.clone();
-
-        // Make sure the last expression has trailing semicolon
-        if let Some(last_stmt) = new_item_fn.block.stmts.last_mut() &&
-           let syn::Stmt::Expr(_expr, semi) = last_stmt {
-            *semi = Some(Default::default());
-        }
-
-        let bridge_library = self.origin.bridge_module();
-
-        let drop_expr: syn::Expr = syn::parse2(quote!{
-            <Self as #bridge_library::QObjectHolder>::detach_qobject(self)
-        })?;
-        new_item_fn.block.stmts.push(syn::Stmt::Expr(drop_expr, Some(Default::default())));
-
-        Ok(syn::ItemImpl {
-            items: vec![new_item_fn.into()],
-            ..input.clone()
-        })
     }
 
     /// Handle block
@@ -356,20 +325,7 @@ impl QObjectModuleBuilder {
             return Ok(None)
         }
 
-        let struct_ident = &self.struct_ident;
-        let (impl_generics, type_generics, where_clause) = self.struct_generics.split_for_impl();
-        let bridge_library = self.origin.bridge_module();
-
-        let drop = syn::parse2::<syn::ItemImpl>(quote! {
-            impl #impl_generics Drop for #struct_ident #type_generics
-            #where_clause
-            {
-                fn drop(&mut self) {
-                    <Self as #bridge_library::QObjectHolder>::detach_qobject(self);
-                }
-            }
-        })?;
-        Ok(Some(drop))
+        generate_drop(&self.struct_ident, &self.struct_generics, &self.origin)
     }
 
     fn get_meta_attribute(input: &[syn::Attribute]) -> syn::Result<Option<&syn::Attribute>> {

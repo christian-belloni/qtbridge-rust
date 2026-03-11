@@ -10,6 +10,7 @@ use qt_gen_common::type_qualified_mapping::CallOrigin;
 use crate::qobject_macro_params::QObjectMacroParams;
 use crate::iface_impl::InterfaceImpl;
 use crate::qml_element::qml_element;
+use crate::drop_impl::generate_drop;
 use qt_meta_gen::generate_meta::{generate_qmetainfo_trait_impl, QMetaInfoContext};
 use qt_meta_gen::generate_qmetatype_get::generate_qmeta_type_get;
 use qt_meta_gen::traits::{ExpandTokens, QmlName, find_duplicate_by_qml_name};
@@ -18,6 +19,9 @@ use qt_meta_gen::{QClassInfo, QPropertyInfo, QSignalInfo, QSlotInfo};
 pub struct QObjectImplOutput {
     /// Content of 'impl' block after the macro expansion (Qt-specific annotations removed, signals expanded, etc)
     pub new_impl: TokenStream,
+
+    /// Implementation of Drop for QObjectHolder
+    pub drop_impl: TokenStream,
 
     /// Implementation of QMetaInfo trait
     pub qmeta_info_impl: TokenStream,
@@ -36,10 +40,11 @@ impl QObjectImplOutput {
     // Implement as regular function but not as ToTokens trait
     // not to add a 'quote' dependency to qt_gen project
     pub fn to_token_stream(&self) -> TokenStream {
-        let Self{ new_impl, qmeta_info_impl, qmetatype_get_impl, impl_details , qml_registration} = &self;
+        let Self{ new_impl, drop_impl, qmeta_info_impl, qmetatype_get_impl, impl_details , qml_registration} = &self;
 
         quote!{
             #new_impl
+            #drop_impl
             #qmeta_info_impl
             #qmetatype_get_impl
             #impl_details
@@ -132,7 +137,6 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream, origin: &CallOrigin
         syn::parse_str::<syn::Ident>("QObject")?
     };
 
-
     let iface_impl = InterfaceImpl::new(struct_ident.clone(), iface_ident.clone(), generics.clone(), origin.clone())?;
 
     let impl_details = iface_impl.generate_impl_details()
@@ -154,15 +158,20 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream, origin: &CallOrigin
     let qmetatype_get_impl = generate_qmeta_type_get(&struct_ident, &generics, &origin)
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaTypeGet trait.\nError: {}", err)))?;
 
+    let drop_impl = generate_drop(&struct_ident, generics, origin)
+        .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of Drop trait.\nError: {}", err)))?
+        .to_token_stream();
+
     // Prepare altered input token stream
     let new_impl = syn::ItemImpl{ items: items_out, ..orig_impl }
         .to_token_stream();
 
-    let qml_registration = qml_element(struct_ident, &params)
+    let qml_registration = qml_element(&struct_ident, &params)
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QmlRegister trait.\nError: {}", err)))?;
 
     Ok(QObjectImplOutput {
         new_impl,
+        drop_impl,
         qmeta_info_impl,
         qmetatype_get_impl,
         impl_details,
