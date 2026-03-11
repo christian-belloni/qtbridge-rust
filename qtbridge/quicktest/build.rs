@@ -1,8 +1,8 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use std::path::Path;
-use build_common::qt_build::{qt_include_dirs, link_qt_modules};
+use std::path::{Path, PathBuf};
+use build_common::qt_build::{link_qt_modules, qt_include_dirs, run_moc};
 
 fn main() {
 
@@ -15,6 +15,10 @@ fn main() {
 
     let other_cpp_files: Vec<&str> = vec!(
     );
+
+    let moc_files = [
+        "src/cpp/qtestsetup.h",
+    ];
 
     let qt_modules = [
         "Core",
@@ -48,6 +52,16 @@ fn main() {
         cpp_files.push(cpp_file);
     }
 
+    let out_dir = PathBuf::from(std::env::var("OUT_DIR")
+        .expect("Failed to get OUT_DIR"));
+    for moc_file in &moc_files {
+        let input = PathBuf::from(moc_file);
+        let output = out_dir
+            .join(input.file_stem().unwrap())
+            .with_extension("moc");
+        run_moc(&input, &output);
+    }
+
     let mut builder = cxx_build::bridges(rust_bridge_files);
 
     builder
@@ -56,7 +70,8 @@ fn main() {
         .flag_if_supported("/permissive-")
         .include("../")
         .include("../utils")
-        .include("src");
+        .include("src")
+        .include(out_dir);
 
     let qt_include_dirs = qt_include_dirs(qt_modules, true);
     for include_dir in qt_include_dirs {

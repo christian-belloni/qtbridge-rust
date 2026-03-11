@@ -2,16 +2,65 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use std::fmt::Display;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::sync::LazyLock;
 
-pub fn qmake_query(var_name: &str) -> String {
+pub fn try_qmake_query(var_name: &str) -> Result<String, String> {
     let output = Command::new("qmake")
         .args(["-query", var_name])
         .output()
-        .expect("failed to execute qmake process");
-    let output = std::str::from_utf8(&output.stdout).unwrap();
-    output.trim().to_string()
+        .map_err(|err| format!("Failed to run 'qmake -query'. Error: {err}"))?;
+    let output = std::str::from_utf8(&output.stdout)
+        .map_err(|err| format!("Failed to convert qmake output to string. Error: {err}"))?;
+    Ok(output.trim().to_string())
+}
+
+pub fn qmake_query(var_name: &str) -> String {
+    try_qmake_query(var_name)
+        .unwrap()
+}
+
+pub fn run_moc(input: &Path, output: &Path) {
+    static MOC_PATH: LazyLock<String> = LazyLock::new(|| {
+        find_program_path("moc")
+            .unwrap()
+            .to_string_lossy()
+            .to_string()
+    });
+    Command::new(&*MOC_PATH)
+        .arg(input)
+        .arg("-o")
+        .arg(output)
+        .output()
+        .expect("Failed to execute moc process");
+}
+
+fn find_program_path(name: &str) -> Option<PathBuf> {
+    let var_names = [
+        "QT_HOST_LIBEXECS",
+        "QT_INSTALL_LIBEXECS",
+        "QT_HOST_BINS",
+        "QT_INSTALL_BINS",
+    ];
+    for var in var_names {
+        let Ok(path) = try_qmake_query(var) else {
+            continue
+        };
+        let path = PathBuf::from(path).join(name);
+
+        // Try to launch the program at the given path querying its version.
+        // Assume it is there if the command succeeds.
+        if Command::new(&path)
+            .arg("-v")
+            .output()
+            .is_ok()
+            {
+                return Some(path)
+            }
+    }
+
+    None
 }
 
 pub fn qt_include_dir() -> String {
