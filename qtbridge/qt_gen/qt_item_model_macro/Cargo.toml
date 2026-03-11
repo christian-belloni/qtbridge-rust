@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 [package]
-name = "qt_container_macro"
+name = "qt_item_model_macro"
 version = "0.1.0"
 edition = "2021"
-description = "Macros to enable custom struct in QVec"
+description = "Macro to support item models"
 
 [lib]
 proc-macro = true

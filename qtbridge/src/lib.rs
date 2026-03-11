@@ -95,8 +95,7 @@ pub use quicktest_macro::*;
 pub use qresource_macro::*;
 #[doc(hidden)]
 pub use build_common;
-pub use qt_container::*;
-pub use qt_container_macro::*;
+pub use qt_item_model_macro::*;
 #[doc(hidden)]
 pub use quicktest;
 

@@ -1,7 +1,0 @@
-[package]
-name = "tst_qvec_with_tupleclass"
-version = "0.1.0"
-edition.workspace = true
-
-[dependencies]
-qtbridge = { path = "../../../qtbridge" }
