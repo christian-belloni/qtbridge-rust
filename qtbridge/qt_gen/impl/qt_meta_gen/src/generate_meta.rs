@@ -106,7 +106,7 @@ fn generate_meta_reg_use_block(signals: &[QSignalInfo], slots: &[QSlotInfo], pro
 
     let mut type_lib_imports = Vec::new();
     if is_property_with_not_deduced_type {
-        type_lib_imports.push(format_ident!("get_meta_type_id_of_fn_return_value"));
+        type_lib_imports.push(format_ident!("get_meta_type_of_fn_return_value"));
     }
     if is_qmeta_type_used {
         type_lib_imports.push(format_ident!("QMetaType"));

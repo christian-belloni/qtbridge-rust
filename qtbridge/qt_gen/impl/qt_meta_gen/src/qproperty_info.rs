@@ -196,7 +196,7 @@ impl QPropertyInfo {
                 let member_var = member.as_ref()
                     .ok_or_else(||syn::Error::new(*span, "Can't deduce type of qproperty neither from accessor nor from member"))?;
                 quote!{
-                    QMetaType::new(get_meta_type_id_of_fn_return_value(|this: &Self| { &this.#member_var } ) as i32)
+                    get_meta_type_of_fn_return_value(|this: &Self| { &this.#member_var } )
                 }
             }
         };
@@ -220,7 +220,7 @@ impl QPropertyInfo {
         };
         let property_registration = if let Some(write_callback) = write_callback {
             quote! {
-                meta_obj.as_mut().register_property(#name, &(#metatype_expr), #read_callback, #write_callback, #signal_name);
+                meta_obj.as_mut().register_property(#name, &#metatype_expr, #read_callback, #write_callback, #signal_name);
             }
         } else {
             let is_const = self.is_const();

@@ -389,7 +389,7 @@ pub fn qslot(_: TokenStream, _: TokenStream) -> TokenStream {
 /// In this case, QML code accesses a single shared instance of the object directly, using the **type name itself** as identifier.
 /// This is useful for application-wide data, global settings, or service objects.
 ///
-/// Exmaple:
+/// Example:
 ///
 /// ```rust
 /// use qtbridge::{qobject_impl, qml_element};
