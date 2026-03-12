@@ -182,6 +182,9 @@ pub fn include_bytes_qml(input: TokenStream) -> TokenStream {
     write_u32_be(&mut data, 20, overall_flags as u32);
 
     quote!{
+        // tell the compiler that a rebuild is required when #file changes.
+        // include_bytes! is a build-in macro that has this side effect.
+        let _ = include_bytes!(#file);
         qtbridge::qresource::register_bytes(&[#(#data),*]);
     }.into()
 }
