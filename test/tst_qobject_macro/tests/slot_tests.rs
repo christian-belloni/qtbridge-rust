@@ -20,6 +20,8 @@ pub mod test_object {
         pub arg_u32: Option<u32>,
         pub arg_i64: Option<i64>,
         pub arg_u64: Option<u64>,
+        pub arg_isize: Option<isize>,
+        pub arg_usize: Option<usize>,
         pub arg_f32: Option<f32>,
         pub arg_f64: Option<f64>,
         pub arg_string: Option<String>,
@@ -66,6 +68,14 @@ pub mod test_object {
         #[qslot]
         fn slot_u64(&mut self, arg: u64) {
             self.arg_u64 = Some(arg);
+        }
+        #[qslot]
+        fn slot_isize(&mut self, arg: isize) {
+            self.arg_isize = Some(arg);
+        }
+        #[qslot]
+        fn slot_usize(&mut self, arg: usize) {
+            self.arg_usize = Some(arg);
         }
         #[qslot]
         fn slot_f32(&mut self, arg: f32) {
@@ -122,6 +132,14 @@ pub mod test_object {
             self.arg_u64 = Some(*arg);
         }
         #[qslot]
+        fn slot_isize_ref(&mut self, arg: &isize) {
+            self.arg_isize = Some(*arg);
+        }
+        #[qslot]
+        fn slot_usize_ref(&mut self, arg: &usize) {
+            self.arg_usize = Some(*arg);
+        }
+        #[qslot]
         fn slot_f32_ref(&mut self, arg: &f32) {
             self.arg_f32 = Some(*arg);
         }
@@ -175,6 +193,8 @@ fn test_slot_types_values() {
     test_type("u32", "60",               |obj| obj.arg_u32 == Some(60));
     test_type("i64", "70",               |obj| obj.arg_i64 == Some(70));
     test_type("u64", "80",               |obj| obj.arg_u64 == Some(80));
+    test_type("isize", "90",             |obj| obj.arg_isize == Some(90));
+    test_type("usize", "95",             |obj| obj.arg_usize == Some(95));
     test_type("f32", "0.5",              |obj| obj.arg_f32 == Some(0.5));
     test_type("f64", "0.25",             |obj| obj.arg_f64 == Some(0.25));
     test_type("str", "\"test\"",         |obj| obj.arg_string == Some("test".into()));
@@ -188,10 +208,11 @@ fn test_slot_types_references() {
     test_type("i16Ref", "-31",   |obj| obj.arg_i16 == Some(-31));
     test_type("u16Ref", "41",    |obj| obj.arg_u16 == Some(41));
     test_type("i32Ref", "-51",   |obj| obj.arg_i32 == Some(-51));
-
     test_type("u32Ref", "61",    |obj| obj.arg_u32 == Some(61));
     test_type("i64Ref", "71",    |obj| obj.arg_i64 == Some(71));
     test_type("u64Ref", "81",    |obj| obj.arg_u64 == Some(81));
+    test_type("isizeRef", "91",  |obj| obj.arg_isize == Some(91));
+    test_type("usizeRef", "97",  |obj| obj.arg_usize == Some(97));
     test_type("f32Ref", "0.25",  |obj| obj.arg_f32 == Some(0.25));
     test_type("f64Ref", "0.75",  |obj| obj.arg_f64 == Some(0.75));
 

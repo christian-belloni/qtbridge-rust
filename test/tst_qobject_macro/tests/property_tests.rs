@@ -32,6 +32,8 @@ struct TestValues {
     pub u64: u64,
     pub f32: f32,
     pub f64: f64,
+    pub isize: isize,
+    pub usize: usize,
     pub string: String,
     pub string_list: Vec<String>,
 }
@@ -54,6 +56,8 @@ pub mod member_properties {
         pub u64: u64,
         pub f32: f32,
         pub f64: f64,
+        pub isize: isize,
+        pub usize: usize,
         pub string: String,
         pub string_list: Vec<String>,
     }
@@ -68,6 +72,8 @@ pub mod member_properties {
         qproperty!("propertyU32", Member = u32);
         qproperty!("propertyI64", Member = i64);
         qproperty!("propertyU64", Member = u64);
+        qproperty!("propertyIsize", Member = isize);
+        qproperty!("propertyUsize", Member = usize);
         qproperty!("propertyF32", Member = f32);
         qproperty!("propertyF64", Member = f64);
         qproperty!("propertyString", Member = string);
@@ -77,10 +83,10 @@ pub mod member_properties {
     impl From<TestValues> for TestObject {
         fn from(src: TestValues) -> Self {
             let TestValues {
-                bool, i8, u8, i16, u16, i32, u32, i64, u64, f32, f64, string, string_list
+                bool, i8, u8, i16, u16, i32, u32, i64, u64, isize, usize, f32, f64, string, string_list
             } = src;
             Self {
-                bool, i8, u8, i16, u16, i32, u32, i64, u64, f32, f64, string, string_list
+                bool, i8, u8, i16, u16, i32, u32, i64, u64, isize, usize, f32, f64, string, string_list
             }
         }
     }
@@ -97,6 +103,8 @@ pub mod member_properties {
                 u32: src.u32,
                 i64: src.i64,
                 u64: src.u64,
+                isize: src.isize,
+                usize: src.usize,
                 f32: src.f32,
                 f64: src.f64,
                 string: src.string.clone(),
@@ -136,6 +144,8 @@ mod accessor_value_properties {
         qproperty!("propertyU32", Read = u32_get, Write = u32_set);
         qproperty!("propertyI64", Read = i64_get, Write = i64_set);
         qproperty!("propertyU64", Read = u64_get, Write = u64_set);
+        qproperty!("propertyIsize", Read = isize_get, Write = isize_set);
+        qproperty!("propertyUsize", Read = usize_get, Write = usize_set);
         qproperty!("propertyF32", Read = f32_get, Write = f32_set);
         qproperty!("propertyF64", Read = f64_get, Write = f64_set);
         qproperty!("propertyString", Read = string_get, Write = string_set);
@@ -202,6 +212,20 @@ mod accessor_value_properties {
         }
         fn u64_set(&mut self, new: u64) {
             self.values.u64 = new;
+        }
+
+        fn isize_get(&self) -> isize {
+            self.values.isize
+        }
+        fn isize_set(&mut self, new: isize) {
+            self.values.isize = new;
+        }
+
+        fn usize_get(&self) -> usize {
+            self.values.usize
+        }
+        fn usize_set(&mut self, new: usize) {
+            self.values.usize = new;
         }
 
         fn f32_get(&self) -> f32 {
@@ -279,6 +303,8 @@ mod accessor_reference_properties {
         qproperty!("propertyU32", Read = u32_get, Write = u32_set);
         qproperty!("propertyI64", Read = i64_get, Write = i64_set);
         qproperty!("propertyU64", Read = u64_get, Write = u64_set);
+        qproperty!("propertyIsize", Read = isize_get, Write = isize_set);
+        qproperty!("propertyUsize", Read = usize_get, Write = usize_set);
         qproperty!("propertyF32", Read = f32_get, Write = f32_set);
         qproperty!("propertyF64", Read = f64_get, Write = f64_set);
         qproperty!("propertyString", Read = string_get, Write = string_set);
@@ -345,6 +371,20 @@ mod accessor_reference_properties {
         }
         fn u64_set(&mut self, new: &u64) {
             self.values.u64 = *new;
+        }
+
+        fn isize_get(&self) -> &isize {
+            &self.values.isize
+        }
+        fn isize_set(&mut self, new: &isize) {
+            self.values.isize = *new;
+        }
+
+        fn usize_get(&self) -> &usize {
+            &self.values.usize
+        }
+        fn usize_set(&mut self, new: &usize) {
+            self.values.usize = *new;
         }
 
         fn f32_get(&self) -> &f32 {
@@ -471,6 +511,12 @@ where
         || test_property_can_be_read::<TestObj, u64>(
                 TestValues { u64: 108, ..<_>::default() },
                 108),
+        || test_property_can_be_read::<TestObj, isize>(
+                TestValues { isize: -109, ..<_>::default() },
+                -109),
+        || test_property_can_be_read::<TestObj, usize>(
+                TestValues { usize: 110, ..<_>::default() },
+                110),
         || test_property_can_be_read::<TestObj, f32>(
                 TestValues { f32: 0.5, ..<_>::default() },
                 0.5),
@@ -500,6 +546,9 @@ where
         || test_property_can_be_written::<TestObj, _, _>(i32::MIN, |values| values.i32),
         || test_property_can_be_written::<TestObj, _, _>(u32::MAX, |values| values.u32),
         || test_property_can_be_written::<TestObj, _, _>(i64::MIN, |values| values.i64),
+        || test_property_can_be_written::<TestObj, _, _>(u64::MIN, |values| values.u64),
+        || test_property_can_be_written::<TestObj, _, _>(isize::MIN, |values| values.isize),
+        || test_property_can_be_written::<TestObj, _, _>(usize::MIN, |values| values.usize),
         || test_property_can_be_written::<TestObj, _, _>(0.25, |values| values.f32),
         || test_property_can_be_written::<TestObj, _, _>(0.125, |values| values.f64),
         || test_property_can_be_written::<TestObj, _, _>("Привіт, світе!".to_string(), |values| values.string.clone()),

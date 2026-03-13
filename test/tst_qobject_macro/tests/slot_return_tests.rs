@@ -23,6 +23,8 @@ pub mod test_object {
         pub u32_value: u32,
         pub i64_value: i64,
         pub u64_value: u64,
+        pub isize_value: isize,
+        pub usize_value: usize,
         pub f32_value: f32,
         pub f64_value: f64,
         pub string_value: String,
@@ -39,6 +41,8 @@ pub mod test_object {
         qproperty!("slotU32Value", Member = u32_value);
         qproperty!("slotI64Value", Member = i64_value);
         qproperty!("slotU64Value", Member = u64_value);
+        qproperty!("slotIsizeValue", Member = isize_value);
+        qproperty!("slotUsizeValue", Member = usize_value);
         qproperty!("slotF32Value", Member = f32_value);
         qproperty!("slotF64Value", Member = f64_value);
         qproperty!("slotStringValue", Member = string_value);
@@ -82,6 +86,14 @@ pub mod test_object {
         #[qslot]
         fn slot_u64(&self) -> u64 {
             MAX_SAFE_INTEGER as u64
+        }
+        #[qslot]
+        fn slot_isize(&self) -> isize {
+            MIN_SAFE_INTEGER as isize
+        }
+        #[qslot]
+        fn slot_usize(&self) -> usize {
+            MAX_SAFE_INTEGER as usize
         }
         #[qslot]
         fn slot_f32(&self) -> f32 {
@@ -172,6 +184,8 @@ fn main() {
     test_slot_return::<u32>(u32::MAX);
     test_slot_return::<i64>(MIN_SAFE_INTEGER);
     test_slot_return::<u64>(MAX_SAFE_INTEGER as u64);
+    test_slot_return::<isize>(MIN_SAFE_INTEGER as isize);
+    test_slot_return::<usize>(MAX_SAFE_INTEGER as usize);
     test_slot_return::<f32>(0.5);
     test_slot_return::<f64>(0.125);
     test_slot_return::<String>("def".into());

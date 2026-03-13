@@ -36,6 +36,10 @@ pub mod test_object {
         #[qsignal]
         pub fn signal_u64(&self, arg: u64);
         #[qsignal]
+        pub fn signal_isize(&self, arg: isize);
+        #[qsignal]
+        pub fn signal_usize(&self, arg: usize);
+        #[qsignal]
         pub fn signal_f32(&self, arg: f32);
         #[qsignal]
         pub fn signal_f64(&self, arg: f64);
@@ -63,6 +67,10 @@ pub mod test_object {
         pub fn signal_i64_ref(&self, arg: &i64);
         #[qsignal]
         pub fn signal_u64_ref(&self, arg: &u64);
+        #[qsignal]
+        pub fn signal_isize_ref(&self, arg: &isize);
+        #[qsignal]
+        pub fn signal_usize_ref(&self, arg: &usize);
         #[qsignal]
         pub fn signal_f32_ref(&self, arg: &f32);
         #[qsignal]
@@ -205,6 +213,27 @@ fn signal_is_emitted_when_called_with_u64_arg() {
 }
 
 #[test]
+fn signal_is_emitted_when_called_with_isize_arg() {
+    test_signal_with_arg_value("Isize",
+        |obj| obj.signal_isize(-50),
+        |var| {
+            let arg: isize = var.try_into().unwrap();
+            arg == -50
+        });
+}
+
+#[test]
+fn signal_is_emitted_when_called_with_usize_arg() {
+    test_signal_with_arg_value("Usize",
+        |obj| obj.signal_usize(51),
+        |var| {
+            let arg: usize = var.try_into().unwrap();
+            arg == 51
+        });
+}
+
+
+#[test]
 fn signal_is_emitted_when_called_with_f32_arg() {
     test_signal_with_arg_value("F32",
         |obj| obj.signal_f32(0.5),
@@ -322,8 +351,8 @@ fn signal_is_emitted_when_called_with_u32_ref_arg() {
         |var| {
             let value: u32 = var.try_into().unwrap();
             value == u32::MAX
-        });}
-
+        });
+}
 
 #[test]
 fn signal_is_emitted_when_called_with_i64_ref_arg() {
@@ -342,6 +371,46 @@ fn signal_is_emitted_when_called_with_u64_ref_arg() {
         |var| {
             let value: u64 = var.try_into().unwrap();
             value == MAX_SAFE_INTEGER
+        });
+}
+
+#[test]
+fn signal_is_emitted_when_called_with_isize_ref_arg() {
+    test_signal_with_arg_value("IsizeRef",
+        |obj| obj.signal_isize_ref(&(MIN_SAFE_INTEGER as isize)),
+        |var| {
+            let value: isize = var.try_into().unwrap();
+            value == MIN_SAFE_INTEGER as isize
+        });
+}
+
+#[test]
+fn signal_is_emitted_when_called_with_usize_ref_arg() {
+    test_signal_with_arg_value("UsizeRef",
+        |obj| obj.signal_usize_ref(&(MAX_SAFE_INTEGER as usize)),
+        |var| {
+            let value: usize = var.try_into().unwrap();
+            value == MAX_SAFE_INTEGER as usize
+        });
+}
+
+#[test]
+fn signal_is_emitted_when_called_with_f32_ref_arg() {
+    test_signal_with_arg_value("F32Ref",
+        |obj| obj.signal_f32_ref(&0.5),
+        |var| {
+            let value: f32 = var.try_into().unwrap();
+            value == 0.5
+        });
+}
+
+#[test]
+fn signal_is_emitted_when_called_with_f64_ref_arg() {
+    test_signal_with_arg_value("F64Ref",
+        |obj| obj.signal_f64_ref(&0.25),
+        |var| {
+            let value: f64 = var.try_into().unwrap();
+            value == 0.25
         });
 }
 
