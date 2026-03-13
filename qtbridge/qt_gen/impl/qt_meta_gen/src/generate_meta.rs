@@ -105,9 +105,6 @@ fn generate_meta_reg_use_block(signals: &[QSignalInfo], slots: &[QSlotInfo], pro
             .any(|s| s.get_typed_arg_count() > 0 || s.has_return());
 
     let mut type_lib_imports = Vec::new();
-    if is_property_with_not_deduced_type {
-        type_lib_imports.push(format_ident!("get_meta_type_of_fn_return_value"));
-    }
     if is_qmeta_type_used {
         type_lib_imports.push(format_ident!("QMetaType"));
     }
@@ -149,14 +146,27 @@ fn generate_meta_reg_use_block(signals: &[QSignalInfo], slots: &[QSlotInfo], pro
         0 => quote!{},
         1 => {
             let mcb = meta_callbacks.first().unwrap();
-            quote!{ use #bridge_library::metacallbacks::#mcb; }
+            quote!{ metacallbacks::#mcb; }
         },
-        2.. => quote!{ use #bridge_library::metacallbacks::{#(#meta_callbacks),*};},
+        2.. => quote!{ metacallbacks::{#(#meta_callbacks),*};},
     };
+
+    let mut bridge_imports = Vec::new();
+    if !import_metacallbacks.is_empty() {
+        bridge_imports.push(import_metacallbacks);
+    }
+    if is_property_with_not_deduced_type {
+        bridge_imports.push(quote!{ get_meta_type_of_fn_return_value });
+    }
+
+    let bridge_imports = (!bridge_imports.is_empty())
+        .then(|| quote!{
+            #(use #bridge_library::#bridge_imports;)*
+        });
 
     quote! {
         #type_lib_imports
-        #import_metacallbacks
+        #bridge_imports
     }
 }
 

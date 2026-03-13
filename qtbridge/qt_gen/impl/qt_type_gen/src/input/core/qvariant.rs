@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use std::mem::MaybeUninit;
-use crate::{QByteArray, QList, QObject, QString};
+use crate::{QByteArray, QList, QMetaType, QObject, QString};
 
 #[qt_gen::bridge]
 mod qvariant {
@@ -53,6 +53,21 @@ mod qvariant {
     pub fn is_valid(&self) -> bool {
         let cpp = cpp_fn!(|&self| -> bool {
             return self.isValid();
+        });
+        cpp(self)
+    }
+
+    /// Returns the [QMetaType] of the value stored in the variant.
+    ///
+    /// # Examples
+    /// ```
+    /// # use qt_type_lib::{QMetaTypeGet, QVariant};
+    /// let var = QVariant::from(0.5f64);
+    /// assert_eq!(var.meta_type().id(), f64::get_qmetatype().id());
+    /// ```
+    pub fn meta_type(&self) -> QMetaType {
+        let cpp = cpp_fn!(|&self| -> QMetaType {
+            return self.metaType();
         });
         cpp(self)
     }
