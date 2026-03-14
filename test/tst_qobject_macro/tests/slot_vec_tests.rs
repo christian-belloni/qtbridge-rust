@@ -19,6 +19,8 @@ pub mod test_object {
         pub arg_vec_u32: Option<Vec<u32>>,
         pub arg_vec_i64: Option<Vec<i64>>,
         pub arg_vec_u64: Option<Vec<u64>>,
+        pub arg_vec_isize: Option<Vec<isize>>,
+        pub arg_vec_usize: Option<Vec<usize>>,
         pub arg_vec_f32: Option<Vec<f32>>,
         pub arg_vec_f64: Option<Vec<f64>>,
         pub arg_vec_string: Option<Vec<String>>,
@@ -61,6 +63,14 @@ pub mod test_object {
         #[qslot]
         fn slot_vec_u64(&mut self, arg: Vec<u64>) {
             self.arg_vec_u64 = Some(arg);
+        }
+        #[qslot]
+        fn slot_vec_isize(&mut self, arg: Vec<isize>) {
+            self.arg_vec_isize = Some(arg);
+        }
+        #[qslot]
+        fn slot_vec_usize(&mut self, arg: Vec<usize>) {
+            self.arg_vec_usize = Some(arg);
         }
         #[qslot]
         fn slot_vec_f32(&mut self, arg: Vec<f32>) {
@@ -111,6 +121,14 @@ pub mod test_object {
         #[qslot]
         fn slot_vec_u64_ref(&mut self, arg: &Vec<u64>) {
             self.arg_vec_u64 = Some(arg.clone());
+        }
+        #[qslot]
+        fn slot_vec_isize_ref(&mut self, arg: &Vec<isize>) {
+            self.arg_vec_isize = Some(arg.clone());
+        }
+        #[qslot]
+        fn slot_vec_usize_ref(&mut self, arg: &Vec<usize>) {
+            self.arg_vec_usize = Some(arg.clone());
         }
         #[qslot]
         fn slot_vec_f32_ref(&mut self, arg: &Vec<f32>) {
@@ -165,6 +183,8 @@ fn test_slot_types_vec_values() {
     test_type("u32", "[0, 1, 2, 2147483648, 4294967295]",  |obj| obj.arg_vec_u32 == Some(vec![0, 1, 2, 2147483648, 4294967295]));
     test_type("i64", "[0, 1, 2, Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]", |obj| obj.arg_vec_i64 == Some(vec![0, 1, 2, MIN_SAFE_INTEGER, MAX_SAFE_INTEGER as i64]));
     test_type("u64", "[0, 1, 2, Number.MAX_SAFE_INTEGER]", |obj| obj.arg_vec_u64 == Some(vec![0, 1, 2, 9007199254740991]));
+    test_type("isize", "[0, 1, 2, Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]", |obj| obj.arg_vec_isize == Some(vec![0, 1, 2, MIN_SAFE_INTEGER as isize, MAX_SAFE_INTEGER as isize]));
+    test_type("usize", "[0, 1, 2, Number.MAX_SAFE_INTEGER]", |obj| obj.arg_vec_usize == Some(vec![0, 1, 2, 9007199254740991]));
     test_type("string", "[\"abc\", \"def\", \"ghi\"]",     |obj| obj.arg_vec_string == Some(vec!["abc".into(), "def".into(), "ghi".into()]));
 }
 
@@ -178,6 +198,8 @@ fn test_slot_types_vec_references() {
     test_type("u32Ref", "[0, 1, 2, 2147483648, 4294967295]",  |obj| obj.arg_vec_u32 == Some(vec![0, 1, 2, 2147483648, 4294967295]));
     test_type("i64Ref", "[0, 1, 2, Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]", |obj| obj.arg_vec_i64 == Some(vec![0, 1, 2, MIN_SAFE_INTEGER, MAX_SAFE_INTEGER as i64]));
     test_type("u64Ref", "[0, 1, 2, Number.MAX_SAFE_INTEGER]", |obj| obj.arg_vec_u64 == Some(vec![0, 1, 2, 9007199254740991]));
+    test_type("isizeRef", "[0, 1, 2, Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]", |obj| obj.arg_vec_isize == Some(vec![0, 1, 2, MIN_SAFE_INTEGER as isize, MAX_SAFE_INTEGER as isize]));
+    test_type("usizeRef", "[0, 1, 2, Number.MAX_SAFE_INTEGER]", |obj| obj.arg_vec_usize == Some(vec![0, 1, 2, 9007199254740991]));
     test_type("stringRef", "[\"abc\", \"def\", \"ghi\"]",     |obj| obj.arg_vec_string == Some(vec!["abc".into(), "def".into(), "ghi".into()]));
 }
 

@@ -19,6 +19,8 @@ pub mod test_object {
         pub signal_arg_vec_u32: Vec<u32>,
         pub signal_arg_vec_i64: Vec<i64>,
         pub signal_arg_vec_u64: Vec<u64>,
+        pub signal_arg_vec_isize: Vec<isize>,
+        pub signal_arg_vec_usize: Vec<usize>,
         pub signal_arg_vec_f32: Vec<f32>,
         pub signal_arg_vec_f64: Vec<f64>,
         pub signal_arg_vec_string: Vec<String>,
@@ -44,6 +46,10 @@ pub mod test_object {
         #[qsignal]
         pub fn signal_vec_u64(&self, arg: &Vec<u64>);
         #[qsignal]
+        pub fn signal_vec_isize(&self, arg: &Vec<isize>);
+        #[qsignal]
+        pub fn signal_vec_usize(&self, arg: &Vec<usize>);
+        #[qsignal]
         pub fn signal_vec_f32(&self, arg: &Vec<f32>);
         #[qsignal]
         pub fn signal_vec_f64(&self, arg: &Vec<f64>);
@@ -59,6 +65,8 @@ pub mod test_object {
         qproperty!("signalArgU32", Member = signal_arg_vec_u32);
         qproperty!("signalArgI64", Member = signal_arg_vec_i64);
         qproperty!("signalArgU64", Member = signal_arg_vec_u64);
+        qproperty!("signalArgIsize", Member = signal_arg_vec_isize);
+        qproperty!("signalArgUsize", Member = signal_arg_vec_usize);
         qproperty!("signalArgF32", Member = signal_arg_vec_f32);
         qproperty!("signalArgF64", Member = signal_arg_vec_f64);
         qproperty!("signalArgString", Member = signal_arg_vec_string);
@@ -137,6 +145,12 @@ fn test_that_signals_work_with_vec_arguments() {
     test_type::<u64>(
         |obj| obj.signal_vec_u64(&vec![0, 1, 2, 3, u64::MAX]),
         |obj| obj.signal_arg_vec_u64 == [0, 1, 2, 3, u64::MAX]);
+    test_type::<isize>(
+        |obj| obj.signal_vec_isize(&vec![0, 1, 2, 3, -1, isize::MIN, isize::MAX]),
+        |obj| obj.signal_arg_vec_isize == [0, 1, 2, 3, -1, isize::MIN, isize::MAX]);
+    test_type::<usize>(
+        |obj| obj.signal_vec_usize(&vec![0, 1, 2, 3, usize::MAX]),
+        |obj| obj.signal_arg_vec_usize == [0, 1, 2, 3, usize::MAX]);
     test_type::<f32>(
         |obj| obj.signal_vec_f32(&vec![0.0, 0.5, -0.25, 0.125, f32::MIN, f32::MAX]),
         |obj| obj.signal_arg_vec_f32 == [0.0, 0.5, -0.25, 0.125, f32::MIN, f32::MAX]);

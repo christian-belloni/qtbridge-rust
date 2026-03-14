@@ -22,6 +22,8 @@ pub mod test_object {
         pub u32_return: Vec<u32>,
         pub i64_return: Vec<i64>,
         pub u64_return: Vec<u64>,
+        pub isize_return: Vec<isize>,
+        pub usize_return: Vec<usize>,
         pub f32_return: Vec<f32>,
         pub f64_return: Vec<f64>,
         pub string_return: Vec<String>,
@@ -65,6 +67,14 @@ pub mod test_object {
             vec![23, 24, 25]
         }
         #[qslot]
+        fn slot_vec_isize(&self) -> Vec<isize> {
+            vec![-26, 27, 28]
+        }
+        #[qslot]
+        fn slot_vec_usize(&self) -> Vec<usize> {
+            vec![29, 30, 31]
+        }
+        #[qslot]
         fn slot_vec_f32(&self) -> Vec<f32> {
             vec![0.5, 0.25, 0.125]
         }
@@ -89,6 +99,8 @@ pub mod test_object {
         qproperty!("slotVecU32Return", Member = u32_return);
         qproperty!("slotVecI64Return", Member = i64_return);
         qproperty!("slotVecU64Return", Member = u64_return);
+        qproperty!("slotVecIsizeReturn", Member = isize_return);
+        qproperty!("slotVecUsizeReturn", Member = usize_return);
         qproperty!("slotVecF32Return", Member = f32_return);
         qproperty!("slotVecF64Return", Member = f64_return);
         qproperty!("slotVecStringReturn", Member = string_return);
@@ -150,6 +162,8 @@ fn main() {
     test_slot_return_impl::<u32>(&[17, 18, 19]);
     test_slot_return_impl::<i64>(&[-20, 21, 22]);
     test_slot_return_impl::<u64>(&[23, 24, 25]);
+    test_slot_return_impl::<isize>(&[-26, 27, 28]);
+    test_slot_return_impl::<usize>(&[29, 30, 31]);
     test_slot_return_impl::<f32>(&[0.5, 0.25, 0.125]);
     test_slot_return_impl::<f64>(&[0.25, 0.125, 0.0625]);
     test_slot_return_impl::<String>(&["zero", "um", "dois", "três", "quatro"].map(ToOwned::to_owned));

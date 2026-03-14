@@ -30,6 +30,8 @@ struct TestValues {
     pub u32: Vec<u32>,
     pub i64: Vec<i64>,
     pub u64: Vec<u64>,
+    pub isize: Vec<isize>,
+    pub usize: Vec<usize>,
     pub f32: Vec<f32>,
     pub f64: Vec<f64>,
     pub string: Vec<String>,
@@ -50,6 +52,8 @@ pub mod member_properties {
         pub u32: Vec<u32>,
         pub i64: Vec<i64>,
         pub u64: Vec<u64>,
+        pub isize: Vec<isize>,
+        pub usize: Vec<usize>,
         pub f32: Vec<f32>,
         pub f64: Vec<f64>,
         pub string: Vec<String>,
@@ -65,6 +69,8 @@ pub mod member_properties {
         qproperty!("propertyVecU32", Member = u32);
         qproperty!("propertyVecI64", Member = i64);
         qproperty!("propertyVecU64", Member = u64);
+        qproperty!("propertyVecIsize", Member = isize);
+        qproperty!("propertyVecUsize", Member = usize);
         qproperty!("propertyVecF32", Member = f32);
         qproperty!("propertyVecF64", Member = f64);
         qproperty!("propertyVecString", Member = string);
@@ -73,10 +79,10 @@ pub mod member_properties {
     impl From<TestValues> for TestObject {
         fn from(src: TestValues) -> Self {
             let TestValues {
-                bool, i8, u8, i16, u16, i32, u32, i64, u64, f32, f64, string
+                bool, i8, u8, i16, u16, i32, u32, i64, u64, isize, usize, f32, f64, string
             } = src;
             Self {
-                bool, i8, u8, i16, u16, i32, u32, i64, u64, f32, f64, string
+                bool, i8, u8, i16, u16, i32, u32, i64, u64, isize, usize, f32, f64, string
             }
         }
     }
@@ -93,6 +99,8 @@ pub mod member_properties {
                 u32: src.u32.clone(),
                 i64: src.i64.clone(),
                 u64: src.u64.clone(),
+                isize: src.isize.clone(),
+                usize: src.usize.clone(),
                 f32: src.f32.clone(),
                 f64: src.f64.clone(),
                 string: src.string.clone(),
@@ -131,6 +139,8 @@ mod accessor_value_properties {
         qproperty!("propertyVecU32", Read = u32_get, Write = u32_set);
         qproperty!("propertyVecI64", Read = i64_get, Write = i64_set);
         qproperty!("propertyVecU64", Read = u64_get, Write = u64_set);
+        qproperty!("propertyVecIsize", Read = isize_get, Write = isize_set);
+        qproperty!("propertyVecUsize", Read = usize_get, Write = usize_set);
         qproperty!("propertyVecF32", Read = f32_get, Write = f32_set);
         qproperty!("propertyVecF64", Read = f64_get, Write = f64_set);
         qproperty!("propertyVecString", Read = string_get, Write = string_set);
@@ -196,6 +206,20 @@ mod accessor_value_properties {
         }
         fn u64_set(&mut self, new: Vec<u64>) {
             self.values.u64 = new;
+        }
+
+        fn isize_get(&self) -> Vec<isize> {
+            self.values.isize.clone()
+        }
+        fn isize_set(&mut self, new: Vec<isize>) {
+            self.values.isize = new;
+        }
+
+        fn usize_get(&self) -> Vec<usize> {
+            self.values.usize.clone()
+        }
+        fn usize_set(&mut self, new: Vec<usize>) {
+            self.values.usize = new;
         }
 
         fn f32_get(&self) -> Vec<f32> {
@@ -266,6 +290,10 @@ mod accessor_reference_properties {
         qproperty!("propertyVecU32", Read = u32_get, Write = u32_set);
         qproperty!("propertyVecI64", Read = i64_get, Write = i64_set);
         qproperty!("propertyVecU64", Read = u64_get, Write = u64_set);
+
+        qproperty!("propertyVecIsize", Read = isize_get, Write = isize_set);
+        qproperty!("propertyVecUsize", Read = usize_get, Write = usize_set);
+
         qproperty!("propertyVecF32", Read = f32_get, Write = f32_set);
         qproperty!("propertyVecF64", Read = f64_get, Write = f64_set);
         qproperty!("propertyVecString", Read = string_get, Write = string_set);
@@ -331,6 +359,21 @@ mod accessor_reference_properties {
         }
         fn u64_set(&mut self, new: &Vec<u64>) {
             self.values.u64 = new.clone();
+        }
+
+
+        fn isize_get(&self) -> &Vec<isize> {
+            &self.values.isize
+        }
+        fn isize_set(&mut self, new: &Vec<isize>) {
+            self.values.isize = new.clone();
+        }
+
+        fn usize_get(&self) -> &Vec<usize> {
+            &self.values.usize
+        }
+        fn usize_set(&mut self, new: &Vec<usize>) {
+            self.values.usize = new.clone();
         }
 
         fn f32_get(&self) -> &Vec<f32> {
@@ -452,6 +495,12 @@ where
         || test_property_can_be_read::<TestObj, u64>(
                 TestValues { u64: vec![122, 123, 124], ..<_>::default() },
                 &[122, 123, 124]),
+        || test_property_can_be_read::<TestObj, isize>(
+                TestValues { isize: vec![-125, 126, 127], ..<_>::default() },
+                &[-125, 126, 127]),
+        || test_property_can_be_read::<TestObj, usize>(
+                TestValues { usize: vec![128, 129, 130], ..<_>::default() },
+                &[128, 129, 130]),
         || test_property_can_be_read::<TestObj, f32>(
                 TestValues { f32: vec![0.5, -0.125, 0.25], ..<_>::default() },
                 &[0.5, -0.125, 0.25]),
@@ -478,6 +527,9 @@ where
         || test_property_can_be_written::<TestObj, _, _>(&[i32::MIN, 0, 100, 240, i32::MAX], |values| &values.i32),
         || test_property_can_be_written::<TestObj, _, _>(&[u32::MIN, 42, u32::MAX], |values| &values.u32),
         || test_property_can_be_written::<TestObj, _, _>(&[i64::MIN, i64::MAX], |values| &values.i64),
+        || test_property_can_be_written::<TestObj, _, _>(&[u64::MIN, u64::MAX], |values| &values.u64),
+        || test_property_can_be_written::<TestObj, _, _>(&[isize::MIN, isize::MAX], |values| &values.isize),
+        || test_property_can_be_written::<TestObj, _, _>(&[usize::MIN, usize::MAX], |values| &values.usize),
         || test_property_can_be_written::<TestObj, _, _>(&[0.25, 0.0, 0.5], |values| &values.f32),
         || test_property_can_be_written::<TestObj, _, _>(&[0.125, -0.25, 0.0625], |values| &values.f64),
         || test_property_can_be_written::<TestObj, _, _>(&["Xin".into(), "chào".into(), "thế giới".into()], |values| &values.string),

@@ -17,6 +17,8 @@ mod qlist {
         ((u64), qmetatype),
         ((f32), qmetatype),
         ((f64), qmetatype),
+        ((isize), qmetatype),
+        ((usize), qmetatype),
         ((QByteArray), alias = QByteArrayList, qmetatype = 49),
         ((QString), alias = QStringList, qmetatype = 11),
         ((QVariant), alias = QVariantList, qmetatype = 9)

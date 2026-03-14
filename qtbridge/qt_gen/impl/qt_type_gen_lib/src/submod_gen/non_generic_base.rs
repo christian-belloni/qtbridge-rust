@@ -524,8 +524,8 @@ impl NonGenericSubmoduleGeneratorBase {
 
         let namespace = struct_
             .and_then(|s| s.namespace());
-        let (maybe_namespace_w_colons, maybe_using_namespace) = namespace
-            .map(|ns| (format!("{ns}::"), format!("using namespace {ns};\n")) )
+        let maybe_using_namespace = namespace
+            .map(|ns| format!("using namespace {ns};\n"))
             .unwrap_or_default();
 
         let mut includes = type_tokens_to_cpp_includes(self.type_tokens().all())?;
@@ -553,19 +553,7 @@ impl NonGenericSubmoduleGeneratorBase {
         let maybe_qmetatype_id_check = self.get_static_qmetatype_id_check_cpp_code()
             .unwrap_or_default();
         let (cpp_func_decl, cpp_func_def) = self.get_inline_cpp_functions_cpp_code()?;
-        let maybe_reallocatable_struct = if self.is_shared_struct() { {
-                let ident = self.struct_ident().unwrap();
-                format!(
-r#"
-namespace rust {{
-
-template <>
-struct IsRelocatable<::{maybe_namespace_w_colons}{ident}> : ::std::true_type {{}};
-
- }} // namespace rust
-
-"#)
-            } } else { Default::default() };
+        let maybe_reallocatable_struct = self.generate_is_relocatable();
 
         // Generate header code
         let header = format!(
@@ -636,6 +624,68 @@ namespace {bridge_namespace} {{
             .unwrap_or_default();
         let result = format!("using {mono_ident} = ::{maybe_namespace_w_colons}{src_struct_ident}<{gen_cpp_types}>;");
         Ok(result)
+    }
+
+    pub fn generate_is_relocatable(&self) -> String {
+        if !self.is_shared_struct() {
+            return "".into();
+        }
+
+        let ident = self.struct_ident().unwrap();
+
+        // C++ define used to avoid multiple definitions for the same type
+        // when instantiating types that are distinct in Rust but considered the same in C++,
+        // e.g. QList<uint64_t> and QList<size_t>.
+        let mut maybe_guard_begin = String::new();
+        let mut maybe_guard_end = String::new();
+        let define_needed = self.structure()
+            .is_some_and(|s| s.is_generic());
+        if define_needed {
+            let mut define_ident = ident.to_string()
+                .split('_')
+                .into_iter()
+                .map(|comp| {
+                    #[cfg(target_pointer_width = "64")]
+                    match comp {
+                        "usize" => "u64",
+                        "isize" => "i64",
+                        _ => comp
+                    }
+                    #[cfg(target_pointer_width = "32")]
+                    match comp {
+                        "usize" => "u32",
+                        "isize" => "i32",
+                        _ => comp
+                    }
+                })
+                .collect::<Vec<_>>()
+                .join("_")
+                .to_ascii_uppercase();
+            define_ident.push_str("_IS_RELOCATABLE");
+            maybe_guard_begin = format!(
+r#"
+#ifndef {define_ident}
+#define {define_ident}
+"#);
+            maybe_guard_end = format!("#endif // #ifndef {define_ident}");
+        }
+
+        let maybe_namespace_w_colons = self.structure()
+            .and_then(|s| s.namespace())
+            .map(|ns| format!("{ns}::"))
+            .unwrap_or_default();
+        let code = format!(
+r#"
+{maybe_guard_begin}
+namespace rust {{
+
+template <>
+struct IsRelocatable<::{maybe_namespace_w_colons}{ident}> : ::std::true_type {{}};
+
+ }} // namespace rust
+{maybe_guard_end}
+"#);
+        code
     }
 
     fn get_def_cpp_traits_cpp_code(&self) -> Option<(String, String)> {

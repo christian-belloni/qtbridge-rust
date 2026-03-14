@@ -242,7 +242,7 @@ mod qvariant {
         }
     }
 
-    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, f32, f64]]
+    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, isize, usize, f32, f64]]
     impl<T> TryFrom<&QVariant> for Vec<T> {
         type Error = ();
 
@@ -272,7 +272,7 @@ mod qvariant {
         }
     }
 
-    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, f32, f64, String]]
+    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, f32, f64, isize, usize, String]]
     impl<T> TryFrom<QVariant> for Vec<T> {
         type Error = ();
         fn try_from(value: QVariant) -> Result<Self, ()> {
