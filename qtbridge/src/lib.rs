@@ -16,10 +16,9 @@ pub mod type_support {
 
 #[doc(hidden)]
 pub use bridge;
+pub use bridge::QModelItem;
 #[doc(hidden)]
 pub use qt_gen;
-pub use qt_traits;
-pub use qt_traits::*;
 #[doc(hidden)]
 pub use qt_ifaces;
 #[doc(hidden)]

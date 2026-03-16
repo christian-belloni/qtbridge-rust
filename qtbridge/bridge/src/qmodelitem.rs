@@ -63,7 +63,7 @@ fn option_to_qvariant<T: QVariantConvertible>(value: Option<&T>) -> QVariant
 /// ```rust
 ///
 /// use std::collections::HashMap;
-/// use qt_traits::QModelItem;
+/// use qtbridge::QModelItem;
 ///
 /// struct CustomType {
 ///     data: Vec<u8>, // cannot be directly converted to QVariant

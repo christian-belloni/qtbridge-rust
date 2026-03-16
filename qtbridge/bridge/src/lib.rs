@@ -11,6 +11,7 @@ pub mod qobjectholder;
 pub mod qrustproxy;
 pub mod qmetatypeforqobject;
 pub mod qmetatypeutils;
+pub mod qmodelitem;
 
 pub use dynamicmetaobjectbuilder::{DynamicMetaObjectBuilder, create_dynamic_meta_object_builder};
 pub use qmetatypeutils::get_meta_type_of_fn_return_value;
@@ -18,3 +19,5 @@ pub use qapp::QApp;
 pub use qmetainfo::QMetaInfo;
 pub use qml_register::QmlRegister;
 pub use qobjectholder::QObjectHolder;
+pub use qmodelitem::QModelItem;
+

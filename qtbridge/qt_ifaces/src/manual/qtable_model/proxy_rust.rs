@@ -5,10 +5,10 @@ use super::proxy_cpp_bridge::{QTableModelProxyCpp, ffi};
 use crate::{RustObjAccess, call_rust_trait_impl, call_cpp_impl};
 use bridge::qrustproxy::{QRustProxy, ConstructionMode};
 use bridge::QObjectHolder;
+use bridge::QModelItem;
 use qt_type_lib::{QByteArray, QHash, QMetaObject, QMetaType, QModelIndex, QVariant};
 use std::cell::RefCell;
 use std::rc::Rc;
-use qt_traits::QModelItem;
 
 #[doc(hidden)]
 pub trait QTableModelAdapter {
