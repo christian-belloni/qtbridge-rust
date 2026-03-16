@@ -1,73 +1,7 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-//! This library enables building modern Qt Quick user interfaces with a Rust backend.
-//! It allows you to run [QML](https://doc.qt.io/qt-6/qmlreference.html) code and expose
-//! Rust data structures directly to the [QML engine](https://doc.qt.io/qt-6/qqmlengine.html),
-//! combining a declarative UI with Rust-based business logic.
-//!
-//! Qt itself is written in C++, and QtBridge builds on [CXX](https://cxx.rs/) to access the required Qt interfaces.
-//! As a user, you do not need to write any C++ code. Instead, Rust structs and data can be exposed to QML using
-//! attribute macros provided by the library.
-//!
-//! If your project requires mixing Rust and C++ code, using Qt Widgets, or accessing Qt modules that only provide
-//! a C++ API, consider using [CXX-Qt](https://github.com/KDAB/cxx-qt) instead.
-//!
-//! Internally, the library relies on Qt concepts such as [QObjects](https://doc.qt.io/qt-6/qobject.html),
-//! [properties](https://doc.qt.io/qt-6/properties.html), [signals and slots](https://doc.qt.io/qt-6/signalsandslots.html),
-//! and the [Model/View architecture](https://doc.qt.io/qt-6/model-view-programming.html).
-//! While these are exposed through a Rust-friendly API, familiarity with these Qt concepts will help you get
-//! the most out of building UIs with Qt Quick.
-//!
-//!
-//! ## Example:
-//!
-//! Main.rs
-//! ```
-//! use qtbridge::{qobject_impl, QApp};
-//!
-//! #[derive(Default)]
-//! pub struct Backend {
-//! }
-//!
-//! #[qobject_impl]
-//! impl Backend {
-//!     #[qslot]
-//!     fn say_hello(&self) {
-//!         println!("Hello World!")
-//!     }
-//! }
-//!
-//! fn main() {
-//!     <Backend as qtbridge::QmlRegister>::register();
-//!     QApp::new()
-//!         .load_qml(include_bytes!("qml/Main.qml"))
-//!         .run();
-//! }
-//! ```
-//!
-//! Main.qml
-//! ```qml, ignore
-//! import QtQuick
-//! import QtQuick.Controls
-//! import hello_world
-//!
-//! ApplicationWindow {
-//!
-//!    visible: true
-//!     title: qsTr("Minimal QML app")
-//!
-//!     Backend {
-//!         id: backend
-//!     }
-//!
-//!     Button {
-//!         anchors.centerIn: parent
-//!         text: "Hello World!"
-//!         onClicked: backend.sayHello()
-//!     }
-//! }
-//! ```
+#![doc = include_str!("../README.md")]
 
 pub mod type_support {
     //! This module lists the types supported in qtbridge.
