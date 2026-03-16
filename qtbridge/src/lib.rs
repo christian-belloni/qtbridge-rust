@@ -77,8 +77,7 @@ pub mod type_support {
     //! The following types are supported in [`qsignal`](crate::qsignal), [`qslot`](crate::qslot) or [`qproperty`](crate::qproperty):
     //! - **Scalar types**: [`i8`], [`u8`], [`i16`], [`u16`], [`i32`], [`u32`], [`i64`], [`u64`], [`isize`], [`usize`], [`f32`], [`f64`].
     //! - **String types**: [`String`] and [`&str`].
-    //! - **Collections**: [`Vec<T>`], where `T` is one of the supported scalar types or `String`.
-    //! - **Qt-specific types**: `QModelIndex` (internal implementation type).
+    //! - **Collections**: [`Vec<T>`], where `T` is one of the supported scalar types or [`String`].
 }
 
 #[doc(hidden)]
@@ -89,6 +88,7 @@ pub use qt_traits;
 pub use qt_traits::*;
 #[doc(hidden)]
 pub use qt_ifaces;
+#[doc(hidden)]
 pub use qt_type_lib;
 #[doc(hidden)]
 pub use quicktest_macro::*;
