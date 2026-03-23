@@ -11,5 +11,5 @@ proc-macro = true
 proc-macro2.workspace = true
 quote.workspace = true
 syn.workspace = true
-qt_gen_common = { path = "../impl/qt_gen_common" }
+qt_gen_common = { path = "../../qt_gen_common" }
 build_common = { path = "../../build_common" }

@@ -12,6 +12,8 @@ use crate::tst_assert::assert_tokens_eq;
 
 #[test]
 fn require_that_type_tokens_to_cpp_includes_returns_output_that_agrees_with_reference() {
+    qt_type_lib::init();
+
     let type_tokens = [
         "i32",
         "f32",
@@ -43,7 +45,6 @@ fn require_that_type_tokens_to_cpp_includes_returns_output_that_agrees_with_refe
     .map(|str| CppInclude::new_from_str(str))
     .collect::<syn::Result<_>>()
     .unwrap();
-
     let actual = type_tokens_to_cpp_includes(&type_tokens)
         .unwrap();
     assert_eq!(actual, expected);
@@ -51,6 +52,8 @@ fn require_that_type_tokens_to_cpp_includes_returns_output_that_agrees_with_refe
 
 #[test]
 fn require_that_type_tokens_to_bridge_imports_returns_output_that_agrees_with_reference() {
+    qt_type_lib::init();
+
     let type_tokens = [
         "i32",
         "f32",
@@ -96,6 +99,8 @@ fn require_that_type_tokens_to_bridge_imports_returns_output_that_agrees_with_re
 
 #[test]
 fn require_that_type_tokens_to_rust_import_paths_returns_output_that_agrees_with_reference() {
+    qt_type_lib::init();
+
     let type_tokens = [
         "i32",
         "f32",

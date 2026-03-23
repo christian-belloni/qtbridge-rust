@@ -39,6 +39,7 @@ impl QObjectModuleBuilder {
     }
 
     pub fn new(origin: CallOrigin) -> Self {
+        qt_type_lib::init();
         Self {
             params: QObjectMacroParams::default(),
             origin,

@@ -357,12 +357,12 @@ fn generate_generated_files_lists(crate_dir: &Path, generated_files: &FileTree) 
         .map(|path| Ok(normalize_dir_separators(&get_relative_path(path, crate_dir)?)))
         .collect::<Result<Vec<_>, String>>()?;
 
-    let const_files_bridge = format!("const GENERATED_FILES_BRIDGE: [&'static str; {}] = [\n{}];",
+    let const_files_bridge = format!("pub const GENERATED_FILES_BRIDGE: [&'static str; {}] = [\n{}];",
         generated_files_bridge.len(),
         generated_files_bridge.iter()
             .fold("".into(), |acc, path| format!("{acc}    \"{}\",\n", path.display())));
 
-    let const_files_cpp = format!("const GENERATED_FILES_CPP: [&'static str; {}] = [\n{}];",
+    let const_files_cpp = format!("pub const GENERATED_FILES_CPP: [&'static str; {}] = [\n{}];",
         generated_files_cpp.len(),
         generated_files_cpp.iter()
             .fold("".into(), |acc, path| format!("{acc}    \"{}\",\n", path.display())));

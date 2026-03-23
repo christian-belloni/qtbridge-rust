@@ -10,8 +10,9 @@ description = "Basic Qt types library"
 [dependencies]
 cxx.workspace = true
 linkme.workspace = true
+qt_gen_common =  { path = "../qt_gen_common" }
 
 [build-dependencies]
 cxx-build.workspace = true
 build_common = { path = "../build_common" }
-qt_type_gen = { path = "../qt_gen/impl/qt_type_gen" }
+qt_type_gen = { path = "../../code_gen/qt_type_gen" }

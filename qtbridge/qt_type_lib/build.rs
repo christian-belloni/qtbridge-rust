@@ -2,10 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use build_common::qt_build::{link_qt_modules, qt_include_dirs};
-use qt_type_gen::{generated_files_bridge,generated_files_cpp};
+
+mod generated_files_bridge;
+use generated_files_bridge::GENERATED_FILES_BRIDGE;
+mod generated_files_cpp;
+use generated_files_cpp::GENERATED_FILES_CPP;
 
 fn main() {
-    let mut builder = cxx_build::bridges(generated_files_bridge());
+    let mut builder = cxx_build::bridges(GENERATED_FILES_BRIDGE);
     builder
         .std("c++17")
         .flag_if_supported("/Zc:__cplusplus")
@@ -14,7 +18,7 @@ fn main() {
         .include("../")
         .include("../utils");
 
-    generated_files_cpp().iter()
+    GENERATED_FILES_CPP.iter()
         .for_each(|file| {
             builder.file(file);
         });
@@ -28,4 +32,3 @@ fn main() {
 
     link_qt_modules(&qt_modules);
 }
-

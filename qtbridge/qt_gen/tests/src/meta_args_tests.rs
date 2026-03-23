@@ -37,6 +37,7 @@ pub fn tst_qmetatype_support_for_primitives()
 #[test]
 pub fn tst_qmetatype_support_for_strings()
 {
+    qt_type_lib::init();
     let inputs = [
         ("str",    Some("qt_type_lib::QString")),
         ("String", Some("qt_type_lib::QString")),
@@ -49,6 +50,7 @@ pub fn tst_qmetatype_support_for_strings()
 
 #[test]
 pub fn tst_qmetatype_support_for_vectors() {
+    qt_type_lib::init();
     let inputs = [
         ("Vec<i8>",      Some("qt_type_lib::QList_i8")),
         ("Vec<u8>",      Some("qt_type_lib::QList_u8")),

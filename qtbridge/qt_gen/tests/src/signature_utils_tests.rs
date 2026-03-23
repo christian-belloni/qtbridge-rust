@@ -9,6 +9,7 @@ use qt_gen_common::type_qualified_mapping::CallOrigin;
 
 #[test]
 fn require_that_get_qualified_args_adds_qtbridge_to_path_when_it_is_qt_type() {
+    qt_type_lib::init();
     let src: syn::FnArg = parse_quote!{
         parent: &QVariant
     };
@@ -33,6 +34,7 @@ fn require_that_get_qualified_args_keeps_argument_unchanged_when_it_is_standard_
 
 #[test]
 fn require_that_get_qualified_args_returns_type_path_that_agrees_with_reference() {
+    qt_type_lib::init();
     let cases = [
         ("arg: i32", "arg: i32"),
         ("arg: QByteArray", "arg: qtbridge::qt_type_lib::QByteArray"),
@@ -54,6 +56,7 @@ fn require_that_get_qualified_args_returns_type_path_that_agrees_with_reference(
 
 #[test]
 fn require_that_get_qualified_return_type_adds_qtbridge_to_path_when_it_is_qt_type() {
+    qt_type_lib::init();
     let src: syn::ReturnType = parse_quote!{
         -> QStringList
     };

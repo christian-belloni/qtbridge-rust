@@ -15,4 +15,4 @@ bridge = { path = "../bridge" }
 [build-dependencies]
 cxx-build.workspace = true
 build_common = { path = "../build_common" }
-qt_type_gen = { path = "../qt_gen/impl/qt_type_gen" }
+qt_type_gen = { path = "../../code_gen/qt_type_gen" }

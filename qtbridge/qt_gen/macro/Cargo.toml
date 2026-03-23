@@ -12,4 +12,4 @@ proc-macro = true
 
 [dependencies]
 qt_gen_impl = { path = "../impl" }
-qt_gen_common = { path = "../impl/qt_gen_common" }
+qt_gen_common = { path = "../../qt_gen_common" }

@@ -7,6 +7,7 @@ use syn::parse_str;
 
 #[test]
 fn require_that_type_to_cpp_returns_expected_string_when_called_on_supported_types_values() {
+    qt_type_lib::init();
     let cases = [
         // Primitive types
         ("usize", "size_t"),
