@@ -6,8 +6,9 @@ use qt_gen_common::type_qualified_mapping::CallOrigin;
 use quote::{ToTokens, format_ident, quote};
 use proc_macro2::TokenStream;
 
-use crate::traits::find_by_qml_name;
-use crate::{QClassInfo, QPropertyInfo, QSignalInfo, QSlotInfo};
+use crate::qt_meta_gen;
+use qt_meta_gen::traits::find_by_qml_name;
+use qt_meta_gen::{QClassInfo, QPropertyInfo, QSignalInfo, QSlotInfo};
 
 pub struct QMetaInfoContext<'a> {
     pub struct_ident: &'a syn::Ident,

@@ -9,9 +9,10 @@ use qt_gen_common::parse_utils::parse_name_value;
 use qt_gen_common::type_registry::meta_types::get_qmetatype_support_for_type;
 use qt_gen_common::type_to_string::{type_to_string, type_to_string_fallback};
 use qt_gen_common::type_utils::{ValuePass, get_take_value_code, get_type_pass, remove_ref, remove_ref_to_string};
-use crate::qproperty_type_deduction::{deduce_type_from_getter, deduce_type_from_member, deduce_type_from_setter};
-use crate::QSignalInfo;
-use crate::traits::{QmlName, find_by_qml_name};
+use crate::qt_meta_gen;
+use qt_meta_gen::qproperty_type_deduction::{deduce_type_from_getter, deduce_type_from_member, deduce_type_from_setter};
+use qt_meta_gen::QSignalInfo;
+use qt_meta_gen::traits::{QmlName, find_by_qml_name};
 
 pub struct QPropertyInfo{
     name: syn::LitStr,

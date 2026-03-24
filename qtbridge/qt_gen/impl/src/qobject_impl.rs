@@ -11,6 +11,7 @@ use crate::qobject_macro_params::QObjectMacroParams;
 use crate::iface_impl::InterfaceImpl;
 use crate::qml_element::qml_element;
 use crate::drop_impl::generate_drop;
+use crate::qt_meta_gen;
 use qt_meta_gen::generate_meta::{generate_qmetainfo_trait_impl, QMetaInfoContext};
 use qt_meta_gen::generate_qmetatype_get::generate_qmeta_type_get;
 use qt_meta_gen::traits::{ExpandTokens, QmlName, find_duplicate_by_qml_name};

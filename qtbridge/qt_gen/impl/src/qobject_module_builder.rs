@@ -9,6 +9,7 @@ use syn::spanned::Spanned;
 use qt_gen_common::function_with_attributes::FunctionWithAttributes;
 use qt_gen_common::parse_utils::is_path_with_segments_str;
 use qt_gen_common::type_utils::get_ident_of_last_path_segment;
+use crate::qt_meta_gen;
 use qt_meta_gen::generate_meta::{QMetaInfoContext, generate_qmetainfo_trait_impl};
 use qt_meta_gen::generate_qmetatype_get::{generate_qmeta_type_get};
 use qt_meta_gen::traits::{QmlName, find_duplicate_by_qml_name};

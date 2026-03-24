@@ -7,6 +7,7 @@ pub mod qobject_module_builder;
 pub mod qobject_macro_params;
 pub mod iface_impl;
 pub mod drop_impl;
+pub mod qt_meta_gen;
 
 pub use qml_element::qml_element;
 pub use qobject_module_builder::QObjectModuleBuilder;
