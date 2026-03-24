@@ -9,6 +9,7 @@ pub mod iface_impl;
 pub mod drop_impl;
 pub mod qt_meta_gen;
 
-pub use qml_element::qml_element;
 pub use qobject_module_builder::QObjectModuleBuilder;
 pub use qobject_impl::qobject_impl;
+
+mod tests;

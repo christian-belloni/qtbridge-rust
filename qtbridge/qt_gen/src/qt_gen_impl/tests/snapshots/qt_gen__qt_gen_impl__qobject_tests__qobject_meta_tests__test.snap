@@ -1,5 +1,5 @@
 ---
-source: qtbridge/qt_gen/tests/src/qobject_meta_tests.rs
+source: qtbridge/qt_gen/src/qt_gen_impl/qobject_tests/qobject_meta_tests.rs
 expression: formatted
 ---
 impl qtbridge::bridge::QMetaInfo for SomeStruct {

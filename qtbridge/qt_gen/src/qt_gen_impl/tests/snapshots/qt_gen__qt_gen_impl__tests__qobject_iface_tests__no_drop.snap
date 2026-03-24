@@ -1,24 +1,11 @@
 ---
-source: qtbridge/qt_gen/tests/src/qobject_iface_tests.rs
+source: qtbridge/qt_gen/src/qt_gen_impl/tests/qobject_iface_tests.rs
 expression: formatted
 ---
 mod some_module {
     #[derive(Default)]
     struct SomeStruct {}
-    impl SomeStruct {
-        fn set_data(&mut self, index: &QModelIndex, value: &QVariant, role: i32) -> bool {
-            false
-        }
-        fn data(&self, index: &QModelIndex, role: i32) -> QVariant {}
-        fn row_count(&self, parent: &QModelIndex) -> i32 {
-            1
-        }
-    }
-    impl Drop for SomeStruct {
-        fn drop(&mut self) {
-            <Self as qtbridge::bridge::QObjectHolder>::detach_qobject(self);
-        }
-    }
+    impl SomeStruct {}
     impl qtbridge::bridge::QMetaInfo for SomeStruct {
         fn register_meta(
             mut meta_obj: std::pin::Pin<&mut qtbridge::bridge::DynamicMetaObjectBuilder>,
@@ -50,7 +37,7 @@ mod some_module {
         }
     }
     impl qtbridge::bridge::QmlRegister for SomeStruct {
-        const URI: &str = "qt_gen_impl_tests";
+        const URI: &str = "qt_gen";
         const ELEMENT_NAME: &str = "SomeStruct";
         const MINOR_VERSION: u8 = 1u8;
         const MAJOR_VERSION: u8 = 0u8;

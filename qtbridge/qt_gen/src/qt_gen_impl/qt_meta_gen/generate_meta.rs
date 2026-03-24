@@ -6,7 +6,7 @@ use qt_gen_common::type_qualified_mapping::CallOrigin;
 use quote::{ToTokens, format_ident, quote};
 use proc_macro2::TokenStream;
 
-use crate::qt_meta_gen;
+use crate::qt_gen_impl::qt_meta_gen;
 use qt_meta_gen::traits::find_by_qml_name;
 use qt_meta_gen::{QClassInfo, QPropertyInfo, QSignalInfo, QSlotInfo};
 

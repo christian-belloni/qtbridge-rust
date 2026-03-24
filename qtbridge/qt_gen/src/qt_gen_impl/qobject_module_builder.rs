@@ -9,16 +9,17 @@ use syn::spanned::Spanned;
 use qt_gen_common::function_with_attributes::FunctionWithAttributes;
 use qt_gen_common::parse_utils::is_path_with_segments_str;
 use qt_gen_common::type_utils::get_ident_of_last_path_segment;
-use crate::qt_meta_gen;
+use crate::qt_gen_impl::qt_meta_gen;
 use qt_meta_gen::generate_meta::{QMetaInfoContext, generate_qmetainfo_trait_impl};
 use qt_meta_gen::generate_qmetatype_get::{generate_qmeta_type_get};
 use qt_meta_gen::traits::{QmlName, find_duplicate_by_qml_name};
 use qt_meta_gen::{ExpandTokens, QClassInfo, QPropertyInfo, QSignalInfo, QSlotInfo};
 
-use crate::qobject_macro_params::QObjectMacroParams;
-use crate::iface_impl::InterfaceImpl;
-use crate::qml_element::qml_element;
-use crate::drop_impl::{adjust_drop_impl, generate_drop};
+use crate::qt_gen_impl;
+use qt_gen_impl::qobject_macro_params::QObjectMacroParams;
+use qt_gen_impl::iface_impl::InterfaceImpl;
+use qt_gen_impl::qml_element::qml_element;
+use qt_gen_impl::drop_impl::{adjust_drop_impl, generate_drop};
 
 pub struct QObjectModuleBuilder {
     params: QObjectMacroParams,

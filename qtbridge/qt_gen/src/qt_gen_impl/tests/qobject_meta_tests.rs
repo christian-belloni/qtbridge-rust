@@ -4,7 +4,7 @@
 #![cfg(test)]
 use insta::assert_snapshot;
 use quote::quote;
-use qt_gen_impl::qobject_impl::qobject_impl;
+use crate::qt_gen_impl::qobject_impl::qobject_impl;
 use qt_gen_common::type_qualified_mapping::CallOrigin;
 use qt_gen_common::format_code::{format_rust_code, strip_docs};
 

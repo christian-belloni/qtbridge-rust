@@ -1,5 +1,5 @@
 ---
-source: qtbridge/qt_gen/tests/src/qobject_iface_tests.rs
+source: qtbridge/qt_gen/src/qt_gen_impl/qobject_tests/qobject_iface_tests.rs
 expression: formatted
 ---
 mod some_module {
@@ -37,7 +37,7 @@ mod some_module {
         }
     }
     impl qtbridge::bridge::QmlRegister for SomeStruct {
-        const URI: &str = "qt_gen_impl_tests";
+        const URI: &str = "qt_gen";
         const ELEMENT_NAME: &str = "SomeStruct";
         const MINOR_VERSION: u8 = 1u8;
         const MAJOR_VERSION: u8 = 0u8;

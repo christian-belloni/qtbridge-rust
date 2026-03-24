@@ -4,7 +4,8 @@
 use proc_macro2::{Span, TokenStream};
 use quote::{format_ident, quote};
 use syn::Ident;
-use crate::qobject_macro_params::QObjectMacroParams;
+use crate::qt_gen_impl;
+use qt_gen_impl::qobject_macro_params::QObjectMacroParams;
 
 pub fn qml_element(struct_ident: &Ident, params: &QObjectMacroParams) -> syn::Result<TokenStream> {
 

@@ -10,7 +10,7 @@ use qt_gen_common::parse_utils::{parse_name_value, partition_attr_by};
 use qt_gen_common::signature_utils::get_typed_args;
 use qt_gen_common::type_registry::meta_types::check_meta_call_signature_types;
 
-use crate::qt_meta_gen;
+use crate::qt_gen_impl::qt_meta_gen;
 use qt_meta_gen::meta_call_bridge_generator;
 use meta_call_bridge_generator::MetaCallBridgeGenerator;
 use qt_meta_gen::traits::{ExpandTokens, QmlName};

@@ -4,6 +4,8 @@
 use proc_macro::TokenStream;
 use qt_gen_common::type_qualified_mapping::CallOrigin;
 
+mod qt_gen_impl;
+
 #[proc_macro_attribute]
 pub fn qobject(args: TokenStream, input: TokenStream) -> TokenStream {
     let mut builder = qt_gen_impl::QObjectModuleBuilder::new(CallOrigin::External);
