@@ -7,5 +7,9 @@ version = "0.1.0"
 edition.workspace = true
 description = "Entry point for generative code"
 
+[lib]
+proc-macro = true
+
 [dependencies]
-qt_gen_macro = { path = "macro" }
+qt_gen_impl = { path = "./impl" }
+qt_gen_common = { path = "../qt_gen_common" }
