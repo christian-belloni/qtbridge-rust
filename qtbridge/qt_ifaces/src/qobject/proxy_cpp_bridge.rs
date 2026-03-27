@@ -9,12 +9,12 @@ pub mod ffi {
         type QMetaObject = qt_type_lib::QMetaObject;
         include!("qt_type_lib/src/generated/core/qmetatype/cpp/qmetatype.h");
         type QMetaType = qt_type_lib::QMetaType;
-        include!("qt_ifaces/src/manual/qobject/proxy_rust_bridge.rs.h");
+        include!("qt_ifaces/src/qobject/proxy_rust_bridge.rs.h");
         type QObjectProxyRust = super::QObjectProxyRust;
     }
     #[namespace = "rust::bridge"]
     unsafe extern "C++" {
-        include!("qt_ifaces/src/manual/qobject/cpp/QObjectProxyCpp.h");
+        include!("qt_ifaces/src/qobject/cpp/QObjectProxyCpp.h");
         type QObjectProxyCpp;
         # [rust_name = create_qobject_proxy_cpp]
         unsafe fn create_QObjectProxyCpp(rust_obj: *mut u8, rust_proxy: *mut QObjectProxyRust) -> *mut QObjectProxyCpp;
