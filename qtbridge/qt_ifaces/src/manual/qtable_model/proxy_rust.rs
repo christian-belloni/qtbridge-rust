@@ -142,11 +142,9 @@ where
 /// use qtbridge::qobject;
 /// #[qobject(Base = QTableModel)]
 /// mod backend {
-///     use qtbridge::qml_element;
 ///     use qtbridge::{QTableModel, QTableModelBase};
 ///
 ///     #[derive(Default)]
-///     #[qml_element]
 ///     pub struct Backend {
 ///         string_data: Vec<Vec<String>>,
 ///     }

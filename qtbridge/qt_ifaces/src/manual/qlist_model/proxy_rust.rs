@@ -119,11 +119,9 @@ where
 /// use qtbridge::qobject;
 /// #[qobject(Base = QListModel)]
 /// mod backend {
-///     use qtbridge::qml_element;
 ///     use qtbridge::{QListModel, QListModelBase};
 ///
 ///     #[derive(Default)]
-///     #[qml_element]
 ///     pub struct Backend {
 ///         string_list: Vec<String>,
 ///     }
