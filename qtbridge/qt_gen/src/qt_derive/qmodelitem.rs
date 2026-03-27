@@ -3,43 +3,7 @@ use quote::{quote, format_ident};
 use syn::DeriveInput;
 use std::collections::HashMap;
 
-/// Derive macro that generates a `QModelItem` implementation.
-///
-/// Applying this macro to a struct allows it to be used inside `QVec<T>`
-/// and exposed to QML, where it can be visualized with various views. The
-/// delegates within the view are able to read and write to the struct
-/// through the roles.
-///
-/// ## Roles
-/// - **Named Field Struct:** The generated roles will match the names of the
-///   fileds (e.g., `name`, `age`, …). Fields named `display`, `decoration`,
-///   `edit`, `toolTip`, `statusTip`, or `whatsThis` are recognized as default
-///   roles as used in Qt's default delegates.
-/// - **Tuple Structs:** The generated roles are `"_0"`, `"_1"`, `"_2"`, ...
-///
-/// ## Type requirements
-/// All fields must be convertible to and from `QVariant`.
-///
-/// ## Example
-/// ```rust,ignore
-/// #[derive(QModelItem)]
-/// struct Person {
-///     name: String,   // role "name"
-///     age: u32,       // role "age"
-/// }
-///
-/// #[derive(QModelItem)]
-/// struct Pair(i32, String); // roles "_0", "_1"
-/// ```
-#[proc_macro_derive(QModelItem)]
-pub fn derive_qmodelitem(input: TokenStream) -> TokenStream {
-        match try_derive_qmodelitem(input) {
-        Ok(ts) => ts,
-        Err(e) => e.to_compile_error().into(),
-    }
-}
-
-fn try_derive_qmodelitem(input: TokenStream) -> syn::Result<TokenStream> {
+pub fn try_derive_qmodelitem(input: TokenStream) -> syn::Result<TokenStream> {
     let input: DeriveInput = syn::parse(input)?;
     let name = &input.ident;
 

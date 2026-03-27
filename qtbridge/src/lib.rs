@@ -28,7 +28,6 @@ pub use quicktest_macro::*;
 pub use qresource_macro::*;
 #[doc(hidden)]
 pub use build_common;
-pub use qt_item_model_macro::*;
 #[doc(hidden)]
 pub use quicktest;
 
@@ -590,6 +589,8 @@ pub use bridge::QObjectHolder;
 ///
 #[doc(inline)]
 pub use bridge::QmlRegister;
+
+pub use qt_gen::QModelItem;
 
 pub use qt_ifaces::{QListModel, QListModelBase};
 pub use qt_ifaces::{QTableModel, QTableModelBase};
