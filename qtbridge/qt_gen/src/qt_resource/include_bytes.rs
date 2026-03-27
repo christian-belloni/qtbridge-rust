@@ -29,32 +29,6 @@ impl syn::parse::Parse for Input {
     }
 }
 
-
-/// Includes a file and makes it accessible under the Qt resource system.
-///
-/// The macro uses the include_bytes! macro internally so the file path has to be
-/// given relative to the current file.
-///
-/// An optional prefix can be added as a second macro parameter.
-///
-/// # Examples
-///
-/// ```ignore
-/// fn main() {
-///     include_bytes_qml!("icon.png", "images");
-/// }
-/// ```
-///
-/// This makes the file 'icon.png' that has to be in the same folder as
-/// the file with the macro accessible in QML as 'qrc:/images/icon.png'
-/// or ':/images.icon.png'
-///
-/// ```qml
-/// Image {
-///     source: "qrc:/images/icon.png"
-/// }
-/// ```
-#[proc_macro]
 pub fn include_bytes_qml(input: TokenStream) -> TokenStream {
 
     let input2 = proc_macro2::TokenStream::from(input.clone());

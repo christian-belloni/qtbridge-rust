@@ -25,7 +25,6 @@ pub use qt_ifaces;
 pub use qt_type_lib;
 #[doc(hidden)]
 pub use quicktest_macro::*;
-pub use qresource_macro::*;
 #[doc(hidden)]
 pub use build_common;
 #[doc(hidden)]
@@ -591,6 +590,8 @@ pub use bridge::QObjectHolder;
 pub use bridge::QmlRegister;
 
 pub use qt_gen::QModelItem;
+
+pub use qt_gen::include_bytes_qml;
 
 pub use qt_ifaces::{QListModel, QListModelBase};
 pub use qt_ifaces::{QTableModel, QTableModelBase};

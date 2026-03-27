@@ -25,7 +25,6 @@ members = [
     "qtbridge/qt_gen_common",
     "qtbridge/qt_gen",
     "qtbridge/qt_gen/quicktest_macro",
-    "qtbridge/qt_gen/qresource_macro",
     "qtbridge/qt_type_lib",
     "qtbridge/qt_ifaces",
     "qtbridge/bridge",
