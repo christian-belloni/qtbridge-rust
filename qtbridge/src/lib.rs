@@ -24,11 +24,7 @@ pub use qt_ifaces;
 #[doc(hidden)]
 pub use qt_type_lib;
 #[doc(hidden)]
-pub use quicktest_macro::*;
-#[doc(hidden)]
 pub use build_common;
-#[doc(hidden)]
-pub use quicktest;
 
 /// Annotate an `impl` block to make its struct accessible from QML.
 ///

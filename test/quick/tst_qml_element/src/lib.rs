@@ -66,7 +66,7 @@ fn test_qml_element() {
         input_folder,
     ];
 
-    use qtbridge::quicktest::quick_test_main;
+    use quicktest::quick_test_main;
 
     let result = quick_test_main(&args, &"test_qml_element".to_string());
 

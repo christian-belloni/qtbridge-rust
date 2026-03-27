@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 #include "quicktestmain.h"
-#include "rustconv.h"
+//#include "rustconv.h"
 
 #include <QtQuickTest>
 #include <QQmlEngine>

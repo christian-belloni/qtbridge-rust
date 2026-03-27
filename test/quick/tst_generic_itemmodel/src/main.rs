@@ -87,7 +87,7 @@ fn test_qabstractitemmodel() {
     ];
 
     use qtbridge::qt_type_lib::QVariantMap;
-    use qtbridge::quicktest::quick_test_main_with_properties;
+    use quicktest::quick_test_main_with_properties;
     let data = vec![1, 2, 3, 10, 100];
     let test_object = Rc::new(RefCell::new(Backend::<i32>::new(data)));
     Backend::attach_qobject(&test_object);

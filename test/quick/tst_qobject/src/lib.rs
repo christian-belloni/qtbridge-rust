@@ -1,6 +1,6 @@
 #![cfg(test)]
 use qtbridge::qobject;
-use qtbridge::run_quick_test;
+use quicktest::run_quick_test;
 
 #[qobject]
 mod test_qobject {

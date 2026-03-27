@@ -68,8 +68,8 @@ fn main() {
         .std("c++17")
         .flag_if_supported("/Zc:__cplusplus")
         .flag_if_supported("/permissive-")
-        .include("../")
-        .include("../utils")
+        .include("../qtbridge/")
+        .include("../qtbridge/utils")
         .include("src")
         .include(out_dir);
 

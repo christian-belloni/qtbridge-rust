@@ -27,7 +27,7 @@ fn test_qresource() {
         input_folder,
     ];
 
-    let result = qtbridge::quicktest::quick_test_main(&args, &"test_qresource".into());
+    let result = quicktest::quick_test_main(&args, &"test_qresource".into());
     assert_eq!(result, 0, "quick_test failed with code {}", result);
 }
 

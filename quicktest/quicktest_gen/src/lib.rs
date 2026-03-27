@@ -99,7 +99,7 @@ pub fn run_quick_test(attr: TokenStream, item: TokenStream) -> TokenStream {
                     #common_setup
 
                     use qtbridge::qt_type_lib::QVariantMap;
-                    use qtbridge::quicktest::quick_test_main_with_properties;
+                    use quicktest::quick_test_main_with_properties;
                     use qtbridge::QObjectHolder;
 
                     let test_object = #class_ident::default_with_attached_qobject();
@@ -112,7 +112,7 @@ pub fn run_quick_test(attr: TokenStream, item: TokenStream) -> TokenStream {
                 syn::parse_quote!({
                     #common_setup
 
-                    use qtbridge::quicktest::quick_test_main;
+                    use quicktest::quick_test_main;
 
                     let result = quick_test_main(&args, &#fn_name.to_string());
                     assert_eq!(result, 0, "quick_test failed with code {}", result);

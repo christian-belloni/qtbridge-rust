@@ -5,6 +5,4 @@ edition.workspace = true
 
 [dependencies]
 qtbridge = { path = "../../../qtbridge" }
-
-[build-dependencies]
-build_common = { path = "../../../qtbridge/build_common" }
+quicktest = { path = "../../../quicktest" }
