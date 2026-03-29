@@ -15,16 +15,24 @@ pub enum ValuePass {
 }
 
 pub fn remove_ref_to_string(ty: &syn::Type) -> syn::Result<String> {
-    type_to_string(remove_ref(ty))
+    type_to_string(remove_refs(ty))
 }
 
-/// Recursively unwraps the type until non-reference type is found
-pub fn remove_ref(ty: &syn::Type) -> &syn::Type {
+/// Recursively unwraps the type until non-reference type is found.
+pub fn remove_refs(ty: &syn::Type) -> &syn::Type {
     let mut unwrapped = ty;
     while let syn::Type::Reference(type_ref) = unwrapped {
         unwrapped = type_ref.elem.as_ref()
     }
     unwrapped
+}
+
+/// Remove one layer of reference if the type is a reference.
+pub fn remove_ref(ty: &syn::Type) -> &syn::Type {
+    if let syn::Type::Reference(type_ref) = ty {
+        return type_ref.elem.as_ref()
+    }
+    ty
 }
 
 pub fn get_type_pass(ty: &syn::Type) -> ValuePass {

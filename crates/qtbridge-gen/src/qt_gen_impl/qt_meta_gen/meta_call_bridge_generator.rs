@@ -5,7 +5,7 @@ use syn::spanned::Spanned;
 
 use qtbridge_gen_common::signature_utils::{get_typed_arg_ident, get_typed_args};
 use qtbridge_gen_common::type_registry::meta_types::get_qmetatype_support_for_type;
-use qtbridge_gen_common::type_utils::{ValuePass, get_type_pass, remove_ref};
+use qtbridge_gen_common::type_utils::{ValuePass, get_type_pass, remove_refs};
 
 /// Generates code to connect a Rust function to a metacall (e.g. signal or slot).
 pub struct MetaCallBridgeGenerator<'a> {
@@ -213,13 +213,13 @@ impl<'a> MetaCallType<'a> {
 
     fn meta_type(&self) -> &syn::Type {
         self.intermediate_meta_type()
-            .unwrap_or_else(|| remove_ref(self.user_type))
+            .unwrap_or_else(|| remove_refs(self.user_type))
     }
 
     /// Generates a definition of a typed immutable reference to the given input parameter.
     fn generate_reference_to_input_meta_value(&self, idx: usize) -> syn::Stmt {
         let meta_type = self.intermediate_meta_type()
-            .unwrap_or_else(|| remove_ref(self.user_type));
+            .unwrap_or_else(|| remove_refs(self.user_type));
 
         let input_ref_ident = get_input_ref_ident(idx);
         let inputs_ident = get_inputs_ident();
@@ -233,7 +233,7 @@ impl<'a> MetaCallType<'a> {
     /// Generates a definition of a mutable pointer to the given output parameter.
     fn generate_pointer_to_output_meta_value(&self, idx: usize) -> syn::Stmt {
         let meta_type = self.intermediate_meta_type()
-            .unwrap_or_else(|| remove_ref(self.user_type));
+            .unwrap_or_else(|| remove_refs(self.user_type));
 
         let output_ptr_ident = get_output_ptr_ident(idx);
         let outputs_ident = get_outputs_ident();
@@ -251,7 +251,7 @@ impl<'a> MetaCallType<'a> {
     fn generate_store_argv_input_to_variable(&self, idx: usize) -> Option<syn::Stmt> {
         let arg_var_ident = get_arg_intermediate_var_ident(idx);
         let arg_ref_ident = get_input_ref_ident(idx);
-        let arg_type_wo_ref = remove_ref(self.user_type);
+        let arg_type_wo_ref = remove_refs(self.user_type);
 
         // A variable is needed for the type conversion.
         if self.intermediate_meta_type().is_some() {

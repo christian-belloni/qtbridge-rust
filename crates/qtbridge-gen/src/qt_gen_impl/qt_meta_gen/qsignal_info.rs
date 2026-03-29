@@ -10,7 +10,7 @@ use qtbridge_gen_common::case_conv;
 use qtbridge_gen_common::function_with_attributes::{FunctionWithAttributes, BlockOrSemi};
 use qtbridge_gen_common::parse_utils::{parse_name_value, partition_attr_by};
 use qtbridge_gen_common::signature_utils::{get_typed_args, get_typed_args_types};
-use qtbridge_gen_common::type_utils::remove_ref;
+use qtbridge_gen_common::type_utils::remove_refs;
 use qtbridge_gen_common::type_registry::meta_types::{check_meta_call_signature_types, get_qmetatype_support_for_type};
 use crate::qt_gen_impl::qt_meta_gen;
 use qt_meta_gen::meta_call_bridge_generator::MetaCallBridgeGenerator;
@@ -77,7 +77,7 @@ impl QSignalInfo {
         let arg_types_qt = get_typed_args_types(sig)
             .map(|ty| {
                 let meta_type = get_qmetatype_support_for_type(ty)?
-                    .unwrap_or_else(|| remove_ref(ty).clone());
+                    .unwrap_or_else(|| remove_refs(ty).clone());
                 Ok(meta_type)
             })
             .collect::<syn::Result<Vec<_>>>()?;

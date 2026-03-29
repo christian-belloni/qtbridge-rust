@@ -7,7 +7,7 @@ use type_registry::qt::generic::{QtGenericArg, QtGenericTypeWithoutArgs};
 use type_registry::type_traits::{FindType, MetaTypeId, TypeInfo, TypeName};
 use crate::signature_utils::{get_typed_args, is_arg_self_ref};
 use crate::type_to_string::type_to_string_fallback;
-use crate::type_utils::{get_angle_bracketed_generic_arguments_of_last_path_segment, is_mut_ref, path_to_type};
+use crate::type_utils::{get_angle_bracketed_generic_arguments_of_last_path_segment, is_mut_ref, path_to_type, remove_ref};
 
 /// Checks whether the given signature can participate in meta-calls
 /// (as slot callbacks or property getters/setters).
@@ -47,9 +47,7 @@ pub fn is_type_mapped_to_qmetatype(ty: &syn::Type) -> bool {
 ///
 pub fn get_qmetatype_support_for_type(mut src: &syn::Type) -> syn::Result<Option<syn::Type>> {
     // Unwrap if reference
-    if let syn::Type::Reference(src_ref) = src {
-        src = src_ref.elem.as_ref();
-    }
+    src = remove_ref(src);
 
     match src {
         syn::Type::Path(type_path) => {

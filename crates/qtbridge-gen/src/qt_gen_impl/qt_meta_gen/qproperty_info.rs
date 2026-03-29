@@ -8,7 +8,7 @@ use syn::{parse::Parse, spanned::Spanned};
 use qtbridge_gen_common::parse_utils::parse_name_value;
 use qtbridge_gen_common::type_registry::meta_types::get_qmetatype_support_for_type;
 use qtbridge_gen_common::type_to_string::{type_to_string, type_to_string_fallback};
-use qtbridge_gen_common::type_utils::{ValuePass, get_take_value_code, get_type_pass, remove_ref, remove_ref_to_string};
+use qtbridge_gen_common::type_utils::{ValuePass, get_take_value_code, get_type_pass, remove_refs, remove_ref_to_string};
 use crate::qt_gen_impl::qt_meta_gen;
 use qt_meta_gen::qproperty_type_deduction::{deduce_type_from_getter, deduce_type_from_member, deduce_type_from_setter};
 use qt_meta_gen::QSignalInfo;
@@ -154,8 +154,8 @@ impl QPropertyInfo {
         };
 
         if let Some((second_type, second_span, second_src)) = deduced.get(1) {
-            let first_type_no_ref = remove_ref(first_type);
-            let second_type_no_ref = remove_ref(second_type);
+            let first_type_no_ref = remove_refs(first_type);
+            let second_type_no_ref = remove_refs(second_type);
             if first_type_no_ref != second_type_no_ref {
                 return Err(syn::Error::new(*second_span,
                     format!("Property types deduced from '{first_src}' and '{second_src}' are inconsistent: '{}' vs '{}'",
@@ -264,7 +264,7 @@ impl QPropertyInfo {
             // Generate write callback that calls given setter
             let ty = self.get_deduced_type()
                 .ok_or_else(|| syn::Error::new(self.span, "Failed to generate write property callback. Type is not deduced"))?;
-            let ty_wo_ref = remove_ref(ty);
+            let ty_wo_ref = remove_refs(ty);
             let ty_str = type_to_string(ty_wo_ref)?;
             let pass_arg = get_take_value_code(&format_ident!("value"), self.write_value_pass.unwrap_or(ValuePass::ByValue));
 
