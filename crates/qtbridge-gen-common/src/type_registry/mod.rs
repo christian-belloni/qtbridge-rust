@@ -4,6 +4,7 @@
 mod containers;
 pub mod cxx_types;
 mod holders;
+mod cell;
 pub mod meta_types;
 mod pointers;
 mod primitives;
@@ -13,9 +14,11 @@ mod strings;
 pub mod type_traits;
 pub mod types;
 
+pub use cell::CellType;
 pub use cxx_types::CxxType;
 pub use type_traits::{TypeCategory, TypesEnum};
 pub use containers::StandardContainer;
+pub use pointers::PointerType;
 pub use primitives::PrimitiveType;
 pub use standards::StandardType;
 pub use strings::StringType;

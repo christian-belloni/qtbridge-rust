@@ -3,6 +3,7 @@
 
 use std::sync::LazyLock;
 
+use super::cell::CellType;
 use super::containers::StandardContainer;
 use super::holders::ValueHolder;
 use super::pointers::PointerType;
@@ -17,12 +18,14 @@ pub enum StandardType {
     Container(&'static StandardContainer),
     Holder(&'static ValueHolder),
     Pointer(&'static PointerType),
+    Cell(&'static CellType)
 }
 
 
 impl TypesEnum for StandardType {
     fn dyn_type_info(&self) -> &dyn TypeInfo {
         match self {
+            Self::Cell(cell) => cell.dyn_type_info(),
             Self::Primitive(primitive) => primitive.dyn_type_info(),
             Self::String(string) => string.dyn_type_info(),
             Self::Container(container) => container.dyn_type_info(),
@@ -35,16 +38,18 @@ impl TypesEnum for StandardType {
 impl StaticTypeGroup for StandardType {
     fn get_static_sorted_list() -> &'static [Self] {
         static LIST: LazyLock<Vec<StandardType>> = LazyLock::new(|| {
-            let mut result: Vec<_> = PrimitiveType::get_static_sorted_list().iter()
-                    .map(StandardType::from)
+            let mut result: Vec<StandardType> = PrimitiveType::get_static_sorted_list().iter()
+                    .map(From::from)
                 .chain(StringType::get_static_sorted_list().iter()
-                    .map(StandardType::from))
+                    .map(From::from))
                 .chain(StandardContainer::get_static_sorted_list().iter()
-                    .map(StandardType::from))
+                    .map(From::from))
                 .chain(ValueHolder::get_static_sorted_list().iter()
-                    .map(StandardType::from))
+                    .map(From::from))
                 .chain(PointerType::get_static_sorted_list().iter()
-                    .map(StandardType::from))
+                    .map(From::from))
+                .chain(CellType::get_static_sorted_list().iter()
+                    .map(From::from))
                 .collect();
             result.sort_unstable_by(|l, r| l.name().cmp(r.name()));
             result
@@ -81,5 +86,11 @@ impl From<&'static ValueHolder> for StandardType {
 impl From<&'static PointerType> for StandardType {
     fn from(value: &'static PointerType) -> Self {
         Self::Pointer(value)
+    }
+}
+
+impl From<&'static CellType> for StandardType {
+    fn from(value: &'static CellType) -> Self {
+        Self::Cell(value)
     }
 }

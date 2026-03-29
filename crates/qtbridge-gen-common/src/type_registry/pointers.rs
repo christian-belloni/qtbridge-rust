@@ -6,14 +6,16 @@ use super::type_traits::{StaticTypeGroup, TypeInfo, TypeName};
 #[derive(Clone, Eq, Hash, PartialEq)]
 pub struct PointerType {
     rust_name: &'static str,
+    path_before_name: Option<&'static str>,
     cpp_name: Option<&'static str>,
     include: Option<&'static str>,
 }
 
 impl PointerType {
-    const fn new(rust_name: &'static str, cpp_name: Option<&'static str>, include: Option<&'static str>) -> Self {
+    const fn new(rust_name: &'static str, path_before_name: Option<&'static str>, cpp_name: Option<&'static str>, include: Option<&'static str>) -> Self {
         Self {
             rust_name,
+            path_before_name,
             cpp_name,
             include,
         }
@@ -30,7 +32,7 @@ impl TypeName for PointerType {
     }
 
     fn path_before_name(&self) -> Option<&str> {
-        None
+        self.path_before_name
     }
 }
 
@@ -50,8 +52,9 @@ impl TypeInfo for PointerType {
 
 impl StaticTypeGroup for PointerType {
     fn get_static_sorted_list() -> &'static [Self] {
-        static LIST: [PointerType; 1] = [
-            PointerType::new("Box", Some("rust::Box"), Some(r#""rust/cxx.h""#))
+        static LIST: [PointerType; 2] = [
+            PointerType::new("Box", None, Some("rust::Box"), Some(r#""rust/cxx.h""#)),
+            PointerType::new("Rc", Some("std::rc"), None, None),
         ];
 
         LIST.as_slice()
