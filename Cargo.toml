@@ -27,7 +27,7 @@ members = [
     "crates/qtbridge-gen-common",
     "crates/qtbridge-gen",
     "crates/qtbridge-type-lib",
-    "crates/qt_ifaces",
+    "crates/qtbridge-interfaces",
     "crates/qtbridge-runtime",
     "quicktest",
     "quicktest/quicktest_gen",

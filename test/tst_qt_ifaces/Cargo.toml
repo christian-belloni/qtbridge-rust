@@ -5,7 +5,7 @@
 name = "qt_ifaces_tests"
 version = "0.1.0"
 edition.workspace = true
-description = "Tests for qt_ifaces"
+description = "Tests for qtbridge-interfaces"
 
 [dependencies]
-qt_ifaces = { path = "../../crates/qt_ifaces" }
+qtbridge-interfaces = { path = "../../crates/qtbridge-interfaces" }

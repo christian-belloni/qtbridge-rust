@@ -28,8 +28,8 @@ impl CallOrigin {
 
     pub fn iface_module(&self) -> Path {
         match self {
-            CallOrigin::External => parse_quote!(qtbridge::qt_ifaces),
-            CallOrigin::Internal => parse_quote!(qt_ifaces),
+            CallOrigin::External => parse_quote!(qtbridge::qtbridge_interfaces),
+            CallOrigin::Internal => parse_quote!(qtbridge_interfaces),
         }
     }
 
@@ -72,7 +72,7 @@ impl TypeQualifiedMapping {
         let mut new = ty.dyn_type_info().complement_partially_qualified_path(src)?;
         if let CallOrigin::External = &self.source
             && let Some(first_seg) = new.segments.first()
-                && (first_seg.ident == "qtbridge_type_lib" || first_seg.ident == "qt_ifaces") {
+                && (first_seg.ident == "qtbridge_type_lib" || first_seg.ident == "qtbridge_interfaces") {
                     new.segments.insert(
                         0,
                         PathSegment {

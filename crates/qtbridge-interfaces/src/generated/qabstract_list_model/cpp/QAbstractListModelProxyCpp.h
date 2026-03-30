@@ -1,0 +1,69 @@
+// Copyright (C) 2025 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
+
+#ifndef _QABSTRACTLISTMODELPROXYCPP_RUST_BRIDGE__H_
+#define _QABSTRACTLISTMODELPROXYCPP_RUST_BRIDGE__H_
+#include <QAbstractListModel>
+#include <QMetaObject>
+#include <QQmlListProperty>
+#include <cstdint>
+#include "qtbridge-runtime/src/cpp/rustobjectgetter.h"
+#include "qtbridge-interfaces/src/generated/qabstract_list_model/proxy_rust_bridge.rs.h"
+#include "qtbridge-type-lib/src/generated/core/qbytearray/cpp/qbytearray.h"
+#include "qtbridge-type-lib/src/generated/core/qhash/cpp/qhash_i32_qbytearray.h"
+#include "qtbridge-type-lib/src/generated/core/qmodelindex/cpp/qmodelindex.h"
+#include "qtbridge-type-lib/src/generated/core/qvariant/cpp/qvariant.h"
+
+
+namespace rust::bridge {
+
+class QAbstractListModelProxyCpp : public QAbstractListModel, public RustObjectGetter
+{
+    using Base = QAbstractListModel;
+
+public:
+    QAbstractListModelProxyCpp(uint8_t* rustObj, QAbstractListModelProxyRust* rustProxy);
+    ~QAbstractListModelProxyCpp();
+
+    // Virtual methods
+    QModelIndex index(int32_t row, int32_t column, const QModelIndex& parent) const override;
+    int32_t rowCount(const QModelIndex& parent) const override;
+    QVariant data(const QModelIndex& index, int32_t role) const override;
+    QHash<int32_t,QByteArray> roleNames() const override;
+    bool setData(const QModelIndex& index, const QVariant& value, int32_t role) override;
+    bool removeRows(int32_t first, int32_t count, const QModelIndex& parent) override;
+    QModelIndex sibling(int32_t row, int32_t column, const QModelIndex& idx) const override;
+
+    // Access to base implementation of virtual functions
+    QModelIndex base_index(int32_t row, int32_t column, const QModelIndex& parent) const;
+    QHash<int32_t,QByteArray> base_roleNames() const;
+    bool base_setData(const QModelIndex& index, const QVariant& value, int32_t role);
+    bool base_removeRows(int32_t first, int32_t count, const QModelIndex& parent);
+    QModelIndex base_sibling(int32_t row, int32_t column, const QModelIndex& idx) const;
+
+    // Access to base implementation of non virtual functions
+    void dataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
+    void beginInsertRows(const QModelIndex& parent, int32_t first, int32_t last);
+    void endInsertRows();
+    void beginMoveRows(const QModelIndex& sourceParent, int32_t sourceFirst, int32_t sourceLast, const QModelIndex& destinationParent, int32_t destinationChild);
+    void endMoveRows();
+    void beginRemoveRows(const QModelIndex& parent, int32_t first, int32_t last);
+    void endRemoveRows();
+    void beginResetModel();
+    void endResetModel();
+
+private:
+    QAbstractListModelProxyRust* m_rustProxy;
+};
+
+// Functions for object construction
+QAbstractListModelProxyCpp* create_QAbstractListModelProxyCpp(uint8_t* rustObj, QAbstractListModelProxyRust* rustProxy);
+QAbstractListModelProxyCpp* create_QAbstractListModelProxyCpp_At(uint8_t* addr, uint8_t* rustObj, QAbstractListModelProxyRust* rustProxy);
+const QMetaObject& staticQMetaObjectOf_QAbstractListModelProxyCpp();
+size_t sizeOf_QAbstractListModelProxyCpp();
+size_t alignOf_QAbstractListModelProxyCpp();
+QMetaType qmetaTypeListOf_QAbstractListModelProxyCpp();
+
+} // namespace rust::bridge
+
+#endif // _QABSTRACTLISTMODELPROXYCPP_RUST_BRIDGE__H_

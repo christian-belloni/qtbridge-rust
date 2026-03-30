@@ -11,5 +11,5 @@ description = "Meta-package for QtBridge"
 qtbridge-build-common = { path = "../qtbridge-build-common"}
 qtbridge-runtime = { path = "../qtbridge-runtime" }
 qtbridge-gen = { path = "../qtbridge-gen" }
-qt_ifaces = { path = "../qt_ifaces" }
+qtbridge-interfaces = { path = "../qtbridge-interfaces" }
 qtbridge-type-lib = { path = "../qtbridge-type-lib" }

@@ -1,0 +1,18 @@
+# Copyright (C) 2025 The Qt Company Ltd.
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
+
+[package]
+name = "qtbridge-interfaces"
+version = "0.1.0"
+edition.workspace = true
+description = "QtBridge: Proxies and interfaces between Rust and Qt"
+
+[dependencies]
+cxx.workspace = true
+qtbridge-type-lib = { path = "../qtbridge-type-lib" }
+qtbridge-runtime = { path = "../qtbridge-runtime" }
+
+[build-dependencies]
+cxx-build.workspace = true
+qtbridge-build-common = { path = "../qtbridge-build-common" }
+qt_type_gen = { path = "../../code_gen/qt_type_gen" }

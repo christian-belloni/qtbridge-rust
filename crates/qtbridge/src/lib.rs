@@ -20,7 +20,7 @@ pub use qtbridge_runtime::QModelItem;
 #[doc(hidden)]
 pub use qtbridge_gen;
 #[doc(hidden)]
-pub use qt_ifaces;
+pub use qtbridge_interfaces;
 #[doc(hidden)]
 pub use qtbridge_type_lib;
 #[doc(hidden)]
@@ -589,10 +589,10 @@ pub use qtbridge_gen::QModelItem;
 
 pub use qtbridge_gen::include_bytes_qml;
 
-pub use qt_ifaces::{QListModel, QListModelBase};
-pub use qt_ifaces::{QTableModel, QTableModelBase};
+pub use qtbridge_interfaces::{QListModel, QListModelBase};
+pub use qtbridge_interfaces::{QTableModel, QTableModelBase};
 
 #[doc(hidden)]
-pub use qt_ifaces::{QAbstractItemModel, QAbstractItemModelBase};
+pub use qtbridge_interfaces::{QAbstractItemModel, QAbstractItemModelBase};
 #[doc(hidden)]
-pub use qt_ifaces::{QAbstractListModel, QAbstractListModelBase};
+pub use qtbridge_interfaces::{QAbstractListModel, QAbstractListModelBase};

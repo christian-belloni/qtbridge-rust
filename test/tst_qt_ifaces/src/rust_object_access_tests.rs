@@ -5,7 +5,7 @@
 use std::ops::AddAssign;
 use std::cell::RefCell;
 use std::rc::Rc;
-use qt_ifaces::object_access::rust_object_access::{RustObjAccess, RustObjAccessError};
+use qtbridge_interfaces::object_access::rust_object_access::{RustObjAccess, RustObjAccessError};
 
 #[test]
 fn require_that_new_strong_creates_an_instance() {

@@ -86,7 +86,7 @@ pub mod rust {
     pub mod path {
         pub fn generated_module_dir(iface_name: &impl std::fmt::Display) -> String {
             let iface_module = super::module::from_struct_name(iface_name);
-            format!("qt_ifaces/src/generated/{iface_module}/")
+            format!("qtbridge-interfaces/src/generated/{iface_module}/")
         }
     }
 
