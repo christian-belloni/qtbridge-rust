@@ -8,6 +8,6 @@ edition.workspace = true
 description = "Build script performing generation of basic type library using qt_type_gen_lib"
 
 [build-dependencies]
-build_common = { path = "../../crates/build_common" }
+qtbridge-build-common = { path = "../../crates/qtbridge-build-common" }
 qt_gen_common = { path = "../../crates/qt_gen_common" }
 qt_type_gen_lib = { path = "../qt_type_gen_lib" }

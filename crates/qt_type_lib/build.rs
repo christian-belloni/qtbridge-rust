@@ -1,7 +1,7 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use build_common::qt_build::{link_qt_modules, qt_include_dirs};
+use qtbridge_build_common::qt_build::{link_qt_modules, qt_include_dirs};
 
 mod generated_files_bridge;
 use generated_files_bridge::GENERATED_FILES_BRIDGE;

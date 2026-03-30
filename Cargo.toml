@@ -23,7 +23,7 @@ members = [
     "code_gen/qt_type_gen_lib",
 
     "crates/qtbridge",
-    "crates/build_common",
+    "crates/qtbridge-build-common",
     "crates/qt_gen_common",
     "crates/qt_gen",
     "crates/qt_type_lib",

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use std::path::Path;
-use build_common::qt_build::{qt_include_dirs, link_qt_modules};
+use qtbridge_build_common::qt_build::{qt_include_dirs, link_qt_modules};
 
 fn main() {
 

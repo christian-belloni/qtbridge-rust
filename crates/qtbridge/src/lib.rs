@@ -24,7 +24,7 @@ pub use qt_ifaces;
 #[doc(hidden)]
 pub use qt_type_lib;
 #[doc(hidden)]
-pub use build_common;
+pub use qtbridge_build_common;
 
 /// Annotate an `impl` block to make its struct accessible from QML.
 ///

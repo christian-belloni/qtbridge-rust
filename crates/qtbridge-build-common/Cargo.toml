@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 [package]
-name = "build_common"
+name = "qtbridge-build-common"
 version = "0.1.0"
 edition.workspace = true
-description = "Common code reused from build scripts and procedural macros from different subpackages of qt_gen"
+description = "QtBridge: Common code for build scripts and macros"

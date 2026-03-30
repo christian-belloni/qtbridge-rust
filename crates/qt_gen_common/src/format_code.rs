@@ -4,7 +4,7 @@
 use std::io::{self, Write};
 use std::process::{Command, Stdio};
 use std::sync::LazyLock;
-use build_common::file_system_utils::{find_file_upwards, get_manifest_dir};
+use qtbridge_build_common::file_system_utils::{find_file_upwards, get_manifest_dir};
 use crate::parse_utils::is_not_doc_attribute;
 use proc_macro2::TokenStream;
 use quote::ToTokens;

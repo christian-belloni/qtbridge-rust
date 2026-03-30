@@ -14,5 +14,5 @@ qtbridge-runtime = { path = "../qtbridge-runtime" }
 
 [build-dependencies]
 cxx-build.workspace = true
-build_common = { path = "../build_common" }
+qtbridge-build-common = { path = "../qtbridge-build-common" }
 qt_type_gen = { path = "../../code_gen/qt_type_gen" }

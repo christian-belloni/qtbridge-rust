@@ -8,7 +8,7 @@ edition = "2024"
 description = "Meta-package for QtBridge"
 
 [dependencies]
-build_common = { path = "../build_common"}
+qtbridge-build-common = { path = "../qtbridge-build-common"}
 qtbridge-runtime = { path = "../qtbridge-runtime" }
 qt_gen = { path = "../qt_gen" }
 qt_ifaces = { path = "../qt_ifaces" }

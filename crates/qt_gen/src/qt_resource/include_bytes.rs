@@ -6,7 +6,7 @@ use proc_macro2::Span;
 use proc_macro::TokenStream;
 use syn::spanned::Spanned;
 
-use build_common;
+use qtbridge_build_common;
 
 struct Input {
     file: String,
@@ -41,7 +41,7 @@ pub fn include_bytes_qml(input: TokenStream) -> TokenStream {
     let span_file = input_span.local_file()
         .expect("Failed to get path of file from span");
 
-    let ws_dir = build_common::file_system_utils::get_workspace_dir()
+    let ws_dir = qtbridge_build_common::file_system_utils::get_workspace_dir()
         .expect("Failed to get workspace dir");
 
     let span_file_path = ws_dir.join(&span_file);

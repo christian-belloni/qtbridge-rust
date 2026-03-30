@@ -1,7 +1,7 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use build_common::qt_build::{link_qt_modules, qt_include_dirs};
+use qtbridge_build_common::qt_build::{link_qt_modules, qt_include_dirs};
 
 const FILES_BRIDGE: [&'static str; 10] = [
     "src/generated/qabstract_item_model/proxy_cpp_bridge.rs",

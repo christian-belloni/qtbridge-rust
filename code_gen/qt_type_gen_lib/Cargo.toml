@@ -11,5 +11,5 @@ description = "Code generation used in qt_type_gen for simplification of Qt type
 proc-macro2.workspace = true
 quote.workspace = true
 syn.workspace = true
-build_common = { path = "../../crates/build_common" }
+qtbridge-build-common = { path = "../../crates/qtbridge-build-common" }
 qt_gen_common = { path = "../../crates/qt_gen_common" }

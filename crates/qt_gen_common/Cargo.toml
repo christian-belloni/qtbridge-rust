@@ -11,4 +11,4 @@ description = "Common code reused from different subprojects of qt_gen"
 proc-macro2.workspace = true
 quote.workspace = true
 syn = { workspace = true, features = ["extra-traits", "full", "visit", "visit-mut"] }
-build_common = { path = "../build_common" }
+qtbridge-build-common = { path = "../qtbridge-build-common" }

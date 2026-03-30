@@ -4,8 +4,8 @@
 use std::path::{Path, PathBuf};
 use std::fs;
 
-use build_common::file_system_utils::{create_dirs, find_all_files, write_to_file};
-use build_common::generate_types::{CodeFile, FileTree, GenerateFiles, RustFileInfo, get_header};
+use qtbridge_build_common::file_system_utils::{create_dirs, find_all_files, write_to_file};
+use qtbridge_build_common::generate_types::{CodeFile, FileTree, GenerateFiles, RustFileInfo, get_header};
 use qt_gen_common::format_code::{format_rust_code, try_format_cpp_code};
 use qt_gen_common::naming;
 use qt_gen_common::path_utils::relative_input_file_path_to_path_qualified;

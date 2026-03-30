@@ -13,7 +13,7 @@ use qt_gen_common::type_to_string::path_to_string_fallback;
 
 use quote::ToTokens;
 
-use build_common::file_system_utils::get_relative_path;
+use qtbridge_build_common::file_system_utils::get_relative_path;
 use qt_gen_common::type_registry::QtType;
 use qt_gen_common::type_registry::type_traits::{FindType, MetaTypeId};
 use qt_gen_common::type_registry::qt::non_generic::QtNonGenericType;
