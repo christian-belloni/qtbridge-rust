@@ -1,7 +1,7 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use qt_gen_common::parse_utils::parse_name_value;
+use qtbridge_gen_common::parse_utils::parse_name_value;
 
 #[derive(Debug)]
 pub struct QObjectMacroParams {

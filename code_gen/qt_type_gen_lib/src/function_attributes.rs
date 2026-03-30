@@ -1,4 +1,4 @@
-use qt_gen_common::parse_utils::is_doc_attribute;
+use qtbridge_gen_common::parse_utils::is_doc_attribute;
 use syn::spanned::Spanned;
 
 #[derive(Clone)]

@@ -5,8 +5,8 @@ use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 use syn::{spanned::Spanned};
 
-use qt_gen_common::function_with_attributes::FunctionWithAttributes;
-use qt_gen_common::type_qualified_mapping::CallOrigin;
+use qtbridge_gen_common::function_with_attributes::FunctionWithAttributes;
+use qtbridge_gen_common::type_qualified_mapping::CallOrigin;
 use crate::qt_gen_impl;
 use qt_gen_impl::qobject_macro_params::QObjectMacroParams;
 use qt_gen_impl::iface_impl::InterfaceImpl;

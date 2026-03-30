@@ -1,5 +1,5 @@
-use qt_gen_common::type_tokens::TypeTokens;
-use qt_gen_common::type_utils::ident_str_to_path;
+use qtbridge_gen_common::type_tokens::TypeTokens;
+use qtbridge_gen_common::type_utils::ident_str_to_path;
 
 use crate::function::Function;
 use crate::generic_types_instantiations::GenericTypesInstantiations;

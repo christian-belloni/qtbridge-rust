@@ -3,9 +3,9 @@
 
 #![cfg(test)]
 
-use qt_gen_common::cpp_include::CppInclude;
-use qt_gen_common::type_dependencies::{qt_types_to_bridge_imports, type_tokens_to_cpp_includes, qt_types_to_rust_import_paths};
-use qt_gen_common::type_tokens::TypeTokens;
+use qtbridge_gen_common::cpp_include::CppInclude;
+use qtbridge_gen_common::type_dependencies::{qt_types_to_bridge_imports, type_tokens_to_cpp_includes, qt_types_to_rust_import_paths};
+use qtbridge_gen_common::type_tokens::TypeTokens;
 use quote::quote;
 
 use crate::qt_gen_impl::tests::tst_assert::assert_tokens_eq;

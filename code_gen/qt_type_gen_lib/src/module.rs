@@ -3,8 +3,8 @@
 
 use syn::Token;
 
-use qt_gen_common::cpp_include::CppInclude;
-use qt_gen_common::parse_utils::is_two_segment_path_outer_attribute;
+use qtbridge_gen_common::cpp_include::CppInclude;
+use qtbridge_gen_common::parse_utils::is_two_segment_path_outer_attribute;
 
 use crate::function::Function;
 use crate::module_item::ModuleItem;

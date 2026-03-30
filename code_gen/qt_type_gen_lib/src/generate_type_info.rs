@@ -1,8 +1,8 @@
 use proc_macro2::TokenStream;
-use qt_gen_common::type_registry::qt::generic::QtGenericArg;
+use qtbridge_gen_common::type_registry::qt::generic::QtGenericArg;
 use quote::quote;
 
-use qt_gen_common::type_registry;
+use qtbridge_gen_common::type_registry;
 use type_registry::QtType;
 use type_registry::type_traits::{TypeInfo, TypeName};
 

@@ -4,8 +4,8 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use qt_gen_common::naming;
-use qt_gen_common::type_qualified_mapping::CallOrigin;
+use qtbridge_gen_common::naming;
+use qtbridge_gen_common::type_qualified_mapping::CallOrigin;
 
 // Info extracted by parsing impl block of some structure by procedural macro 'qobject_impl'
 pub struct InterfaceImpl {

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use syn::spanned::Spanned;
-use qt_gen_common::parse_utils::{is_cxx_bridge_attribute, partition_attr_by};
+use qtbridge_gen_common::parse_utils::{is_cxx_bridge_attribute, partition_attr_by};
 use crate::module::Module;
 
 pub enum Item {

@@ -9,15 +9,15 @@ use quote::{format_ident, quote};
 use syn::parse::discouraged::Speculative;
 use syn::Token;
 
-use qt_gen_common::case_conv;
-use qt_gen_common::cpp_fn_sign::CppFnSign;
-use qt_gen_common::format_code::token_stream_to_code;
-use qt_gen_common::multi_type_mapping::MultiTypeMapping;
-use qt_gen_common::parse_utils::replace_idents_in_token_stream;
-use qt_gen_common::qt_generic_mapping::QtGenericMapping;
-use qt_gen_common::signature_utils::{is_unsafe, ExpectSelfRef};
-use qt_gen_common::type_mapping_nested::TypeMappingNested;
-use qt_gen_common::type_to_cpp::path_to_cpp;
+use qtbridge_gen_common::case_conv;
+use qtbridge_gen_common::cpp_fn_sign::CppFnSign;
+use qtbridge_gen_common::format_code::token_stream_to_code;
+use qtbridge_gen_common::multi_type_mapping::MultiTypeMapping;
+use qtbridge_gen_common::parse_utils::replace_idents_in_token_stream;
+use qtbridge_gen_common::qt_generic_mapping::QtGenericMapping;
+use qtbridge_gen_common::signature_utils::{is_unsafe, ExpectSelfRef};
+use qtbridge_gen_common::type_mapping_nested::TypeMappingNested;
+use qtbridge_gen_common::type_to_cpp::path_to_cpp;
 
 use crate::self_type_mapping::SelfTypeMapping;
 

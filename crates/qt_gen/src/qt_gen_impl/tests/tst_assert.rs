@@ -5,7 +5,7 @@
 use proc_macro2::TokenStream;
 use pretty_assertions::assert_eq;
 use quote::ToTokens;
-use qt_gen_common::format_code::format_rust_code;
+use qtbridge_gen_common::format_code::format_rust_code;
 
 pub(crate) fn assert_tokens_eq(actual: &impl ToTokens, expected: &TokenStream) {
     let actual_tokens = actual.to_token_stream();

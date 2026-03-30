@@ -3,7 +3,7 @@
 
 use std::collections::BTreeSet;
 use proc_macro2::TokenStream;
-use qt_gen_common::case_conv;
+use qtbridge_gen_common::case_conv;
 use syn::parse::Parser;
 
 #[derive(Clone)]

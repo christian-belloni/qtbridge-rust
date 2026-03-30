@@ -6,9 +6,9 @@ use quote::{quote, ToTokens};
 use syn::parse::Parse;
 use syn::Token;
 
-use qt_gen_common::multi_type_mapping::MultiTypeMapping;
-use qt_gen_common::type_mapping::TypeMapping;
-use qt_gen_common::type_mapping_nested::TypeMappingNested;
+use qtbridge_gen_common::multi_type_mapping::MultiTypeMapping;
+use qtbridge_gen_common::type_mapping::TypeMapping;
+use qtbridge_gen_common::type_mapping_nested::TypeMappingNested;
 
 use crate::generic_idents::GenericIdents;
 use crate::generic_instantiation_decl::GenericInstantiationsList;

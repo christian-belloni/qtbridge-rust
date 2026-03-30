@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use proc_macro2::TokenStream;
-use qt_gen_common::type_qualified_mapping::CallOrigin;
+use qtbridge_gen_common::type_qualified_mapping::CallOrigin;
 use quote::{ToTokens, format_ident};
 use syn::spanned::Spanned;
 
-use qt_gen_common::function_with_attributes::FunctionWithAttributes;
-use qt_gen_common::parse_utils::is_path_with_segments_str;
-use qt_gen_common::type_utils::get_ident_of_last_path_segment;
+use qtbridge_gen_common::function_with_attributes::FunctionWithAttributes;
+use qtbridge_gen_common::parse_utils::is_path_with_segments_str;
+use qtbridge_gen_common::type_utils::get_ident_of_last_path_segment;
 use crate::qt_gen_impl::qt_meta_gen;
 use qt_meta_gen::generate_meta::{QMetaInfoContext, generate_qmetainfo_trait_impl};
 use qt_meta_gen::generate_qmetatype_get::{generate_qmeta_type_get};

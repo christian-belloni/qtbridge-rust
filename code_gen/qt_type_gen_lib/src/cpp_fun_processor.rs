@@ -3,7 +3,7 @@
 
 use quote::quote;
 
-use qt_gen_common::naming;
+use qtbridge_gen_common::naming;
 use syn::{punctuated::Punctuated, spanned::Spanned};
 use crate::cpp_fun::CppFun;
 

@@ -24,7 +24,7 @@ members = [
 
     "crates/qtbridge",
     "crates/qtbridge-build-common",
-    "crates/qt_gen_common",
+    "crates/qtbridge-gen-common",
     "crates/qt_gen",
     "crates/qt_type_lib",
     "crates/qt_ifaces",

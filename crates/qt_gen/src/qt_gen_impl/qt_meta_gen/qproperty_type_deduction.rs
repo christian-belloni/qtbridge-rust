@@ -4,9 +4,9 @@
 use quote::ToTokens;
 use syn::spanned::Spanned;
 
-use qt_gen_common::signature_utils::{get_return_type, get_typed_arg_type, is_arg_self_ref};
-use qt_gen_common::type_registry::meta_types::is_type_mapped_to_qmetatype;
-use qt_gen_common::type_to_string::type_to_string_fallback;
+use qtbridge_gen_common::signature_utils::{get_return_type, get_typed_arg_type, is_arg_self_ref};
+use qtbridge_gen_common::type_registry::meta_types::is_type_mapped_to_qmetatype;
+use qtbridge_gen_common::type_to_string::type_to_string_fallback;
 
 
 /// Deduces a property's type from its getter function.

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use proc_macro::TokenStream;
-use qt_gen_common::type_qualified_mapping::CallOrigin;
+use qtbridge_gen_common::type_qualified_mapping::CallOrigin;
 
 mod qt_derive;
 mod qt_gen_impl;

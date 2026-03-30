@@ -6,12 +6,12 @@ use std::collections::BTreeMap;
 use quote::{format_ident, quote};
 use syn::{spanned::Spanned, Token};
 
-use qt_gen_common::case_conv;
-use qt_gen_common::function_bridge::CppFunctionBridge;
-use qt_gen_common::multi_type_mapping::MultiTypeMapping;
-use qt_gen_common::naming;
-use qt_gen_common::signature_utils::change_first_arg;
-use qt_gen_common::type_mapping_nested::TypeMappingNested;
+use qtbridge_gen_common::case_conv;
+use qtbridge_gen_common::function_bridge::CppFunctionBridge;
+use qtbridge_gen_common::multi_type_mapping::MultiTypeMapping;
+use qtbridge_gen_common::naming;
+use qtbridge_gen_common::signature_utils::change_first_arg;
+use qtbridge_gen_common::type_mapping_nested::TypeMappingNested;
 
 use crate::cpp_fun::CppFun;
 use crate::cpp_fun_processor::CppFunProcessor;

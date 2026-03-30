@@ -6,11 +6,11 @@ use std::rc::Rc;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
-use qt_gen_common::naming;
-use qt_gen_common::parse_utils::is_doc_attribute;
-use qt_gen_common::type_mapping::TypeMapping;
-use qt_gen_common::type_registry;
-use qt_gen_common::type_to_string::path_to_string_fallback;
+use qtbridge_gen_common::naming;
+use qtbridge_gen_common::parse_utils::is_doc_attribute;
+use qtbridge_gen_common::type_mapping::TypeMapping;
+use qtbridge_gen_common::type_registry;
+use qtbridge_gen_common::type_to_string::path_to_string_fallback;
 use type_registry::QtType;
 use type_registry::qt::{generic::QtGenericArg, monomorphed_alias::QtAliasToMonomorphedType};
 use type_registry::type_traits::{FindType, TypeName};

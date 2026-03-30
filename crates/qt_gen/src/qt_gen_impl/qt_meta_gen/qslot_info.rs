@@ -4,11 +4,11 @@
 use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
 use syn::{spanned::Spanned, Ident, LitStr};
-use qt_gen_common::case_conv;
-use qt_gen_common::function_with_attributes::{BlockOrSemi, FunctionWithAttributes};
-use qt_gen_common::parse_utils::{parse_name_value, partition_attr_by};
-use qt_gen_common::signature_utils::get_typed_args;
-use qt_gen_common::type_registry::meta_types::check_meta_call_signature_types;
+use qtbridge_gen_common::case_conv;
+use qtbridge_gen_common::function_with_attributes::{BlockOrSemi, FunctionWithAttributes};
+use qtbridge_gen_common::parse_utils::{parse_name_value, partition_attr_by};
+use qtbridge_gen_common::signature_utils::get_typed_args;
+use qtbridge_gen_common::type_registry::meta_types::check_meta_call_signature_types;
 
 use crate::qt_gen_impl::qt_meta_gen;
 use qt_meta_gen::meta_call_bridge_generator;

@@ -5,8 +5,8 @@ use quote::ToTokens;
 use syn::parse::discouraged::Speculative;
 use syn::spanned::Spanned;
 
-use qt_gen_common::cpp_include::CppInclude;
-use qt_gen_common::parse_utils::find_token;
+use qtbridge_gen_common::cpp_include::CppInclude;
+use qtbridge_gen_common::parse_utils::find_token;
 
 use crate::function::Function;
 use crate::structure::BridgeStruct;

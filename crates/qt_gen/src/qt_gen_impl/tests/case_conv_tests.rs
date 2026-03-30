@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 #![cfg(test)]
-use qt_gen_common::case_conv::{camel_to_snake, is_pascal_case, snake_to_camel};
+use qtbridge_gen_common::case_conv::{camel_to_snake, is_pascal_case, snake_to_camel};
 
 #[test]
 pub fn require_that_camel_to_snake_returns_output_that_agrees_with_reference() {

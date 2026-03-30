@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use qt_gen_common::multi_type_mapping::MultiTypeMapping;
+use qtbridge_gen_common::multi_type_mapping::MultiTypeMapping;
 
 use crate::generic_instantiation_decl::GenericInstantiationsList;
 

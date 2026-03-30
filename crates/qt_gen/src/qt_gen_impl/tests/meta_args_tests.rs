@@ -1,5 +1,5 @@
 #![cfg(test)]
-use qt_gen_common::type_registry::meta_types::get_qmetatype_support_for_type;
+use qtbridge_gen_common::type_registry::meta_types::get_qmetatype_support_for_type;
 
 fn check_if_returns_expected_type(src_type_str: &str, exp_type_str: Option<&str>) {
     let src_type: syn::Type = syn::parse_str(src_type_str)

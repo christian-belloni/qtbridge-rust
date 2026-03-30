@@ -12,4 +12,4 @@ proc-macro2.workspace = true
 quote.workspace = true
 syn.workspace = true
 qtbridge-build-common = { path = "../../crates/qtbridge-build-common" }
-qt_gen_common = { path = "../../crates/qt_gen_common" }
+qtbridge-gen-common = { path = "../../crates/qtbridge-gen-common" }

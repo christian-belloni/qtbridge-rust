@@ -8,12 +8,12 @@ use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 use syn::spanned::Spanned;
 
-use qt_gen_common::signature_utils::get_arg_ident;
-use qt_gen_common::type_registry::QtType;
-use qt_gen_common::type_to_string::{angle_bracketed_generic_arguments_to_string, path_to_string};
-use qt_gen_common::type_utils::{are_all_args_generic_idents, get_angle_bracketed_generic_arguments_of_last_path_segment, get_ident_of_last_path_segment};
-use qt_gen_common::type_tokens::TypeTokens;
-use qt_gen_common::type_registry::qt::generic::QtGenericTypeWithoutArgs;
+use qtbridge_gen_common::signature_utils::get_arg_ident;
+use qtbridge_gen_common::type_registry::QtType;
+use qtbridge_gen_common::type_to_string::{angle_bracketed_generic_arguments_to_string, path_to_string};
+use qtbridge_gen_common::type_utils::{are_all_args_generic_idents, get_angle_bracketed_generic_arguments_of_last_path_segment, get_ident_of_last_path_segment};
+use qtbridge_gen_common::type_tokens::TypeTokens;
+use qtbridge_gen_common::type_registry::qt::generic::QtGenericTypeWithoutArgs;
 
 use crate::function::Function;
 use crate::generic_idents::GenericIdents;

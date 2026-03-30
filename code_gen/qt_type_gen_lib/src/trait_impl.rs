@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use proc_macro2::TokenStream;
-use qt_gen_common::type_mapping_nested::TypeMappingNested;
+use qtbridge_gen_common::type_mapping_nested::TypeMappingNested;
 use quote::{ToTokens, quote};
 use syn::parse::Parse;
 
-use qt_gen_common::multi_type_mapping::MultiTypeMapping;
-use qt_gen_common::type_to_string::path_to_ident_str;
+use qtbridge_gen_common::multi_type_mapping::MultiTypeMapping;
+use qtbridge_gen_common::type_to_string::path_to_ident_str;
 use crate::generic_instantiation_decl::{GenericInstantiationTypes, GenericInstantiationsList};
 use crate::function::Function;
 use crate::generic_types_instantiations::GenericTypesInstantiations;

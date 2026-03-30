@@ -4,7 +4,7 @@
 use proc_macro2::TokenStream;
 use quote::{quote};
 
-use qt_gen_common::type_qualified_mapping::CallOrigin;
+use qtbridge_gen_common::type_qualified_mapping::CallOrigin;
 
 pub fn generate_qmeta_type_get(struct_ident: &syn::Ident, generics: &syn::Generics, origin: &CallOrigin) -> syn::Result<TokenStream> {
     let (impl_generics, type_generics, where_clause) = generics.split_for_impl();

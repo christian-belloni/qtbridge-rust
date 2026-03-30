@@ -5,7 +5,7 @@ use proc_macro::TokenStream;
 
 use syn::{parse_macro_input, ItemFn, Ident, LitStr};
 use quote::quote;
-use qt_gen_common::parse_utils::parse_name_value;
+use qtbridge_gen_common::parse_utils::parse_name_value;
 
 struct QObjectTestData {
     class: Option<syn::Path>,

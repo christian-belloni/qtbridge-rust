@@ -8,15 +8,15 @@ use std::rc::Rc;
 
 use proc_macro2::{Span, TokenStream};
 
-use qt_gen_common::path_utils::file_path_to_module_name;
-use qt_gen_common::type_to_string::path_to_string_fallback;
+use qtbridge_gen_common::path_utils::file_path_to_module_name;
+use qtbridge_gen_common::type_to_string::path_to_string_fallback;
 
 use quote::ToTokens;
 
 use qtbridge_build_common::file_system_utils::get_relative_path;
-use qt_gen_common::type_registry::QtType;
-use qt_gen_common::type_registry::type_traits::{FindType, MetaTypeId};
-use qt_gen_common::type_registry::qt::non_generic::QtNonGenericType;
+use qtbridge_gen_common::type_registry::QtType;
+use qtbridge_gen_common::type_registry::type_traits::{FindType, MetaTypeId};
+use qtbridge_gen_common::type_registry::qt::non_generic::QtNonGenericType;
 
 use crate::file::{File, Item};
 use crate::module::Module;

@@ -6,8 +6,8 @@ use syn::parse::Parse;
 use syn::parse::discouraged::Speculative;
 use syn::punctuated::Punctuated;
 
-use qt_gen_common::multi_type_mapping::MultiTypeMapping;
-use qt_gen_common::parse_utils::parse_name_value;
+use qtbridge_gen_common::multi_type_mapping::MultiTypeMapping;
+use qtbridge_gen_common::parse_utils::parse_name_value;
 
 use crate::generic_idents::GenericIdents;
 use crate::qmetatype_attribute::QMetaTypeAttribute;

@@ -3,9 +3,9 @@ use quote::{ToTokens, format_ident, quote};
 use syn::parse_quote;
 use syn::spanned::Spanned;
 
-use qt_gen_common::signature_utils::{get_typed_arg_ident, get_typed_args};
-use qt_gen_common::type_registry::meta_types::get_qmetatype_support_for_type;
-use qt_gen_common::type_utils::{ValuePass, get_type_pass, remove_ref};
+use qtbridge_gen_common::signature_utils::{get_typed_arg_ident, get_typed_args};
+use qtbridge_gen_common::type_registry::meta_types::get_qmetatype_support_for_type;
+use qtbridge_gen_common::type_utils::{ValuePass, get_type_pass, remove_ref};
 
 /// Generates code to connect a Rust function to a metacall (e.g. signal or slot).
 pub struct MetaCallBridgeGenerator<'a> {

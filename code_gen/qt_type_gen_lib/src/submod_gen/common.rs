@@ -6,10 +6,10 @@ use std::path::Path;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
-use qt_gen_common::multi_type_mapping::MultiTypeMapping;
-use qt_gen_common::path_utils::relative_input_file_path_to_path_qualified;
-use qt_gen_common::type_mapping_nested::TypeMappingNested;
-use qt_gen_common::type_to_string::path_to_ident_str;
+use qtbridge_gen_common::multi_type_mapping::MultiTypeMapping;
+use qtbridge_gen_common::path_utils::relative_input_file_path_to_path_qualified;
+use qtbridge_gen_common::type_mapping_nested::TypeMappingNested;
+use qtbridge_gen_common::type_to_string::path_to_ident_str;
 
 use crate::function::Function;
 use crate::generic_instantiation_decl::GenericInstantiationTypes;

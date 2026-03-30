@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 #![cfg(test)]
-use qt_gen_common::type_to_cpp::type_to_cpp;
+use qtbridge_gen_common::type_to_cpp::type_to_cpp;
 use syn::parse_str;
 
 #[test]

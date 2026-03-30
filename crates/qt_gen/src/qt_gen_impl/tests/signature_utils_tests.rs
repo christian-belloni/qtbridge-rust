@@ -4,8 +4,8 @@
 #![cfg(test)]
 use std::iter;
 use syn::parse_quote;
-use qt_gen_common::signature_utils::{get_qualified_args, get_qualified_return_type};
-use qt_gen_common::type_qualified_mapping::CallOrigin;
+use qtbridge_gen_common::signature_utils::{get_qualified_args, get_qualified_return_type};
+use qtbridge_gen_common::type_qualified_mapping::CallOrigin;
 
 #[test]
 fn require_that_get_qualified_args_adds_qtbridge_to_path_when_it_is_qt_type() {

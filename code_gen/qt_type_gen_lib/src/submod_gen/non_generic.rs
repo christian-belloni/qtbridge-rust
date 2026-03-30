@@ -6,9 +6,9 @@ use std::rc::Rc;
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
 
-use qt_gen_common::type_registry::type_traits::MetaTypeId;
-use qt_gen_common::type_registry::QtType;
-use qt_gen_common::type_registry::qt::non_generic::QtNonGenericType;
+use qtbridge_gen_common::type_registry::type_traits::MetaTypeId;
+use qtbridge_gen_common::type_registry::QtType;
+use qtbridge_gen_common::type_registry::qt::non_generic::QtNonGenericType;
 
 use crate::function::Function;
 use crate::module::Module;
