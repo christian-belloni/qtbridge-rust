@@ -13,7 +13,7 @@ use qt_type_gen_lib::bridge::BridgeTypesGenerator;
 use qt_type_gen_lib::generate_type_info::generate_qt_types_getters_code;
 
 const INPUT_ROOT: &str = "src/input";
-const DEST_CRATE_ROOT: &str = "../../qtbridge/qt_type_lib";
+const DEST_CRATE_ROOT: &str = "../../crates/qt_type_lib";
 
 struct TypeGenerator {
     gen_impl: BridgeTypesGenerator,

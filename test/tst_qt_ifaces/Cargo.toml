@@ -8,4 +8,4 @@ edition.workspace = true
 description = "Tests for qt_ifaces"
 
 [dependencies]
-qt_ifaces = { path = "../../qtbridge/qt_ifaces" }
+qt_ifaces = { path = "../../crates/qt_ifaces" }

@@ -32,7 +32,7 @@ fn main() {
         .flag_if_supported("/permissive-")
         .include("src")
         .include("../")
-        .include("../utils");
+        .include("../qt_type_lib/src/");
 
     FILES_CPP.iter()
         .for_each(|file| {
@@ -44,7 +44,7 @@ fn main() {
         builder.include(include_dir);
     }
 
-    builder.compile("qt_type_lib");
+    builder.compile("qt_ifaces");
 
     link_qt_modules(&qt_modules);
 }

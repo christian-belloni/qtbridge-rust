@@ -9,10 +9,10 @@ description = "Utilities to test interoparbility between rust and qml"
 
 [dependencies]
 cxx.workspace = true
-qt_type_lib = { path = "../qtbridge/qt_type_lib" }
+qt_type_lib = { path = "../crates/qt_type_lib" }
 quicktest_gen = { path = "quicktest_gen" }
 
 [build-dependencies]
-build_common = { path = "../qtbridge/build_common" }
+build_common = { path = "../crates/build_common" }
 cxx-build.workspace = true
 qt_type_gen = { path = "../code_gen/qt_type_gen" }

@@ -17,4 +17,4 @@ build_common = { path = "../build_common" }
 qt_type_gen = { path = "../../code_gen/qt_type_gen" }
 
 [dev-dependencies]
-qtbridge = { path = "../../qtbridge" }
+qtbridge = { path = "../qtbridge" }

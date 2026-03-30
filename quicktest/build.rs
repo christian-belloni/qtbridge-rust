@@ -68,9 +68,9 @@ fn main() {
         .std("c++17")
         .flag_if_supported("/Zc:__cplusplus")
         .flag_if_supported("/permissive-")
-        .include("../qtbridge/")
-        .include("../qtbridge/utils")
+        .include("../crates/")
         .include("src")
+        .include("../crates/qt_type_lib/src/")
         .include(out_dir);
 
     let qt_include_dirs = qt_include_dirs(qt_modules, true);

@@ -8,7 +8,7 @@ edition.workspace = true
 description = "Tests for objects annotated with the `#[qobject]` macro."
 
 [dependencies]
-qtbridge = { path = "../../qtbridge" }
+qtbridge = { path = "../../crates/qtbridge" }
 
 [[test]]
 name = "slot_tests"

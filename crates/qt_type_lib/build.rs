@@ -15,8 +15,7 @@ fn main() {
         .flag_if_supported("/Zc:__cplusplus")
         .flag_if_supported("/permissive-")
         .include("src")
-        .include("../")
-        .include("../utils");
+        .include("../");
 
     GENERATED_FILES_CPP.iter()
         .for_each(|file| {
