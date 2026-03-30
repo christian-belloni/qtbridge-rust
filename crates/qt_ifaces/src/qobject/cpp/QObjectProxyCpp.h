@@ -6,7 +6,7 @@
 #include <QMetaObject>
 #include <QObject>
 #include <QQmlListProperty>
-#include "bridge/src/cpp/rustobjectgetter.h"
+#include "qtbridge-runtime/src/cpp/rustobjectgetter.h"
 #include "qt_ifaces/src/qobject/proxy_rust_bridge.rs.h"
 
 namespace rust::bridge {

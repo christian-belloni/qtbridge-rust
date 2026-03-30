@@ -21,13 +21,14 @@ resolver = "2"
 members = [
     "code_gen/qt_type_gen",
     "code_gen/qt_type_gen_lib",
+
     "crates/qtbridge",
     "crates/build_common",
     "crates/qt_gen_common",
     "crates/qt_gen",
     "crates/qt_type_lib",
     "crates/qt_ifaces",
-    "crates/bridge",
+    "crates/qtbridge-runtime",
     "quicktest",
     "quicktest/quicktest_gen",
     "apps/hello_world",

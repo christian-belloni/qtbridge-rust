@@ -157,7 +157,7 @@ impl ExpandTokens for QSignalInfo {
             #vis
             #sig
             {
-                let dynamic_meta_obj = <Self as qtbridge::bridge::QMetaInfo>::get_shared_dynamic_meta_object();
+                let dynamic_meta_obj = <Self as qtbridge::qtbridge_runtime::QMetaInfo>::get_shared_dynamic_meta_object();
                 let qobj = <Self as qtbridge::QObjectHolder>::get_qobject(self);
                 #bridge_code
             }

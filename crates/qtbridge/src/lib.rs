@@ -15,8 +15,8 @@ pub mod type_support {
 }
 
 #[doc(hidden)]
-pub use bridge;
-pub use bridge::QModelItem;
+pub use qtbridge_runtime;
+pub use qtbridge_runtime::QModelItem;
 #[doc(hidden)]
 pub use qt_gen;
 #[doc(hidden)]
@@ -483,7 +483,7 @@ pub use qt_gen::qslot;
 #[doc(inline)]
 pub use qt_gen::qproperty;
 
-pub use bridge::{QApp, run_simple_app, qresource};
+pub use qtbridge_runtime::{QApp, run_simple_app, qresource};
 
 /// Enable access to C++ and QML.
 ///
@@ -491,7 +491,7 @@ pub use bridge::{QApp, run_simple_app, qresource};
 /// and should never be implemented manually.
 ///
 #[doc(inline)]
-pub use bridge::QObjectHolder;
+pub use qtbridge_runtime::QObjectHolder;
 
 /// QmlRegister enables QML to instantiate types of this trait.
 ///
@@ -520,7 +520,7 @@ pub use bridge::QObjectHolder;
 ///         println!("Hello World!")
 ///     }
 /// }
-/// impl qtbridge::bridge::QmlRegister for Backend {
+/// impl qtbridge::qtbridge_runtime::QmlRegister for Backend {
 ///     const URI: &str = "rust_backend";
 ///     const ELEMENT_NAME: &str = "Backend";
 ///     const MINOR_VERSION: u8 = 0u8;
@@ -559,7 +559,7 @@ pub use bridge::QObjectHolder;
 ///         println!("Hello World!")
 ///     }
 /// }
-/// impl qtbridge::bridge::QmlRegister for Backend {
+/// impl qtbridge::qtbridge_runtime::QmlRegister for Backend {
 ///     const URI: &str = "rust_backend";
 ///     const ELEMENT_NAME: &str = "Backend";
 ///     const MINOR_VERSION: u8 = 0u8;
@@ -583,7 +583,7 @@ pub use bridge::QObjectHolder;
 /// specifying the version
 ///
 #[doc(inline)]
-pub use bridge::QmlRegister;
+pub use qtbridge_runtime::QmlRegister;
 
 pub use qt_gen::QModelItem;
 

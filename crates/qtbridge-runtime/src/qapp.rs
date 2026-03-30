@@ -21,7 +21,7 @@ use qt_type_lib::{QGuiApplication, QQmlApplicationEngine, QString, QVariant, QVa
 /// # Example
 ///
 /// ```
-///# use bridge::run_simple_app;
+///# use qtbridge_runtime::run_simple_app;
 /// fn main() {
 ///     run_simple_app!("qml/main.qml");
 /// }
@@ -53,7 +53,7 @@ macro_rules! run_simple_app {
 /// A minimal “Hello World” application without a Rust backend:
 ///
 /// ```rust
-///# use bridge::QApp;
+///# use qtbridge_runtime::QApp;
 /// let prop = 42;
 ///
 /// QApp::new()
@@ -120,7 +120,7 @@ impl QApp {
     /// ### Example
     ///
     /// ```rust
-    ///# use bridge::QApp;
+    ///# use qtbridge_runtime::QApp;
     /// let prop = 42;
     ///
     /// QApp::new()
@@ -156,7 +156,7 @@ impl QApp {
     /// # Example
     ///
     /// ```rust
-    ///# use bridge::QApp;
+    ///# use qtbridge_runtime::QApp;
     /// let prop = 42;
     ///
     /// QApp::new()

@@ -35,7 +35,7 @@ impl CallOrigin {
 
     pub fn bridge_module(&self) -> Path {
         match self {
-            CallOrigin::External => parse_quote!(qtbridge::bridge),
+            CallOrigin::External => parse_quote!(qtbridge::qtbridge_runtime),
             CallOrigin::Internal => parse_quote!(bridge),
         }
     }

@@ -124,7 +124,7 @@ impl QObjectModuleBuilder {
             output_module_items.push(drop.into());
         }
         // TODO: return items below as high level AST but not TokenStreams
-        output_module_items.push(syn::parse2(qmeta_info_impl_tokens)?);             // impl qtbridge::bridge::QMetaInfo
+        output_module_items.push(syn::parse2(qmeta_info_impl_tokens)?);             // impl qtbridge::qtbridge_runtime::QMetaInfo
         output_module_items.push(syn::parse2(qmetatype_get_impl_tokens)?);          // impl qtbridge::qt_type_lib::QMetaTypeGet
 
         if !self.struct_is_generic() {

@@ -38,7 +38,7 @@ pub fn qml_element(struct_ident: &Ident, params: &QObjectMacroParams) -> syn::Re
             #[linkme::distributed_slice(qtbridge::qt_type_lib::QML_REGISTER_CALLBACKS)]
             #[allow(non_camel_case_types)]
             fn #qml_register_fn_indent() {
-                <#struct_ident as qtbridge::bridge::QmlRegister>::qml_register();
+                <#struct_ident as qtbridge::qtbridge_runtime::QmlRegister>::qml_register();
             }
         }
     } else {
@@ -46,7 +46,7 @@ pub fn qml_element(struct_ident: &Ident, params: &QObjectMacroParams) -> syn::Re
     };
 
     let qml_register_impl_code = quote! {
-        impl qtbridge::bridge::QmlRegister for #struct_ident {
+        impl qtbridge::qtbridge_runtime::QmlRegister for #struct_ident {
             const URI: &str = #uri;
             const ELEMENT_NAME: &str = #struct_name;
             const MINOR_VERSION: u8 = #minor_version;
