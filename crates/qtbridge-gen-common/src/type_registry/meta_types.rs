@@ -5,9 +5,9 @@ use crate::type_registry;
 use type_registry::{QtType, StandardContainer, StandardType, StringType};
 use type_registry::qt::generic::{QtGenericArg, QtGenericTypeWithoutArgs};
 use type_registry::type_traits::{FindType, MetaTypeId, TypeInfo, TypeName};
-use crate::signature_utils::{get_typed_args, is_arg_self_ref};
+use crate::signature_utils::{get_return_type, get_typed_args, is_arg_self_ref};
 use crate::type_to_string::type_to_string_fallback;
-use crate::type_utils::{get_angle_bracketed_generic_arguments_of_last_path_segment, is_mut_ref, path_to_type, remove_ref};
+use crate::type_utils::{get_angle_bracketed_generic_arguments_of_last_path_segment, is_mut_ref, path_from_type, path_to_type, remove_ref};
 
 /// Checks whether the given signature can participate in meta-calls
 /// (as slot callbacks or property getters/setters).
@@ -18,14 +18,43 @@ pub fn check_meta_call_signature_types(src: &syn::Signature) -> syn::Result<()> 
         return Err(syn::Error::new(src.ident.span(), "First argument must be &self"));
     }
 
-    for typed_arg in get_typed_args(src) {
-        let arg_type = typed_arg.ty.as_ref();
-        if !is_type_mapped_to_qmetatype(arg_type) {
-            return Err(syn::Error::new(arg_type.span(), format!("Type '{}' of argument is currently unsupported for meta calls", type_to_string_fallback(arg_type))))
-        }
-        if is_mut_ref(arg_type) {
-            return Err(syn::Error::new(arg_type.span(), format!("Type '{}' of argument can't be passed by mutable reference", type_to_string_fallback(arg_type))))
-        }
+    get_typed_args(src)
+        .try_for_each(|arg| {
+            check_meta_call_signature_type(arg.ty.as_ref())
+                .map_err(|err| syn::Error::new(err.span(), format!("The function argument is not compatible with meta call.\n{err}")))
+        })?;
+    get_return_type(&src.output)
+        .map(|ty| {
+            check_meta_call_signature_type(ty)
+                .map_err(|err| syn::Error::new(err.span(), format!("The function return type is not compatible with meta call.\n{err}")))
+        })
+        .unwrap_or(Ok(()))
+}
+
+/// Checks whether the given type can participate in meta-calls.
+fn check_meta_call_signature_type(ty: &syn::Type) -> syn::Result<()> {
+    let ty_wo_ref = remove_ref(ty);
+    match ty_wo_ref {
+        syn::Type::Path(_) => path_from_type(ty_wo_ref),
+        syn::Type::Array(array) =>
+            Err(syn::Error::new(array.span(), "Arrays are currently not supported")),
+        syn::Type::Ptr(ptr) =>
+            Err(syn::Error::new(ptr.span(), "Pointers are not supported")),
+        syn::Type::Reference(type_ref) =>
+            Err(syn::Error::new(type_ref.span(), "References to reference are not supported")),
+        syn::Type::Slice(slice) =>
+            Err(syn::Error::new(slice.span(), "Slices are currently not supported")),
+        syn::Type::Tuple(tuple) =>
+            Err(syn::Error::new(tuple.span(), "Tuples are not supported")),
+        _ => Err(syn::Error::new(ty_wo_ref.span(), format!("Type category ('{:?}') of type '{}' is not supported", std::mem::discriminant(ty_wo_ref), type_to_string_fallback(ty_wo_ref))))
+    }?;
+
+    if is_mut_ref(ty) {
+        return Err(syn::Error::new(ty.span(), format!("Mutable references are not supported. Found: '{}'", type_to_string_fallback(ty))))
+    }
+
+    if !is_type_mapped_to_qmetatype(ty) {
+        return Err(syn::Error::new(ty.span(), format!("Type '{}' can't be converted to meta type", type_to_string_fallback(ty))))
     }
 
     Ok(())
@@ -48,26 +77,17 @@ pub fn is_type_mapped_to_qmetatype(ty: &syn::Type) -> bool {
 pub fn get_qmetatype_support_for_type(mut src: &syn::Type) -> syn::Result<Option<syn::Type>> {
     // Unwrap if reference
     src = remove_ref(src);
+    let path = path_from_type(src)?;
+    let ty = type_registry::Type::find_by_path_checked(path)?;
+    let meta_id = ty.metatype_id();
 
-    match src {
-        syn::Type::Path(type_path) => {
-            let path = &type_path.path;
-            let ty = type_registry::Type::find_by_path_checked(path)?;
-            let meta_id = ty.metatype_id();
-
-            match meta_id {
-                MetaTypeId::None => { // Conversion to the intermediate type is needed
-                    let ty = get_intermediate_type_for_not_metatype(&ty, path)?;
-                    Ok(Some(ty))
-                },
-                _ => // Conversion is not needed
-                    Ok(None),
-            }
+    match meta_id {
+        MetaTypeId::None => { // Conversion to the intermediate type is needed
+            let ty = get_intermediate_type_for_not_metatype(&ty, path)?;
+            Ok(Some(ty))
         },
-        syn::Type::Reference(_) =>
-            Err(syn::Error::new(src.span(), "Reference to reference is not supported")),
-        // TODO: support more type categories (e.g. slices, arrays, etc.)?
-        _ => Err(syn::Error::new(src.span(), format!("Type category ('{:?}') of type '{}' is currently unsupported", std::mem::discriminant(src), src.to_token_stream())))
+        _ => // Conversion is not needed
+            Ok(None),
     }
 }
 
@@ -116,13 +136,11 @@ fn get_intermediate_type_container(src: &StandardContainer, src_path: &syn::Path
 
     let args: Vec<QtGenericArg> = (0..src.generic_arg_count())
         .map(|arg_idx| {
-            let src_arg_type = get_generic_arg_type_path(src_path, arg_idx)?;
-            let inter_arg_type_ = get_qmetatype_support_for_type(src_arg_type)?
+            let src_arg_type = get_generic_arg_type(src_path, arg_idx)?;
+            let inter_arg_type = get_qmetatype_support_for_type(src_arg_type)?
                 .unwrap_or_else(|| src_arg_type.clone());
-            let syn::Type::Path(arg_type_path) = inter_arg_type_ else {
-                return Err(syn::Error::new(inter_arg_type_.span(), format!("Type '{}' is unsupported as argument in {src_name} container", inter_arg_type_.to_token_stream())))
-            };
-            let arg_path = &arg_type_path.path;
+            let arg_path = path_from_type(&inter_arg_type)
+                .map_err(|err| syn::Error::new(inter_arg_type.span(), format!("Type '{}' is unsupported as argument in {src_name} container. {err}", inter_arg_type.to_token_stream())))?;
             let arg_ty = type_registry::Type::find_by_path_checked(arg_path)?;
             QtGenericArg::try_from(&arg_ty)
                 .map_err(|_| syn::Error::new(arg_path.span(), format!("Unsupported type of argument for Qt collection: '{}'", arg_ty.name())))
@@ -138,7 +156,7 @@ fn get_intermediate_type_container(src: &StandardContainer, src_path: &syn::Path
     Ok(mono.into())
 }
 
-fn get_generic_arg_type_path(src: &syn::Path, index: usize) -> syn::Result<&syn::Type> {
+fn get_generic_arg_type(src: &syn::Path, index: usize) -> syn::Result<&syn::Type> {
     let args = &get_angle_bracketed_generic_arguments_of_last_path_segment(src)
         .ok_or_else(|| syn::Error::new(src.span(), "Failed to get generic arguments"))?
         .args;

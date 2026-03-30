@@ -3,8 +3,9 @@
 
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
+use syn::spanned::Spanned;
 
-use crate::type_to_string::type_to_string;
+use crate::type_to_string::{type_to_string, type_to_string_fallback};
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum ValuePass {
@@ -83,6 +84,16 @@ pub fn path_to_type(src: syn::Path) -> syn::Type {
     type_path.into()
 }
 
+/// Extract `syn::Path` from `syn::Type` if it is `Path` variant.
+pub fn path_from_type(src: &syn::Type) -> syn::Result<&syn::Path> {
+    let syn::Type::Path(type_path) = src else {
+        return Err(syn::Error::new(src.span(), format!("TypePath expected. Found type '{}'", type_to_string_fallback(src))))
+    };
+    if let Some(qself) = &type_path.qself {
+        return Err(syn::Error::new(qself.span(), "Qualified self syntax is not supported"))
+    }
+    Ok(&type_path.path)
+}
 
 // TODO: switch to using where applicable
 pub fn get_ident_of_last_path_segment(src: &syn::Path) -> Option<&syn::Ident> {
