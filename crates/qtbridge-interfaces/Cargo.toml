@@ -3,16 +3,18 @@
 
 [package]
 name = "qtbridge-interfaces"
-version = "0.1.0"
+version.workspace = true
 edition.workspace = true
-description = "QtBridge: Proxies and interfaces between Rust and Qt"
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+description = "Qt Bridge: Proxies and interfaces between Rust and Qt"
 
 [dependencies]
 cxx.workspace = true
-qtbridge-type-lib = { path = "../qtbridge-type-lib" }
-qtbridge-runtime = { path = "../qtbridge-runtime" }
+qtbridge-type-lib = { path = "../qtbridge-type-lib", version = "0.1.5" }
+qtbridge-runtime = { path = "../qtbridge-runtime", version = "0.1.5" }
 
 [build-dependencies]
 cxx-build.workspace = true
-qtbridge-build-common = { path = "../qtbridge-build-common" }
-qt_type_gen = { path = "../../code_gen/qt_type_gen" }
+qtbridge-build-common = { path = "../qtbridge-build-common", version = "0.1.5" }

@@ -3,12 +3,15 @@
 
 [package]
 name = "qtbridge-gen-common"
-version = "0.1.0"
+version.workspace = true
 edition.workspace = true
-description = "QtBridge: Common code for macros and code generators"
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+description = "Qt Bridge: Common code for macros and code generators"
 
 [dependencies]
 proc-macro2.workspace = true
 quote.workspace = true
 syn = { workspace = true, features = ["extra-traits", "full", "visit", "visit-mut"] }
-qtbridge-build-common = { path = "../qtbridge-build-common" }
+qtbridge-build-common = { path = "../qtbridge-build-common", version = "0.1.5" }

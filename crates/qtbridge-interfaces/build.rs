@@ -26,13 +26,21 @@ const FILES_CPP: [&'static str; 5] = [
 
 fn main() {
     let mut builder = cxx_build::bridges(&FILES_BRIDGE);
+
+    let type_lib_include = std::env::var("DEP_QTBRIDGE_TYPE_LIB_INCLUDE")
+    .expect("DEP_QTBRIDGE_TYPE_LIB_INCLUDE not set. This variable should have been set by qtbridge-type-lib");
+
+    let runtime_include = std::env::var("DEP_QTBRIDGE_RUNTIME_INCLUDE")
+    .expect("DEP_QTBRIDGE_TYPE_LIB_INCLUDE not set - This variable should have been set by qtbridge-runtime");
+
     builder
         .std("c++17")
         .flag_if_supported("/Zc:__cplusplus")
         .flag_if_supported("/permissive-")
         .include("src")
         .include("../")
-        .include("../qtbridge-type-lib/src/");
+        .include(type_lib_include)
+        .include(runtime_include);
 
     FILES_CPP.iter()
         .for_each(|file| {

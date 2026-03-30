@@ -149,7 +149,6 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream, origin: &CallOrigin
     let ctx = QMetaInfoContext {
         struct_ident: &struct_ident,
         generics: &generics,
-        cpp_iface_name: &iface_ident.to_string(),
         signals: &signals,
         slots: &slots,
         properties: &properties,

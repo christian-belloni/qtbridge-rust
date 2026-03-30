@@ -9,6 +9,14 @@ mod generated_files_cpp;
 use generated_files_cpp::GENERATED_FILES_CPP;
 
 fn main() {
+
+    let manifest_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap();
+    let include_path = std::path::Path::new(&manifest_dir).join("src");
+
+    // This becomes DEP_QTBRIDGE_TYPE_LIB_INCLUDE in dependents
+    println!("cargo:include={}", include_path.display());
+    println!("cargo::metadata=include={}", include_path.display());
+
     let mut builder = cxx_build::bridges(GENERATED_FILES_BRIDGE);
     builder
         .std("c++17")

@@ -6,6 +6,13 @@ use qtbridge_build_common::qt_build::{qt_include_dirs, link_qt_modules};
 
 fn main() {
 
+    let manifest_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap();
+    let include_path = std::path::Path::new(&manifest_dir).join("src");
+
+    // This becomes DEP_QTBRIDGE_RUNTIME_INCLUDE in dependents
+    println!("cargo:include={}", include_path.display());
+    println!("cargo::metadata=include={}", include_path.display());
+
     let bridge_files = vec!(
         "dynamicmetaobjectbuilder",
         "qresource"
@@ -51,12 +58,15 @@ fn main() {
 
     let mut builder = cxx_build::bridges(rust_bridge_files);
 
+    let type_lib_include = std::env::var("DEP_QTBRIDGE_TYPE_LIB_INCLUDE")
+    .expect("DEP_QTBRIDGE_TYPE_LIB_INCLUDE not set. This variable should have been set by qtbridge-type-lib");
+
     builder
         .std("c++17")
         .flag_if_supported("/Zc:__cplusplus")
         .flag_if_supported("/permissive-")
         .include("../")
-        .include("../qtbridge-type-lib/src/")
+        .include(type_lib_include)
         .include("src");
 
     let qt_include_dirs = qt_include_dirs(qt_modules, true);

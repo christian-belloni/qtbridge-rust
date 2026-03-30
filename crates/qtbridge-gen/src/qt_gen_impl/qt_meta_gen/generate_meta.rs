@@ -13,7 +13,6 @@ use qt_meta_gen::{QClassInfo, QPropertyInfo, QSignalInfo, QSlotInfo};
 pub struct QMetaInfoContext<'a> {
     pub struct_ident: &'a syn::Ident,
     pub generics: &'a syn::Generics,
-    pub cpp_iface_name: &'a str,
     pub signals: &'a [QSignalInfo],
     pub slots: &'a [QSlotInfo],
     pub properties: &'a [QPropertyInfo],

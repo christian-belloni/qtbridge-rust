@@ -3,16 +3,19 @@
 
 [package]
 name = "qtbridge-type-lib"
-version = "0.1.0"
+links = "qtbridge-type-lib"
+version.workspace = true
 edition.workspace = true
-description = "QtBridge: Qt type library"
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+description = "Qt Bridge: Qt type library"
 
 [dependencies]
 cxx.workspace = true
 linkme.workspace = true
-qtbridge-gen-common = { path = "../qtbridge-gen-common" }
+qtbridge-gen-common = { path = "../qtbridge-gen-common", version = "0.1.5" }
 
 [build-dependencies]
 cxx-build.workspace = true
-qtbridge-build-common = { path = "../qtbridge-build-common" }
-qt_type_gen = { path = "../../code_gen/qt_type_gen" }
+qtbridge-build-common = { path = "../qtbridge-build-common", version = "0.1.5" }

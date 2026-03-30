@@ -106,7 +106,6 @@ impl QObjectModuleBuilder {
         let ctx = QMetaInfoContext {
             struct_ident: &self.struct_ident,
             generics: &self.struct_generics,
-            cpp_iface_name: &iface_ident.to_string(),
             signals: &self.signals,
             slots: &self.slots,
             properties: &self.properties,

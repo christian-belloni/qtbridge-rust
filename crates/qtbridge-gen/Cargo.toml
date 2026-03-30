@@ -3,9 +3,12 @@
 
 [package]
 name = "qtbridge-gen"
-version = "0.1.0"
+version.workspace = true
 edition.workspace = true
-description = "QtBridge: Generative macros for QObjects"
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+description = "Qt Bridge: Generative macros for QObjects"
 
 [lib]
 proc-macro = true
@@ -14,9 +17,9 @@ proc-macro = true
 proc-macro2.workspace = true
 quote.workspace = true
 syn.workspace = true
-qtbridge-build-common = { path = "../qtbridge-build-common" }
-qtbridge-gen-common = { path = "../qtbridge-gen-common" }
-qtbridge-type-lib = { path = "../qtbridge-type-lib" }
+qtbridge-build-common = { path = "../qtbridge-build-common", version = "0.1.5" }
+qtbridge-gen-common = { path = "../qtbridge-gen-common", version = "0.1.5" }
+qtbridge-type-lib = { path = "../qtbridge-type-lib", version = "0.1.5" }
 
 [dev-dependencies]
 pretty_assertions = "1"

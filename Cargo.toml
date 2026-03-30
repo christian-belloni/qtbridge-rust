@@ -4,8 +4,9 @@
 [workspace.package]
 edition = "2024"
 rust-version = "1.87.0"
-version = "0.1.0"
-repository = "ssh://codereview.qt-project.org:29418/qt/tqtc-qtbridges"
+version = "0.1.5"
+repository = "https://code.qt.io/cgit/qt/qtbridge-rust.git/"
+license = "Qt-Commercial or LGPL-3.0-only"
 
 [workspace.dependencies]
 cxx = { version = "1.0.158", features = ["c++17", "std"] }
@@ -29,10 +30,13 @@ members = [
     "crates/qtbridge-type-lib",
     "crates/qtbridge-interfaces",
     "crates/qtbridge-runtime",
+
     "quicktest",
     "quicktest/quicktest_gen",
+
     "apps/hello_world",
     "apps/minimal_app",
+
     "test/tst_qobject_macro",
     "test/tst_qt_ifaces",
     "test/tst_metatype",
