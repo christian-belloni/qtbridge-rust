@@ -18,7 +18,7 @@ pub mod type_support {
 pub use qtbridge_runtime;
 pub use qtbridge_runtime::QModelItem;
 #[doc(hidden)]
-pub use qt_gen;
+pub use qtbridge_gen;
 #[doc(hidden)]
 pub use qt_ifaces;
 #[doc(hidden)]
@@ -188,7 +188,7 @@ pub use qtbridge_build_common;
 /// ```
 ///
 #[doc(inline)]
-pub use qt_gen::qobject_impl;
+pub use qtbridge_gen::qobject_impl;
 
 /// Annotate a `mod` block to make its struct accessible from QML.
 ///
@@ -275,7 +275,7 @@ pub use qt_gen::qobject_impl;
 /// }
 /// ```
 #[doc(inline)]
-pub use qt_gen::qobject;
+pub use qtbridge_gen::qobject;
 
 
 /// Annotates a function as a signal that can be handled in QML.
@@ -334,7 +334,7 @@ pub use qt_gen::qobject;
 /// The signal name as seen in QML. Defaults to the Rust function name.
 ///
 #[doc(inline)]
-pub use qt_gen::qsignal;
+pub use qtbridge_gen::qsignal;
 
 /// Annotates a function as invokable from QML.
 ///
@@ -372,7 +372,7 @@ pub use qt_gen::qsignal;
 ///
 /// The function name as seen from QML. Defaults to the Rust function name.
 #[doc(inline)]
-pub use qt_gen::qslot;
+pub use qtbridge_gen::qslot;
 
 // TODO: Remove name mangling from doc snippets.
 /// Registers a property to be accessible from QML.
@@ -481,7 +481,7 @@ pub use qt_gen::qslot;
 /// For more information see <https://doc.qt.io/qt-6/qtqml-syntax-objectattributes.html>
 ///
 #[doc(inline)]
-pub use qt_gen::qproperty;
+pub use qtbridge_gen::qproperty;
 
 pub use qtbridge_runtime::{QApp, run_simple_app, qresource};
 
@@ -585,9 +585,9 @@ pub use qtbridge_runtime::QObjectHolder;
 #[doc(inline)]
 pub use qtbridge_runtime::QmlRegister;
 
-pub use qt_gen::QModelItem;
+pub use qtbridge_gen::QModelItem;
 
-pub use qt_gen::include_bytes_qml;
+pub use qtbridge_gen::include_bytes_qml;
 
 pub use qt_ifaces::{QListModel, QListModelBase};
 pub use qt_ifaces::{QTableModel, QTableModelBase};
