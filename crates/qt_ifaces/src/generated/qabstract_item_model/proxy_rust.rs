@@ -7,7 +7,7 @@ use super::proxy_cpp_bridge::{QAbstractItemModelProxyCpp, ffi};
 use crate::{RustObjAccess, call_rust_trait_impl, call_cpp_impl};
 use qtbridge_runtime::qrustproxy::{QRustProxy, ConstructionMode};
 use qtbridge_runtime::QObjectHolder;
-use qt_type_lib::{QByteArray, QHash, QMetaObject, QMetaType, QModelIndex, QVariant};
+use qtbridge_type_lib::{QByteArray, QHash, QMetaObject, QMetaType, QModelIndex, QVariant};
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -80,14 +80,14 @@ pub trait QAbstractItemModel : QObjectHolder<ProxyRust = QAbstractItemModelProxy
 }
 
 pub trait QAbstractItemModelBase : QObjectHolder<ProxyRust = QAbstractItemModelProxyRust> {
-fn role_names(&self) -> qt_type_lib::QHash<i32, qt_type_lib::QByteArray> {
+fn role_names(&self) -> qtbridge_type_lib::QHash<i32, qtbridge_type_lib::QByteArray> {
         let proxy = self.get_rust_proxy();
         proxy.base_role_names()
     }
     fn set_data(
         &mut self,
-        index: &qt_type_lib::QModelIndex,
-        value: &qt_type_lib::QVariant,
+        index: &qtbridge_type_lib::QModelIndex,
+        value: &qtbridge_type_lib::QVariant,
         role: i32,
     ) -> bool {
         let proxy = self.get_rust_proxy_mut();
@@ -97,7 +97,7 @@ fn role_names(&self) -> qt_type_lib::QHash<i32, qt_type_lib::QByteArray> {
         &mut self,
         first: i32,
         count: i32,
-        parent: &qt_type_lib::QModelIndex,
+        parent: &qtbridge_type_lib::QModelIndex,
     ) -> bool {
         let proxy = self.get_rust_proxy_mut();
         proxy.base_remove_rows(first, count, parent)
@@ -106,22 +106,22 @@ fn role_names(&self) -> qt_type_lib::QHash<i32, qt_type_lib::QByteArray> {
         &self,
         row: i32,
         column: i32,
-        idx: &qt_type_lib::QModelIndex,
-    ) -> qt_type_lib::QModelIndex {
+        idx: &qtbridge_type_lib::QModelIndex,
+    ) -> qtbridge_type_lib::QModelIndex {
         let proxy = self.get_rust_proxy();
         proxy.base_sibling(row, column, idx)
     }
     fn data_changed(
         &mut self,
-        top_left: &qt_type_lib::QModelIndex,
-        bottom_right: &qt_type_lib::QModelIndex,
+        top_left: &qtbridge_type_lib::QModelIndex,
+        bottom_right: &qtbridge_type_lib::QModelIndex,
     ) {
         let proxy = self.get_rust_proxy_mut();
         proxy.base_data_changed(top_left, bottom_right)
     }
     fn begin_insert_columns(
         &mut self,
-        parent: &qt_type_lib::QModelIndex,
+        parent: &qtbridge_type_lib::QModelIndex,
         first: i32,
         last: i32,
     ) {
@@ -134,7 +134,7 @@ fn role_names(&self) -> qt_type_lib::QHash<i32, qt_type_lib::QByteArray> {
     }
     fn begin_insert_rows(
         &mut self,
-        parent: &qt_type_lib::QModelIndex,
+        parent: &qtbridge_type_lib::QModelIndex,
         first: i32,
         last: i32,
     ) {
@@ -147,10 +147,10 @@ fn role_names(&self) -> qt_type_lib::QHash<i32, qt_type_lib::QByteArray> {
     }
     fn begin_move_columns(
         &mut self,
-        source_parent: &qt_type_lib::QModelIndex,
+        source_parent: &qtbridge_type_lib::QModelIndex,
         source_first: i32,
         source_last: i32,
-        destination_parent: &qt_type_lib::QModelIndex,
+        destination_parent: &qtbridge_type_lib::QModelIndex,
         destination_child: i32,
     ) {
         let proxy = self.get_rust_proxy_mut();
@@ -169,10 +169,10 @@ fn role_names(&self) -> qt_type_lib::QHash<i32, qt_type_lib::QByteArray> {
     }
     fn begin_move_rows(
         &mut self,
-        source_parent: &qt_type_lib::QModelIndex,
+        source_parent: &qtbridge_type_lib::QModelIndex,
         source_first: i32,
         source_last: i32,
-        destination_parent: &qt_type_lib::QModelIndex,
+        destination_parent: &qtbridge_type_lib::QModelIndex,
         destination_child: i32,
     ) {
         let proxy = self.get_rust_proxy_mut();
@@ -191,7 +191,7 @@ fn role_names(&self) -> qt_type_lib::QHash<i32, qt_type_lib::QByteArray> {
     }
     fn begin_remove_columns(
         &mut self,
-        parent: &qt_type_lib::QModelIndex,
+        parent: &qtbridge_type_lib::QModelIndex,
         first: i32,
         last: i32,
     ) {
@@ -204,7 +204,7 @@ fn role_names(&self) -> qt_type_lib::QHash<i32, qt_type_lib::QByteArray> {
     }
     fn begin_remove_rows(
         &mut self,
-        parent: &qt_type_lib::QModelIndex,
+        parent: &qtbridge_type_lib::QModelIndex,
         first: i32,
         last: i32,
     ) {
@@ -228,7 +228,7 @@ fn role_names(&self) -> qt_type_lib::QHash<i32, qt_type_lib::QByteArray> {
         row: i32,
         column: i32,
         ptr: usize,
-    ) -> qt_type_lib::QModelIndex {
+    ) -> qtbridge_type_lib::QModelIndex {
         let proxy = self.get_rust_proxy_mut();
         unsafe { proxy.base_create_index(row, column, ptr) }
     }

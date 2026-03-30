@@ -28,7 +28,7 @@ mod qvariant {
     ///
     /// # Examples
     /// ```
-    /// # use qt_type_lib::QVariant;
+    /// # use qtbridge_type_lib::QVariant;
     /// let var = QVariant::from("123");
     /// let converted: i32 = var.try_into()
     ///     .expect("Conversion failed");
@@ -44,7 +44,7 @@ mod qvariant {
     ///
     /// # Examples
     /// ```
-    /// # use qt_type_lib::QVariant;
+    /// # use qtbridge_type_lib::QVariant;
     /// let var_default = QVariant::default();
     /// assert!(!var_default.is_valid());
     /// let var_int = QVariant::from(42);
@@ -61,7 +61,7 @@ mod qvariant {
     ///
     /// # Examples
     /// ```
-    /// # use qt_type_lib::{QMetaTypeGet, QVariant};
+    /// # use qtbridge_type_lib::{QMetaTypeGet, QVariant};
     /// let var = QVariant::from(0.5f64);
     /// assert_eq!(var.meta_type().id(), f64::get_qmetatype().id());
     /// ```

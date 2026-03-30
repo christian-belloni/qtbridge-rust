@@ -121,7 +121,7 @@ impl TypeName for QtGenericTypeWithoutArgs {
     }
 
     fn path_before_name(&self) -> Option<&str> {
-        Some("qt_type_lib")
+        Some("qtbridge_type_lib")
     }
 }
 
@@ -259,7 +259,7 @@ impl TypeName for QtGenericTypeWithArgs {
     }
 
     fn path_before_name(&self) -> Option<&str> {
-        Some("qt_type_lib")
+        Some("qtbridge_type_lib")
     }
 }
 

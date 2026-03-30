@@ -41,7 +41,7 @@ impl QObjectModuleBuilder {
     }
 
     pub fn new(origin: CallOrigin) -> Self {
-        qt_type_lib::init();
+        qtbridge_type_lib::init();
         Self {
             params: QObjectMacroParams::default(),
             origin,
@@ -125,7 +125,7 @@ impl QObjectModuleBuilder {
         }
         // TODO: return items below as high level AST but not TokenStreams
         output_module_items.push(syn::parse2(qmeta_info_impl_tokens)?);             // impl qtbridge::qtbridge_runtime::QMetaInfo
-        output_module_items.push(syn::parse2(qmetatype_get_impl_tokens)?);          // impl qtbridge::qt_type_lib::QMetaTypeGet
+        output_module_items.push(syn::parse2(qmetatype_get_impl_tokens)?);          // impl qtbridge::qtbridge_type_lib::QMetaTypeGet
 
         if !self.struct_is_generic() {
             let qml_registration = qml_element(&self.struct_ident, &self.params)

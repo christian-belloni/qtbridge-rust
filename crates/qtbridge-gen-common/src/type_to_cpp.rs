@@ -129,7 +129,7 @@ pub fn path_to_cpp(src: &syn::Path) -> syn::Result<String> {
                 let category = match seg0.ident.to_string().as_str() {
                     "std" => TypeCategory::Standard,
                     "cxx" => TypeCategory::Cxx,
-                    "qt_type_lib" => TypeCategory::Qt,
+                    "qtbridge_type_lib" => TypeCategory::Qt,
                     _ => return Err(syn::Error::new(segments.span(), format!("Unsupported module in multi-segment type path: {}", seg0.ident))),
                 };
                 let result = match &seg1.arguments {

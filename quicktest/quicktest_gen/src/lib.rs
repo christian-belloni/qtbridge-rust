@@ -98,7 +98,7 @@ pub fn run_quick_test(attr: TokenStream, item: TokenStream) -> TokenStream {
                 syn::parse_quote!({
                     #common_setup
 
-                    use qtbridge::qt_type_lib::QVariantMap;
+                    use qtbridge::qtbridge_type_lib::QVariantMap;
                     use quicktest::quick_test_main_with_properties;
                     use qtbridge::QObjectHolder;
 

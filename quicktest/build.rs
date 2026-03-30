@@ -70,7 +70,7 @@ fn main() {
         .flag_if_supported("/permissive-")
         .include("../crates/")
         .include("src")
-        .include("../crates/qt_type_lib/src/")
+        .include("../crates/qtbridge-type-lib/src/")
         .include(out_dir);
 
     let qt_include_dirs = qt_include_dirs(qt_modules, true);

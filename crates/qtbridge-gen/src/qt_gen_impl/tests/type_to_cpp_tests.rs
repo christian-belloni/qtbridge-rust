@@ -7,7 +7,7 @@ use syn::parse_str;
 
 #[test]
 fn require_that_type_to_cpp_returns_expected_string_when_called_on_supported_types_values() {
-    qt_type_lib::init();
+    qtbridge_type_lib::init();
     let cases = [
         // Primitive types
         ("usize", "size_t"),
@@ -36,13 +36,13 @@ fn require_that_type_to_cpp_returns_expected_string_when_called_on_supported_typ
         ("QVariant",    "QVariant"),
         ("QObject",     "QObject"),
 
-        // Qt types qualified with qt_type_lib
-        ("qt_type_lib::QMetaObject", "QMetaObject"),
-        ("qt_type_lib::QModelIndex", "QModelIndex"),
-        ("qt_type_lib::QString",     "QString"),
-        ("qt_type_lib::QStringList", "QStringList"),
-        ("qt_type_lib::QVariant",    "QVariant"),
-        ("qt_type_lib::QObject",     "QObject"),
+        // Qt types qualified with qtbridge_type_lib
+        ("qtbridge_type_lib::QMetaObject", "QMetaObject"),
+        ("qtbridge_type_lib::QModelIndex", "QModelIndex"),
+        ("qtbridge_type_lib::QString",     "QString"),
+        ("qtbridge_type_lib::QStringList", "QStringList"),
+        ("qtbridge_type_lib::QVariant",    "QVariant"),
+        ("qtbridge_type_lib::QObject",     "QObject"),
 
         // Vectors
         ("Vec<i32>",     "rust::Vec<int32_t>"),

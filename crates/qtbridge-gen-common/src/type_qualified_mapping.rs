@@ -21,8 +21,8 @@ pub enum CallOrigin {
 impl CallOrigin {
     pub fn type_module(&self) -> Path {
         match self {
-            CallOrigin::External => parse_quote!(qtbridge::qt_type_lib),
-            CallOrigin::Internal => parse_quote!(qt_type_lib),
+            CallOrigin::External => parse_quote!(qtbridge::qtbridge_type_lib),
+            CallOrigin::Internal => parse_quote!(qtbridge_type_lib),
         }
     }
 
@@ -72,7 +72,7 @@ impl TypeQualifiedMapping {
         let mut new = ty.dyn_type_info().complement_partially_qualified_path(src)?;
         if let CallOrigin::External = &self.source
             && let Some(first_seg) = new.segments.first()
-                && (first_seg.ident == "qt_type_lib" || first_seg.ident == "qt_ifaces") {
+                && (first_seg.ident == "qtbridge_type_lib" || first_seg.ident == "qt_ifaces") {
                     new.segments.insert(
                         0,
                         PathSegment {

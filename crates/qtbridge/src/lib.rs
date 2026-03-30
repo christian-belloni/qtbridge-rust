@@ -22,7 +22,7 @@ pub use qtbridge_gen;
 #[doc(hidden)]
 pub use qt_ifaces;
 #[doc(hidden)]
-pub use qt_type_lib;
+pub use qtbridge_type_lib;
 #[doc(hidden)]
 pub use qtbridge_build_common;
 

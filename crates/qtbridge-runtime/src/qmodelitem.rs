@@ -3,7 +3,7 @@
 
 use std::collections::HashMap;
 
-use qt_type_lib::QVariant;
+use qtbridge_type_lib::QVariant;
 
 #[doc(hidden)]
 pub trait QVariantConvertible : Sized {

@@ -4,8 +4,8 @@
 use crate::QObjectHolder;
 use crate::QMetaInfo;
 use crate::qrustproxy::ConstructionMode;
-use qt_type_lib::QObject;
-use qt_type_lib::QMetaTypeGet;
+use qtbridge_type_lib::QObject;
+use qtbridge_type_lib::QMetaTypeGet;
 pub trait QmlRegister : QMetaTypeGet + QMetaInfo + QObjectHolder + Default
 {
     const URI: &str;
@@ -24,7 +24,7 @@ pub trait QmlRegister : QMetaTypeGet + QMetaInfo + QObjectHolder + Default
         };
 
         if Self::IS_SINGLETON {
-            qt_type_lib::qml_register_singleton(
+            qtbridge_type_lib::qml_register_singleton(
                 <Self as QMetaTypeGet>::get_qmetatype(),
                 monomorphize_singleton_ctor::<Self>(),
                 Self::URI.as_bytes(),
@@ -34,7 +34,7 @@ pub trait QmlRegister : QMetaTypeGet + QMetaInfo + QObjectHolder + Default
                 meta_obj,
             )
         } else {
-            qt_type_lib::qml_register_element(
+            qtbridge_type_lib::qml_register_element(
                 Self::get_qmetatype(),
                 Self::get_qmetatype_list_of_cpp_proxy(),
                 Self::get_size_of_cpp_proxy() as u32,

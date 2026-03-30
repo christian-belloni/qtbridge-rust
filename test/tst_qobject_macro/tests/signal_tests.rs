@@ -3,7 +3,7 @@
 #![cfg(test)]
 mod common;
 
-use qtbridge::qt_type_lib::{QSignalSpy, QVariant};
+use qtbridge::qtbridge_type_lib::{QSignalSpy, QVariant};
 use qtbridge::{qobject, QObjectHolder};
 use common::{MAX_SAFE_INTEGER, MIN_SAFE_INTEGER};
 

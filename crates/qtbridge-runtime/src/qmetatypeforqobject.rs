@@ -5,7 +5,7 @@ use std::rc::Rc;
 use std::cell::RefCell;
 use std::any::TypeId;
 use std::collections::HashMap;
-use qt_type_lib::{QMetaTypeInterface, QMetaTypeFlag, QMetaObject, QObject};
+use qtbridge_type_lib::{QMetaTypeInterface, QMetaTypeFlag, QMetaObject, QObject};
 use crate::{QObjectHolder, QMetaInfo};
 use crate::qrustproxy::ConstructionMode;
 

@@ -5,16 +5,16 @@ use super::proxy_rust::QListModelProxyRust;
 #[cxx::bridge]
 pub mod ffi {
     unsafe extern "C++" {
-        include!("qt_type_lib/src/generated/core/qhash/cpp/qhash_i32_qbytearray.h");
-        type QHash_i32_QByteArray = qt_type_lib::QHash_i32_QByteArray;
-        include!("qt_type_lib/src/generated/core/qmetaobject/cpp/qmetaobject.h");
-        type QMetaObject = qt_type_lib::QMetaObject;
-        include!("qt_type_lib/src/generated/core/qmetatype/cpp/qmetatype.h");
-        type QMetaType = qt_type_lib::QMetaType;
-        include!("qt_type_lib/src/generated/core/qmodelindex/cpp/qmodelindex.h");
-        type QModelIndex = qt_type_lib::QModelIndex;
-        include!("qt_type_lib/src/generated/core/qvariant/cpp/qvariant.h");
-        type QVariant = qt_type_lib::QVariant;
+        include!("qtbridge-type-lib/src/generated/core/qhash/cpp/qhash_i32_qbytearray.h");
+        type QHash_i32_QByteArray = qtbridge_type_lib::QHash_i32_QByteArray;
+        include!("qtbridge-type-lib/src/generated/core/qmetaobject/cpp/qmetaobject.h");
+        type QMetaObject = qtbridge_type_lib::QMetaObject;
+        include!("qtbridge-type-lib/src/generated/core/qmetatype/cpp/qmetatype.h");
+        type QMetaType = qtbridge_type_lib::QMetaType;
+        include!("qtbridge-type-lib/src/generated/core/qmodelindex/cpp/qmodelindex.h");
+        type QModelIndex = qtbridge_type_lib::QModelIndex;
+        include!("qtbridge-type-lib/src/generated/core/qvariant/cpp/qvariant.h");
+        type QVariant = qtbridge_type_lib::QVariant;
         include!("qt_ifaces/src/qlist_model/proxy_rust_bridge.rs.h");
         type QListModelProxyRust = super::QListModelProxyRust;
     }

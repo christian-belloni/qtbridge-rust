@@ -1,13 +1,13 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use qt_type_lib::{QMap_QString_QVariant, QObject};
+use qtbridge_type_lib::{QMap_QString_QVariant, QObject};
 
 #[cxx::bridge]
 mod ffi {
 
     unsafe extern "C++" {
-        include!("qt_type_lib/src/generated/core/qmap/cpp/qmap_qstring_qvariant.h");
+        include!("qtbridge-type-lib/src/generated/core/qmap/cpp/qmap_qstring_qvariant.h");
         type QMap_QString_QVariant = super::QMap_QString_QVariant;
         type QObject = super::QObject;
     }

@@ -28,7 +28,7 @@ mod qmap {
     /// Removes all the items from the map.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::QMap;
+    /// # use qtbridge_type_lib::QMap;
     /// let mut map = QMap::from([
     ///     (1, "One"),
     ///     (2, "Two"),
@@ -47,7 +47,7 @@ mod qmap {
     /// If an entry with the same key already exists, its value is replaced with the one provided in the argument.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::{QMap, QString};
+    /// # use qtbridge_type_lib::{QMap, QString};
     /// let mut map = QMap::<i32, QString>::default();
     /// map.insert(&91, &"a".into());
     /// assert_eq!(map[&91], "a");
@@ -62,7 +62,7 @@ mod qmap {
     /// Returns true if the map contains no items; otherwise returns false.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::{QMap, QString};
+    /// # use qtbridge_type_lib::{QMap, QString};
     /// let mut map = QMap::<i32, QString>::default();
     /// assert!(map.is_empty());
     /// map.insert(&92, &"b".into());
@@ -78,7 +78,7 @@ mod qmap {
     /// Returns 1 if the key existed in the map, and 0 otherwise.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::{QMap, QString};
+    /// # use qtbridge_type_lib::{QMap, QString};
     /// let mut map = QMap::<i32, QString>::from([
     ///     (1, "One"),
     ///     (2, "Two"),
@@ -98,7 +98,7 @@ mod qmap {
     /// Returns the number of (key, value) pairs in the map as i32.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::{QMap, QString};
+    /// # use qtbridge_type_lib::{QMap, QString};
     /// let mut map = QMap::<i32, QString>::default();
     /// assert_eq!(map.len(), 0);
     /// map.insert(&42, &"Forty two".into());
@@ -119,7 +119,7 @@ mod qmap {
     /// Returns a list containing all the keys in the map in ascending order.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::{QMap, QString};
+    /// # use qtbridge_type_lib::{QMap, QString};
     /// let map = QMap::<i32, QString>::from([
     ///     (2, "Two"),
     ///     (3, "Three"),
@@ -137,7 +137,7 @@ mod qmap {
     /// Returns a list containing all the values in the map, in ascending order of their keys.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::{QMap, QString};
+    /// # use qtbridge_type_lib::{QMap, QString};
     /// let map = QMap::<i32, QString>::from([
     ///     (3, "Three"),
     ///     (1, "One"),
@@ -155,7 +155,7 @@ mod qmap {
     /// Returns the value associated with the specified key.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::{QMap, QString};
+    /// # use qtbridge_type_lib::{QMap, QString};
     /// let mut map = QMap::<i32, QString>::from([
     ///     (1, "a"),
     ///     (2, "b"),

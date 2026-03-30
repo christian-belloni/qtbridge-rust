@@ -25,7 +25,7 @@ mod qstring {
     /// Create new string from the input &str.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::QString;
+    /// # use qtbridge_type_lib::QString;
     /// let st = QString::new("abc");
     /// assert_eq!(st, "abc");
     /// ```
@@ -39,7 +39,7 @@ mod qstring {
     /// Returns a UTF-8 representation of the string as a [QByteArray].
     /// # Examples
     /// ```
-    /// # use qt_type_lib::QString;
+    /// # use qtbridge_type_lib::QString;
     /// let st = QString::new("Hello world!");
     /// let utf8 = st.to_utf8();
     /// assert_eq!(utf8[6], b'w');

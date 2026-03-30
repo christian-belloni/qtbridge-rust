@@ -5,7 +5,7 @@ mod common;
 
 use std::fmt::Debug;
 use qtbridge::{QApp, QObjectHolder, qobject};
-use qtbridge::qt_type_lib::QVariant;
+use qtbridge::qtbridge_type_lib::QVariant;
 use common::{MAX_SAFE_INTEGER, MIN_SAFE_INTEGER, capitalize_first_char, get_type_name};
 
 #[qobject]

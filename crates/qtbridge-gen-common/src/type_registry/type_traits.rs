@@ -63,7 +63,7 @@ impl From<i32> for MetaTypeId {
 pub trait TypeName {
     fn name(&self) -> &str;
 
-    /// Return the full type name but without leading path segments (e.g. without 'qt_type_lib' or 'qtbrdige')
+    /// Return the full type name but without leading path segments (e.g. without 'qtbridge_type_lib' or 'qtbrdige')
     /// Needed for generic types that have generic arguments in angle brackets.
     fn full_name(&self) -> &str {
         self.name()

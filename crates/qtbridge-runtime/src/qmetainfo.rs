@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use crate::{DynamicMetaObjectBuilder};
-use qt_type_lib::QMetaObject;
+use qtbridge_type_lib::QMetaObject;
 use std::any::TypeId;
 use std::cell::RefCell;
 use std::collections::HashMap;

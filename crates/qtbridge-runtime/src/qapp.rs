@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use cxx::UniquePtr;
-use qt_type_lib::{QGuiApplication, QQmlApplicationEngine, QString, QVariant, QVariantMap};
+use qtbridge_type_lib::{QGuiApplication, QQmlApplicationEngine, QString, QVariant, QVariantMap};
 
 /// Runs a minimal application from an embedded QML file.
 ///

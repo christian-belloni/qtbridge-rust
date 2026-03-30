@@ -55,7 +55,7 @@ mod qlist {
     /// Inserts value at the end of the list.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::QList;
+    /// # use qtbridge_type_lib::QList;
     /// let mut list = QList::default();
     /// list.append(1);
     /// list.append(2);
@@ -73,7 +73,7 @@ mod qlist {
     /// Returns the maximum number of items that can be stored in the list without forcing a reallocation.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::QList;
+    /// # use qtbridge_type_lib::QList;
     /// let mut list = QList::default();
     /// assert_eq!(0, list.capacity());
     /// list.append(1);
@@ -91,7 +91,7 @@ mod qlist {
     /// Removes all the elements from the list.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::QList;
+    /// # use qtbridge_type_lib::QList;
     /// let mut list = QList::from([1, 2, 3]);
     /// assert!(!list.is_empty());
     /// list.clear();
@@ -107,7 +107,7 @@ mod qlist {
     /// Returns true if the list contains an occurrence of value; otherwise returns false.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::QList;
+    /// # use qtbridge_type_lib::QList;
     /// let list = QList::from([10, 20, 30]);
     /// assert!(list.contains(&20));
     /// assert!(!list.contains(&40));
@@ -121,7 +121,7 @@ mod qlist {
     /// Returns true if the list has size 0; otherwise returns false.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::QList;
+    /// # use qtbridge_type_lib::QList;
     /// let mut list = QList::default();
     /// assert!(list.is_empty());
     ///
@@ -135,7 +135,7 @@ mod qlist {
     /// Inserts value at the end of the list.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::QList;
+    /// # use qtbridge_type_lib::QList;
     /// let mut list = QList::from([1, 2, 3]);
     /// list.push_back(4);
     /// assert_eq!(list, [1, 2, 3, 4]);
@@ -150,7 +150,7 @@ mod qlist {
     /// Removes n elements from the list, starting at index position i.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::QList;
+    /// # use qtbridge_type_lib::QList;
     /// let mut list = QList::from([1, 2, 3, 4, 5, 6, 7, 8, 9]);
     /// list.remove(3, 4);
     /// assert_eq!(list, [1, 2, 3, 8, 9]);
@@ -165,7 +165,7 @@ mod qlist {
     /// Attempts to allocate memory for at least size elements.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::QList;
+    /// # use qtbridge_type_lib::QList;
     /// let mut list = QList::<i32>::default();
     /// list.reserve(100);
     /// assert_eq!(list.capacity(), 100);
@@ -180,7 +180,7 @@ mod qlist {
     /// Returns the number of items in the list as isize.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::QList;
+    /// # use qtbridge_type_lib::QList;
     /// let list = QList::from([1, 2, 3, 4, 5, 6, 7]);
     /// assert_eq!(list.len(), 7);
     /// ```
@@ -194,7 +194,7 @@ mod qlist {
     /// Returns the number of items in the list as usize.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::QList;
+    /// # use qtbridge_type_lib::QList;
     /// let list = QList::from([1, 2, 3, 4, 5, 6, 7, 8]);
     /// assert_eq!(list.len(), 8);
     /// ```
@@ -205,7 +205,7 @@ mod qlist {
     /// Returns a const reference to the first item in the list. This function assumes that the list isn't empty.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::QList;
+    /// # use qtbridge_type_lib::QList;
     /// let list = QList::from([1, 2, 3]);
     /// assert_eq!(*list.first(), 1);
     /// ```
@@ -219,7 +219,7 @@ mod qlist {
     /// Returns a const reference to the last item in the list. This function assumes that the list isn't empty.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::QList;
+    /// # use qtbridge_type_lib::QList;
     /// let list = QList::from([1, 2, 3]);
     /// assert_eq!(*list.last(), 3);
     pub fn last(&self) -> &T {

@@ -29,7 +29,7 @@ mod qhash {
     /// Removes all items from the QHash and frees up all memory used by it.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::QHash;
+    /// # use qtbridge_type_lib::QHash;
     /// let mut qhash = QHash::from([
     ///     (1, "One"),
     ///     (2, "Two"),
@@ -47,7 +47,7 @@ mod qhash {
     /// Returns true if the QHash object contains an item with the key; otherwise returns false.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::{QByteArray, QHash};
+    /// # use qtbridge_type_lib::{QByteArray, QHash};
     /// let qhash = QHash::from([
     ///     (10, "ten"),
     ///     (20, "twenty"),
@@ -66,7 +66,7 @@ mod qhash {
     /// If the map has this key present, the value is updated with the one from the argument.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::{QByteArray, QHash};
+    /// # use qtbridge_type_lib::{QByteArray, QHash};
     /// let mut qhash = QHash::<i32, QByteArray>::default();
     /// qhash.insert(&42, &"abc".into());
     /// assert_eq!(qhash[&42], "abc");
@@ -81,7 +81,7 @@ mod qhash {
     /// # Returns true if the QHash object contains no items; otherwise returns false.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::{QByteArray, QHash};
+    /// # use qtbridge_type_lib::{QByteArray, QHash};
     /// let mut qhash = QHash::<i32, QByteArray>::default();
     /// assert!(qhash.is_empty());
     /// qhash.insert(&93, &"c".into());
@@ -97,7 +97,7 @@ mod qhash {
     /// Returns true if the key exists in the QHash object and the item has been removed, and false otherwise.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::{QByteArray, QHash};
+    /// # use qtbridge_type_lib::{QByteArray, QHash};
     /// let mut qhash = QHash::<i32, QByteArray>::from([
     ///     (1, "One"),
     ///     (2, "Two"),
@@ -119,7 +119,7 @@ mod qhash {
     /// Returns the number of items in the QHash object as isize.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::{QByteArray, QHash};
+    /// # use qtbridge_type_lib::{QByteArray, QHash};
     /// let mut qhash = QHash::<i32, QByteArray>::default();
     /// assert_eq!(qhash.len(), 0);
     /// qhash.insert(&42, &"Forty two".into());
@@ -141,7 +141,7 @@ mod qhash {
     /// The order is guaranteed to be the same as that used by values().
     /// # Examples
     /// ```
-    /// # use qt_type_lib::{QByteArray, QHash};
+    /// # use qtbridge_type_lib::{QByteArray, QHash};
     /// let qhash = QHash::<i32, QByteArray>::from([
     ///     (2, "Two"),
     ///     (3, "Three"),
@@ -163,7 +163,7 @@ mod qhash {
     /// The order is guaranteed to be the same as that used by keys().
     /// # Examples
     /// ```
-    /// # use qt_type_lib::{QByteArray, QHash};
+    /// # use qtbridge_type_lib::{QByteArray, QHash};
     /// let qhash = QHash::<i32, QByteArray>::from([
     ///     (3, "Three"),
     ///     (1, "One"),
@@ -185,7 +185,7 @@ mod qhash {
     /// If the QHash object contains no item with the key, the function returns default-initialized value.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::{QByteArray, QHash};
+    /// # use qtbridge_type_lib::{QByteArray, QHash};
     /// let mut qhash = QHash::<i32, QByteArray>::from([
     ///     (1, "a"),
     ///     (2, "b"),

@@ -56,7 +56,7 @@ fn main() {
         .flag_if_supported("/Zc:__cplusplus")
         .flag_if_supported("/permissive-")
         .include("../")
-        .include("../qt_type_lib/src/")
+        .include("../qtbridge-type-lib/src/")
         .include("src");
 
     let qt_include_dirs = qt_include_dirs(qt_modules, true);

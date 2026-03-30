@@ -5,17 +5,17 @@
 pub mod ffi {
 
     unsafe extern "C++" {
-        include!("qt_type_lib/src/generated/core/qmetaobject/cpp/qmetaobject.h");
-        type QMetaObject = qt_type_lib::QMetaObject;
+        include!("qtbridge-type-lib/src/generated/core/qmetaobject/cpp/qmetaobject.h");
+        type QMetaObject = qtbridge_type_lib::QMetaObject;
 
-        include!("qt_type_lib/src/generated/core/qmetatype/cpp/qmetatype.h");
-        type QMetaType = qt_type_lib::QMetaType;
+        include!("qtbridge-type-lib/src/generated/core/qmetatype/cpp/qmetatype.h");
+        type QMetaType = qtbridge_type_lib::QMetaType;
 
-        include!("qt_type_lib/src/generated/core/qobject/cpp/qobject.h");
-        type QObject = qt_type_lib::QObject;
+        include!("qtbridge-type-lib/src/generated/core/qobject/cpp/qobject.h");
+        type QObject = qtbridge_type_lib::QObject;
 
-        include!("qt_type_lib/src/generated/core/qvariant/cpp/qvariant.h");
-        type QVariant = qt_type_lib::QVariant;
+        include!("qtbridge-type-lib/src/generated/core/qvariant/cpp/qvariant.h");
+        type QVariant = qtbridge_type_lib::QVariant;
     }
 
     unsafe extern "C++" {

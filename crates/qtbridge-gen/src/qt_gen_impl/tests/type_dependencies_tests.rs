@@ -12,7 +12,7 @@ use crate::qt_gen_impl::tests::tst_assert::assert_tokens_eq;
 
 #[test]
 fn require_that_type_tokens_to_cpp_includes_returns_output_that_agrees_with_reference() {
-    qt_type_lib::init();
+    qtbridge_type_lib::init();
 
     let type_tokens = [
         "i32",
@@ -34,11 +34,11 @@ fn require_that_type_tokens_to_cpp_includes_returns_output_that_agrees_with_refe
 
     let expected = [
         "<cstdint>",
-        r#""qt_type_lib/src/generated/core/qlist/cpp/qlist_qstring.h""#,
-        r#""qt_type_lib/src/generated/core/qmetaobject/cpp/qmetaobject.h""#,
-        r#""qt_type_lib/src/generated/core/qmodelindex/cpp/qmodelindex.h""#,
-        r#""qt_type_lib/src/generated/core/qstring/cpp/qstring.h""#,
-        r#""qt_type_lib/src/generated/core/qvariant/cpp/qvariant.h""#,
+        r#""qtbridge-type-lib/src/generated/core/qlist/cpp/qlist_qstring.h""#,
+        r#""qtbridge-type-lib/src/generated/core/qmetaobject/cpp/qmetaobject.h""#,
+        r#""qtbridge-type-lib/src/generated/core/qmodelindex/cpp/qmodelindex.h""#,
+        r#""qtbridge-type-lib/src/generated/core/qstring/cpp/qstring.h""#,
+        r#""qtbridge-type-lib/src/generated/core/qvariant/cpp/qvariant.h""#,
          r#""rust/cxx.h""#,
     ]
     .iter()
@@ -52,7 +52,7 @@ fn require_that_type_tokens_to_cpp_includes_returns_output_that_agrees_with_refe
 
 #[test]
 fn require_that_type_tokens_to_bridge_imports_returns_output_that_agrees_with_reference() {
-    qt_type_lib::init();
+    qtbridge_type_lib::init();
 
     let type_tokens = [
         "i32",
@@ -73,20 +73,20 @@ fn require_that_type_tokens_to_bridge_imports_returns_output_that_agrees_with_re
     .unwrap();
 
     let expected = quote! {
-        include!("qt_type_lib/src/generated/core/qlist/cpp/qlist_qstring.h");
-        type QList_QString = qt_type_lib::QList_QString;
+        include!("qtbridge-type-lib/src/generated/core/qlist/cpp/qlist_qstring.h");
+        type QList_QString = qtbridge_type_lib::QList_QString;
 
-        include!("qt_type_lib/src/generated/core/qmetaobject/cpp/qmetaobject.h");
-        type QMetaObject = qt_type_lib::QMetaObject;
+        include!("qtbridge-type-lib/src/generated/core/qmetaobject/cpp/qmetaobject.h");
+        type QMetaObject = qtbridge_type_lib::QMetaObject;
 
-        include!("qt_type_lib/src/generated/core/qmodelindex/cpp/qmodelindex.h");
-        type QModelIndex = qt_type_lib::QModelIndex;
+        include!("qtbridge-type-lib/src/generated/core/qmodelindex/cpp/qmodelindex.h");
+        type QModelIndex = qtbridge_type_lib::QModelIndex;
 
-        include!("qt_type_lib/src/generated/core/qstring/cpp/qstring.h");
-        type QString = qt_type_lib::QString;
+        include!("qtbridge-type-lib/src/generated/core/qstring/cpp/qstring.h");
+        type QString = qtbridge_type_lib::QString;
 
-        include!("qt_type_lib/src/generated/core/qvariant/cpp/qvariant.h");
-        type QVariant = qt_type_lib::QVariant;
+        include!("qtbridge-type-lib/src/generated/core/qvariant/cpp/qvariant.h");
+        type QVariant = qtbridge_type_lib::QVariant;
     };
 
     let imports = qt_types_to_bridge_imports(type_tokens.iter_qt(), false).unwrap();
@@ -99,7 +99,7 @@ fn require_that_type_tokens_to_bridge_imports_returns_output_that_agrees_with_re
 
 #[test]
 fn require_that_type_tokens_to_rust_import_paths_returns_output_that_agrees_with_reference() {
-    qt_type_lib::init();
+    qtbridge_type_lib::init();
 
     let type_tokens = [
         "i32",
@@ -120,7 +120,7 @@ fn require_that_type_tokens_to_rust_import_paths_returns_output_that_agrees_with
     .unwrap();
 
     let expected = quote! {
-        use qt_type_lib::{QMetaObject, QModelIndex, QString, QStringList, QVariant};
+        use qtbridge_type_lib::{QMetaObject, QModelIndex, QString, QStringList, QVariant};
     };
 
     let actual = qt_types_to_rust_import_paths(type_tokens.iter_qt())

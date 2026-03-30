@@ -9,5 +9,5 @@ pub fn get_include_path(path_in_gen: &str, submod_name: &str) -> Result<String, 
         .collect::<Vec<_>>()
         .join("/");
     let filename = naming::cpp::filename::type_gen_header(submod_name);
-    Ok(format!("qt_type_lib/src/generated/{relative_path}/cpp/{filename}"))
+    Ok(format!("qtbridge-type-lib/src/generated/{relative_path}/cpp/{filename}"))
 }

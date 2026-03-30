@@ -9,12 +9,12 @@ use qtbridge_gen_common::type_qualified_mapping::CallOrigin;
 
 #[test]
 fn require_that_get_qualified_args_adds_qtbridge_to_path_when_it_is_qt_type() {
-    qt_type_lib::init();
+    qtbridge_type_lib::init();
     let src: syn::FnArg = parse_quote!{
         parent: &QVariant
     };
     let expected: syn::FnArg = parse_quote! {
-        parent: &qtbridge::qt_type_lib::QVariant
+        parent: &qtbridge::qtbridge_type_lib::QVariant
     };
 
     let actual = get_qualified_args(iter::once(&src), CallOrigin::External).unwrap();
@@ -34,14 +34,14 @@ fn require_that_get_qualified_args_keeps_argument_unchanged_when_it_is_standard_
 
 #[test]
 fn require_that_get_qualified_args_returns_type_path_that_agrees_with_reference() {
-    qt_type_lib::init();
+    qtbridge_type_lib::init();
     let cases = [
         ("arg: i32", "arg: i32"),
-        ("arg: QByteArray", "arg: qtbridge::qt_type_lib::QByteArray"),
+        ("arg: QByteArray", "arg: qtbridge::qtbridge_type_lib::QByteArray"),
         ("arg: Vec<f64>", "arg: Vec<f64>"),
-        ("arg: Vec<QString>", "arg: Vec<qtbridge::qt_type_lib::QString>"),
-        ("arg: &Vec<qt_type_lib::QByteArray>", "arg: &Vec<qtbridge::qt_type_lib::QByteArray>"),
-        ("arg: &Vec<Vec<Vec<&[QVariant]>>>", "arg: &Vec<Vec<Vec<&[qtbridge::qt_type_lib::QVariant]>>>"),
+        ("arg: Vec<QString>", "arg: Vec<qtbridge::qtbridge_type_lib::QString>"),
+        ("arg: &Vec<qtbridge_type_lib::QByteArray>", "arg: &Vec<qtbridge::qtbridge_type_lib::QByteArray>"),
+        ("arg: &Vec<Vec<Vec<&[QVariant]>>>", "arg: &Vec<Vec<Vec<&[qtbridge::qtbridge_type_lib::QVariant]>>>"),
     ];
 
     for (input_str, expected_str) in cases {
@@ -56,12 +56,12 @@ fn require_that_get_qualified_args_returns_type_path_that_agrees_with_reference(
 
 #[test]
 fn require_that_get_qualified_return_type_adds_qtbridge_to_path_when_it_is_qt_type() {
-    qt_type_lib::init();
+    qtbridge_type_lib::init();
     let src: syn::ReturnType = parse_quote!{
         -> QStringList
     };
     let expected: syn::ReturnType = parse_quote! {
-        -> qtbridge::qt_type_lib::QStringList
+        -> qtbridge::qtbridge_type_lib::QStringList
     };
 
     let actual = get_qualified_return_type(&src, CallOrigin::External).unwrap();

@@ -57,7 +57,7 @@ type BridgeInclude = CppInclude;
 /// pub mod ffi {
 ///     unsafe extern "C++" {
 ///     //  =========================================
-///         include!("qt_type_lib/src/generated/core/qmetatypeinterface/cpp/qmetatypeinterface.h");
+///         include!("qtbridge-type-lib/src/generated/core/qmetatypeinterface/cpp/qmetatypeinterface.h");
 ///         #[namespace = "QtPrivate"]
 ///         type QMetaTypeInterface = super::QMetaTypeInterface;
 ///     //  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -143,7 +143,7 @@ pub fn qt_types_to_bridge_imports<'a>(types: impl Iterator<Item = &'a QtTypeSpan
             return Err(syn::Error::new(ty.span(), "Qualified path has no components"));
         };
 
-        if is_local_import && *first_comp == "qt_type_lib" {
+        if is_local_import && *first_comp == "qtbridge_type_lib" {
             *first_comp = "crate";
         }
 

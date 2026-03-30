@@ -9,7 +9,7 @@ description = "Utilities to test interoparbility between rust and qml"
 
 [dependencies]
 cxx.workspace = true
-qt_type_lib = { path = "../crates/qt_type_lib" }
+qtbridge-type-lib = { path = "../crates/qtbridge-type-lib" }
 quicktest_gen = { path = "quicktest_gen" }
 
 [build-dependencies]

@@ -21,7 +21,7 @@ mod qbytearray {
     /// Converts a string slice to a byte slice.
     /// # Examples
     /// ```
-    /// # use qt_type_lib::QByteArray;
+    /// # use qtbridge_type_lib::QByteArray;
     /// let ba = QByteArray::from("abc");
     /// assert_eq!(ba.as_bytes(), b"abc");
     /// ```
@@ -40,7 +40,7 @@ mod qbytearray {
     /// In addition, QByteArray ensures that the byte at position size() is always '\0',
     /// /// # Examples
     /// ```
-    /// # use qt_type_lib::QByteArray;
+    /// # use qtbridge_type_lib::QByteArray;
     /// let ba = QByteArray::from("Hello");
     /// assert_eq!(ba[0], b'H');
     /// assert_eq!(ba[4], b'o');

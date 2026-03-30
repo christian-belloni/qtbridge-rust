@@ -1,7 +1,7 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use qt_type_lib::QVariant;
+use qtbridge_type_lib::QVariant;
 
 #[doc(hidden)]
 pub fn slot_callback_for<T>(this_callback: fn(&mut T, &[*const u8], &[*mut u8])) -> fn(*mut u8, &[*const u8], &[*mut u8]) {

@@ -52,7 +52,7 @@ impl TypeName for QtAliasToMonomorphedType {
     }
 
     fn path_before_name(&self) -> Option<&str> {
-        Some("qt_type_lib")
+        Some("qtbridge_type_lib")
     }
 }
 

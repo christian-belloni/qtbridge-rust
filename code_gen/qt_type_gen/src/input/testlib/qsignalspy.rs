@@ -3,7 +3,7 @@ use std::pin::Pin;
 use cxx::UniquePtr;
 use crate::{QObject, QVariantList};
 
-// TODO: move from qt_type_lib to separate tests-related crate?
+// TODO: move from qtbridge_type_lib to separate tests-related crate?
 
 #[qt_gen::bridge]
 mod qsignalspy {

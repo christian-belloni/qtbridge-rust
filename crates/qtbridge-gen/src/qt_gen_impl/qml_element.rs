@@ -35,7 +35,7 @@ pub fn qml_element(struct_ident: &Ident, params: &QObjectMacroParams) -> syn::Re
     let qmlregister_code = if params.link_me {
         quote! {
             // TODO: make auto registration via 'linkme' dependency an optional cargo feature?
-            #[linkme::distributed_slice(qtbridge::qt_type_lib::QML_REGISTER_CALLBACKS)]
+            #[linkme::distributed_slice(qtbridge::qtbridge_type_lib::QML_REGISTER_CALLBACKS)]
             #[allow(non_camel_case_types)]
             fn #qml_register_fn_indent() {
                 <#struct_ident as qtbridge::qtbridge_runtime::QmlRegister>::qml_register();

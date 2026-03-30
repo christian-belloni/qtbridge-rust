@@ -5,10 +5,10 @@ use super::proxy_rust::QObjectProxyRust;
 #[cxx::bridge]
 pub mod ffi {
     unsafe extern "C++" {
-        include!("qt_type_lib/src/generated/core/qmetaobject/cpp/qmetaobject.h");
-        type QMetaObject = qt_type_lib::QMetaObject;
-        include!("qt_type_lib/src/generated/core/qmetatype/cpp/qmetatype.h");
-        type QMetaType = qt_type_lib::QMetaType;
+        include!("qtbridge-type-lib/src/generated/core/qmetaobject/cpp/qmetaobject.h");
+        type QMetaObject = qtbridge_type_lib::QMetaObject;
+        include!("qtbridge-type-lib/src/generated/core/qmetatype/cpp/qmetatype.h");
+        type QMetaType = qtbridge_type_lib::QMetaType;
         include!("qt_ifaces/src/qobject/proxy_rust_bridge.rs.h");
         type QObjectProxyRust = super::QObjectProxyRust;
     }

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use qtbridge::{qobject, QApp};
-use qtbridge::qt_type_lib::QVariant;
+use qtbridge::qtbridge_type_lib::QVariant;
 use qtbridge::QObjectHolder;
 use quicktest::run_quick_test;
 
@@ -114,7 +114,7 @@ impl Row {
 mod backend {
 
     use super::Row;
-    use qtbridge::qt_type_lib::{QVariant, QModelIndex};
+    use qtbridge::qtbridge_type_lib::{QVariant, QModelIndex};
     use qtbridge::{QAbstractItemModel, QAbstractItemModelBase};
 
     pub struct Backend {

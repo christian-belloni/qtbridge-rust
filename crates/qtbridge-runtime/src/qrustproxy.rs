@@ -1,7 +1,7 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use qt_type_lib::{QMetaObject, QMetaType};
+use qtbridge_type_lib::{QMetaObject, QMetaType};
 use std::rc::Rc;
 use std::cell::RefCell;
 

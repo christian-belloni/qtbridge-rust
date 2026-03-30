@@ -32,7 +32,7 @@ fn main() {
         .flag_if_supported("/permissive-")
         .include("src")
         .include("../")
-        .include("../qt_type_lib/src/");
+        .include("../qtbridge-type-lib/src/");
 
     FILES_CPP.iter()
         .for_each(|file| {

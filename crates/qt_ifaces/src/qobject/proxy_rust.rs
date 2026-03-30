@@ -5,7 +5,7 @@ use super::proxy_cpp_bridge::{QObjectProxyCpp, ffi};
 use crate::RustObjAccess;
 use qtbridge_runtime::qrustproxy::{QRustProxy, ConstructionMode};
 use qtbridge_runtime::QObjectHolder;
-use qt_type_lib::{QMetaObject, QMetaType};
+use qtbridge_type_lib::{QMetaObject, QMetaType};
 use std::cell::RefCell;
 use std::rc::Rc;
 

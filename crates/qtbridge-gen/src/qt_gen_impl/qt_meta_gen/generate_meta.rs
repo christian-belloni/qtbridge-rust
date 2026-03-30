@@ -119,14 +119,14 @@ fn generate_meta_reg_use_block(signals: &[QSignalInfo], slots: &[QSlotInfo], pro
             let use_ident = &type_lib_imports[0];
             quote!{
                 use #type_library;
-                use qt_type_lib::#use_ident;
+                use qtbridge_type_lib::#use_ident;
             }
         },
         _ => {
             type_lib_imports.sort();
             quote! {
                 use #type_library;
-                use qt_type_lib::{#(#type_lib_imports),*};
+                use qtbridge_type_lib::{#(#type_lib_imports),*};
             }
         }
 

@@ -195,7 +195,7 @@ impl NonGenericSubmoduleGeneratorBase {
         let path_qualified = relative_input_file_path_to_path_qualified(&self.input_file_path)
             .map_err(|err| syn::Error::new(self.struct_ident().span(), format!("Failed get include path for submodule '{}': {err}", self.submod_name())))?;
         let filename = naming::cpp::filename::type_gen_header(&self.submod_name());
-        Ok(format!("qt_type_lib/src/generated/{}/cpp/{filename}", path_qualified.join("/")))
+        Ok(format!("qtbridge-type-lib/src/generated/{}/cpp/{filename}", path_qualified.join("/")))
     }
 
     fn get_struct_bridge_decl(&self) -> Option<TokenStream> {

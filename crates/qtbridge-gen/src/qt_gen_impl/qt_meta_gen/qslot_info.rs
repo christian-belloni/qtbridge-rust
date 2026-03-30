@@ -80,19 +80,19 @@ impl QSlotInfo {
     /// ```ignore
     /// meta_obj.as_mut().register_slot(
     ///     "doSomething",
-    ///     &[i32::get_qmetatype(), qt_type_lib::QString::get_qmetatype()],
-    ///     &qt_type_lib::QString::get_qmetatype(),
+    ///     &[i32::get_qmetatype(), qtbridge_type_lib::QString::get_qmetatype()],
+    ///     &qtbridge_type_lib::QString::get_qmetatype(),
     ///     slot_callback_for::<ThisStruct>(|this, inputs, outputs| {
     ///         let arg_0_ref = unsafe {
     ///             inputs[0usize].cast::<i32>().as_ref()
     ///         }.expect("Argument reference is null");
     ///         let arg_1_ref = unsafe {
-    ///             inputs[1usize].cast::<qt_type_lib::QString>().as_ref()
+    ///             inputs[1usize].cast::<qtbridge_type_lib::QString>().as_ref()
     ///         }.expect("Argument reference is null");
     ///         let arg_0_var: i32 = arg_0_ref.clone();
     ///         let arg_1_var: <String as ToOwned>::Owned = arg_1_ref.into();
     ///         let result = this.do_something(arg_0_var, &arg_1_var);
-    ///         let output_0_ptr: *mut qt_type_lib::QString = outputs[0].cast();
+    ///         let output_0_ptr: *mut qtbridge_type_lib::QString = outputs[0].cast();
     ///         unsafe { std::ptr::write(output_0_ptr, result.into()) }
     ///     }));
     /// ```

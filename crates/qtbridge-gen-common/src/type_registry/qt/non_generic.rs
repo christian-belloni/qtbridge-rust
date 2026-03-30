@@ -43,7 +43,7 @@ impl TypeName for QtNonGenericType {
     }
 
     fn path_before_name(&self) -> Option<&str> {
-        Some("qt_type_lib")
+        Some("qtbridge_type_lib")
     }
 }
 

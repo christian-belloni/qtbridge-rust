@@ -4,7 +4,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use qt_type_lib::{QObject, QVariant, QMetaType, QMetaObject};
+use qtbridge_type_lib::{QObject, QVariant, QMetaType, QMetaObject};
 use crate::qrustproxy::{QRustProxy, ConstructionMode};
 use crate::QMetaInfo;
 use std::collections::HashMap;

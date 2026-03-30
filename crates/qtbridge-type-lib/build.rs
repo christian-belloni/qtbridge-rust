@@ -27,7 +27,7 @@ fn main() {
         builder.include(include_dir);
     }
 
-    builder.compile("qt_type_lib");
+    builder.compile("qtbridge-type-lib");
 
     link_qt_modules(&qt_modules);
 }

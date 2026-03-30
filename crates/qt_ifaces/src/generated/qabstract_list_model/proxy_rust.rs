@@ -7,7 +7,7 @@ use super::proxy_cpp_bridge::{QAbstractListModelProxyCpp, ffi};
 use crate::{RustObjAccess, call_rust_trait_impl, call_cpp_impl};
 use qtbridge_runtime::qrustproxy::{QRustProxy, ConstructionMode};
 use qtbridge_runtime::QObjectHolder;
-use qt_type_lib::{QByteArray, QHash, QMetaObject, QMetaType, QModelIndex, QVariant};
+use qtbridge_type_lib::{QByteArray, QHash, QMetaObject, QMetaType, QModelIndex, QVariant};
 use std::cell::RefCell;
 use std::rc::Rc;
 

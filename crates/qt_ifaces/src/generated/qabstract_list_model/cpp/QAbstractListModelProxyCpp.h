@@ -11,10 +11,10 @@
 #include <cstdint>
 #include "qtbridge-runtime/src/cpp/rustobjectgetter.h"
 #include "qt_ifaces/src/generated/qabstract_list_model/proxy_rust_bridge.rs.h"
-#include "qt_type_lib/src/generated/core/qbytearray/cpp/qbytearray.h"
-#include "qt_type_lib/src/generated/core/qhash/cpp/qhash_i32_qbytearray.h"
-#include "qt_type_lib/src/generated/core/qmodelindex/cpp/qmodelindex.h"
-#include "qt_type_lib/src/generated/core/qvariant/cpp/qvariant.h"
+#include "qtbridge-type-lib/src/generated/core/qbytearray/cpp/qbytearray.h"
+#include "qtbridge-type-lib/src/generated/core/qhash/cpp/qhash_i32_qbytearray.h"
+#include "qtbridge-type-lib/src/generated/core/qmodelindex/cpp/qmodelindex.h"
+#include "qtbridge-type-lib/src/generated/core/qvariant/cpp/qvariant.h"
 
 
 namespace rust::bridge {
