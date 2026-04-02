@@ -81,11 +81,18 @@ impl<'a> MetaCallBridgeGenerator<'a> {
         let invoke_and_maybe_write_result = match &self.output {
             Some(output) => {
                 let result_var = format_ident!("result");
+                let result_conv_var = format_ident!("result_conv");
+                let maybe_result_conv = output.generate_store_converted_to_variable(&result_var, &result_conv_var);
                 let output_ptr = output.generate_pointer_to_output_meta_value(0);
-                let write_output = output.generate_write_output_ptr_expression(&result_var, 0);
+                let output_var = match maybe_result_conv.is_some() {
+                    true => &result_conv_var,
+                    false => &result_var,
+                };
+                let write_output = output.generate_write_output_ptr_expression(&output_var, 0);
 
                 quote! {
                     let #result_var = #fn_call;
+                    #maybe_result_conv
                     #output_ptr
                     #write_output
                 }
@@ -230,6 +237,17 @@ impl<'a> MetaCallType<'a> {
         }
     }
 
+    /// Generates a definition of a variable with a value converted from the input data into the output type.
+    fn generate_store_converted_to_variable(&self, from: &syn::Ident, to: &syn::Ident) -> Option<syn::Stmt> {
+        if let Some(int_type) = self.intermediate_meta_type() {
+            return Some(parse_quote! {
+                let #to = <#int_type>::from(#from);
+            })
+        }
+
+        None // Conversion is not needed
+    }
+
     /// Generates a definition of a mutable pointer to the given output parameter.
     fn generate_pointer_to_output_meta_value(&self, idx: usize) -> syn::Stmt {
         let meta_type = self.intermediate_meta_type()
@@ -296,12 +314,9 @@ impl<'a> MetaCallType<'a> {
     /// Produce the code storing a value in the metacall output.
     fn generate_write_output_ptr_expression(&self, var_ident: &syn::Ident, idx: usize) -> syn::Expr {
         let output_ptr_ident = get_output_ptr_ident(idx);
-        let maybe_into = self.intermediate_meta_type().is_some()
-            .then(|| quote!{ .into() });
-
         parse_quote! {
             unsafe {
-                std::ptr::write(#output_ptr_ident, #var_ident #maybe_into)
+                std::ptr::write(#output_ptr_ident, #var_ident)
             }
         }
     }
