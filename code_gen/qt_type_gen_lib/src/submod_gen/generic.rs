@@ -194,7 +194,7 @@ impl GenericSubmoduleGenerator {
                 let gen_path: syn::Path = (*gen_ident).clone().into();
                 !type_tokens.contains_unclassified(&gen_path)
             })
-            .cloned() 
+            .cloned()
             .collect();
 
         if phantom_types_vec.is_empty() {
@@ -354,7 +354,12 @@ impl SubmoduleGenerator for GenericSubmoduleGenerator {
 
     fn register_type(&self) -> syn::Result<()> {
         let struct_ = self.structure();
-        QtType::add_generic(QtGenericTypeWithoutArgs::new(struct_.ident().to_string(), self.path_before_name()?, struct_.generics().list().into()));
+        let args = struct_.generics()
+            .list()
+            .iter()
+            .map(ToString::to_string)
+            .collect();
+        QtType::add_generic(QtGenericTypeWithoutArgs::new(struct_.ident().to_string(), self.path_before_name()?, args));
 
         Ok(())
     }

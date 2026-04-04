@@ -24,9 +24,7 @@ pub fn generate_qt_types_getters_code() -> Result<TokenStream, String> {
                 QtNonGenericType::new_str(#name, #path_in_gen, #metatype, #namespace)
             }),
             QtType::GenericWithoutArgs(gen_wo_args) => {
-                let args = gen_wo_args.args()
-                    .iter()
-                    .map(syn::Ident::to_string);
+                let args = gen_wo_args.args();
                 generic_vec.push(quote!{
                     QtGenericTypeWithoutArgs::new_str(#name, #path_in_gen, &[#(#args),*])
                 })

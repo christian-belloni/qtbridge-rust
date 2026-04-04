@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use quote::ToTokens;
-use quote::format_ident;
 use syn::spanned::Spanned;
 
 use crate::type_registry;
@@ -31,15 +30,12 @@ pub struct QtGenericTypeWithoutArgs {
     path_in_gen: String,
 
     /// Idents of the generic args as they were defined in input file (e.g.: K, V)
-    args: Vec<syn::Ident>,
+    args: Vec<String>,
 }
 
 impl QtGenericTypeWithoutArgs {
-    pub fn new(gen_name: String, path_in_gen: String, args: Vec<syn::Ident>) -> Self {
-        let args_str = args.iter()
-            .map(ToString::to_string)
-            .collect::<Vec<_>>()
-            .join(",");
+    pub fn new(gen_name: String, path_in_gen: String, args: Vec<String>) -> Self {
+        let args_str = args.join(",");
         let name_with_args = format!("{gen_name}<{args_str}>");
 
         Self {
@@ -57,7 +53,7 @@ impl QtGenericTypeWithoutArgs {
             gen_name.into(),
             path_in_gen.into(),
             args.iter()
-                .map(|arg| format_ident!("{arg}"))
+                .map(ToString::to_string)
                 .collect())
     }
 
@@ -74,7 +70,7 @@ impl QtGenericTypeWithoutArgs {
         &self.path_in_gen
     }
 
-    pub fn args(&self) -> &[syn::Ident] {
+    pub fn args(&self) -> &[String] {
         &self.args
     }
 
