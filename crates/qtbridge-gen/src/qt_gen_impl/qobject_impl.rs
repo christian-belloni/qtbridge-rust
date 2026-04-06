@@ -7,6 +7,7 @@ use syn::{spanned::Spanned};
 
 use qtbridge_gen_common::function_with_attributes::FunctionWithAttributes;
 use qtbridge_gen_common::type_qualified_mapping::CallOrigin;
+use qtbridge_gen_common::type_utils::get_ident_of_last_path_segment_or_err;
 use crate::qt_gen_impl;
 use qt_gen_impl::qobject_macro_params::QObjectMacroParams;
 use qt_gen_impl::iface_impl::InterfaceImpl;
@@ -73,9 +74,8 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream, origin: &CallOrigin
     let syn::Type::Path(type_path) = orig_impl.self_ty.as_ref() else {
         return Err(syn::Error::new(orig_impl.span(), "Unexpected type of impl struct"));
     };
-    let struct_ident = type_path.path.segments.last()
-        .ok_or_else(|| syn::Error::new(type_path.path.span(), "Failed to get last segment from path"))?
-        .ident.clone();
+    let struct_ident = get_ident_of_last_path_segment_or_err(&type_path.path)?
+        .clone();
     let generics = &orig_impl.generics;
 
     let mut signals    = Vec::<QSignalInfo>::new();

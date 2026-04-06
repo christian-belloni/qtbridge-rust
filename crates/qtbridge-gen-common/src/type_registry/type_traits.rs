@@ -6,7 +6,7 @@ use quote::{ToTokens, format_ident, quote};
 use syn::punctuated::Punctuated;
 use syn::spanned::Spanned;
 
-use crate::type_utils::is_same_path;
+use crate::type_utils::{get_ident_of_last_path_segment, is_same_path};
 
 #[derive(Debug)]
 pub enum TypeCategory {
@@ -187,8 +187,8 @@ pub trait FindType: TypeName + Sized {
 }
 
 pub fn find_type_by_partial_path<T: FindType>(path: &syn::Path) -> Option<T> {
-    let last_seg = path.segments.last()?;
-    let last_seg_str = last_seg.ident.to_string();
+    let last_seg_ident = get_ident_of_last_path_segment(path)?;
+    let last_seg_str = last_seg_ident.to_string();
 
     let ty = T::find_by_name(&last_seg_str)?;
     let comps = ty.qualified_path_components();

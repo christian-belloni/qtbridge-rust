@@ -8,7 +8,7 @@ use syn::spanned::Spanned;
 
 use qtbridge_gen_common::function_with_attributes::FunctionWithAttributes;
 use qtbridge_gen_common::parse_utils::is_path_with_segments_str;
-use qtbridge_gen_common::type_utils::get_ident_of_last_path_segment;
+use qtbridge_gen_common::type_utils::get_ident_of_last_path_segment_or_err;
 use crate::qt_gen_impl::qt_meta_gen;
 use qt_meta_gen::generate_meta::{QMetaInfoContext, generate_qmetainfo_trait_impl};
 use qt_meta_gen::generate_qmetatype_get::{generate_qmeta_type_get};
@@ -196,8 +196,7 @@ impl QObjectModuleBuilder {
     fn handle_item_impl_trait(&mut self, input: &syn::ItemImpl) -> syn::Result<syn::ItemImpl> {
 
         let path = &input.trait_.as_ref().unwrap().1;
-        let last_seg_ident = get_ident_of_last_path_segment(path)
-            .ok_or_else(|| syn::Error::new(path.span(), "Failed to get path segment"))?;
+        let last_seg_ident = get_ident_of_last_path_segment_or_err(path)?;
 
         match last_seg_ident.to_string().as_str() {
             "Drop" => {

@@ -5,7 +5,7 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::spanned::Spanned;
 
-use crate::type_to_string::{type_to_string, type_to_string_fallback};
+use crate::type_to_string::{path_to_string_fallback, type_to_string, type_to_string_fallback};
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum ValuePass {
@@ -95,10 +95,18 @@ pub fn path_from_type(src: &syn::Type) -> syn::Result<&syn::Path> {
     Ok(&type_path.path)
 }
 
-// TODO: switch to using where applicable
+// Returns a reference to `syn::Ident` of the last path segment,
+// or `None` if the path has no segments.
 pub fn get_ident_of_last_path_segment(src: &syn::Path) -> Option<&syn::Ident> {
-    let last_seg = src.segments.last()?;
-    Some(&last_seg.ident)
+    src.segments.last()
+        .map(|seg| &seg.ident)
+}
+
+// Returns a reference to `syn::Ident` of the last segment in the given `syn::Path`,
+// or `syn::Error` if the path has no segments.
+pub fn get_ident_of_last_path_segment_or_err(src: &syn::Path) -> syn::Result<&syn::Ident> {
+    get_ident_of_last_path_segment(src)
+        .ok_or_else(|| syn::Error::new(src.span(), format!("Failed to get the last segment from path '{}'", path_to_string_fallback(src))))
 }
 
 pub fn get_angle_bracketed_generic_arguments_of_last_path_segment(src: &syn::Path) -> Option<&syn::AngleBracketedGenericArguments> {

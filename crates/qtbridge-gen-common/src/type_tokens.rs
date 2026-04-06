@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use std::collections::HashSet;
-
-use quote::ToTokens;
 use syn::spanned::Spanned;
 use syn::visit::Visit;
 
@@ -12,7 +10,7 @@ use type_registry::{CxxType, QtType, QtTypeSpanned, StandardType};
 use type_registry::qt::generic::QtGenericArg;
 use type_registry::type_traits::FindType;
 use crate::type_to_string::path_segment_to_string;
-use crate::type_utils::{are_all_args_generic_idents, get_ident_of_last_path_segment, ident_to_path};
+use crate::type_utils::{are_all_args_generic_idents, get_ident_of_last_path_segment_or_err, ident_to_path};
 
 
 /// Struct to collect, categorize and hold types gathered by visiting AST entities
@@ -259,8 +257,7 @@ impl<'a> Visitor<'a> {
         }
 
         let maybe_type = if are_all_args_generic_idents(src, self.tokens.generic_idents()) {
-            let src_ident = get_ident_of_last_path_segment(src)
-                .ok_or_else(|| syn::Error::new(src.span(), format!("Path '{}' is invalid", src.to_token_stream())))?;
+            let src_ident = get_ident_of_last_path_segment_or_err(src)?;
             // If all the generic arguments are generic idents (e.g. T, K, V, ..)
             // then discard args and handle only generic type ident.
             type_registry::Type::find_by_name(&src_ident.to_string())
