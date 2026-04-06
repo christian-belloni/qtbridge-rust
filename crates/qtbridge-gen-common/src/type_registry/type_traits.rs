@@ -6,7 +6,8 @@ use quote::{ToTokens, format_ident, quote};
 use syn::punctuated::Punctuated;
 use syn::spanned::Spanned;
 
-use crate::type_utils::{get_ident_of_last_path_segment, is_same_path};
+use crate::type_to_string::path_to_string_fallback;
+use crate::type_utils::{get_ident_of_last_path_segment_or_err, is_same_path};
 
 #[derive(Debug)]
 pub enum TypeCategory {
@@ -174,26 +175,39 @@ pub trait FindType: TypeName + Sized {
     ///
     /// Returns `None` if the type is not found.
     fn find_by_path(path: &syn::Path) -> Option<Self> {
-        find_type_by_partial_path::<Self>(path)
+        get_type_by_path::<Self>(path)
+            .ok()
+            .flatten()
     }
 
     /// Finds a type from a `syn::Path` (possibly partially-qualified) in a group of types.
     ///
     /// Returns `syn::Error` if the type is not found.
     fn find_by_path_checked(path: &syn::Path) -> syn::Result<Self> {
-        Self::find_by_path(path)
-            .ok_or_else(|| syn::Error::new(path.span(), format!("Failed to find type by path '{}'", path.to_token_stream())))
+        get_type_by_path::<Self>(path)?
+            .ok_or_else(|| syn::Error::new(path.span(), format!("Failed to find type by path '{}'", path_to_string_fallback(path))))
     }
 }
 
-pub fn find_type_by_partial_path<T: FindType>(path: &syn::Path) -> Option<T> {
-    let last_seg_ident = get_ident_of_last_path_segment(path)?;
+/// Finds a type from a `syn::Path` within a type group.
+///
+/// Returns:
+/// - `Ok(Some(_))` if a matching type is found.
+/// - `Ok(None)` if no matching type exists.
+/// - `Err` if an error occurs during path processing.
+pub fn get_type_by_path<T: FindType>(path: &syn::Path) -> syn::Result<Option<T>> {
+    let last_seg_ident = get_ident_of_last_path_segment_or_err(path)?;
     let last_seg_str = last_seg_ident.to_string();
 
-    let ty = T::find_by_name(&last_seg_str)?;
+    let Some(ty) = T::find_by_name(&last_seg_str) else {
+        return Ok(None)
+    };
     let comps = ty.qualified_path_components();
-    is_same_path(path, comps.iter())
-        .then_some(ty)
+    if !is_same_path(path, comps.iter()) {
+        return Ok(None)
+    }
+
+    Ok(Some(ty))
 }
 
 impl<T: StaticTypeGroup + TypeName + Clone + 'static> FindType for T {

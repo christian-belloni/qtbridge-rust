@@ -7,7 +7,7 @@ use std::hash::Hash;
 
 use proc_macro2::Span;
 
-use crate::type_registry::type_traits::{FindType, TypeInfo, MetaTypeId, TypeName, TypesEnum, find_type_by_partial_path};
+use crate::type_registry::type_traits::{FindType, MetaTypeId, TypeInfo, TypeName, TypesEnum, get_type_by_path};
 use crate::type_utils::get_angle_bracketed_generic_arguments_of_last_path_segment;
 use crate::type_registry::qt;
 use crate::type_registry::qt::generic::QtGenericArg;
@@ -99,7 +99,8 @@ impl FindType for QtType {
     }
 
     fn find_by_path(path: &syn::Path) -> Option<Self> {
-        let qt_type = find_type_by_partial_path::<Self>(path)?;
+        let qt_type = get_type_by_path::<Self>(path)
+            .ok()??;
 
         // If type is generic with args specified - try to find monomorphed form
         if let Self::GenericWithoutArgs(qt_generic) = &qt_type
