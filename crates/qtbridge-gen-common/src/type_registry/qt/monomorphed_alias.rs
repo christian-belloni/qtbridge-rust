@@ -37,6 +37,10 @@ impl QtAliasToMonomorphedType {
         self
     }
 
+    pub fn mut_dyn_type_info(&mut self) -> &mut dyn TypeInfo {
+        self
+    }
+
     pub fn to(&self) -> &str {
         &self.alias_to
     }

@@ -51,6 +51,14 @@ impl TypesEnum for Type {
             Type::Qt(qt) => qt.dyn_type_info(),
         }
     }
+
+    fn mut_dyn_type_info(&mut self) -> &mut dyn TypeInfo {
+        match self {
+            Type::Standard(standard) => standard.mut_dyn_type_info(),
+            Type::Cxx(cxx) => cxx.mut_dyn_type_info(),
+            Type::Qt(qt) => qt.mut_dyn_type_info(),
+        }
+    }
 }
 
 impl FindType for Type {

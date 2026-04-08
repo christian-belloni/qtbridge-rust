@@ -18,6 +18,10 @@ impl CellType {
     pub fn dyn_type_info(&self) -> &dyn TypeInfo {
         self
     }
+
+    pub fn mut_dyn_type_info(&mut self) -> &mut dyn TypeInfo {
+        self
+    }
 }
 
 impl TypeName for CellType {

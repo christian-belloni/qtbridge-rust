@@ -124,6 +124,16 @@ impl TypesEnum for QtType {
             QtType::AliasToMonomorphed(alias_to_monomorphed) => alias_to_monomorphed.dyn_type_info(),
         }
     }
+
+    fn mut_dyn_type_info(&mut self) -> &mut dyn TypeInfo {
+        match self {
+            QtType::NonGeneric(concrete) => concrete.mut_dyn_type_info(),
+            QtType::GenericWithoutArgs(generic_wo_args) => generic_wo_args.mut_dyn_type_info(),
+            QtType::GenericWithArgs(generic_w_args) => generic_w_args.mut_dyn_type_info(),
+            QtType::GenericMonomorphed(monomorphed) => monomorphed.mut_dyn_type_info(),
+            QtType::AliasToMonomorphed(alias_to_monomorphed) => alias_to_monomorphed.mut_dyn_type_info(),
+        }
+    }
 }
 
 impl From<QtNonGenericType> for QtType {

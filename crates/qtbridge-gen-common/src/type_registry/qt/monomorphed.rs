@@ -35,6 +35,10 @@ impl QtMonomorphedType {
         self
     }
 
+    pub fn mut_dyn_type_info(&mut self) -> &mut dyn TypeInfo {
+        self
+    }
+
     pub fn path_in_gen(&self) -> &str {
         &self.path_in_gen
     }

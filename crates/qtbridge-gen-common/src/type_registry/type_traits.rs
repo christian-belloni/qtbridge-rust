@@ -224,6 +224,7 @@ impl<T: StaticTypeGroup + TypeName + Clone + 'static> FindType for T {
 /// where every variant of that enum is separate type category
 pub trait TypesEnum {
     fn dyn_type_info(&self) -> &dyn TypeInfo;
+    fn mut_dyn_type_info(&mut self) -> &mut dyn TypeInfo;
 }
 
 /// Forward calls to underlying enum variant

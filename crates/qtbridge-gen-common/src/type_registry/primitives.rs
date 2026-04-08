@@ -7,8 +7,8 @@ use super::type_traits::{MetaTypeId, StaticTypeGroup, TypesEnum, TypeInfo, TypeN
 
 #[derive(Clone, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum PrimitiveType {
-    Arithmetic(&'static ArithmeticType),
-    NonArithmetic(&'static NonArithmeticType),
+    Arithmetic(ArithmeticType),
+    NonArithmetic(NonArithmeticType),
 }
 
 impl TypesEnum for PrimitiveType {
@@ -18,15 +18,25 @@ impl TypesEnum for PrimitiveType {
             Self::NonArithmetic(non_arithmetic) => non_arithmetic.dyn_type_info(),
         }
     }
+
+    fn mut_dyn_type_info(&mut self) -> &mut dyn TypeInfo {
+        match self {
+            Self::Arithmetic(arithmetic) => arithmetic.mut_dyn_type_info(),
+            Self::NonArithmetic(non_arithmetic) => non_arithmetic.mut_dyn_type_info(),
+        }
+    }
 }
 
 impl StaticTypeGroup for PrimitiveType {
     fn get_static_sorted_list() -> &'static [Self] {
         static LIST: LazyLock<Vec<PrimitiveType>> = LazyLock::new(|| {
-            let mut result: Vec<_> = ArithmeticType::get_sorted_list().iter()
-                .map(PrimitiveType::from)
-                .chain(NonArithmeticType::get_static_sorted_list().iter().map(PrimitiveType::from))
-                .collect();
+            let mut result = Vec::<PrimitiveType>::new();
+            result.extend(ArithmeticType::get_static_sorted_list().iter()
+                .cloned()
+                .map(From::from));
+            result.extend(NonArithmeticType::get_static_sorted_list().iter()
+                .cloned()
+                .map(From::from));
             result.sort_unstable_by(|l, r| l.name().cmp(r.name()));
             result
         });
@@ -35,36 +45,39 @@ impl StaticTypeGroup for PrimitiveType {
     }
 }
 
-impl From<&'static ArithmeticType> for PrimitiveType {
-    fn from(value: &'static ArithmeticType) -> Self {
+impl From<ArithmeticType> for PrimitiveType {
+    fn from(value: ArithmeticType) -> Self {
         Self::Arithmetic(value)
     }
 }
 
-impl From<&'static NonArithmeticType> for PrimitiveType {
-    fn from(value: &'static NonArithmeticType) -> Self {
+impl From<NonArithmeticType> for PrimitiveType {
+    fn from(value: NonArithmeticType) -> Self {
         Self::NonArithmetic(value)
     }
 }
 
 #[derive(Clone, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum ArithmeticType {
-    Int(&'static IntType),
-    Float(&'static FloatType),
+    Int(IntType),
+    Float(FloatType),
 }
 
-impl ArithmeticType {
-    fn get_sorted_list() -> &'static [Self] {
+impl StaticTypeGroup for ArithmeticType {
+    fn get_static_sorted_list() -> &'static [Self] {
         static LIST: LazyLock<Vec<ArithmeticType>> = LazyLock::new(|| {
-            let mut result: Vec<_> = IntType::get_static_sorted_list().iter()
-                .map(ArithmeticType::from)
-                .chain(FloatType::get_static_sorted_list().iter().map(ArithmeticType::from))
-                .collect();
+            let mut result = Vec::<ArithmeticType>::new();
+            result.extend(IntType::get_static_sorted_list().iter()
+                .cloned()
+                .map(From::from));
+            result.extend(FloatType::get_static_sorted_list().iter()
+                .cloned()
+                .map(From::from));
             result.sort_unstable_by(|l, r| l.name().cmp(r.name()));
             result
         });
 
-        LIST.as_slice()
+        &LIST
     }
 }
 
@@ -75,16 +88,23 @@ impl TypesEnum for ArithmeticType {
             ArithmeticType::Float(float_type) => float_type.dyn_type_info(),
         }
     }
+
+    fn mut_dyn_type_info(&mut self) -> &mut dyn TypeInfo {
+        match self {
+            ArithmeticType::Int(int_type) => int_type.mut_dyn_type_info(),
+            ArithmeticType::Float(float_type) => float_type.mut_dyn_type_info(),
+        }
+    }
 }
 
-impl From<&'static IntType> for ArithmeticType {
-    fn from(value: &'static IntType) -> Self {
+impl From<IntType> for ArithmeticType {
+    fn from(value: IntType) -> Self {
         Self::Int(value)
     }
 }
 
-impl From<&'static FloatType> for ArithmeticType {
-    fn from(value: &'static FloatType) -> Self {
+impl From<FloatType> for ArithmeticType {
+    fn from(value: FloatType) -> Self {
         Self::Float(value)
     }
 }
@@ -99,6 +119,10 @@ impl IntType {
     }
 
     pub fn dyn_type_info(&self) -> &dyn TypeInfo {
+        self
+    }
+
+    fn mut_dyn_type_info(&mut self) -> &mut dyn TypeInfo {
         self
     }
 }
@@ -166,6 +190,10 @@ impl FloatType {
     pub fn dyn_type_info(&self) -> &dyn TypeInfo {
         self
     }
+
+    fn mut_dyn_type_info(&mut self) -> &mut dyn TypeInfo {
+        self
+    }
 }
 
 impl TypeName for FloatType {
@@ -229,6 +257,10 @@ impl NonArithmeticType {
     }
 
     pub fn dyn_type_info(&self) -> &dyn TypeInfo {
+        self
+    }
+
+    fn mut_dyn_type_info(&mut self) -> &mut dyn TypeInfo {
         self
     }
 }
