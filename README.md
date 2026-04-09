@@ -126,6 +126,10 @@ QtBridge application.
 This example shows the "minimum viable example" with working backend and data
 visualisation in QML.
 
+#### [Host Monitor](https://github.com/qt/qtbridge-rust/tree/dev/apps/host_monitor)
+
+This example shows how to combine a Qt UI with [tokio](https://tokio.rs/) runtime
+in a multithreaded environment using [`QmlMethodInvoker`].
 
 ## API Overview
 

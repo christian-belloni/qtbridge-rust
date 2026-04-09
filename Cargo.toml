@@ -38,6 +38,7 @@ members = [
 
     "apps/hello_world",
     "apps/minimal_app",
+    "apps/host_monitor",
 
     "test/tst_qobject_macro",
     "test/tst_qt_ifaces",
