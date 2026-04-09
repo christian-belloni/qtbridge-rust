@@ -1,7 +1,7 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use super::proxy_rust::QListModelProxyRust;
+use super::qaim_rust_bridge::QAIMProxyRust;
 #[cxx::bridge]
 pub mod ffi {
     unsafe extern "C++" {
@@ -15,28 +15,26 @@ pub mod ffi {
         type QModelIndex = qtbridge_type_lib::QModelIndex;
         include!("qtbridge-type-lib/src/generated/core/qvariant/cpp/qvariant.h");
         type QVariant = qtbridge_type_lib::QVariant;
-        include!("qtbridge-interfaces/src/qlist_model/proxy_rust_bridge.rs.h");
-        type QListModelProxyRust = super::QListModelProxyRust;
+        include!("qtbridge-interfaces/src/common/qaim_rust_bridge.rs.h");
+        type QAIMProxyRust = super::QAIMProxyRust;
     }
     #[namespace = "rust::bridge"]
     unsafe extern "C++" {
-        include!("qtbridge-interfaces/src/qlist_model/cpp/QListModelProxyCpp.h");
-        type QListModelProxyCpp;
-        # [rust_name = create_qlist_model_proxy_cpp]
-        unsafe fn create_QListModelProxyCpp(rust_obj: *mut u8, rust_proxy: *mut QListModelProxyRust) -> *mut QListModelProxyCpp;
-        # [rust_name = create_qlist_model_proxy_cpp_at]
-        unsafe fn create_QListModelProxyCpp_At(addr: *mut u8, rust_obj: *mut u8, rust_proxy: *mut QListModelProxyRust)
-        -> *mut QListModelProxyCpp;
-        # [rust_name = static_qmeta_object_of_qlist_model_proxy_cpp]
-        fn staticQMetaObjectOf_QListModelProxyCpp() -> &'static QMetaObject;
-        # [rust_name = size_of_qlist_model_proxy_cpp]
-        fn sizeOf_QListModelProxyCpp() -> usize;
-        # [rust_name = align_of_qlist_model_proxy_cpp]
-        fn alignOf_QListModelProxyCpp() -> usize;
-        # [rust_name = qmetatype_list_of_qlist_model_proxy_cpp]
-        fn qmetaTypeListOf_QListModelProxyCpp() -> QMetaType;
-        # [rust_name = base_index]
-        fn base_index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex;
+        include!("qtbridge-interfaces/src/common/cpp/QAIMProxyCpp.h");
+        type QAIMProxyCpp;
+        # [rust_name = create_qaim_proxy_cpp]
+        unsafe fn create_QAIMProxyCpp(rust_obj: *mut u8, rust_proxy: *mut QAIMProxyRust) -> *mut QAIMProxyCpp;
+        # [rust_name = create_qaim_proxy_cpp_at]
+        unsafe fn create_QAIMProxyCpp_At(addr: *mut u8, rust_obj: *mut u8, rust_proxy: *mut QAIMProxyRust)
+        -> *mut QAIMProxyCpp;
+        # [rust_name = static_qmeta_object_of_qaim_proxy_cpp]
+        fn staticQMetaObjectOf_QAIMProxyCpp() -> &'static QMetaObject;
+        # [rust_name = size_of_qaim_proxy_cpp]
+        fn sizeOf_QAIMProxyCpp() -> usize;
+        # [rust_name = align_of_qaim_proxy_cpp]
+        fn alignOf_QAIMProxyCpp() -> usize;
+        # [rust_name = qmetatype_list_of_qaim_proxy_cpp]
+        fn qmetaTypeListOf_QAIMProxyCpp() -> QMetaType;
         # [rust_name = base_role_names]
         fn base_roleNames(&self) -> QHash_i32_QByteArray;
         # [rust_name = base_set_data]
@@ -47,10 +45,25 @@ pub mod ffi {
         fn base_sibling(&self, row: i32, column: i32, idx: &QModelIndex) -> QModelIndex;
         # [rust_name = base_data_changed]
         fn dataChanged(self: Pin<&mut Self>, top_left: &QModelIndex, bottom_right: &QModelIndex);
+        # [rust_name = base_begin_insert_columns]
+        fn beginInsertColumns(self: Pin<&mut Self>, parent: &QModelIndex, first: i32, last: i32);
+        # [rust_name = base_end_insert_columns]
+        fn endInsertColumns(self: Pin<&mut Self>);
         # [rust_name = base_begin_insert_rows]
         fn beginInsertRows(self: Pin<&mut Self>, parent: &QModelIndex, first: i32, last: i32);
         # [rust_name = base_end_insert_rows]
         fn endInsertRows(self: Pin<&mut Self>);
+        # [rust_name = base_begin_move_columns]
+        fn beginMoveColumns(
+            self: Pin<&mut Self>,
+            source_parent: &QModelIndex,
+            source_first: i32,
+            source_last: i32,
+            destination_parent: &QModelIndex,
+            destination_child: i32,
+        );
+        # [rust_name = base_end_move_columns]
+        fn endMoveColumns(self: Pin<&mut Self>);
         # [rust_name = base_begin_move_rows]
         fn beginMoveRows(
             self: Pin<&mut Self>,
@@ -62,6 +75,10 @@ pub mod ffi {
         );
         # [rust_name = base_end_move_rows]
         fn endMoveRows(self: Pin<&mut Self>);
+        # [rust_name = base_begin_remove_columns]
+        fn beginRemoveColumns(self: Pin<&mut Self>, parent: &QModelIndex, first: i32, last: i32);
+        # [rust_name = base_end_remove_columns]
+        fn endRemoveColumns(self: Pin<&mut Self>);
         # [rust_name = base_begin_remove_rows]
         fn beginRemoveRows(self: Pin<&mut Self>, parent: &QModelIndex, first: i32, last: i32);
         # [rust_name = base_end_remove_rows]
@@ -70,6 +87,8 @@ pub mod ffi {
         fn beginResetModel(self: Pin<&mut Self>);
         # [rust_name = base_end_reset_model]
         fn endResetModel(self: Pin<&mut Self>);
+        # [rust_name = base_create_index]
+        fn createIndex(&self, row: i32, column: i32, ptr: usize) -> QModelIndex;
     }
 }
-pub use ffi::QListModelProxyCpp;
+pub use ffi::QAIMProxyCpp;
