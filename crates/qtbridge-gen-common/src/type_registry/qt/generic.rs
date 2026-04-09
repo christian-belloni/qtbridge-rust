@@ -5,13 +5,12 @@ use quote::ToTokens;
 use syn::spanned::Spanned;
 
 use crate::type_registry;
-use crate::type_registry::StandardType;
-use type_registry::TypeCategory;
-use type_registry::type_traits::{FindType, TypeName, TypeInfo};
-use type_registry::primitives::PrimitiveType;
+use type_registry::type_traits::{FindType, GenericArgs, TypeName, TypeInfo};
+use type_registry::{PrimitiveType, StandardType, TypeCategory};
+use crate::type_utils::path_to_type;
+use crate::type_to_string::path_to_string_fallback;
 use super::monomorphed::QtMonomorphedType;
 use super::non_generic::QtNonGenericType;
-use crate::type_to_string::path_to_string_fallback;
 use super::QtType;
 
 /// Generic Qt type having some generic parameters
@@ -125,13 +124,20 @@ impl TypeName for QtGenericTypeWithoutArgs {
     }
 }
 
+impl GenericArgs for QtGenericTypeWithoutArgs {
+    fn generic_arg_count(&self) -> usize {
+        self.args.len()
+    }
+
+    fn generic_arg_syn(&self, idx: usize) -> Option<syn::Type> {
+        let arg = self.args.get(idx)?;
+        Some(syn::parse_str(arg).unwrap())
+    }
+}
+
 impl TypeInfo for QtGenericTypeWithoutArgs {
     fn cpp_name(&self) -> Option<&str> {
         Some(self.gen_name())
-    }
-
-    fn generic_arg_count(&self) -> usize {
-        self.args.len()
     }
 
     fn cpp_include(&self) -> Option<String> {
@@ -267,13 +273,29 @@ impl TypeName for QtGenericTypeWithArgs {
     }
 }
 
+impl GenericArgs for QtGenericTypeWithArgs {
+    fn generic_arg_count(&self) -> usize {
+        self.args.len()
+    }
+
+    fn generic_arg_syn(&self, idx: usize) -> Option<syn::Type> {
+        let arg = self.args.get(idx)?;
+        match arg {
+            QtGenericArg::Primitive(primitive) =>
+                syn::parse_str(&primitive.qualified_path_string())
+                    .ok(),
+            QtGenericArg::Qt(qt_ty) =>
+                syn::parse_str(&qt_ty.qualified_path_string())
+                    .ok(),
+            QtGenericArg::Unclassified(path) =>
+                Some(path_to_type(path.clone())),
+        }
+    }
+}
+
 impl TypeInfo for QtGenericTypeWithArgs {
     fn cpp_name(&self) -> Option<&str> {
         Some(self.gen_name())
-    }
-
-    fn generic_arg_count(&self) -> usize {
-        self.args.len()
     }
 
     fn cpp_include(&self) -> Option<String> {
@@ -373,3 +395,6 @@ impl TryFrom<&syn::Path> for QtGenericArg {
         Ok(Self::Unclassified(path.clone()))
     }
 }
+
+unsafe impl Sync for QtGenericArg {}
+unsafe impl Send for QtGenericArg {}

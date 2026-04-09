@@ -1,7 +1,7 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use super::type_traits::{StaticTypeGroup, TypeInfo, TypeName};
+use crate::type_registry::type_traits::{GenericArgs, StaticTypeGroup, TypeInfo, TypeName};
 
 #[derive(Clone, Eq, Hash, PartialEq)]
 pub struct StringType {
@@ -32,6 +32,8 @@ impl TypeName for StringType {
         None
     }
 }
+
+impl GenericArgs for StringType {}
 
 impl TypeInfo for StringType {
     fn cpp_name(&self) -> Option<&'static str> {

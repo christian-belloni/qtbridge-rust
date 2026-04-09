@@ -3,7 +3,7 @@
 
 use std::sync::LazyLock;
 
-use super::type_traits::{MetaTypeId, StaticTypeGroup, TypesEnum, TypeInfo, TypeName};
+use crate::type_registry::type_traits::{GenericArgs, MetaTypeId, StaticTypeGroup, TypesEnum, TypeInfo, TypeName};
 
 #[derive(Clone, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum PrimitiveType {
@@ -137,6 +137,8 @@ impl TypeName for IntType {
     }
 }
 
+impl GenericArgs for IntType {}
+
 impl TypeInfo for IntType {
     fn cpp_name(&self) -> Option<&'static str> {
         Some(self.0.cpp_name)
@@ -206,6 +208,8 @@ impl TypeName for FloatType {
     }
 }
 
+impl GenericArgs for FloatType {}
+
 impl TypeInfo for FloatType {
     fn cpp_name(&self) -> Option<&'static str> {
         Some(self.0.cpp_name)
@@ -274,6 +278,8 @@ impl TypeName for NonArithmeticType {
         None
     }
 }
+
+impl GenericArgs for NonArithmeticType {}
 
 impl TypeInfo for NonArithmeticType {
     fn cpp_name(&self) -> Option<&'static str> {

@@ -4,10 +4,10 @@ use syn::spanned::Spanned;
 use crate::type_registry;
 use type_registry::{QtType, StandardContainer, StandardType, StringType};
 use type_registry::qt::generic::{QtGenericArg, QtGenericTypeWithoutArgs};
-use type_registry::type_traits::{FindType, MetaTypeId, TypeInfo, TypeName};
+use type_registry::type_traits::{FindType, GenericArgs, MetaTypeId, TypeInfo, TypeName};
 use crate::signature_utils::{get_return_type, get_typed_args, is_arg_self_ref};
 use crate::type_to_string::type_to_string_fallback;
-use crate::type_utils::{get_angle_bracketed_generic_arguments_of_last_path_segment, is_mut_ref, path_from_type, path_to_type, remove_ref};
+use crate::type_utils::{is_mut_ref, path_from_type, path_to_type, remove_ref};
 
 /// Checks whether the given signature can participate in meta-calls
 /// (as slot callbacks or property getters/setters).
@@ -136,8 +136,9 @@ fn get_intermediate_type_container(src: &StandardContainer, src_path: &syn::Path
 
     let args: Vec<QtGenericArg> = (0..src.generic_arg_count())
         .map(|arg_idx| {
-            let src_arg_type = get_generic_arg_type(src_path, arg_idx)?;
-            let inter_arg_type = get_qmetatype_support_for_type(src_arg_type)?
+            let src_arg_type = src.generic_arg_syn(arg_idx)
+                .ok_or_else(|| syn::Error::new(src_path.span(), "Failed to get generic argument"))?;
+            let inter_arg_type = get_qmetatype_support_for_type(&src_arg_type)?
                 .unwrap_or_else(|| src_arg_type.clone());
             let arg_path = path_from_type(&inter_arg_type)
                 .map_err(|err| syn::Error::new(inter_arg_type.span(), format!("Type '{}' is unsupported as argument in {src_name} container. {err}", inter_arg_type.to_token_stream())))?;
@@ -154,18 +155,6 @@ fn get_intermediate_type_container(src: &StandardContainer, src_path: &syn::Path
     let mono = generic_w_args.get_monomorphed_type()
         .ok_or_else(|| syn::Error::new(src_path.span(), format!("Unsupported instantiation of generic type: '{}'", generic_w_args.full_name())))?;
     Ok(mono.into())
-}
-
-fn get_generic_arg_type(src: &syn::Path, index: usize) -> syn::Result<&syn::Type> {
-    let args = &get_angle_bracketed_generic_arguments_of_last_path_segment(src)
-        .ok_or_else(|| syn::Error::new(src.span(), "Failed to get generic arguments"))?
-        .args;
-    let arg = args.get(index)
-        .ok_or_else(|| syn::Error::new(src.span(), format!("No generic argument #{index} in '{}'", src.to_token_stream())))?;
-    let syn::GenericArgument::Type(gen_arg_type) = arg else {
-        return Err(syn::Error::new(src.span(), "Expected generic type argument"))
-    };
-    Ok(gen_arg_type)
 }
 
 fn get_intermediate_type_qt(_src: &QtType, src_path: &syn::Path) -> syn::Result<QtType> {

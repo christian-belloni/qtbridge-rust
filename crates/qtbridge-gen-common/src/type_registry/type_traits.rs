@@ -6,8 +6,9 @@ use quote::{ToTokens, format_ident, quote};
 use syn::punctuated::Punctuated;
 use syn::spanned::Spanned;
 
-use crate::type_to_string::path_to_string_fallback;
-use crate::type_utils::{get_ident_of_last_path_segment_or_err, is_same_path};
+use crate::type_registry;
+use crate::type_to_string::{path_to_string_fallback, type_to_string_fallback};
+use crate::type_utils::{get_angle_bracketed_generic_arguments_of_last_path_segment, get_ident_of_last_path_segment_or_err, is_same_path, path_from_type};
 
 #[derive(Debug)]
 pub enum TypeCategory {
@@ -122,11 +123,38 @@ pub trait TypeName {
     }
 }
 
-pub trait TypeInfo: TypeName {
+pub trait GenericArgs: TypeName {
+    /// The number of generic arguments of this type.
     fn generic_arg_count(&self) -> usize {
+        // The default implementation presumes that the type is not generic.
         0
     }
 
+    /// Returns the type of the generic argument at index 'idx'.
+    fn generic_arg(&self, idx: usize) -> Option<type_registry::Type> {
+        if idx >= self.generic_arg_count() {
+            return None
+        }
+        let arg_ty_syn = Self::generic_arg_syn(&self, idx)?;
+        let arg_path = path_from_type(&arg_ty_syn)
+            .ok()?;
+        let arg_ty = type_registry::Type::find_by_path_checked(arg_path)
+            .ok()?;
+        Some(arg_ty)
+    }
+
+    /// Returns the generic argument at index 'idx' specified as `syn::Type`.
+    fn generic_arg_syn(&self, _idx: usize) -> Option<syn::Type> {
+        None
+    }
+
+    /// Sets generic argument at index 'idx' specified as `syn::Type`.
+    fn set_generic_arg(&mut self, _idx: usize, _arg: &syn::Type) -> Result<(), String> {
+        Err(format!("Type '{}' does not support generic arguments", self.full_name()))
+    }
+}
+
+pub trait TypeInfo: TypeName + GenericArgs {
     fn cpp_name(&self) -> Option<&str> {
         None
     }
@@ -164,7 +192,7 @@ pub trait StaticTypeGroup: Sized {
 }
 
 /// A trait for finding a type by its name or by a `syn::Path` in a certain category of types (e.g. primitives, arithmetical, strings, Qt types, etc.).
-pub trait FindType: TypeName + Sized {
+pub trait FindType: TypeInfo + Sized {
     /// Finds a type by its name in a group of types.
     ///
     /// The name must match the identifier of the last segment of the type's
@@ -199,7 +227,7 @@ pub fn get_type_by_path<T: FindType>(path: &syn::Path) -> syn::Result<Option<T>>
     let last_seg_ident = get_ident_of_last_path_segment_or_err(path)?;
     let last_seg_str = last_seg_ident.to_string();
 
-    let Some(ty) = T::find_by_name(&last_seg_str) else {
+    let Some(mut ty) = T::find_by_name(&last_seg_str) else {
         return Ok(None)
     };
     let comps = ty.qualified_path_components();
@@ -207,10 +235,28 @@ pub fn get_type_by_path<T: FindType>(path: &syn::Path) -> syn::Result<Option<T>>
         return Ok(None)
     }
 
+    if let Some(gen_args) = get_angle_bracketed_generic_arguments_of_last_path_segment(path) {
+        let args = &gen_args.args;
+        if args.len() > ty.generic_arg_count() {
+            return Err(syn::Error::new(
+                args[ty.generic_arg_count()].span(),
+                format!("Too many generic arguments for type '{}': {} vs {}", ty.full_name(), args.len(), ty.generic_arg_count())))
+        }
+
+        // Populate generic arguments to type
+        for (idx, arg) in gen_args.args.iter().enumerate() {
+            let syn::GenericArgument::Type(arg_ty) = arg else {
+                return Err(syn::Error::new(arg.span(), "Non-type generic arguments are currently not supported"))
+            };
+            ty.set_generic_arg(idx, arg_ty)
+                .map_err(|err| syn::Error::new(arg_ty.span(), format!("Failed to set generic argument #{idx} to type '{}'. Error: {err}", type_to_string_fallback(arg_ty))))?;
+        }
+    }
+
     Ok(Some(ty))
 }
 
-impl<T: StaticTypeGroup + TypeName + Clone + 'static> FindType for T {
+impl<T: StaticTypeGroup + TypeInfo + Clone + 'static> FindType for T {
     fn find_by_name(name: &str) -> Option<Self> {
         let list = Self::get_static_sorted_list();
         list.binary_search_by(|ty| ty.name().cmp(name))
@@ -242,12 +288,26 @@ impl<T: TypesEnum> TypeName for T {
     }
 }
 
-/// Forward calls to underlying enum variant
-impl<T: TypesEnum> TypeInfo for T {
+impl<T: TypesEnum> GenericArgs for T {
     fn generic_arg_count(&self) -> usize {
         self.dyn_type_info().generic_arg_count()
     }
 
+    fn generic_arg(&self, idx: usize) -> Option<type_registry::Type> {
+        self.dyn_type_info().generic_arg(idx)
+    }
+
+    fn generic_arg_syn(&self, idx: usize) -> Option<syn::Type> {
+        self.dyn_type_info().generic_arg_syn(idx)
+    }
+
+    fn set_generic_arg(&mut self, idx: usize, arg: &syn::Type) -> Result<(), String> {
+        self.mut_dyn_type_info().set_generic_arg(idx, arg)
+    }
+}
+
+/// Forward calls to underlying enum variant
+impl<T: TypesEnum> TypeInfo for T {
     fn cpp_name(&self) -> Option<&str> {
         self.dyn_type_info().cpp_name()
     }

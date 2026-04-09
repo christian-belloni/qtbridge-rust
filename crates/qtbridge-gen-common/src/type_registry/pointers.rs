@@ -1,7 +1,7 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use super::type_traits::{StaticTypeGroup, TypeInfo, TypeName};
+use crate::type_registry::type_traits::{GenericArgs, StaticTypeGroup, TypeInfo, TypeName};
 
 #[derive(Clone, Eq, Hash, PartialEq)]
 pub struct PointerType {
@@ -9,6 +9,7 @@ pub struct PointerType {
     path_before_name: Option<&'static str>,
     cpp_name: Option<&'static str>,
     include: Option<&'static str>,
+    arg: Option<Box<syn::Type>>
 }
 
 impl PointerType {
@@ -18,6 +19,7 @@ impl PointerType {
             path_before_name,
             cpp_name,
             include,
+            arg: None,
         }
     }
 
@@ -40,10 +42,25 @@ impl TypeName for PointerType {
     }
 }
 
-impl TypeInfo for PointerType {
+impl GenericArgs for PointerType {
     fn generic_arg_count(&self) -> usize {
         1
     }
+
+    fn generic_arg_syn(&self, idx: usize) -> Option<syn::Type> {
+        assert!(idx == 0);
+        self.arg.as_deref()
+            .cloned()
+    }
+
+    fn set_generic_arg(&mut self, idx: usize, arg: &syn::Type) -> Result<(), String> {
+        assert!(idx == 0);
+        self.arg = Some(Box::new(arg.clone()));
+        Ok(())
+    }
+}
+
+impl TypeInfo for PointerType {
 
     fn cpp_name(&self) -> Option<&str> {
         self.cpp_name
@@ -64,3 +81,6 @@ impl StaticTypeGroup for PointerType {
         LIST.as_slice()
     }
 }
+
+unsafe impl Send for PointerType {}
+unsafe impl Sync for PointerType {}

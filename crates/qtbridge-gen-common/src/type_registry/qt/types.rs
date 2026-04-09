@@ -6,9 +6,11 @@ use std::collections::BTreeMap;
 use std::hash::Hash;
 
 use proc_macro2::Span;
+use syn::spanned::Spanned;
 
-use crate::type_registry::type_traits::{FindType, MetaTypeId, TypeInfo, TypeName, TypesEnum, get_type_by_path};
-use crate::type_utils::get_angle_bracketed_generic_arguments_of_last_path_segment;
+use crate::type_registry::type_traits::{FindType, MetaTypeId, TypeInfo, TypeName, TypesEnum};
+use crate::type_to_string::path_to_string_fallback;
+use crate::type_utils::{get_angle_bracketed_generic_arguments_of_last_path_segment, get_ident_of_last_path_segment_or_err};
 use crate::type_registry::qt;
 use crate::type_registry::qt::generic::QtGenericArg;
 use qt::non_generic::QtNonGenericType;
@@ -99,19 +101,33 @@ impl FindType for QtType {
     }
 
     fn find_by_path(path: &syn::Path) -> Option<Self> {
-        let qt_type = get_type_by_path::<Self>(path)
-            .ok()??;
-
-        // If type is generic with args specified - try to find monomorphed form
-        if let Self::GenericWithoutArgs(qt_generic) = &qt_type
-            && let Some(ab) = get_angle_bracketed_generic_arguments_of_last_path_segment(path) {
-                let qt_generic_w_types = qt_generic.set_args_from_syn_generic_args(ab)
-                    .ok()?;
-                return Some(qt_generic_w_types.into())
-        };
-
-        Some(qt_type)
+        get_qt_type_by_path(path)
+            .ok()
+            .flatten()
     }
+
+    fn find_by_path_checked(path: &syn::Path) -> syn::Result<Self> {
+        get_qt_type_by_path(path)?
+            .ok_or_else(|| syn::Error::new(path.span(), format!("Failed to find type by path '{}'", path_to_string_fallback(path))))
+    }
+}
+
+fn get_qt_type_by_path(path: &syn::Path) -> syn::Result<Option<QtType>> {
+    let last_seg_ident = get_ident_of_last_path_segment_or_err(path)?;
+    let last_seg_str = last_seg_ident.to_string();
+
+    let Some(ty) = QtType::find_by_name(&last_seg_str) else {
+        return Ok(None)
+    };
+
+    // If type is generic with args specified - try to find monomorphed form
+    if let QtType::GenericWithoutArgs(qt_generic) = &ty
+        && let Some(ab) = get_angle_bracketed_generic_arguments_of_last_path_segment(path) {
+            let qt_generic_w_types = qt_generic.set_args_from_syn_generic_args(ab)?;
+            return Ok(Some(qt_generic_w_types.into()))
+    };
+
+    Ok(Some(ty))
 }
 
 impl TypesEnum for QtType {

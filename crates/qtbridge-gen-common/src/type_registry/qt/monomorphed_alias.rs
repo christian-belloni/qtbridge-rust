@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use crate::type_registry;
+use crate::type_registry::type_traits::GenericArgs;
 use type_registry::QtType;
 use type_registry::type_traits::{FindType, MetaTypeId, TypeCategory, TypeName, TypeInfo};
 use type_registry::qt::common::get_include_path;
@@ -60,13 +61,11 @@ impl TypeName for QtAliasToMonomorphedType {
     }
 }
 
+impl GenericArgs for QtAliasToMonomorphedType {}
+
 impl TypeInfo for QtAliasToMonomorphedType {
     fn cpp_name(&self) -> Option<&str> {
         Some(self.name.as_str())
-    }
-
-    fn generic_arg_count(&self) -> usize {
-        0
     }
 
     fn cpp_include(&self) -> Option<String> {

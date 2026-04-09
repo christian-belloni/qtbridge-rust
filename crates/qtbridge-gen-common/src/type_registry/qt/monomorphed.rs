@@ -4,7 +4,7 @@
 use crate::type_registry;
 use type_registry::QtType;
 use type_registry::TypeCategory;
-use type_registry::type_traits::{FindType, MetaTypeId, TypeName, TypeInfo};
+use type_registry::type_traits::{FindType, GenericArgs, MetaTypeId, TypeName, TypeInfo};
 
 use super::common::get_include_path;
 use super::generic::QtGenericTypeWithArgs;
@@ -14,14 +14,17 @@ use super::generic::QtGenericTypeWithArgs;
 pub struct QtMonomorphedType {
     name: String,
     path_in_gen: String,
-    source: QtGenericTypeWithArgs,
+    source: Box<QtGenericTypeWithArgs>,
     metatypeid: MetaTypeId,
 }
 
 impl QtMonomorphedType {
     pub fn new(name: String, path_in_gen: String, source: QtGenericTypeWithArgs, metatypeid: MetaTypeId) -> Self {
         Self {
-            name, path_in_gen, source, metatypeid
+            name,
+            path_in_gen,
+            source: Box::new(source),
+            metatypeid
         }
     }
 
@@ -44,11 +47,11 @@ impl QtMonomorphedType {
     }
 
     pub fn source(&self) -> &QtGenericTypeWithArgs {
-        &self.source
+        self.source.as_ref()
     }
 
     pub fn source_mut(&mut self) -> &mut QtGenericTypeWithArgs {
-        &mut self.source
+        self.source.as_mut()
     }
 }
 
@@ -62,13 +65,11 @@ impl TypeName for QtMonomorphedType {
     }
 }
 
+impl GenericArgs for QtMonomorphedType {}
+
 impl TypeInfo for QtMonomorphedType {
     fn cpp_name(&self) -> Option<&str> {
         Some(self.name.as_str())
-    }
-
-    fn generic_arg_count(&self) -> usize {
-        0
     }
 
     fn cpp_include(&self) -> Option<String> {

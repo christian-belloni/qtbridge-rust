@@ -4,7 +4,7 @@
 use crate::type_registry;
 use type_registry::QtType;
 use type_registry::TypeCategory;
-use type_registry::type_traits::{FindType, MetaTypeId, TypeInfo, TypeName};
+use type_registry::type_traits::{FindType, GenericArgs, MetaTypeId, TypeInfo, TypeName};
 use super::common::get_include_path;
 
 #[derive(Clone, Eq, Hash, PartialEq)]
@@ -50,6 +50,8 @@ impl TypeName for QtNonGenericType {
         Some("qtbridge_type_lib")
     }
 }
+
+impl GenericArgs for QtNonGenericType {}
 
 impl TypeInfo for QtNonGenericType {
     fn cpp_name(&self) -> Option<&str> {
