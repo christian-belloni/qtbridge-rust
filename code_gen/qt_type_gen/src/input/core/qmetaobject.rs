@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use crate::QMetaType;
+use crate::QObject;
 
 #[qt_gen::bridge]
 mod qmetaobject {
@@ -18,5 +19,13 @@ mod qmetaobject {
             return self.metaType();
         });
         cpp(self)
+    }
+
+    pub fn invoke_method(obj: *mut QObject, name: &str) -> bool {
+        let cpp = cpp_fn!(|obj: *mut QObject, name: &str| -> bool {
+            QByteArray nameBa = RustStrToQByteArray(name);
+            return QMetaObject::invokeMethod(obj, nameBa.constData(), Qt::QueuedConnection);
+        });
+        unsafe { cpp(obj, name) }
     }
 }

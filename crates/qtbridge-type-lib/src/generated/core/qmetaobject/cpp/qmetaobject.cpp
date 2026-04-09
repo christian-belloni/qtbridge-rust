@@ -12,4 +12,10 @@ QMetaType inlineCppFn_meta_type(QMetaObject const &self)
     return self.metaType();
 }
 
+bool inlineCppFn_invoke_method(QObject *obj, rust::Str name)
+{
+    QByteArray nameBa = RustStrToQByteArray(name);
+    return QMetaObject::invokeMethod(obj, nameBa.constData(), Qt::AutoConnection);
+}
+
 } // namespace rust::bridge::qmetaobject

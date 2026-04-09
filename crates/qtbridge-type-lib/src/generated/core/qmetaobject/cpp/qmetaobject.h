@@ -8,11 +8,14 @@
 
 #include <QMetaObject>
 #include "qtbridge-type-lib/src/generated/core/qmetatype/cpp/qmetatype.h"
+#include "qtbridge-type-lib/src/generated/core/qobject/cpp/qobject.h"
 #include "rust/cxx.h"
 
 namespace rust::bridge::qmetaobject {
 
 QMetaType inlineCppFn_meta_type(QMetaObject const &self);
+
+bool inlineCppFn_invoke_method(QObject *obj, rust::Str name);
 
 } // namespace rust::bridge::qmetaobject
 

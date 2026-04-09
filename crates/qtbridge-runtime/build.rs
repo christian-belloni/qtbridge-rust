@@ -18,6 +18,7 @@ fn main() {
         "dynamicmetaobjectdata",
         "qresource",
         "rustobjectgetter",
+        "qml_method_invoker",
     ];
 
     let other_rust_files: Vec<&str> = vec!(

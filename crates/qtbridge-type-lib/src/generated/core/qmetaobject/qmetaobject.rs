@@ -4,6 +4,7 @@
 // from the input file://./../../../../../../code_gen/qt_type_gen/src/input/core/qmetaobject.rs
 
 use crate::QMetaType;
+use crate::QObject;
 #[cxx::bridge]
 mod ffi {
     unsafe extern "C++" {
@@ -14,11 +15,15 @@ mod ffi {
         type QMetaObject;
         include!("qtbridge-type-lib/src/generated/core/qmetatype/cpp/qmetatype.h");
         type QMetaType = crate::QMetaType;
+        include!("qtbridge-type-lib/src/generated/core/qobject/cpp/qobject.h");
+        type QObject = crate::QObject;
     }
     #[namespace = "rust::bridge::qmetaobject"]
     unsafe extern "C++" {
         # [rust_name = inline_cpp_fn_meta_type]
         fn inlineCppFn_meta_type(_obj: &QMetaObject) -> QMetaType;
+        # [rust_name = inline_cpp_fn_invoke_method]
+        unsafe fn inlineCppFn_invoke_method(obj: *mut QObject, name: &str) -> bool;
     }
 }
 #[allow(dead_code)]
@@ -30,5 +35,10 @@ impl QMetaObject {
     pub fn meta_type(&self) -> QMetaType {
         let cpp = ffi::inline_cpp_fn_meta_type;
         cpp(self)
+    }
+    #[allow(dead_code)]
+    pub fn invoke_method(obj: *mut QObject, name: &str) -> bool {
+        let cpp = ffi::inline_cpp_fn_invoke_method;
+        unsafe { cpp(obj, name) }
     }
 }

@@ -7,7 +7,7 @@ use std::rc::Rc;
 use qtbridge_type_lib::{QMetaObject, QMetaType, QMetaTypeGet, QObject, QVariant};
 use crate::qrustproxy::{QRustProxy, ConstructionMode};
 use crate::rustobjectgetter::get_rust_object_rc_ptr;
-use crate::{DispatchMetaCall, QMetaInfo};
+use crate::{DispatchMetaCall, QMetaInfo, QmlMethodInvoker};
 use std::collections::HashMap;
 
 
@@ -128,6 +128,32 @@ pub trait QObjectHolder : DispatchMetaCall + QMetaInfo + Default {
 
         let raw_ref_cell = raw_u8 as *const RefCell<Self>;
         unsafe { Rc::from_raw(raw_ref_cell) }
+    }
+
+    /// Returns a [`QmlMethodInvoker`] that can invoke methods on the underlying
+    /// `QObject` from any thread.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use qtbridge::{qobject, QObjectHolder};
+    /// # #[qobject]
+    /// # pub mod example {
+    /// #     #[derive(Default)]
+    /// #     pub struct Backend {}
+    /// #     impl Backend {
+    /// #         #[qsignal]
+    /// #         pub fn data_ready(&self);
+    /// #     }
+    /// # }
+    /// # use example::Backend;
+    /// let backend = Backend::default_with_attached_qobject();
+    /// let invoker = backend.borrow().get_qml_method_invoker();
+    /// invoker.invoke_method("dataReady");
+    /// ```
+    fn get_qml_method_invoker(&self) -> QmlMethodInvoker
+    {
+        QmlMethodInvoker::new(self)
     }
 
     /// This function has to be implemented on the specific type and
