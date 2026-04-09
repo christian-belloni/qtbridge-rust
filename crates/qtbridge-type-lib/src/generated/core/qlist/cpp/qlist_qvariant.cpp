@@ -7,10 +7,9 @@
 
 namespace rust::bridge::qlist_qvariant {
 
-
 static_assert(qMetaTypeId<QList_QVariant>() == 9);
 
-void QList_Drop(QList_QVariant& v)
+void QList_Drop(QList_QVariant &v)
 {
     v.~QList_QVariant();
 }
@@ -20,99 +19,82 @@ QList_QVariant QList_Default()
     return QList_QVariant();
 }
 
-QList_QVariant QList_Clone(const QList_QVariant& src)
+QList_QVariant QList_Clone(const QList_QVariant &src)
 {
-    return {src};
+    return { src };
 }
 
-
-
-
-void inlineCppFn_append(QList_QVariant& self, QVariant value)
+void inlineCppFn_append(QList_QVariant &self, QVariant value)
 {
-self.append(value);
+    self.append(value);
 }
 
-
-size_t inlineCppFn_capacity(const QList_QVariant& self)
+size_t inlineCppFn_capacity(const QList_QVariant &self)
 {
-return self.capacity();
+    return self.capacity();
 }
 
-
-void inlineCppFn_clear(QList_QVariant& self)
+void inlineCppFn_clear(QList_QVariant &self)
 {
-self.clear();
+    self.clear();
 }
 
-
-bool inlineCppFn_contains(const QList_QVariant& self, const QVariant& value)
+bool inlineCppFn_contains(const QList_QVariant &self, const QVariant &value)
 {
-return self.contains(value);
+    return self.contains(value);
 }
 
-
-
-void inlineCppFn_push_back(QList_QVariant& self, QVariant value)
+void inlineCppFn_push_back(QList_QVariant &self, QVariant value)
 {
-self.push_back(value);
+    self.push_back(value);
 }
 
-
-void inlineCppFn_remove(QList_QVariant& self, ptrdiff_t i, ptrdiff_t n)
+void inlineCppFn_remove(QList_QVariant &self, ptrdiff_t i, ptrdiff_t n)
 {
-self.remove(i,n);
+    self.remove(i, n);
 }
 
-
-void inlineCppFn_reserve(QList_QVariant& self, size_t size)
+void inlineCppFn_reserve(QList_QVariant &self, size_t size)
 {
-self.reserve(static_cast<qsizetype>(size));
+    self.reserve(static_cast<qsizetype>(size));
 }
 
-
-ptrdiff_t inlineCppFn_size(const QList_QVariant& self)
+ptrdiff_t inlineCppFn_size(const QList_QVariant &self)
 {
-return self.size();
+    return self.size();
 }
 
-
-
-const QVariant& inlineCppFn_first(const QList_QVariant& self)
+const QVariant &inlineCppFn_first(const QList_QVariant &self)
 {
-return self.constFirst();
+    return self.constFirst();
 }
 
-
-const QVariant& inlineCppFn_last(const QList_QVariant& self)
+const QVariant &inlineCppFn_last(const QList_QVariant &self)
 {
-return self.constLast();
+    return self.constLast();
 }
 
-
-
-
-
-
-
-
-QVariant const* inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QVariant_index(const QList_QVariant& self, size_t index)
+QVariant const *
+inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QVariant_index(const QList_QVariant &self,
+                                                                   size_t index)
 {
-return index<static_cast<size_t>(self.size())?&self[index]:nullptr;
+    return index < static_cast<size_t>(self.size()) ? &self[index] : nullptr;
 }
 
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_QVariant_eq(const QList_QVariant& lhs, const QList_QVariant& rhs)
+bool inlineCppFn_TraitImpl_PartialEq_for_QList_QVariant_eq(const QList_QVariant &lhs,
+                                                           const QList_QVariant &rhs)
 {
-return lhs==rhs;
+    return lhs == rhs;
 }
 
-
-bool inlineCppFn_TraitImpl_PartialEq_array_of_QVariant_N_for_QList_QVariant_eq(const QList_QVariant& self, rust::Slice<const  QVariant> rhs)
+bool inlineCppFn_TraitImpl_PartialEq_array_of_QVariant_N_for_QList_QVariant_eq(
+        const QList_QVariant &self, rust::Slice<const QVariant> rhs)
 {
-for(size_t i=0;i<rhs.size();++i){if(self[i]!=rhs[i])return false;}return true;
+    for (size_t i = 0; i < rhs.size(); ++i) {
+        if (self[i] != rhs[i])
+            return false;
+    }
+    return true;
 }
-
 
 } // namespace rust::bridge::qlist_qvariant
-

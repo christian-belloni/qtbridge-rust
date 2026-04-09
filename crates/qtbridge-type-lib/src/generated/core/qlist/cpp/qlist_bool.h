@@ -11,68 +11,60 @@
 #include "qtbridge-type-lib/src/generated/core/qmetatype/cpp/qmetatype.h"
 #include "rust/cxx.h"
 
-
 using QList_bool = ::QList<bool>;
 
 namespace rust::bridge::qlist_bool {
 
-
-
-void QList_Drop(QList_bool& v);
+void QList_Drop(QList_bool &v);
 QList_bool QList_Default();
-QList_bool QList_Clone(const QList_bool& src);
+QList_bool QList_Clone(const QList_bool &src);
 
 QMetaType QList_QMetaType();
 
+void inlineCppFn_append(QList_bool &self, bool value);
 
-void inlineCppFn_append(QList_bool& self, bool value);
+size_t inlineCppFn_capacity(const QList_bool &self);
 
-size_t inlineCppFn_capacity(const QList_bool& self);
+void inlineCppFn_clear(QList_bool &self);
 
-void inlineCppFn_clear(QList_bool& self);
+bool inlineCppFn_contains(const QList_bool &self, const bool &value);
 
-bool inlineCppFn_contains(const QList_bool& self, const bool& value);
+void inlineCppFn_push_back(QList_bool &self, bool value);
 
+void inlineCppFn_remove(QList_bool &self, ptrdiff_t i, ptrdiff_t n);
 
-void inlineCppFn_push_back(QList_bool& self, bool value);
+void inlineCppFn_reserve(QList_bool &self, size_t size);
 
-void inlineCppFn_remove(QList_bool& self, ptrdiff_t i, ptrdiff_t n);
+ptrdiff_t inlineCppFn_size(const QList_bool &self);
 
-void inlineCppFn_reserve(QList_bool& self, size_t size);
+const bool &inlineCppFn_first(const QList_bool &self);
 
-ptrdiff_t inlineCppFn_size(const QList_bool& self);
+const bool &inlineCppFn_last(const QList_bool &self);
 
+rust::Vec<bool> inlineCppFn_TraitImpl_From_ref_QList_bool_for_Vec_bool_from(const QList_bool &src);
 
-const bool& inlineCppFn_first(const QList_bool& self);
+bool const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_bool_index(const QList_bool &self,
+                                                                           size_t index);
 
-const bool& inlineCppFn_last(const QList_bool& self);
+bool inlineCppFn_TraitImpl_PartialEq_for_QList_bool_eq(const QList_bool &lhs,
+                                                       const QList_bool &rhs);
 
-
-
-
-
-rust::Vec<bool> inlineCppFn_TraitImpl_From_ref_QList_bool_for_Vec_bool_from(const QList_bool& src);
-
-
-bool const* inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_bool_index(const QList_bool& self, size_t index);
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_bool_eq(const QList_bool& lhs, const QList_bool& rhs);
-
-bool inlineCppFn_TraitImpl_PartialEq_array_of_bool_N_for_QList_bool_eq(const QList_bool& self, rust::Slice<const  bool> rhs);
+bool inlineCppFn_TraitImpl_PartialEq_array_of_bool_N_for_QList_bool_eq(const QList_bool &self,
+                                                                       rust::Slice<const bool> rhs);
 
 } // namespace rust::bridge::qlist_bool
 
-
-
 #ifndef QLIST_BOOL_IS_RELOCATABLE
-#define QLIST_BOOL_IS_RELOCATABLE
+#  define QLIST_BOOL_IS_RELOCATABLE
 
 namespace rust {
 
 template <>
-struct IsRelocatable<::QList_bool> : ::std::true_type {};
+struct IsRelocatable<::QList_bool> : ::std::true_type
+{
+};
 
- } // namespace rust
+} // namespace rust
 #endif // #ifndef QLIST_BOOL_IS_RELOCATABLE
 
 #endif // _QLIST_BOOL_RUST_BRIDGE_H_

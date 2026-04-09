@@ -7,47 +7,34 @@
 
 namespace rust::bridge::qqmlapplicationengine {
 
-
-
-
-
-
-
 std::unique_ptr<QQmlApplicationEngine> inlineCppFn_new()
 {
-return std::make_unique<QQmlApplicationEngine>();
+    return std::make_unique<QQmlApplicationEngine>();
 }
 
-
-void inlineCppFn_add_import_path(QQmlApplicationEngine& self, rust::Str path)
+void inlineCppFn_add_import_path(QQmlApplicationEngine &self, rust::Str path)
 {
-self.addImportPath(RustStrToQString(path));
+    self.addImportPath(RustStrToQString(path));
 }
 
-
-void inlineCppFn_load(QQmlApplicationEngine& self, rust::Str file_path)
+void inlineCppFn_load(QQmlApplicationEngine &self, rust::Str file_path)
 {
-self.load(RustStrToQString(file_path));
+    self.load(RustStrToQString(file_path));
 }
 
-
-void inlineCppFn_load_data(QQmlApplicationEngine& self, rust::Slice<const  uint8_t> data)
+void inlineCppFn_load_data(QQmlApplicationEngine &self, rust::Slice<const uint8_t> data)
 {
-self.loadData(RustSliceToQByteArray(data));
+    self.loadData(RustSliceToQByteArray(data));
 }
 
-
-void inlineCppFn_load_from_module(QQmlApplicationEngine& self, rust::Str uri, rust::Str type_name)
+void inlineCppFn_load_from_module(QQmlApplicationEngine &self, rust::Str uri, rust::Str type_name)
 {
-self.loadFromModule(RustStrToQString(uri),RustStrToQString(type_name));
+    self.loadFromModule(RustStrToQString(uri), RustStrToQString(type_name));
 }
 
-
-void inlineCppFn_set_initial_properties(QQmlApplicationEngine& self, const QVariantMap& props)
+void inlineCppFn_set_initial_properties(QQmlApplicationEngine &self, const QVariantMap &props)
 {
-self.setInitialProperties(props);
+    self.setInitialProperties(props);
 }
-
 
 } // namespace rust::bridge::qqmlapplicationengine
-

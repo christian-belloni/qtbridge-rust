@@ -14,28 +14,18 @@
 #include "rust/cxx.h"
 #include "rustconv.h"
 
-
-
-
 namespace rust::bridge::qsignalspy {
 
+std::unique_ptr<QSignalSpy> inlineCppFn_new(const QObject &qobject, rust::Str signal_name);
 
+ptrdiff_t inlineCppFn_count(const QSignalSpy &self);
 
+QVariantList inlineCppFn_take_at(QSignalSpy &self, ptrdiff_t idx);
 
+QVariantList inlineCppFn_take_first(QSignalSpy &self);
 
-
-
-std::unique_ptr<QSignalSpy> inlineCppFn_new(const QObject& qobject, rust::Str signal_name);
-
-ptrdiff_t inlineCppFn_count(const QSignalSpy& self);
-
-QVariantList inlineCppFn_take_at(QSignalSpy& self, ptrdiff_t idx);
-
-QVariantList inlineCppFn_take_first(QSignalSpy& self);
-
-QVariantList inlineCppFn_take_last(QSignalSpy& self);
+QVariantList inlineCppFn_take_last(QSignalSpy &self);
 
 } // namespace rust::bridge::qsignalspy
-
 
 #endif // _QSIGNALSPY_RUST_BRIDGE_H_

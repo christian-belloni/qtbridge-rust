@@ -7,10 +7,9 @@
 
 namespace rust::bridge::qlist_qbytearray {
 
-
 static_assert(qMetaTypeId<QList_QByteArray>() == 49);
 
-void QList_Drop(QList_QByteArray& v)
+void QList_Drop(QList_QByteArray &v)
 {
     v.~QList_QByteArray();
 }
@@ -20,99 +19,82 @@ QList_QByteArray QList_Default()
     return QList_QByteArray();
 }
 
-QList_QByteArray QList_Clone(const QList_QByteArray& src)
+QList_QByteArray QList_Clone(const QList_QByteArray &src)
 {
-    return {src};
+    return { src };
 }
 
-
-
-
-void inlineCppFn_append(QList_QByteArray& self, QByteArray value)
+void inlineCppFn_append(QList_QByteArray &self, QByteArray value)
 {
-self.append(value);
+    self.append(value);
 }
 
-
-size_t inlineCppFn_capacity(const QList_QByteArray& self)
+size_t inlineCppFn_capacity(const QList_QByteArray &self)
 {
-return self.capacity();
+    return self.capacity();
 }
 
-
-void inlineCppFn_clear(QList_QByteArray& self)
+void inlineCppFn_clear(QList_QByteArray &self)
 {
-self.clear();
+    self.clear();
 }
 
-
-bool inlineCppFn_contains(const QList_QByteArray& self, const QByteArray& value)
+bool inlineCppFn_contains(const QList_QByteArray &self, const QByteArray &value)
 {
-return self.contains(value);
+    return self.contains(value);
 }
 
-
-
-void inlineCppFn_push_back(QList_QByteArray& self, QByteArray value)
+void inlineCppFn_push_back(QList_QByteArray &self, QByteArray value)
 {
-self.push_back(value);
+    self.push_back(value);
 }
 
-
-void inlineCppFn_remove(QList_QByteArray& self, ptrdiff_t i, ptrdiff_t n)
+void inlineCppFn_remove(QList_QByteArray &self, ptrdiff_t i, ptrdiff_t n)
 {
-self.remove(i,n);
+    self.remove(i, n);
 }
 
-
-void inlineCppFn_reserve(QList_QByteArray& self, size_t size)
+void inlineCppFn_reserve(QList_QByteArray &self, size_t size)
 {
-self.reserve(static_cast<qsizetype>(size));
+    self.reserve(static_cast<qsizetype>(size));
 }
 
-
-ptrdiff_t inlineCppFn_size(const QList_QByteArray& self)
+ptrdiff_t inlineCppFn_size(const QList_QByteArray &self)
 {
-return self.size();
+    return self.size();
 }
 
-
-
-const QByteArray& inlineCppFn_first(const QList_QByteArray& self)
+const QByteArray &inlineCppFn_first(const QList_QByteArray &self)
 {
-return self.constFirst();
+    return self.constFirst();
 }
 
-
-const QByteArray& inlineCppFn_last(const QList_QByteArray& self)
+const QByteArray &inlineCppFn_last(const QList_QByteArray &self)
 {
-return self.constLast();
+    return self.constLast();
 }
 
-
-
-
-
-
-
-
-QByteArray const* inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QByteArray_index(const QList_QByteArray& self, size_t index)
+QByteArray const *
+inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QByteArray_index(const QList_QByteArray &self,
+                                                                     size_t index)
 {
-return index<static_cast<size_t>(self.size())?&self[index]:nullptr;
+    return index < static_cast<size_t>(self.size()) ? &self[index] : nullptr;
 }
 
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_QByteArray_eq(const QList_QByteArray& lhs, const QList_QByteArray& rhs)
+bool inlineCppFn_TraitImpl_PartialEq_for_QList_QByteArray_eq(const QList_QByteArray &lhs,
+                                                             const QList_QByteArray &rhs)
 {
-return lhs==rhs;
+    return lhs == rhs;
 }
 
-
-bool inlineCppFn_TraitImpl_PartialEq_array_of_QByteArray_N_for_QList_QByteArray_eq(const QList_QByteArray& self, rust::Slice<const  QByteArray> rhs)
+bool inlineCppFn_TraitImpl_PartialEq_array_of_QByteArray_N_for_QList_QByteArray_eq(
+        const QList_QByteArray &self, rust::Slice<const QByteArray> rhs)
 {
-for(size_t i=0;i<rhs.size();++i){if(self[i]!=rhs[i])return false;}return true;
+    for (size_t i = 0; i < rhs.size(); ++i) {
+        if (self[i] != rhs[i])
+            return false;
+    }
+    return true;
 }
-
 
 } // namespace rust::bridge::qlist_qbytearray
-

@@ -7,22 +7,14 @@
 
 namespace rust::bridge::qsignalblocker {
 
-
-
-
-void QSignalBlocker_Drop(QSignalBlocker& v)
+void QSignalBlocker_Drop(QSignalBlocker &v)
 {
     v.~QSignalBlocker();
 }
 
-
-
-
-QSignalBlocker inlineCppFn_new(QObject& qobj)
+QSignalBlocker inlineCppFn_new(QObject &qobj)
 {
-return QSignalBlocker(qobj);
+    return QSignalBlocker(qobj);
 }
 
-
 } // namespace rust::bridge::qsignalblocker
-

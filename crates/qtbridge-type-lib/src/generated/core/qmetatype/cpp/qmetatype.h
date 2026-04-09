@@ -12,27 +12,19 @@
 #include "qtbridge-type-lib/src/generated/core/qmetatypeinterface/cpp/qmetatypeinterface.h"
 #include "rust/cxx.h"
 
-
-
-
 namespace rust::bridge::qmetatype {
-
-
 
 QMetaType QMetaType_Default();
 
-
-
-
 QMetaType inlineCppFn_new(int32_t type_id);
 
-QMetaType inlineCppFn_new_with_interface(::QtPrivate::QMetaTypeInterface const* iface);
+QMetaType inlineCppFn_new_with_interface(::QtPrivate::QMetaTypeInterface const *iface);
 
-int32_t inlineCppFn_id(const QMetaType& self);
+int32_t inlineCppFn_id(const QMetaType &self);
 
-bool inlineCppFn_is_valid(const QMetaType& self);
+bool inlineCppFn_is_valid(const QMetaType &self);
 
-void inlineCppFn_register_type(const QMetaType& self);
+void inlineCppFn_register_type(const QMetaType &self);
 
 QMetaType inlineCppFn_TraitImpl_QMetaTypeGet_for_bool_get_qmetatype();
 
@@ -62,14 +54,13 @@ QMetaType inlineCppFn_TraitImpl_QMetaTypeGet_for_usize_get_qmetatype();
 
 } // namespace rust::bridge::qmetatype
 
-
-
 namespace rust {
 
 template <>
-struct IsRelocatable<::QMetaType> : ::std::true_type {};
+struct IsRelocatable<::QMetaType> : ::std::true_type
+{
+};
 
- } // namespace rust
-
+} // namespace rust
 
 #endif // _QMETATYPE_RUST_BRIDGE_H_

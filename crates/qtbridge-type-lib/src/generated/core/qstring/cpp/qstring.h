@@ -11,36 +11,27 @@
 #include "rust/cxx.h"
 #include "rustconv.h"
 
-
-
-
 namespace rust::bridge::qstring {
 
-
-
-void QString_Drop(QString& v);
+void QString_Drop(QString &v);
 QString QString_Default();
-QString QString_Clone(const QString& src);
-
-
-
+QString QString_Clone(const QString &src);
 
 QString inlineCppFn_new(rust::Str src);
 
-QByteArray inlineCppFn_to_utf8(const QString& self);
+QByteArray inlineCppFn_to_utf8(const QString &self);
 
-bool inlineCppFn_TraitImpl_PartialEq_for_QString_eq(const QString& lhs, const QString& rhs);
+bool inlineCppFn_TraitImpl_PartialEq_for_QString_eq(const QString &lhs, const QString &rhs);
 
 } // namespace rust::bridge::qstring
-
-
 
 namespace rust {
 
 template <>
-struct IsRelocatable<::QString> : ::std::true_type {};
+struct IsRelocatable<::QString> : ::std::true_type
+{
+};
 
- } // namespace rust
-
+} // namespace rust
 
 #endif // _QSTRING_RUST_BRIDGE_H_

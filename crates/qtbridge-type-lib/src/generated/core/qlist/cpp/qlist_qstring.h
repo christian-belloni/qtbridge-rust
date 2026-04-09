@@ -11,71 +11,57 @@
 #include "qtbridge-type-lib/src/generated/core/qstring/cpp/qstring.h"
 #include "rust/cxx.h"
 
-
 using QList_QString = ::QList<QString>;
 
 namespace rust::bridge::qlist_qstring {
 
-
-
-void QList_Drop(QList_QString& v);
+void QList_Drop(QList_QString &v);
 QList_QString QList_Default();
-QList_QString QList_Clone(const QList_QString& src);
+QList_QString QList_Clone(const QList_QString &src);
 
+void inlineCppFn_append(QList_QString &self, QString value);
 
+size_t inlineCppFn_capacity(const QList_QString &self);
 
+void inlineCppFn_clear(QList_QString &self);
 
-void inlineCppFn_append(QList_QString& self, QString value);
+bool inlineCppFn_contains(const QList_QString &self, const QString &value);
 
-size_t inlineCppFn_capacity(const QList_QString& self);
+void inlineCppFn_push_back(QList_QString &self, QString value);
 
-void inlineCppFn_clear(QList_QString& self);
+void inlineCppFn_remove(QList_QString &self, ptrdiff_t i, ptrdiff_t n);
 
-bool inlineCppFn_contains(const QList_QString& self, const QString& value);
+void inlineCppFn_reserve(QList_QString &self, size_t size);
 
+ptrdiff_t inlineCppFn_size(const QList_QString &self);
 
-void inlineCppFn_push_back(QList_QString& self, QString value);
+const QString &inlineCppFn_first(const QList_QString &self);
 
-void inlineCppFn_remove(QList_QString& self, ptrdiff_t i, ptrdiff_t n);
+const QString &inlineCppFn_last(const QList_QString &self);
 
-void inlineCppFn_reserve(QList_QString& self, size_t size);
+QString const *
+inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QString_index(const QList_QString &self,
+                                                                  size_t index);
 
-ptrdiff_t inlineCppFn_size(const QList_QString& self);
+bool inlineCppFn_TraitImpl_PartialEq_for_QList_QString_eq(const QList_QString &lhs,
+                                                          const QList_QString &rhs);
 
-
-const QString& inlineCppFn_first(const QList_QString& self);
-
-const QString& inlineCppFn_last(const QList_QString& self);
-
-
-
-
-
-
-
-
-
-
-
-QString const* inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QString_index(const QList_QString& self, size_t index);
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_QString_eq(const QList_QString& lhs, const QList_QString& rhs);
-
-bool inlineCppFn_TraitImpl_PartialEq_array_of_QString_N_for_QList_QString_eq(const QList_QString& self, rust::Slice<const  QString> rhs);
+bool inlineCppFn_TraitImpl_PartialEq_array_of_QString_N_for_QList_QString_eq(
+        const QList_QString &self, rust::Slice<const QString> rhs);
 
 } // namespace rust::bridge::qlist_qstring
 
-
-
 #ifndef QLIST_QSTRING_IS_RELOCATABLE
-#define QLIST_QSTRING_IS_RELOCATABLE
+#  define QLIST_QSTRING_IS_RELOCATABLE
 
 namespace rust {
 
 template <>
-struct IsRelocatable<::QList_QString> : ::std::true_type {};
+struct IsRelocatable<::QList_QString> : ::std::true_type
+{
+};
 
- } // namespace rust
+} // namespace rust
 #endif // #ifndef QLIST_QSTRING_IS_RELOCATABLE
 
 #endif // _QLIST_QSTRING_RUST_BRIDGE_H_

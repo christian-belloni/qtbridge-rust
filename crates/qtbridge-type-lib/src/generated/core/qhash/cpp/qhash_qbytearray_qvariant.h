@@ -14,56 +14,50 @@
 #include "qtbridge-type-lib/src/generated/core/qvariant/cpp/qvariant.h"
 #include "rust/cxx.h"
 
-
 using QHash_QByteArray_QVariant = ::QHash<QByteArray, QVariant>;
 
 namespace rust::bridge::qhash_qbytearray_qvariant {
 
-
-
-void QHash_Drop(QHash_QByteArray_QVariant& v);
+void QHash_Drop(QHash_QByteArray_QVariant &v);
 QHash_QByteArray_QVariant QHash_Default();
-QHash_QByteArray_QVariant QHash_Clone(const QHash_QByteArray_QVariant& src);
+QHash_QByteArray_QVariant QHash_Clone(const QHash_QByteArray_QVariant &src);
 
+void inlineCppFn_clear(QHash_QByteArray_QVariant &self);
 
+bool inlineCppFn_contains(const QHash_QByteArray_QVariant &self, const QByteArray &key);
 
+void inlineCppFn_insert(QHash_QByteArray_QVariant &self, const QByteArray &key,
+                        const QVariant &value);
 
-void inlineCppFn_clear(QHash_QByteArray_QVariant& self);
+bool inlineCppFn_is_empty(const QHash_QByteArray_QVariant &self);
 
-bool inlineCppFn_contains(const QHash_QByteArray_QVariant& self, const QByteArray& key);
+bool inlineCppFn_remove(QHash_QByteArray_QVariant &self, const QByteArray &key);
 
-void inlineCppFn_insert(QHash_QByteArray_QVariant& self, const QByteArray& key, const QVariant& value);
+ptrdiff_t inlineCppFn_size(const QHash_QByteArray_QVariant &self);
 
-bool inlineCppFn_is_empty(const QHash_QByteArray_QVariant& self);
+QList_QByteArray inlineCppFn_keys(const QHash_QByteArray_QVariant &self);
 
-bool inlineCppFn_remove(QHash_QByteArray_QVariant& self, const QByteArray& key);
+QList_QVariant inlineCppFn_values(const QHash_QByteArray_QVariant &self);
 
-ptrdiff_t inlineCppFn_size(const QHash_QByteArray_QVariant& self);
+QVariant inlineCppFn_value(const QHash_QByteArray_QVariant &self, const QByteArray &key);
 
-
-QList_QByteArray inlineCppFn_keys(const QHash_QByteArray_QVariant& self);
-
-QList_QVariant inlineCppFn_values(const QHash_QByteArray_QVariant& self);
-
-QVariant inlineCppFn_value(const QHash_QByteArray_QVariant& self, const QByteArray& key);
-
-
-
-QVariant const* inlineCppFn_TraitImpl_std_ops_Index_ref_QByteArray_for_QHash_QByteArray_QVariant_index(const QHash_QByteArray_QVariant& self, const QByteArray& key);
+QVariant const *
+inlineCppFn_TraitImpl_std_ops_Index_ref_QByteArray_for_QHash_QByteArray_QVariant_index(
+        const QHash_QByteArray_QVariant &self, const QByteArray &key);
 
 } // namespace rust::bridge::qhash_qbytearray_qvariant
 
-
-
 #ifndef QHASH_QBYTEARRAY_QVARIANT_IS_RELOCATABLE
-#define QHASH_QBYTEARRAY_QVARIANT_IS_RELOCATABLE
+#  define QHASH_QBYTEARRAY_QVARIANT_IS_RELOCATABLE
 
 namespace rust {
 
 template <>
-struct IsRelocatable<::QHash_QByteArray_QVariant> : ::std::true_type {};
+struct IsRelocatable<::QHash_QByteArray_QVariant> : ::std::true_type
+{
+};
 
- } // namespace rust
+} // namespace rust
 #endif // #ifndef QHASH_QBYTEARRAY_QVARIANT_IS_RELOCATABLE
 
 #endif // _QHASH_QBYTEARRAY_QVARIANT_RUST_BRIDGE_H_

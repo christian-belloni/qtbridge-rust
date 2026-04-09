@@ -13,30 +13,20 @@
 #include "rust/cxx.h"
 #include "rustconv.h"
 
-
-
-
 namespace rust::bridge::qqmlapplicationengine {
-
-
-
-
-
-
 
 std::unique_ptr<QQmlApplicationEngine> inlineCppFn_new();
 
-void inlineCppFn_add_import_path(QQmlApplicationEngine& self, rust::Str path);
+void inlineCppFn_add_import_path(QQmlApplicationEngine &self, rust::Str path);
 
-void inlineCppFn_load(QQmlApplicationEngine& self, rust::Str file_path);
+void inlineCppFn_load(QQmlApplicationEngine &self, rust::Str file_path);
 
-void inlineCppFn_load_data(QQmlApplicationEngine& self, rust::Slice<const  uint8_t> data);
+void inlineCppFn_load_data(QQmlApplicationEngine &self, rust::Slice<const uint8_t> data);
 
-void inlineCppFn_load_from_module(QQmlApplicationEngine& self, rust::Str uri, rust::Str type_name);
+void inlineCppFn_load_from_module(QQmlApplicationEngine &self, rust::Str uri, rust::Str type_name);
 
-void inlineCppFn_set_initial_properties(QQmlApplicationEngine& self, const QVariantMap& props);
+void inlineCppFn_set_initial_properties(QQmlApplicationEngine &self, const QVariantMap &props);
 
 } // namespace rust::bridge::qqmlapplicationengine
-
 
 #endif // _QQMLAPPLICATIONENGINE_RUST_BRIDGE_H_

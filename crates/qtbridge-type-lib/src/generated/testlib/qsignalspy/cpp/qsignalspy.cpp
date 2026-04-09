@@ -7,41 +7,41 @@
 
 namespace rust::bridge::qsignalspy {
 
-
-
-
-
-
-
-std::unique_ptr<QSignalSpy> inlineCppFn_new(const QObject& qobject, rust::Str signal_name)
+std::unique_ptr<QSignalSpy> inlineCppFn_new(const QObject &qobject, rust::Str signal_name)
 {
-const QByteArray signalNameBa=RustStrToQByteArray(signal_name);const auto*mo=qobject.metaObject();const auto methodCount=mo->methodCount();for(int m=mo->methodOffset();m<methodCount;++m){auto method=mo->method(m);if(method.nameView()==signalNameBa){auto sign=method.methodSignature();const char signalCodeChar='0'+QSIGNAL_CODE;sign.insert(0,signalCodeChar);return std::make_unique<QSignalSpy>(&qobject,sign.constData());}}return nullptr;
+    const QByteArray signalNameBa = RustStrToQByteArray(signal_name);
+    const auto *mo = qobject.metaObject();
+    const auto methodCount = mo->methodCount();
+    for (int m = mo->methodOffset(); m < methodCount; ++m) {
+        auto method = mo->method(m);
+        if (method.nameView() == signalNameBa) {
+            auto sign = method.methodSignature();
+            const char signalCodeChar = '0' + QSIGNAL_CODE;
+            sign.insert(0, signalCodeChar);
+            return std::make_unique<QSignalSpy>(&qobject, sign.constData());
+        }
+    }
+    return nullptr;
 }
 
-
-ptrdiff_t inlineCppFn_count(const QSignalSpy& self)
+ptrdiff_t inlineCppFn_count(const QSignalSpy &self)
 {
-return self.count();
+    return self.count();
 }
 
-
-QVariantList inlineCppFn_take_at(QSignalSpy& self, ptrdiff_t idx)
+QVariantList inlineCppFn_take_at(QSignalSpy &self, ptrdiff_t idx)
 {
-return self.takeAt(idx);
+    return self.takeAt(idx);
 }
 
-
-QVariantList inlineCppFn_take_first(QSignalSpy& self)
+QVariantList inlineCppFn_take_first(QSignalSpy &self)
 {
-return self.takeFirst();
+    return self.takeFirst();
 }
 
-
-QVariantList inlineCppFn_take_last(QSignalSpy& self)
+QVariantList inlineCppFn_take_last(QSignalSpy &self)
 {
-return self.takeLast();
+    return self.takeLast();
 }
-
 
 } // namespace rust::bridge::qsignalspy
-

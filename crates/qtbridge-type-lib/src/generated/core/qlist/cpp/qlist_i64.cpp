@@ -7,10 +7,7 @@
 
 namespace rust::bridge::qlist_i64 {
 
-
-
-
-void QList_Drop(QList_i64& v)
+void QList_Drop(QList_i64 &v)
 {
     v.~QList_i64();
 }
@@ -20,109 +17,94 @@ QList_i64 QList_Default()
     return QList_i64();
 }
 
-QList_i64 QList_Clone(const QList_i64& src)
+QList_i64 QList_Clone(const QList_i64 &src)
 {
-    return {src};
+    return { src };
 }
-
 
 QMetaType QList_QMetaType()
 {
-        return QMetaType::fromType<QList_i64>();
+    return QMetaType::fromType<QList_i64>();
 }
 
-
-
-void inlineCppFn_append(QList_i64& self, int64_t value)
+void inlineCppFn_append(QList_i64 &self, int64_t value)
 {
-self.append(value);
+    self.append(value);
 }
 
-
-size_t inlineCppFn_capacity(const QList_i64& self)
+size_t inlineCppFn_capacity(const QList_i64 &self)
 {
-return self.capacity();
+    return self.capacity();
 }
 
-
-void inlineCppFn_clear(QList_i64& self)
+void inlineCppFn_clear(QList_i64 &self)
 {
-self.clear();
+    self.clear();
 }
 
-
-bool inlineCppFn_contains(const QList_i64& self, const int64_t& value)
+bool inlineCppFn_contains(const QList_i64 &self, const int64_t &value)
 {
-return self.contains(value);
+    return self.contains(value);
 }
 
-
-
-void inlineCppFn_push_back(QList_i64& self, int64_t value)
+void inlineCppFn_push_back(QList_i64 &self, int64_t value)
 {
-self.push_back(value);
+    self.push_back(value);
 }
 
-
-void inlineCppFn_remove(QList_i64& self, ptrdiff_t i, ptrdiff_t n)
+void inlineCppFn_remove(QList_i64 &self, ptrdiff_t i, ptrdiff_t n)
 {
-self.remove(i,n);
+    self.remove(i, n);
 }
 
-
-void inlineCppFn_reserve(QList_i64& self, size_t size)
+void inlineCppFn_reserve(QList_i64 &self, size_t size)
 {
-self.reserve(static_cast<qsizetype>(size));
+    self.reserve(static_cast<qsizetype>(size));
 }
 
-
-ptrdiff_t inlineCppFn_size(const QList_i64& self)
+ptrdiff_t inlineCppFn_size(const QList_i64 &self)
 {
-return self.size();
+    return self.size();
 }
 
-
-
-const int64_t& inlineCppFn_first(const QList_i64& self)
+const int64_t &inlineCppFn_first(const QList_i64 &self)
 {
-return self.constFirst();
+    return self.constFirst();
 }
 
-
-const int64_t& inlineCppFn_last(const QList_i64& self)
+const int64_t &inlineCppFn_last(const QList_i64 &self)
 {
-return self.constLast();
+    return self.constLast();
 }
 
-
-
-
-
-
-rust::Vec<int64_t> inlineCppFn_TraitImpl_From_ref_QList_i64_for_Vec_i64_from(const QList_i64& src)
+rust::Vec<int64_t> inlineCppFn_TraitImpl_From_ref_QList_i64_for_Vec_i64_from(const QList_i64 &src)
 {
-rust::Vec<int64_t>result;result.reserve(static_cast<size_t>(src.size()));for(int64_t item:src)result.push_back(item);return result;
+    rust::Vec<int64_t> result;
+    result.reserve(static_cast<size_t>(src.size()));
+    for (int64_t item : src)
+        result.push_back(item);
+    return result;
 }
 
-
-
-int64_t const* inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_i64_index(const QList_i64& self, size_t index)
+int64_t const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_i64_index(const QList_i64 &self,
+                                                                             size_t index)
 {
-return index<static_cast<size_t>(self.size())?&self[index]:nullptr;
+    return index < static_cast<size_t>(self.size()) ? &self[index] : nullptr;
 }
 
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_i64_eq(const QList_i64& lhs, const QList_i64& rhs)
+bool inlineCppFn_TraitImpl_PartialEq_for_QList_i64_eq(const QList_i64 &lhs, const QList_i64 &rhs)
 {
-return lhs==rhs;
+    return lhs == rhs;
 }
 
-
-bool inlineCppFn_TraitImpl_PartialEq_array_of_i64_N_for_QList_i64_eq(const QList_i64& self, rust::Slice<const  int64_t> rhs)
+bool inlineCppFn_TraitImpl_PartialEq_array_of_i64_N_for_QList_i64_eq(const QList_i64 &self,
+                                                                     rust::Slice<const int64_t> rhs)
 {
-for(size_t i=0;i<rhs.size();++i){if(self[i]!=rhs[i])return false;}return true;
+    for (size_t i = 0; i < rhs.size(); ++i) {
+        if (self[i] != rhs[i])
+            return false;
+    }
+    return true;
 }
-
 
 } // namespace rust::bridge::qlist_i64
-

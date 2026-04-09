@@ -7,10 +7,9 @@
 
 namespace rust::bridge::qstring {
 
-
 static_assert(qMetaTypeId<QString>() == 10);
 
-void QString_Drop(QString& v)
+void QString_Drop(QString &v)
 {
     v.~QString();
 }
@@ -20,31 +19,24 @@ QString QString_Default()
     return QString();
 }
 
-QString QString_Clone(const QString& src)
+QString QString_Clone(const QString &src)
 {
-    return {src};
+    return { src };
 }
-
-
-
 
 QString inlineCppFn_new(rust::Str src)
 {
-return RustStrToQString(src);
+    return RustStrToQString(src);
 }
 
-
-QByteArray inlineCppFn_to_utf8(const QString& self)
+QByteArray inlineCppFn_to_utf8(const QString &self)
 {
-return self.toUtf8();
+    return self.toUtf8();
 }
 
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QString_eq(const QString& lhs, const QString& rhs)
+bool inlineCppFn_TraitImpl_PartialEq_for_QString_eq(const QString &lhs, const QString &rhs)
 {
-return lhs==rhs;
+    return lhs == rhs;
 }
-
 
 } // namespace rust::bridge::qstring
-

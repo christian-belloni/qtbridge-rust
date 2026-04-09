@@ -11,35 +11,25 @@
 #include "qtbridge-type-lib/src/generated/core/qvariant/cpp/qvariant.h"
 #include "rust/cxx.h"
 
-
-
-
 namespace rust::bridge::qobject {
 
+void inlineCppFn_delete(QObject *obj);
 
+void inlineCppFn_destruct(QObject *obj);
 
+QVariant inlineCppFn_property(const QObject &self, rust::Slice<const uint8_t> name);
 
-
-
-
-void inlineCppFn_delete(QObject* obj);
-
-void inlineCppFn_destruct(QObject* obj);
-
-QVariant inlineCppFn_property(const QObject& self, rust::Slice<const  uint8_t> name);
-
-bool inlineCppFn_set_property(QObject& self, rust::Slice<const  uint8_t> name, QVariant value);
+bool inlineCppFn_set_property(QObject &self, rust::Slice<const uint8_t> name, QVariant value);
 
 } // namespace rust::bridge::qobject
-
-
 
 namespace rust {
 
 template <>
-struct IsRelocatable<::QObject> : ::std::true_type {};
+struct IsRelocatable<::QObject> : ::std::true_type
+{
+};
 
- } // namespace rust
-
+} // namespace rust
 
 #endif // _QOBJECT_RUST_BRIDGE_H_

@@ -7,124 +7,99 @@
 
 namespace rust::bridge::qmetatype {
 
-
-
-
 QMetaType QMetaType_Default()
 {
     return QMetaType();
 }
 
-
-
-
 QMetaType inlineCppFn_new(int32_t type_id)
 {
-return QMetaType(type_id);
+    return QMetaType(type_id);
 }
 
-
-QMetaType inlineCppFn_new_with_interface(::QtPrivate::QMetaTypeInterface const* iface)
+QMetaType inlineCppFn_new_with_interface(::QtPrivate::QMetaTypeInterface const *iface)
 {
-return QMetaType(iface);
+    return QMetaType(iface);
 }
 
-
-int32_t inlineCppFn_id(const QMetaType& self)
+int32_t inlineCppFn_id(const QMetaType &self)
 {
-return self.id();
+    return self.id();
 }
 
-
-bool inlineCppFn_is_valid(const QMetaType& self)
+bool inlineCppFn_is_valid(const QMetaType &self)
 {
-return self.isValid();
+    return self.isValid();
 }
 
-
-void inlineCppFn_register_type(const QMetaType& self)
+void inlineCppFn_register_type(const QMetaType &self)
 {
-self.registerType();
+    self.registerType();
 }
-
 
 QMetaType inlineCppFn_TraitImpl_QMetaTypeGet_for_bool_get_qmetatype()
 {
-return QMetaType::fromType<bool>();
+    return QMetaType::fromType<bool>();
 }
-
 
 QMetaType inlineCppFn_TraitImpl_QMetaTypeGet_for_i8_get_qmetatype()
 {
-return QMetaType::fromType<int8_t>();
+    return QMetaType::fromType<int8_t>();
 }
-
 
 QMetaType inlineCppFn_TraitImpl_QMetaTypeGet_for_u8_get_qmetatype()
 {
-return QMetaType::fromType<uint8_t>();
+    return QMetaType::fromType<uint8_t>();
 }
-
 
 QMetaType inlineCppFn_TraitImpl_QMetaTypeGet_for_i16_get_qmetatype()
 {
-return QMetaType::fromType<int16_t>();
+    return QMetaType::fromType<int16_t>();
 }
-
 
 QMetaType inlineCppFn_TraitImpl_QMetaTypeGet_for_u16_get_qmetatype()
 {
-return QMetaType::fromType<uint16_t>();
+    return QMetaType::fromType<uint16_t>();
 }
-
 
 QMetaType inlineCppFn_TraitImpl_QMetaTypeGet_for_i32_get_qmetatype()
 {
-return QMetaType::fromType<int32_t>();
+    return QMetaType::fromType<int32_t>();
 }
-
 
 QMetaType inlineCppFn_TraitImpl_QMetaTypeGet_for_u32_get_qmetatype()
 {
-return QMetaType::fromType<uint32_t>();
+    return QMetaType::fromType<uint32_t>();
 }
-
 
 QMetaType inlineCppFn_TraitImpl_QMetaTypeGet_for_i64_get_qmetatype()
 {
-return QMetaType::fromType<int64_t>();
+    return QMetaType::fromType<int64_t>();
 }
-
 
 QMetaType inlineCppFn_TraitImpl_QMetaTypeGet_for_u64_get_qmetatype()
 {
-return QMetaType::fromType<uint64_t>();
+    return QMetaType::fromType<uint64_t>();
 }
-
 
 QMetaType inlineCppFn_TraitImpl_QMetaTypeGet_for_f32_get_qmetatype()
 {
-return QMetaType::fromType<float>();
+    return QMetaType::fromType<float>();
 }
-
 
 QMetaType inlineCppFn_TraitImpl_QMetaTypeGet_for_f64_get_qmetatype()
 {
-return QMetaType::fromType<double>();
+    return QMetaType::fromType<double>();
 }
-
 
 QMetaType inlineCppFn_TraitImpl_QMetaTypeGet_for_isize_get_qmetatype()
 {
-return QMetaType::fromType<ptrdiff_t>();
+    return QMetaType::fromType<ptrdiff_t>();
 }
-
 
 QMetaType inlineCppFn_TraitImpl_QMetaTypeGet_for_usize_get_qmetatype()
 {
-return QMetaType::fromType<size_t>();
+    return QMetaType::fromType<size_t>();
 }
 
-
 } // namespace rust::bridge::qmetatype
-

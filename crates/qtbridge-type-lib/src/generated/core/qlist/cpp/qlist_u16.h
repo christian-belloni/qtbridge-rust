@@ -11,68 +11,59 @@
 #include "qtbridge-type-lib/src/generated/core/qmetatype/cpp/qmetatype.h"
 #include "rust/cxx.h"
 
-
 using QList_u16 = ::QList<uint16_t>;
 
 namespace rust::bridge::qlist_u16 {
 
-
-
-void QList_Drop(QList_u16& v);
+void QList_Drop(QList_u16 &v);
 QList_u16 QList_Default();
-QList_u16 QList_Clone(const QList_u16& src);
+QList_u16 QList_Clone(const QList_u16 &src);
 
 QMetaType QList_QMetaType();
 
+void inlineCppFn_append(QList_u16 &self, uint16_t value);
 
-void inlineCppFn_append(QList_u16& self, uint16_t value);
+size_t inlineCppFn_capacity(const QList_u16 &self);
 
-size_t inlineCppFn_capacity(const QList_u16& self);
+void inlineCppFn_clear(QList_u16 &self);
 
-void inlineCppFn_clear(QList_u16& self);
+bool inlineCppFn_contains(const QList_u16 &self, const uint16_t &value);
 
-bool inlineCppFn_contains(const QList_u16& self, const uint16_t& value);
+void inlineCppFn_push_back(QList_u16 &self, uint16_t value);
 
+void inlineCppFn_remove(QList_u16 &self, ptrdiff_t i, ptrdiff_t n);
 
-void inlineCppFn_push_back(QList_u16& self, uint16_t value);
+void inlineCppFn_reserve(QList_u16 &self, size_t size);
 
-void inlineCppFn_remove(QList_u16& self, ptrdiff_t i, ptrdiff_t n);
+ptrdiff_t inlineCppFn_size(const QList_u16 &self);
 
-void inlineCppFn_reserve(QList_u16& self, size_t size);
+const uint16_t &inlineCppFn_first(const QList_u16 &self);
 
-ptrdiff_t inlineCppFn_size(const QList_u16& self);
+const uint16_t &inlineCppFn_last(const QList_u16 &self);
 
+rust::Vec<uint16_t> inlineCppFn_TraitImpl_From_ref_QList_u16_for_Vec_u16_from(const QList_u16 &src);
 
-const uint16_t& inlineCppFn_first(const QList_u16& self);
+uint16_t const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_u16_index(const QList_u16 &self,
+                                                                              size_t index);
 
-const uint16_t& inlineCppFn_last(const QList_u16& self);
+bool inlineCppFn_TraitImpl_PartialEq_for_QList_u16_eq(const QList_u16 &lhs, const QList_u16 &rhs);
 
-
-
-
-
-rust::Vec<uint16_t> inlineCppFn_TraitImpl_From_ref_QList_u16_for_Vec_u16_from(const QList_u16& src);
-
-
-uint16_t const* inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_u16_index(const QList_u16& self, size_t index);
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_u16_eq(const QList_u16& lhs, const QList_u16& rhs);
-
-bool inlineCppFn_TraitImpl_PartialEq_array_of_u16_N_for_QList_u16_eq(const QList_u16& self, rust::Slice<const  uint16_t> rhs);
+bool inlineCppFn_TraitImpl_PartialEq_array_of_u16_N_for_QList_u16_eq(
+        const QList_u16 &self, rust::Slice<const uint16_t> rhs);
 
 } // namespace rust::bridge::qlist_u16
 
-
-
 #ifndef QLIST_U16_IS_RELOCATABLE
-#define QLIST_U16_IS_RELOCATABLE
+#  define QLIST_U16_IS_RELOCATABLE
 
 namespace rust {
 
 template <>
-struct IsRelocatable<::QList_u16> : ::std::true_type {};
+struct IsRelocatable<::QList_u16> : ::std::true_type
+{
+};
 
- } // namespace rust
+} // namespace rust
 #endif // #ifndef QLIST_U16_IS_RELOCATABLE
 
 #endif // _QLIST_U16_RUST_BRIDGE_H_

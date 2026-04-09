@@ -13,57 +13,48 @@
 #include "qtbridge-type-lib/src/generated/core/qlist/cpp/qlist_qbytearray.h"
 #include "rust/cxx.h"
 
-
 using QHash_i32_QByteArray = ::QHash<int32_t, QByteArray>;
 
 namespace rust::bridge::qhash_i32_qbytearray {
 
-
-
-void QHash_Drop(QHash_i32_QByteArray& v);
+void QHash_Drop(QHash_i32_QByteArray &v);
 QHash_i32_QByteArray QHash_Default();
-QHash_i32_QByteArray QHash_Clone(const QHash_i32_QByteArray& src);
+QHash_i32_QByteArray QHash_Clone(const QHash_i32_QByteArray &src);
 
+void inlineCppFn_clear(QHash_i32_QByteArray &self);
 
+bool inlineCppFn_contains(const QHash_i32_QByteArray &self, const int32_t &key);
 
+void inlineCppFn_insert(QHash_i32_QByteArray &self, const int32_t &key, const QByteArray &value);
 
-void inlineCppFn_clear(QHash_i32_QByteArray& self);
+bool inlineCppFn_is_empty(const QHash_i32_QByteArray &self);
 
-bool inlineCppFn_contains(const QHash_i32_QByteArray& self, const int32_t& key);
+bool inlineCppFn_remove(QHash_i32_QByteArray &self, const int32_t &key);
 
-void inlineCppFn_insert(QHash_i32_QByteArray& self, const int32_t& key, const QByteArray& value);
+ptrdiff_t inlineCppFn_size(const QHash_i32_QByteArray &self);
 
-bool inlineCppFn_is_empty(const QHash_i32_QByteArray& self);
+QList_i32 inlineCppFn_keys(const QHash_i32_QByteArray &self);
 
-bool inlineCppFn_remove(QHash_i32_QByteArray& self, const int32_t& key);
+QList_QByteArray inlineCppFn_values(const QHash_i32_QByteArray &self);
 
-ptrdiff_t inlineCppFn_size(const QHash_i32_QByteArray& self);
+QByteArray inlineCppFn_value(const QHash_i32_QByteArray &self, const int32_t &key);
 
-
-QList_i32 inlineCppFn_keys(const QHash_i32_QByteArray& self);
-
-QList_QByteArray inlineCppFn_values(const QHash_i32_QByteArray& self);
-
-QByteArray inlineCppFn_value(const QHash_i32_QByteArray& self, const int32_t& key);
-
-
-
-
-QByteArray const* inlineCppFn_TraitImpl_std_ops_Index_ref_i32_for_QHash_i32_QByteArray_index(const QHash_i32_QByteArray& self, const int32_t& key);
+QByteArray const *inlineCppFn_TraitImpl_std_ops_Index_ref_i32_for_QHash_i32_QByteArray_index(
+        const QHash_i32_QByteArray &self, const int32_t &key);
 
 } // namespace rust::bridge::qhash_i32_qbytearray
 
-
-
 #ifndef QHASH_I32_QBYTEARRAY_IS_RELOCATABLE
-#define QHASH_I32_QBYTEARRAY_IS_RELOCATABLE
+#  define QHASH_I32_QBYTEARRAY_IS_RELOCATABLE
 
 namespace rust {
 
 template <>
-struct IsRelocatable<::QHash_i32_QByteArray> : ::std::true_type {};
+struct IsRelocatable<::QHash_i32_QByteArray> : ::std::true_type
+{
+};
 
- } // namespace rust
+} // namespace rust
 #endif // #ifndef QHASH_I32_QBYTEARRAY_IS_RELOCATABLE
 
 #endif // _QHASH_I32_QBYTEARRAY_RUST_BRIDGE_H_

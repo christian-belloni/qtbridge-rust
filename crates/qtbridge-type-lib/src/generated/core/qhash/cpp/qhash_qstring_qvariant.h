@@ -14,56 +14,48 @@
 #include "qtbridge-type-lib/src/generated/core/qvariant/cpp/qvariant.h"
 #include "rust/cxx.h"
 
-
 using QHash_QString_QVariant = ::QHash<QString, QVariant>;
 
 namespace rust::bridge::qhash_qstring_qvariant {
 
-
-
-void QHash_Drop(QHash_QString_QVariant& v);
+void QHash_Drop(QHash_QString_QVariant &v);
 QHash_QString_QVariant QHash_Default();
-QHash_QString_QVariant QHash_Clone(const QHash_QString_QVariant& src);
+QHash_QString_QVariant QHash_Clone(const QHash_QString_QVariant &src);
 
+void inlineCppFn_clear(QHash_QString_QVariant &self);
 
+bool inlineCppFn_contains(const QHash_QString_QVariant &self, const QString &key);
 
+void inlineCppFn_insert(QHash_QString_QVariant &self, const QString &key, const QVariant &value);
 
-void inlineCppFn_clear(QHash_QString_QVariant& self);
+bool inlineCppFn_is_empty(const QHash_QString_QVariant &self);
 
-bool inlineCppFn_contains(const QHash_QString_QVariant& self, const QString& key);
+bool inlineCppFn_remove(QHash_QString_QVariant &self, const QString &key);
 
-void inlineCppFn_insert(QHash_QString_QVariant& self, const QString& key, const QVariant& value);
+ptrdiff_t inlineCppFn_size(const QHash_QString_QVariant &self);
 
-bool inlineCppFn_is_empty(const QHash_QString_QVariant& self);
+QList_QString inlineCppFn_keys(const QHash_QString_QVariant &self);
 
-bool inlineCppFn_remove(QHash_QString_QVariant& self, const QString& key);
+QList_QVariant inlineCppFn_values(const QHash_QString_QVariant &self);
 
-ptrdiff_t inlineCppFn_size(const QHash_QString_QVariant& self);
+QVariant inlineCppFn_value(const QHash_QString_QVariant &self, const QString &key);
 
-
-QList_QString inlineCppFn_keys(const QHash_QString_QVariant& self);
-
-QList_QVariant inlineCppFn_values(const QHash_QString_QVariant& self);
-
-QVariant inlineCppFn_value(const QHash_QString_QVariant& self, const QString& key);
-
-
-
-QVariant const* inlineCppFn_TraitImpl_std_ops_Index_ref_QString_for_QHash_QString_QVariant_index(const QHash_QString_QVariant& self, const QString& key);
+QVariant const *inlineCppFn_TraitImpl_std_ops_Index_ref_QString_for_QHash_QString_QVariant_index(
+        const QHash_QString_QVariant &self, const QString &key);
 
 } // namespace rust::bridge::qhash_qstring_qvariant
 
-
-
 #ifndef QHASH_QSTRING_QVARIANT_IS_RELOCATABLE
-#define QHASH_QSTRING_QVARIANT_IS_RELOCATABLE
+#  define QHASH_QSTRING_QVARIANT_IS_RELOCATABLE
 
 namespace rust {
 
 template <>
-struct IsRelocatable<::QHash_QString_QVariant> : ::std::true_type {};
+struct IsRelocatable<::QHash_QString_QVariant> : ::std::true_type
+{
+};
 
- } // namespace rust
+} // namespace rust
 #endif // #ifndef QHASH_QSTRING_QVARIANT_IS_RELOCATABLE
 
 #endif // _QHASH_QSTRING_QVARIANT_RUST_BRIDGE_H_

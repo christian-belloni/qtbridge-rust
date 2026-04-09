@@ -11,68 +11,59 @@
 #include "qtbridge-type-lib/src/generated/core/qmetatype/cpp/qmetatype.h"
 #include "rust/cxx.h"
 
-
 using QList_i64 = ::QList<int64_t>;
 
 namespace rust::bridge::qlist_i64 {
 
-
-
-void QList_Drop(QList_i64& v);
+void QList_Drop(QList_i64 &v);
 QList_i64 QList_Default();
-QList_i64 QList_Clone(const QList_i64& src);
+QList_i64 QList_Clone(const QList_i64 &src);
 
 QMetaType QList_QMetaType();
 
+void inlineCppFn_append(QList_i64 &self, int64_t value);
 
-void inlineCppFn_append(QList_i64& self, int64_t value);
+size_t inlineCppFn_capacity(const QList_i64 &self);
 
-size_t inlineCppFn_capacity(const QList_i64& self);
+void inlineCppFn_clear(QList_i64 &self);
 
-void inlineCppFn_clear(QList_i64& self);
+bool inlineCppFn_contains(const QList_i64 &self, const int64_t &value);
 
-bool inlineCppFn_contains(const QList_i64& self, const int64_t& value);
+void inlineCppFn_push_back(QList_i64 &self, int64_t value);
 
+void inlineCppFn_remove(QList_i64 &self, ptrdiff_t i, ptrdiff_t n);
 
-void inlineCppFn_push_back(QList_i64& self, int64_t value);
+void inlineCppFn_reserve(QList_i64 &self, size_t size);
 
-void inlineCppFn_remove(QList_i64& self, ptrdiff_t i, ptrdiff_t n);
+ptrdiff_t inlineCppFn_size(const QList_i64 &self);
 
-void inlineCppFn_reserve(QList_i64& self, size_t size);
+const int64_t &inlineCppFn_first(const QList_i64 &self);
 
-ptrdiff_t inlineCppFn_size(const QList_i64& self);
+const int64_t &inlineCppFn_last(const QList_i64 &self);
 
+rust::Vec<int64_t> inlineCppFn_TraitImpl_From_ref_QList_i64_for_Vec_i64_from(const QList_i64 &src);
 
-const int64_t& inlineCppFn_first(const QList_i64& self);
+int64_t const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_i64_index(const QList_i64 &self,
+                                                                             size_t index);
 
-const int64_t& inlineCppFn_last(const QList_i64& self);
+bool inlineCppFn_TraitImpl_PartialEq_for_QList_i64_eq(const QList_i64 &lhs, const QList_i64 &rhs);
 
-
-
-
-
-rust::Vec<int64_t> inlineCppFn_TraitImpl_From_ref_QList_i64_for_Vec_i64_from(const QList_i64& src);
-
-
-int64_t const* inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_i64_index(const QList_i64& self, size_t index);
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_i64_eq(const QList_i64& lhs, const QList_i64& rhs);
-
-bool inlineCppFn_TraitImpl_PartialEq_array_of_i64_N_for_QList_i64_eq(const QList_i64& self, rust::Slice<const  int64_t> rhs);
+bool inlineCppFn_TraitImpl_PartialEq_array_of_i64_N_for_QList_i64_eq(
+        const QList_i64 &self, rust::Slice<const int64_t> rhs);
 
 } // namespace rust::bridge::qlist_i64
 
-
-
 #ifndef QLIST_I64_IS_RELOCATABLE
-#define QLIST_I64_IS_RELOCATABLE
+#  define QLIST_I64_IS_RELOCATABLE
 
 namespace rust {
 
 template <>
-struct IsRelocatable<::QList_i64> : ::std::true_type {};
+struct IsRelocatable<::QList_i64> : ::std::true_type
+{
+};
 
- } // namespace rust
+} // namespace rust
 #endif // #ifndef QLIST_I64_IS_RELOCATABLE
 
 #endif // _QLIST_I64_RUST_BRIDGE_H_

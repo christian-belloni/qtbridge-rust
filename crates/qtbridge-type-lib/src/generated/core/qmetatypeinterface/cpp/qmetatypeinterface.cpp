@@ -9,16 +9,33 @@ namespace rust::bridge::qmetatypeinterface {
 
 using namespace QtPrivate;
 
-
-
-
-
-
-::QtPrivate::QMetaTypeInterface inlineCppFn_fill_fields(uint16_t align, uint32_t size, uint32_t flags, rust::Slice<const  uint8_t> name, size_t meta_obj_fn, size_t default_ctr_fn, size_t copy_ctr_fn, size_t dtor_fn)
+::QtPrivate::QMetaTypeInterface inlineCppFn_fill_fields(uint16_t align, uint32_t size,
+                                                        uint32_t flags,
+                                                        rust::Slice<const uint8_t> name,
+                                                        size_t meta_obj_fn, size_t default_ctr_fn,
+                                                        size_t copy_ctr_fn, size_t dtor_fn)
 {
-auto metaObjFn=reinterpret_cast<QMetaTypeInterface::MetaObjectFn>(meta_obj_fn);auto defaultCtr=reinterpret_cast<QMetaTypeInterface::DefaultCtrFn>(default_ctr_fn);auto copyCtr=reinterpret_cast<QMetaTypeInterface::CopyCtrFn>(copy_ctr_fn);auto dtor=reinterpret_cast<QMetaTypeInterface::DtorFn>(dtor_fn);return QMetaTypeInterface{QMetaTypeInterface::CurrentRevision,align,size,flags,{0},metaObjFn,reinterpret_cast<const char*>(name.data()),defaultCtr,copyCtr,nullptr,dtor,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr};
+    auto metaObjFn = reinterpret_cast<QMetaTypeInterface::MetaObjectFn>(meta_obj_fn);
+    auto defaultCtr = reinterpret_cast<QMetaTypeInterface::DefaultCtrFn>(default_ctr_fn);
+    auto copyCtr = reinterpret_cast<QMetaTypeInterface::CopyCtrFn>(copy_ctr_fn);
+    auto dtor = reinterpret_cast<QMetaTypeInterface::DtorFn>(dtor_fn);
+    return QMetaTypeInterface{ QMetaTypeInterface::CurrentRevision,
+                               align,
+                               size,
+                               flags,
+                               { 0 },
+                               metaObjFn,
+                               reinterpret_cast<const char *>(name.data()),
+                               defaultCtr,
+                               copyCtr,
+                               nullptr,
+                               dtor,
+                               nullptr,
+                               nullptr,
+                               nullptr,
+                               nullptr,
+                               nullptr,
+                               nullptr };
 }
 
-
 } // namespace rust::bridge::qmetatypeinterface
-

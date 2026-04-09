@@ -7,10 +7,7 @@
 
 namespace rust::bridge::qmap_i32_qstring {
 
-
-
-
-void QMap_Drop(QMap_i32_QString& v)
+void QMap_Drop(QMap_i32_QString &v)
 {
     v.~QMap_i32_QString();
 }
@@ -20,72 +17,59 @@ QMap_i32_QString QMap_Default()
     return QMap_i32_QString();
 }
 
-QMap_i32_QString QMap_Clone(const QMap_i32_QString& src)
+QMap_i32_QString QMap_Clone(const QMap_i32_QString &src)
 {
-    return {src};
+    return { src };
 }
 
-
-
-
-void inlineCppFn_clear(QMap_i32_QString& self)
+void inlineCppFn_clear(QMap_i32_QString &self)
 {
-self.clear();
+    self.clear();
 }
 
-
-void inlineCppFn_insert(QMap_i32_QString& self, const int32_t& key, const QString& value)
+void inlineCppFn_insert(QMap_i32_QString &self, const int32_t &key, const QString &value)
 {
-self.insert(key,value);
+    self.insert(key, value);
 }
 
-
-bool inlineCppFn_is_empty(const QMap_i32_QString& self)
+bool inlineCppFn_is_empty(const QMap_i32_QString &self)
 {
-return self.isEmpty();
+    return self.isEmpty();
 }
 
-
-int32_t inlineCppFn_remove(QMap_i32_QString& self, const int32_t& key)
+int32_t inlineCppFn_remove(QMap_i32_QString &self, const int32_t &key)
 {
-return self.remove(key);
+    return self.remove(key);
 }
 
-
-int32_t inlineCppFn_size(const QMap_i32_QString& self)
+int32_t inlineCppFn_size(const QMap_i32_QString &self)
 {
-return self.size();
+    return self.size();
 }
 
-
-
-QList_i32 inlineCppFn_keys(const QMap_i32_QString& self)
+QList_i32 inlineCppFn_keys(const QMap_i32_QString &self)
 {
-return self.keys();
+    return self.keys();
 }
 
-
-QList_QString inlineCppFn_values(const QMap_i32_QString& self)
+QList_QString inlineCppFn_values(const QMap_i32_QString &self)
 {
-return self.values();
+    return self.values();
 }
 
-
-QString inlineCppFn_value(const QMap_i32_QString& self, const int32_t& key)
+QString inlineCppFn_value(const QMap_i32_QString &self, const int32_t &key)
 {
-return self.value(key);
+    return self.value(key);
 }
 
-
-
-
-
-
-QString const* inlineCppFn_TraitImpl_std_ops_Index_ref_i32_for_QMap_i32_QString_index(const QMap_i32_QString& self, const int32_t& key)
+QString const *
+inlineCppFn_TraitImpl_std_ops_Index_ref_i32_for_QMap_i32_QString_index(const QMap_i32_QString &self,
+                                                                       const int32_t &key)
 {
-auto findIt=self.find(key);if(findIt==self.end())return nullptr;return&*findIt;
+    auto findIt = self.find(key);
+    if (findIt == self.end())
+        return nullptr;
+    return &*findIt;
 }
-
 
 } // namespace rust::bridge::qmap_i32_qstring
-

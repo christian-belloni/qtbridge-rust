@@ -11,67 +11,57 @@
 #include "qtbridge-type-lib/src/generated/core/qvariant/cpp/qvariant.h"
 #include "rust/cxx.h"
 
-
 using QList_QVariant = ::QList<QVariant>;
 
 namespace rust::bridge::qlist_qvariant {
 
-
-
-void QList_Drop(QList_QVariant& v);
+void QList_Drop(QList_QVariant &v);
 QList_QVariant QList_Default();
-QList_QVariant QList_Clone(const QList_QVariant& src);
+QList_QVariant QList_Clone(const QList_QVariant &src);
 
+void inlineCppFn_append(QList_QVariant &self, QVariant value);
 
+size_t inlineCppFn_capacity(const QList_QVariant &self);
 
+void inlineCppFn_clear(QList_QVariant &self);
 
-void inlineCppFn_append(QList_QVariant& self, QVariant value);
+bool inlineCppFn_contains(const QList_QVariant &self, const QVariant &value);
 
-size_t inlineCppFn_capacity(const QList_QVariant& self);
+void inlineCppFn_push_back(QList_QVariant &self, QVariant value);
 
-void inlineCppFn_clear(QList_QVariant& self);
+void inlineCppFn_remove(QList_QVariant &self, ptrdiff_t i, ptrdiff_t n);
 
-bool inlineCppFn_contains(const QList_QVariant& self, const QVariant& value);
+void inlineCppFn_reserve(QList_QVariant &self, size_t size);
 
+ptrdiff_t inlineCppFn_size(const QList_QVariant &self);
 
-void inlineCppFn_push_back(QList_QVariant& self, QVariant value);
+const QVariant &inlineCppFn_first(const QList_QVariant &self);
 
-void inlineCppFn_remove(QList_QVariant& self, ptrdiff_t i, ptrdiff_t n);
+const QVariant &inlineCppFn_last(const QList_QVariant &self);
 
-void inlineCppFn_reserve(QList_QVariant& self, size_t size);
+QVariant const *
+inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QVariant_index(const QList_QVariant &self,
+                                                                   size_t index);
 
-ptrdiff_t inlineCppFn_size(const QList_QVariant& self);
+bool inlineCppFn_TraitImpl_PartialEq_for_QList_QVariant_eq(const QList_QVariant &lhs,
+                                                           const QList_QVariant &rhs);
 
-
-const QVariant& inlineCppFn_first(const QList_QVariant& self);
-
-const QVariant& inlineCppFn_last(const QList_QVariant& self);
-
-
-
-
-
-
-
-QVariant const* inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QVariant_index(const QList_QVariant& self, size_t index);
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_QVariant_eq(const QList_QVariant& lhs, const QList_QVariant& rhs);
-
-bool inlineCppFn_TraitImpl_PartialEq_array_of_QVariant_N_for_QList_QVariant_eq(const QList_QVariant& self, rust::Slice<const  QVariant> rhs);
+bool inlineCppFn_TraitImpl_PartialEq_array_of_QVariant_N_for_QList_QVariant_eq(
+        const QList_QVariant &self, rust::Slice<const QVariant> rhs);
 
 } // namespace rust::bridge::qlist_qvariant
 
-
-
 #ifndef QLIST_QVARIANT_IS_RELOCATABLE
-#define QLIST_QVARIANT_IS_RELOCATABLE
+#  define QLIST_QVARIANT_IS_RELOCATABLE
 
 namespace rust {
 
 template <>
-struct IsRelocatable<::QList_QVariant> : ::std::true_type {};
+struct IsRelocatable<::QList_QVariant> : ::std::true_type
+{
+};
 
- } // namespace rust
+} // namespace rust
 #endif // #ifndef QLIST_QVARIANT_IS_RELOCATABLE
 
 #endif // _QLIST_QVARIANT_RUST_BRIDGE_H_

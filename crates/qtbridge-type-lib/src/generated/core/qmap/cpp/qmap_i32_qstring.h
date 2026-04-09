@@ -13,56 +13,47 @@
 #include "qtbridge-type-lib/src/generated/core/qstring/cpp/qstring.h"
 #include "rust/cxx.h"
 
-
 using QMap_i32_QString = ::QMap<int32_t, QString>;
 
 namespace rust::bridge::qmap_i32_qstring {
 
-
-
-void QMap_Drop(QMap_i32_QString& v);
+void QMap_Drop(QMap_i32_QString &v);
 QMap_i32_QString QMap_Default();
-QMap_i32_QString QMap_Clone(const QMap_i32_QString& src);
+QMap_i32_QString QMap_Clone(const QMap_i32_QString &src);
 
+void inlineCppFn_clear(QMap_i32_QString &self);
 
+void inlineCppFn_insert(QMap_i32_QString &self, const int32_t &key, const QString &value);
 
+bool inlineCppFn_is_empty(const QMap_i32_QString &self);
 
-void inlineCppFn_clear(QMap_i32_QString& self);
+int32_t inlineCppFn_remove(QMap_i32_QString &self, const int32_t &key);
 
-void inlineCppFn_insert(QMap_i32_QString& self, const int32_t& key, const QString& value);
+int32_t inlineCppFn_size(const QMap_i32_QString &self);
 
-bool inlineCppFn_is_empty(const QMap_i32_QString& self);
+QList_i32 inlineCppFn_keys(const QMap_i32_QString &self);
 
-int32_t inlineCppFn_remove(QMap_i32_QString& self, const int32_t& key);
+QList_QString inlineCppFn_values(const QMap_i32_QString &self);
 
-int32_t inlineCppFn_size(const QMap_i32_QString& self);
+QString inlineCppFn_value(const QMap_i32_QString &self, const int32_t &key);
 
-
-QList_i32 inlineCppFn_keys(const QMap_i32_QString& self);
-
-QList_QString inlineCppFn_values(const QMap_i32_QString& self);
-
-QString inlineCppFn_value(const QMap_i32_QString& self, const int32_t& key);
-
-
-
-
-
-QString const* inlineCppFn_TraitImpl_std_ops_Index_ref_i32_for_QMap_i32_QString_index(const QMap_i32_QString& self, const int32_t& key);
+QString const *
+inlineCppFn_TraitImpl_std_ops_Index_ref_i32_for_QMap_i32_QString_index(const QMap_i32_QString &self,
+                                                                       const int32_t &key);
 
 } // namespace rust::bridge::qmap_i32_qstring
 
-
-
 #ifndef QMAP_I32_QSTRING_IS_RELOCATABLE
-#define QMAP_I32_QSTRING_IS_RELOCATABLE
+#  define QMAP_I32_QSTRING_IS_RELOCATABLE
 
 namespace rust {
 
 template <>
-struct IsRelocatable<::QMap_i32_QString> : ::std::true_type {};
+struct IsRelocatable<::QMap_i32_QString> : ::std::true_type
+{
+};
 
- } // namespace rust
+} // namespace rust
 #endif // #ifndef QMAP_I32_QSTRING_IS_RELOCATABLE
 
 #endif // _QMAP_I32_QSTRING_RUST_BRIDGE_H_

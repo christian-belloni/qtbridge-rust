@@ -7,10 +7,7 @@
 
 namespace rust::bridge::qlist_bool {
 
-
-
-
-void QList_Drop(QList_bool& v)
+void QList_Drop(QList_bool &v)
 {
     v.~QList_bool();
 }
@@ -20,109 +17,94 @@ QList_bool QList_Default()
     return QList_bool();
 }
 
-QList_bool QList_Clone(const QList_bool& src)
+QList_bool QList_Clone(const QList_bool &src)
 {
-    return {src};
+    return { src };
 }
-
 
 QMetaType QList_QMetaType()
 {
-        return QMetaType::fromType<QList_bool>();
+    return QMetaType::fromType<QList_bool>();
 }
 
-
-
-void inlineCppFn_append(QList_bool& self, bool value)
+void inlineCppFn_append(QList_bool &self, bool value)
 {
-self.append(value);
+    self.append(value);
 }
 
-
-size_t inlineCppFn_capacity(const QList_bool& self)
+size_t inlineCppFn_capacity(const QList_bool &self)
 {
-return self.capacity();
+    return self.capacity();
 }
 
-
-void inlineCppFn_clear(QList_bool& self)
+void inlineCppFn_clear(QList_bool &self)
 {
-self.clear();
+    self.clear();
 }
 
-
-bool inlineCppFn_contains(const QList_bool& self, const bool& value)
+bool inlineCppFn_contains(const QList_bool &self, const bool &value)
 {
-return self.contains(value);
+    return self.contains(value);
 }
 
-
-
-void inlineCppFn_push_back(QList_bool& self, bool value)
+void inlineCppFn_push_back(QList_bool &self, bool value)
 {
-self.push_back(value);
+    self.push_back(value);
 }
 
-
-void inlineCppFn_remove(QList_bool& self, ptrdiff_t i, ptrdiff_t n)
+void inlineCppFn_remove(QList_bool &self, ptrdiff_t i, ptrdiff_t n)
 {
-self.remove(i,n);
+    self.remove(i, n);
 }
 
-
-void inlineCppFn_reserve(QList_bool& self, size_t size)
+void inlineCppFn_reserve(QList_bool &self, size_t size)
 {
-self.reserve(static_cast<qsizetype>(size));
+    self.reserve(static_cast<qsizetype>(size));
 }
 
-
-ptrdiff_t inlineCppFn_size(const QList_bool& self)
+ptrdiff_t inlineCppFn_size(const QList_bool &self)
 {
-return self.size();
+    return self.size();
 }
 
-
-
-const bool& inlineCppFn_first(const QList_bool& self)
+const bool &inlineCppFn_first(const QList_bool &self)
 {
-return self.constFirst();
+    return self.constFirst();
 }
 
-
-const bool& inlineCppFn_last(const QList_bool& self)
+const bool &inlineCppFn_last(const QList_bool &self)
 {
-return self.constLast();
+    return self.constLast();
 }
 
-
-
-
-
-
-rust::Vec<bool> inlineCppFn_TraitImpl_From_ref_QList_bool_for_Vec_bool_from(const QList_bool& src)
+rust::Vec<bool> inlineCppFn_TraitImpl_From_ref_QList_bool_for_Vec_bool_from(const QList_bool &src)
 {
-rust::Vec<bool>result;result.reserve(static_cast<size_t>(src.size()));for(bool item:src)result.push_back(item);return result;
+    rust::Vec<bool> result;
+    result.reserve(static_cast<size_t>(src.size()));
+    for (bool item : src)
+        result.push_back(item);
+    return result;
 }
 
-
-
-bool const* inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_bool_index(const QList_bool& self, size_t index)
+bool const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_bool_index(const QList_bool &self,
+                                                                           size_t index)
 {
-return index<static_cast<size_t>(self.size())?&self[index]:nullptr;
+    return index < static_cast<size_t>(self.size()) ? &self[index] : nullptr;
 }
 
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_bool_eq(const QList_bool& lhs, const QList_bool& rhs)
+bool inlineCppFn_TraitImpl_PartialEq_for_QList_bool_eq(const QList_bool &lhs, const QList_bool &rhs)
 {
-return lhs==rhs;
+    return lhs == rhs;
 }
 
-
-bool inlineCppFn_TraitImpl_PartialEq_array_of_bool_N_for_QList_bool_eq(const QList_bool& self, rust::Slice<const  bool> rhs)
+bool inlineCppFn_TraitImpl_PartialEq_array_of_bool_N_for_QList_bool_eq(const QList_bool &self,
+                                                                       rust::Slice<const bool> rhs)
 {
-for(size_t i=0;i<rhs.size();++i){if(self[i]!=rhs[i])return false;}return true;
+    for (size_t i = 0; i < rhs.size(); ++i) {
+        if (self[i] != rhs[i])
+            return false;
+    }
+    return true;
 }
-
 
 } // namespace rust::bridge::qlist_bool
-

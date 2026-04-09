@@ -7,10 +7,7 @@
 
 namespace rust::bridge::qlist_usize {
 
-
-
-
-void QList_Drop(QList_usize& v)
+void QList_Drop(QList_usize &v)
 {
     v.~QList_usize();
 }
@@ -20,109 +17,97 @@ QList_usize QList_Default()
     return QList_usize();
 }
 
-QList_usize QList_Clone(const QList_usize& src)
+QList_usize QList_Clone(const QList_usize &src)
 {
-    return {src};
+    return { src };
 }
-
 
 QMetaType QList_QMetaType()
 {
-        return QMetaType::fromType<QList_usize>();
+    return QMetaType::fromType<QList_usize>();
 }
 
-
-
-void inlineCppFn_append(QList_usize& self, size_t value)
+void inlineCppFn_append(QList_usize &self, size_t value)
 {
-self.append(value);
+    self.append(value);
 }
 
-
-size_t inlineCppFn_capacity(const QList_usize& self)
+size_t inlineCppFn_capacity(const QList_usize &self)
 {
-return self.capacity();
+    return self.capacity();
 }
 
-
-void inlineCppFn_clear(QList_usize& self)
+void inlineCppFn_clear(QList_usize &self)
 {
-self.clear();
+    self.clear();
 }
 
-
-bool inlineCppFn_contains(const QList_usize& self, const size_t& value)
+bool inlineCppFn_contains(const QList_usize &self, const size_t &value)
 {
-return self.contains(value);
+    return self.contains(value);
 }
 
-
-
-void inlineCppFn_push_back(QList_usize& self, size_t value)
+void inlineCppFn_push_back(QList_usize &self, size_t value)
 {
-self.push_back(value);
+    self.push_back(value);
 }
 
-
-void inlineCppFn_remove(QList_usize& self, ptrdiff_t i, ptrdiff_t n)
+void inlineCppFn_remove(QList_usize &self, ptrdiff_t i, ptrdiff_t n)
 {
-self.remove(i,n);
+    self.remove(i, n);
 }
 
-
-void inlineCppFn_reserve(QList_usize& self, size_t size)
+void inlineCppFn_reserve(QList_usize &self, size_t size)
 {
-self.reserve(static_cast<qsizetype>(size));
+    self.reserve(static_cast<qsizetype>(size));
 }
 
-
-ptrdiff_t inlineCppFn_size(const QList_usize& self)
+ptrdiff_t inlineCppFn_size(const QList_usize &self)
 {
-return self.size();
+    return self.size();
 }
 
-
-
-const size_t& inlineCppFn_first(const QList_usize& self)
+const size_t &inlineCppFn_first(const QList_usize &self)
 {
-return self.constFirst();
+    return self.constFirst();
 }
 
-
-const size_t& inlineCppFn_last(const QList_usize& self)
+const size_t &inlineCppFn_last(const QList_usize &self)
 {
-return self.constLast();
+    return self.constLast();
 }
 
-
-
-
-
-
-rust::Vec<size_t> inlineCppFn_TraitImpl_From_ref_QList_usize_for_Vec_usize_from(const QList_usize& src)
+rust::Vec<size_t>
+inlineCppFn_TraitImpl_From_ref_QList_usize_for_Vec_usize_from(const QList_usize &src)
 {
-rust::Vec<size_t>result;result.reserve(static_cast<size_t>(src.size()));for(size_t item:src)result.push_back(item);return result;
+    rust::Vec<size_t> result;
+    result.reserve(static_cast<size_t>(src.size()));
+    for (size_t item : src)
+        result.push_back(item);
+    return result;
 }
 
-
-
-size_t const* inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_usize_index(const QList_usize& self, size_t index)
+size_t const *
+inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_usize_index(const QList_usize &self,
+                                                                size_t index)
 {
-return index<static_cast<size_t>(self.size())?&self[index]:nullptr;
+    return index < static_cast<size_t>(self.size()) ? &self[index] : nullptr;
 }
 
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_usize_eq(const QList_usize& lhs, const QList_usize& rhs)
+bool inlineCppFn_TraitImpl_PartialEq_for_QList_usize_eq(const QList_usize &lhs,
+                                                        const QList_usize &rhs)
 {
-return lhs==rhs;
+    return lhs == rhs;
 }
 
-
-bool inlineCppFn_TraitImpl_PartialEq_array_of_usize_N_for_QList_usize_eq(const QList_usize& self, rust::Slice<const  size_t> rhs)
+bool inlineCppFn_TraitImpl_PartialEq_array_of_usize_N_for_QList_usize_eq(
+        const QList_usize &self, rust::Slice<const size_t> rhs)
 {
-for(size_t i=0;i<rhs.size();++i){if(self[i]!=rhs[i])return false;}return true;
+    for (size_t i = 0; i < rhs.size(); ++i) {
+        if (self[i] != rhs[i])
+            return false;
+    }
+    return true;
 }
-
 
 } // namespace rust::bridge::qlist_usize
-

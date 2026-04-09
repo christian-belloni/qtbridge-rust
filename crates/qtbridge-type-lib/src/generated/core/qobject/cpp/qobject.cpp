@@ -7,35 +7,24 @@
 
 namespace rust::bridge::qobject {
 
-
-
-
-
-
-
-void inlineCppFn_delete(QObject* obj)
+void inlineCppFn_delete(QObject *obj)
 {
-delete obj;
+    delete obj;
 }
 
-
-void inlineCppFn_destruct(QObject* obj)
+void inlineCppFn_destruct(QObject *obj)
 {
-obj->~QObject();
+    obj->~QObject();
 }
 
-
-QVariant inlineCppFn_property(const QObject& self, rust::Slice<const  uint8_t> name)
+QVariant inlineCppFn_property(const QObject &self, rust::Slice<const uint8_t> name)
 {
-return self.property(reinterpret_cast<const char*>(name.data()));
+    return self.property(reinterpret_cast<const char *>(name.data()));
 }
 
-
-bool inlineCppFn_set_property(QObject& self, rust::Slice<const  uint8_t> name, QVariant value)
+bool inlineCppFn_set_property(QObject &self, rust::Slice<const uint8_t> name, QVariant value)
 {
-return self.setProperty(reinterpret_cast<const char*>(name.data()),value);
+    return self.setProperty(reinterpret_cast<const char *>(name.data()), value);
 }
-
 
 } // namespace rust::bridge::qobject
-

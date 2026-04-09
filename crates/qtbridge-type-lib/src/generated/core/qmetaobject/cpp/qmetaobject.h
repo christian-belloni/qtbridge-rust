@@ -9,18 +9,8 @@
 #include <QMetaObject>
 #include "rust/cxx.h"
 
-
-
-
 namespace rust::bridge::qmetaobject {
 
-
-
-
-
-
-
 } // namespace rust::bridge::qmetaobject
-
 
 #endif // _QMETAOBJECT_RUST_BRIDGE_H_

@@ -7,10 +7,7 @@
 
 namespace rust::bridge::qhash_qbytearray_qvariant {
 
-
-
-
-void QHash_Drop(QHash_QByteArray_QVariant& v)
+void QHash_Drop(QHash_QByteArray_QVariant &v)
 {
     v.~QHash_QByteArray_QVariant();
 }
@@ -20,76 +17,65 @@ QHash_QByteArray_QVariant QHash_Default()
     return QHash_QByteArray_QVariant();
 }
 
-QHash_QByteArray_QVariant QHash_Clone(const QHash_QByteArray_QVariant& src)
+QHash_QByteArray_QVariant QHash_Clone(const QHash_QByteArray_QVariant &src)
 {
-    return {src};
+    return { src };
 }
 
-
-
-
-void inlineCppFn_clear(QHash_QByteArray_QVariant& self)
+void inlineCppFn_clear(QHash_QByteArray_QVariant &self)
 {
-self.clear();
+    self.clear();
 }
 
-
-bool inlineCppFn_contains(const QHash_QByteArray_QVariant& self, const QByteArray& key)
+bool inlineCppFn_contains(const QHash_QByteArray_QVariant &self, const QByteArray &key)
 {
-return self.contains(key);
+    return self.contains(key);
 }
 
-
-void inlineCppFn_insert(QHash_QByteArray_QVariant& self, const QByteArray& key, const QVariant& value)
+void inlineCppFn_insert(QHash_QByteArray_QVariant &self, const QByteArray &key,
+                        const QVariant &value)
 {
-self.insert(key,value);
+    self.insert(key, value);
 }
 
-
-bool inlineCppFn_is_empty(const QHash_QByteArray_QVariant& self)
+bool inlineCppFn_is_empty(const QHash_QByteArray_QVariant &self)
 {
-return self.isEmpty();
+    return self.isEmpty();
 }
 
-
-bool inlineCppFn_remove(QHash_QByteArray_QVariant& self, const QByteArray& key)
+bool inlineCppFn_remove(QHash_QByteArray_QVariant &self, const QByteArray &key)
 {
-return self.remove(key);
+    return self.remove(key);
 }
 
-
-ptrdiff_t inlineCppFn_size(const QHash_QByteArray_QVariant& self)
+ptrdiff_t inlineCppFn_size(const QHash_QByteArray_QVariant &self)
 {
-return self.size();
+    return self.size();
 }
 
-
-
-QList_QByteArray inlineCppFn_keys(const QHash_QByteArray_QVariant& self)
+QList_QByteArray inlineCppFn_keys(const QHash_QByteArray_QVariant &self)
 {
-return self.keys();
+    return self.keys();
 }
 
-
-QList_QVariant inlineCppFn_values(const QHash_QByteArray_QVariant& self)
+QList_QVariant inlineCppFn_values(const QHash_QByteArray_QVariant &self)
 {
-return self.values();
+    return self.values();
 }
 
-
-QVariant inlineCppFn_value(const QHash_QByteArray_QVariant& self, const QByteArray& key)
+QVariant inlineCppFn_value(const QHash_QByteArray_QVariant &self, const QByteArray &key)
 {
-return self.value(key);
+    return self.value(key);
 }
 
-
-
-
-QVariant const* inlineCppFn_TraitImpl_std_ops_Index_ref_QByteArray_for_QHash_QByteArray_QVariant_index(const QHash_QByteArray_QVariant& self, const QByteArray& key)
+QVariant const *
+inlineCppFn_TraitImpl_std_ops_Index_ref_QByteArray_for_QHash_QByteArray_QVariant_index(
+        const QHash_QByteArray_QVariant &self, const QByteArray &key)
 {
-auto findIt=self.find(key);if(findIt==self.end())return nullptr;return&*findIt;
+    auto findIt = self.find(key);
+    if (findIt == self.end())
+        return nullptr;
+    return &*findIt;
 }
-
 
 } // namespace rust::bridge::qhash_qbytearray_qvariant
-

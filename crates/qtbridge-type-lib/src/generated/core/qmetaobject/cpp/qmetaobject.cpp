@@ -7,11 +7,4 @@
 
 namespace rust::bridge::qmetaobject {
 
-
-
-
-
-
-
 } // namespace rust::bridge::qmetaobject
-

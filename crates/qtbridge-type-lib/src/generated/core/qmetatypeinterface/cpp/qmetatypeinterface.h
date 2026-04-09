@@ -10,30 +10,25 @@
 #include <cstdint>
 #include "rust/cxx.h"
 
-
-
-
 namespace rust::bridge::qmetatypeinterface {
 
 using namespace QtPrivate;
 
-
-
-
-
-
-::QtPrivate::QMetaTypeInterface inlineCppFn_fill_fields(uint16_t align, uint32_t size, uint32_t flags, rust::Slice<const  uint8_t> name, size_t meta_obj_fn, size_t default_ctr_fn, size_t copy_ctr_fn, size_t dtor_fn);
+::QtPrivate::QMetaTypeInterface inlineCppFn_fill_fields(uint16_t align, uint32_t size,
+                                                        uint32_t flags,
+                                                        rust::Slice<const uint8_t> name,
+                                                        size_t meta_obj_fn, size_t default_ctr_fn,
+                                                        size_t copy_ctr_fn, size_t dtor_fn);
 
 } // namespace rust::bridge::qmetatypeinterface
-
-
 
 namespace rust {
 
 template <>
-struct IsRelocatable<::QtPrivate::QMetaTypeInterface> : ::std::true_type {};
+struct IsRelocatable<::QtPrivate::QMetaTypeInterface> : ::std::true_type
+{
+};
 
- } // namespace rust
-
+} // namespace rust
 
 #endif // _QMETATYPEINTERFACE_RUST_BRIDGE_H_

@@ -7,10 +7,9 @@
 
 namespace rust::bridge::qmodelindex {
 
-
 static_assert(qMetaTypeId<QModelIndex>() == 42);
 
-void QModelIndex_Drop(QModelIndex& v)
+void QModelIndex_Drop(QModelIndex &v)
 {
     v.~QModelIndex();
 }
@@ -20,43 +19,34 @@ QModelIndex QModelIndex_Default()
     return QModelIndex();
 }
 
-QModelIndex QModelIndex_Clone(const QModelIndex& src)
+QModelIndex QModelIndex_Clone(const QModelIndex &src)
 {
-    return {src};
+    return { src };
 }
 
-
-
-
-int32_t inlineCppFn_column(const QModelIndex& self)
+int32_t inlineCppFn_column(const QModelIndex &self)
 {
-return self.column();
+    return self.column();
 }
 
-
-int32_t inlineCppFn_row(const QModelIndex& self)
+int32_t inlineCppFn_row(const QModelIndex &self)
 {
-return self.row();
+    return self.row();
 }
 
-
-size_t inlineCppFn_internal_pointer(const QModelIndex& self)
+size_t inlineCppFn_internal_pointer(const QModelIndex &self)
 {
-return reinterpret_cast<size_t>(self.internalPointer());
+    return reinterpret_cast<size_t>(self.internalPointer());
 }
 
-
-QVariant inlineCppFn_data(const QModelIndex& self)
+QVariant inlineCppFn_data(const QModelIndex &self)
 {
-return self.data();
+    return self.data();
 }
 
-
-bool inlineCppFn_is_valid(const QModelIndex& self)
+bool inlineCppFn_is_valid(const QModelIndex &self)
 {
-return self.isValid();
+    return self.isValid();
 }
-
 
 } // namespace rust::bridge::qmodelindex
-

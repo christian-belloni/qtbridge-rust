@@ -7,10 +7,7 @@
 
 namespace rust::bridge::qlist_f64 {
 
-
-
-
-void QList_Drop(QList_f64& v)
+void QList_Drop(QList_f64 &v)
 {
     v.~QList_f64();
 }
@@ -20,109 +17,94 @@ QList_f64 QList_Default()
     return QList_f64();
 }
 
-QList_f64 QList_Clone(const QList_f64& src)
+QList_f64 QList_Clone(const QList_f64 &src)
 {
-    return {src};
+    return { src };
 }
-
 
 QMetaType QList_QMetaType()
 {
-        return QMetaType::fromType<QList_f64>();
+    return QMetaType::fromType<QList_f64>();
 }
 
-
-
-void inlineCppFn_append(QList_f64& self, double value)
+void inlineCppFn_append(QList_f64 &self, double value)
 {
-self.append(value);
+    self.append(value);
 }
 
-
-size_t inlineCppFn_capacity(const QList_f64& self)
+size_t inlineCppFn_capacity(const QList_f64 &self)
 {
-return self.capacity();
+    return self.capacity();
 }
 
-
-void inlineCppFn_clear(QList_f64& self)
+void inlineCppFn_clear(QList_f64 &self)
 {
-self.clear();
+    self.clear();
 }
 
-
-bool inlineCppFn_contains(const QList_f64& self, const double& value)
+bool inlineCppFn_contains(const QList_f64 &self, const double &value)
 {
-return self.contains(value);
+    return self.contains(value);
 }
 
-
-
-void inlineCppFn_push_back(QList_f64& self, double value)
+void inlineCppFn_push_back(QList_f64 &self, double value)
 {
-self.push_back(value);
+    self.push_back(value);
 }
 
-
-void inlineCppFn_remove(QList_f64& self, ptrdiff_t i, ptrdiff_t n)
+void inlineCppFn_remove(QList_f64 &self, ptrdiff_t i, ptrdiff_t n)
 {
-self.remove(i,n);
+    self.remove(i, n);
 }
 
-
-void inlineCppFn_reserve(QList_f64& self, size_t size)
+void inlineCppFn_reserve(QList_f64 &self, size_t size)
 {
-self.reserve(static_cast<qsizetype>(size));
+    self.reserve(static_cast<qsizetype>(size));
 }
 
-
-ptrdiff_t inlineCppFn_size(const QList_f64& self)
+ptrdiff_t inlineCppFn_size(const QList_f64 &self)
 {
-return self.size();
+    return self.size();
 }
 
-
-
-const double& inlineCppFn_first(const QList_f64& self)
+const double &inlineCppFn_first(const QList_f64 &self)
 {
-return self.constFirst();
+    return self.constFirst();
 }
 
-
-const double& inlineCppFn_last(const QList_f64& self)
+const double &inlineCppFn_last(const QList_f64 &self)
 {
-return self.constLast();
+    return self.constLast();
 }
 
-
-
-
-
-
-rust::Vec<double> inlineCppFn_TraitImpl_From_ref_QList_f64_for_Vec_f64_from(const QList_f64& src)
+rust::Vec<double> inlineCppFn_TraitImpl_From_ref_QList_f64_for_Vec_f64_from(const QList_f64 &src)
 {
-rust::Vec<double>result;result.reserve(static_cast<size_t>(src.size()));for(double item:src)result.push_back(item);return result;
+    rust::Vec<double> result;
+    result.reserve(static_cast<size_t>(src.size()));
+    for (double item : src)
+        result.push_back(item);
+    return result;
 }
 
-
-
-double const* inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_f64_index(const QList_f64& self, size_t index)
+double const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_f64_index(const QList_f64 &self,
+                                                                            size_t index)
 {
-return index<static_cast<size_t>(self.size())?&self[index]:nullptr;
+    return index < static_cast<size_t>(self.size()) ? &self[index] : nullptr;
 }
 
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_f64_eq(const QList_f64& lhs, const QList_f64& rhs)
+bool inlineCppFn_TraitImpl_PartialEq_for_QList_f64_eq(const QList_f64 &lhs, const QList_f64 &rhs)
 {
-return lhs==rhs;
+    return lhs == rhs;
 }
 
-
-bool inlineCppFn_TraitImpl_PartialEq_array_of_f64_N_for_QList_f64_eq(const QList_f64& self, rust::Slice<const  double> rhs)
+bool inlineCppFn_TraitImpl_PartialEq_array_of_f64_N_for_QList_f64_eq(const QList_f64 &self,
+                                                                     rust::Slice<const double> rhs)
 {
-for(size_t i=0;i<rhs.size();++i){if(self[i]!=rhs[i])return false;}return true;
+    for (size_t i = 0; i < rhs.size(); ++i) {
+        if (self[i] != rhs[i])
+            return false;
+    }
+    return true;
 }
-
 
 } // namespace rust::bridge::qlist_f64
-

@@ -11,68 +11,62 @@
 #include "qtbridge-type-lib/src/generated/core/qmetatype/cpp/qmetatype.h"
 #include "rust/cxx.h"
 
-
 using QList_isize = ::QList<ptrdiff_t>;
 
 namespace rust::bridge::qlist_isize {
 
-
-
-void QList_Drop(QList_isize& v);
+void QList_Drop(QList_isize &v);
 QList_isize QList_Default();
-QList_isize QList_Clone(const QList_isize& src);
+QList_isize QList_Clone(const QList_isize &src);
 
 QMetaType QList_QMetaType();
 
+void inlineCppFn_append(QList_isize &self, ptrdiff_t value);
 
-void inlineCppFn_append(QList_isize& self, ptrdiff_t value);
+size_t inlineCppFn_capacity(const QList_isize &self);
 
-size_t inlineCppFn_capacity(const QList_isize& self);
+void inlineCppFn_clear(QList_isize &self);
 
-void inlineCppFn_clear(QList_isize& self);
+bool inlineCppFn_contains(const QList_isize &self, const ptrdiff_t &value);
 
-bool inlineCppFn_contains(const QList_isize& self, const ptrdiff_t& value);
+void inlineCppFn_push_back(QList_isize &self, ptrdiff_t value);
 
+void inlineCppFn_remove(QList_isize &self, ptrdiff_t i, ptrdiff_t n);
 
-void inlineCppFn_push_back(QList_isize& self, ptrdiff_t value);
+void inlineCppFn_reserve(QList_isize &self, size_t size);
 
-void inlineCppFn_remove(QList_isize& self, ptrdiff_t i, ptrdiff_t n);
+ptrdiff_t inlineCppFn_size(const QList_isize &self);
 
-void inlineCppFn_reserve(QList_isize& self, size_t size);
+const ptrdiff_t &inlineCppFn_first(const QList_isize &self);
 
-ptrdiff_t inlineCppFn_size(const QList_isize& self);
+const ptrdiff_t &inlineCppFn_last(const QList_isize &self);
 
+rust::Vec<ptrdiff_t>
+inlineCppFn_TraitImpl_From_ref_QList_isize_for_Vec_isize_from(const QList_isize &src);
 
-const ptrdiff_t& inlineCppFn_first(const QList_isize& self);
+ptrdiff_t const *
+inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_isize_index(const QList_isize &self,
+                                                                size_t index);
 
-const ptrdiff_t& inlineCppFn_last(const QList_isize& self);
+bool inlineCppFn_TraitImpl_PartialEq_for_QList_isize_eq(const QList_isize &lhs,
+                                                        const QList_isize &rhs);
 
-
-
-
-
-rust::Vec<ptrdiff_t> inlineCppFn_TraitImpl_From_ref_QList_isize_for_Vec_isize_from(const QList_isize& src);
-
-
-ptrdiff_t const* inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_isize_index(const QList_isize& self, size_t index);
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_isize_eq(const QList_isize& lhs, const QList_isize& rhs);
-
-bool inlineCppFn_TraitImpl_PartialEq_array_of_isize_N_for_QList_isize_eq(const QList_isize& self, rust::Slice<const  ptrdiff_t> rhs);
+bool inlineCppFn_TraitImpl_PartialEq_array_of_isize_N_for_QList_isize_eq(
+        const QList_isize &self, rust::Slice<const ptrdiff_t> rhs);
 
 } // namespace rust::bridge::qlist_isize
 
-
-
 #ifndef QLIST_I64_IS_RELOCATABLE
-#define QLIST_I64_IS_RELOCATABLE
+#  define QLIST_I64_IS_RELOCATABLE
 
 namespace rust {
 
 template <>
-struct IsRelocatable<::QList_isize> : ::std::true_type {};
+struct IsRelocatable<::QList_isize> : ::std::true_type
+{
+};
 
- } // namespace rust
+} // namespace rust
 #endif // #ifndef QLIST_I64_IS_RELOCATABLE
 
 #endif // _QLIST_ISIZE_RUST_BRIDGE_H_

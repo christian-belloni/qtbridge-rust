@@ -11,31 +11,23 @@
 #include "qtbridge-type-lib/src/generated/core/qmetatype/cpp/qmetatype.h"
 #include "rust/cxx.h"
 
-
-
-
 namespace rust::bridge::qutf8stringview {
-
-
 
 QUtf8StringView QUtf8StringView_Default();
 
 QMetaType QUtf8StringView_QMetaType();
 
-
-
-void inlineCppFn_as_bytes(const QUtf8StringView& self, uint8_t const*& ptr, ptrdiff_t& size);
+void inlineCppFn_as_bytes(const QUtf8StringView &self, uint8_t const *&ptr, ptrdiff_t &size);
 
 } // namespace rust::bridge::qutf8stringview
-
-
 
 namespace rust {
 
 template <>
-struct IsRelocatable<::QUtf8StringView> : ::std::true_type {};
+struct IsRelocatable<::QUtf8StringView> : ::std::true_type
+{
+};
 
- } // namespace rust
-
+} // namespace rust
 
 #endif // _QUTF8STRINGVIEW_RUST_BRIDGE_H_

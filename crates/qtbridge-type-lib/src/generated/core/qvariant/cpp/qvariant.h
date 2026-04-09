@@ -31,214 +31,175 @@
 #include "rust/cxx.h"
 #include "rustconv.h"
 
-
-
-
 namespace rust::bridge::qvariant {
 
-
-
-void QVariant_Drop(QVariant& v);
+void QVariant_Drop(QVariant &v);
 QVariant QVariant_Default();
-QVariant QVariant_Clone(const QVariant& src);
+QVariant QVariant_Clone(const QVariant &src);
 
+bool inlineCppFn_is_valid(const QVariant &self);
 
+QMetaType inlineCppFn_meta_type(const QVariant &self);
 
-
-bool inlineCppFn_is_valid(const QVariant& self);
-
-QMetaType inlineCppFn_meta_type(const QVariant& self);
-
-rust::String inlineCppFn_TraitImpl_ToString_for_QVariant_to_string(const QVariant& self);
-
+rust::String inlineCppFn_TraitImpl_ToString_for_QVariant_to_string(const QVariant &self);
 
 QVariant inlineCppFn_TraitImpl_From_string_slice_for_QVariant_from(rust::Str from);
 
+QVariant
+inlineCppFn_TraitImpl_From_ref_Vec_String_for_QVariant_from(const rust::Vec<rust::String> &from);
 
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_String_for_QVariant_from(const rust::Vec<rust::String>& from);
+QVariant inlineCppFn_TraitImpl_From_ptr_mut_QObject_for_QVariant_from(QObject *from);
 
-QVariant inlineCppFn_TraitImpl_From_ptr_mut_QObject_for_QVariant_from(QObject* from);
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_String_try_from(const QVariant &from,
+                                                                    rust::String &result);
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_String_try_from(const QVariant& from, rust::String& result);
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_String_try_from(
+        const QVariant &from, rust::Vec<rust::String> &result);
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_String_try_from(const QVariant& from, rust::Vec<rust::String>& result);
+QVariant inlineCppFn_TraitImpl_From_ref_bool_for_QVariant_from(const bool &value);
 
-QVariant inlineCppFn_TraitImpl_From_ref_bool_for_QVariant_from(const bool& value);
+QVariant inlineCppFn_TraitImpl_From_ref_i8_for_QVariant_from(const int8_t &value);
 
-QVariant inlineCppFn_TraitImpl_From_ref_i8_for_QVariant_from(const int8_t& value);
+QVariant inlineCppFn_TraitImpl_From_ref_u8_for_QVariant_from(const uint8_t &value);
 
-QVariant inlineCppFn_TraitImpl_From_ref_u8_for_QVariant_from(const uint8_t& value);
+QVariant inlineCppFn_TraitImpl_From_ref_i16_for_QVariant_from(const int16_t &value);
 
-QVariant inlineCppFn_TraitImpl_From_ref_i16_for_QVariant_from(const int16_t& value);
+QVariant inlineCppFn_TraitImpl_From_ref_u16_for_QVariant_from(const uint16_t &value);
 
-QVariant inlineCppFn_TraitImpl_From_ref_u16_for_QVariant_from(const uint16_t& value);
+QVariant inlineCppFn_TraitImpl_From_ref_i32_for_QVariant_from(const int32_t &value);
 
-QVariant inlineCppFn_TraitImpl_From_ref_i32_for_QVariant_from(const int32_t& value);
+QVariant inlineCppFn_TraitImpl_From_ref_u32_for_QVariant_from(const uint32_t &value);
 
-QVariant inlineCppFn_TraitImpl_From_ref_u32_for_QVariant_from(const uint32_t& value);
+QVariant inlineCppFn_TraitImpl_From_ref_i64_for_QVariant_from(const int64_t &value);
 
-QVariant inlineCppFn_TraitImpl_From_ref_i64_for_QVariant_from(const int64_t& value);
+QVariant inlineCppFn_TraitImpl_From_ref_u64_for_QVariant_from(const uint64_t &value);
 
-QVariant inlineCppFn_TraitImpl_From_ref_u64_for_QVariant_from(const uint64_t& value);
+QVariant inlineCppFn_TraitImpl_From_ref_isize_for_QVariant_from(const ptrdiff_t &value);
 
-QVariant inlineCppFn_TraitImpl_From_ref_isize_for_QVariant_from(const ptrdiff_t& value);
+QVariant inlineCppFn_TraitImpl_From_ref_usize_for_QVariant_from(const size_t &value);
 
-QVariant inlineCppFn_TraitImpl_From_ref_usize_for_QVariant_from(const size_t& value);
+QVariant inlineCppFn_TraitImpl_From_ref_f32_for_QVariant_from(const float &value);
 
-QVariant inlineCppFn_TraitImpl_From_ref_f32_for_QVariant_from(const float& value);
+QVariant inlineCppFn_TraitImpl_From_ref_f64_for_QVariant_from(const double &value);
 
-QVariant inlineCppFn_TraitImpl_From_ref_f64_for_QVariant_from(const double& value);
+QVariant inlineCppFn_TraitImpl_From_ref_Vec_bool_for_QVariant_from(const rust::Vec<bool> &value);
 
+QVariant inlineCppFn_TraitImpl_From_ref_Vec_i8_for_QVariant_from(const rust::Vec<int8_t> &value);
 
+QVariant inlineCppFn_TraitImpl_From_ref_Vec_u8_for_QVariant_from(const rust::Vec<uint8_t> &value);
 
+QVariant inlineCppFn_TraitImpl_From_ref_Vec_i16_for_QVariant_from(const rust::Vec<int16_t> &value);
 
+QVariant inlineCppFn_TraitImpl_From_ref_Vec_u16_for_QVariant_from(const rust::Vec<uint16_t> &value);
 
+QVariant inlineCppFn_TraitImpl_From_ref_Vec_i32_for_QVariant_from(const rust::Vec<int32_t> &value);
 
+QVariant inlineCppFn_TraitImpl_From_ref_Vec_u32_for_QVariant_from(const rust::Vec<uint32_t> &value);
 
+QVariant inlineCppFn_TraitImpl_From_ref_Vec_i64_for_QVariant_from(const rust::Vec<int64_t> &value);
 
+QVariant inlineCppFn_TraitImpl_From_ref_Vec_u64_for_QVariant_from(const rust::Vec<uint64_t> &value);
 
+QVariant
+inlineCppFn_TraitImpl_From_ref_Vec_isize_for_QVariant_from(const rust::Vec<ptrdiff_t> &value);
 
+QVariant inlineCppFn_TraitImpl_From_ref_Vec_usize_for_QVariant_from(const rust::Vec<size_t> &value);
 
+QVariant inlineCppFn_TraitImpl_From_ref_Vec_f32_for_QVariant_from(const rust::Vec<float> &value);
 
-
-
-
-
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_bool_for_QVariant_from(const rust::Vec<bool>& value);
-
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_i8_for_QVariant_from(const rust::Vec<int8_t>& value);
-
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_u8_for_QVariant_from(const rust::Vec<uint8_t>& value);
-
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_i16_for_QVariant_from(const rust::Vec<int16_t>& value);
-
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_u16_for_QVariant_from(const rust::Vec<uint16_t>& value);
-
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_i32_for_QVariant_from(const rust::Vec<int32_t>& value);
-
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_u32_for_QVariant_from(const rust::Vec<uint32_t>& value);
-
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_i64_for_QVariant_from(const rust::Vec<int64_t>& value);
-
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_u64_for_QVariant_from(const rust::Vec<uint64_t>& value);
-
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_isize_for_QVariant_from(const rust::Vec<ptrdiff_t>& value);
-
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_usize_for_QVariant_from(const rust::Vec<size_t>& value);
-
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_f32_for_QVariant_from(const rust::Vec<float>& value);
-
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_f64_for_QVariant_from(const rust::Vec<double>& value);
+QVariant inlineCppFn_TraitImpl_From_ref_Vec_f64_for_QVariant_from(const rust::Vec<double> &value);
 
 QVariant inlineCppFn_TraitImpl_From_ref_Vec_QByteArray_for_QVariant_from(QList<QByteArray> list);
 
 QVariant inlineCppFn_TraitImpl_From_ref_Vec_QString_for_QVariant_from(QList<QString> list);
 
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_bool_try_from(const QVariant &from,
+                                                                  bool &result);
 
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_i8_try_from(const QVariant &from,
+                                                                int8_t &result);
 
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_u8_try_from(const QVariant &from,
+                                                                uint8_t &result);
 
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_i16_try_from(const QVariant &from,
+                                                                 int16_t &result);
 
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_u16_try_from(const QVariant &from,
+                                                                 uint16_t &result);
 
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_i32_try_from(const QVariant &from,
+                                                                 int32_t &result);
 
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_u32_try_from(const QVariant &from,
+                                                                 uint32_t &result);
 
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_i64_try_from(const QVariant &from,
+                                                                 int64_t &result);
 
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_u64_try_from(const QVariant &from,
+                                                                 uint64_t &result);
 
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_isize_try_from(const QVariant &from,
+                                                                   ptrdiff_t &result);
 
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_usize_try_from(const QVariant &from,
+                                                                   size_t &result);
 
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_f32_try_from(const QVariant &from,
+                                                                 float &result);
 
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_f64_try_from(const QVariant &from,
+                                                                 double &result);
 
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_bool_try_from(const QVariant &from,
+                                                                      QList<bool> &result);
 
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_i8_try_from(const QVariant &from,
+                                                                    QList<int8_t> &result);
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_bool_try_from(const QVariant& from, bool& result);
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_u8_try_from(const QVariant &from,
+                                                                    QList<uint8_t> &result);
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_i8_try_from(const QVariant& from, int8_t& result);
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_i16_try_from(const QVariant &from,
+                                                                     QList<int16_t> &result);
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_u8_try_from(const QVariant& from, uint8_t& result);
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_u16_try_from(const QVariant &from,
+                                                                     QList<uint16_t> &result);
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_i16_try_from(const QVariant& from, int16_t& result);
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_i32_try_from(const QVariant &from,
+                                                                     QList<int32_t> &result);
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_u16_try_from(const QVariant& from, uint16_t& result);
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_u32_try_from(const QVariant &from,
+                                                                     QList<uint32_t> &result);
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_i32_try_from(const QVariant& from, int32_t& result);
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_i64_try_from(const QVariant &from,
+                                                                     QList<int64_t> &result);
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_u32_try_from(const QVariant& from, uint32_t& result);
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_u64_try_from(const QVariant &from,
+                                                                     QList<uint64_t> &result);
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_i64_try_from(const QVariant& from, int64_t& result);
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_isize_try_from(const QVariant &from,
+                                                                       QList<ptrdiff_t> &result);
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_u64_try_from(const QVariant& from, uint64_t& result);
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_usize_try_from(const QVariant &from,
+                                                                       QList<size_t> &result);
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_isize_try_from(const QVariant& from, ptrdiff_t& result);
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_f32_try_from(const QVariant &from,
+                                                                     QList<float> &result);
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_usize_try_from(const QVariant& from, size_t& result);
-
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_f32_try_from(const QVariant& from, float& result);
-
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_f64_try_from(const QVariant& from, double& result);
-
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_bool_try_from(const QVariant& from, QList<bool>& result);
-
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_i8_try_from(const QVariant& from, QList<int8_t>& result);
-
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_u8_try_from(const QVariant& from, QList<uint8_t>& result);
-
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_i16_try_from(const QVariant& from, QList<int16_t>& result);
-
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_u16_try_from(const QVariant& from, QList<uint16_t>& result);
-
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_i32_try_from(const QVariant& from, QList<int32_t>& result);
-
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_u32_try_from(const QVariant& from, QList<uint32_t>& result);
-
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_i64_try_from(const QVariant& from, QList<int64_t>& result);
-
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_u64_try_from(const QVariant& from, QList<uint64_t>& result);
-
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_isize_try_from(const QVariant& from, QList<ptrdiff_t>& result);
-
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_usize_try_from(const QVariant& from, QList<size_t>& result);
-
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_f32_try_from(const QVariant& from, QList<float>& result);
-
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_f64_try_from(const QVariant& from, QList<double>& result);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_f64_try_from(const QVariant &from,
+                                                                     QList<double> &result);
 
 } // namespace rust::bridge::qvariant
-
-
 
 namespace rust {
 
 template <>
-struct IsRelocatable<::QVariant> : ::std::true_type {};
+struct IsRelocatable<::QVariant> : ::std::true_type
+{
+};
 
- } // namespace rust
-
+} // namespace rust
 
 #endif // _QVARIANT_RUST_BRIDGE_H_

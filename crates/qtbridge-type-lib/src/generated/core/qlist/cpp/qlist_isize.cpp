@@ -7,10 +7,7 @@
 
 namespace rust::bridge::qlist_isize {
 
-
-
-
-void QList_Drop(QList_isize& v)
+void QList_Drop(QList_isize &v)
 {
     v.~QList_isize();
 }
@@ -20,109 +17,97 @@ QList_isize QList_Default()
     return QList_isize();
 }
 
-QList_isize QList_Clone(const QList_isize& src)
+QList_isize QList_Clone(const QList_isize &src)
 {
-    return {src};
+    return { src };
 }
-
 
 QMetaType QList_QMetaType()
 {
-        return QMetaType::fromType<QList_isize>();
+    return QMetaType::fromType<QList_isize>();
 }
 
-
-
-void inlineCppFn_append(QList_isize& self, ptrdiff_t value)
+void inlineCppFn_append(QList_isize &self, ptrdiff_t value)
 {
-self.append(value);
+    self.append(value);
 }
 
-
-size_t inlineCppFn_capacity(const QList_isize& self)
+size_t inlineCppFn_capacity(const QList_isize &self)
 {
-return self.capacity();
+    return self.capacity();
 }
 
-
-void inlineCppFn_clear(QList_isize& self)
+void inlineCppFn_clear(QList_isize &self)
 {
-self.clear();
+    self.clear();
 }
 
-
-bool inlineCppFn_contains(const QList_isize& self, const ptrdiff_t& value)
+bool inlineCppFn_contains(const QList_isize &self, const ptrdiff_t &value)
 {
-return self.contains(value);
+    return self.contains(value);
 }
 
-
-
-void inlineCppFn_push_back(QList_isize& self, ptrdiff_t value)
+void inlineCppFn_push_back(QList_isize &self, ptrdiff_t value)
 {
-self.push_back(value);
+    self.push_back(value);
 }
 
-
-void inlineCppFn_remove(QList_isize& self, ptrdiff_t i, ptrdiff_t n)
+void inlineCppFn_remove(QList_isize &self, ptrdiff_t i, ptrdiff_t n)
 {
-self.remove(i,n);
+    self.remove(i, n);
 }
 
-
-void inlineCppFn_reserve(QList_isize& self, size_t size)
+void inlineCppFn_reserve(QList_isize &self, size_t size)
 {
-self.reserve(static_cast<qsizetype>(size));
+    self.reserve(static_cast<qsizetype>(size));
 }
 
-
-ptrdiff_t inlineCppFn_size(const QList_isize& self)
+ptrdiff_t inlineCppFn_size(const QList_isize &self)
 {
-return self.size();
+    return self.size();
 }
 
-
-
-const ptrdiff_t& inlineCppFn_first(const QList_isize& self)
+const ptrdiff_t &inlineCppFn_first(const QList_isize &self)
 {
-return self.constFirst();
+    return self.constFirst();
 }
 
-
-const ptrdiff_t& inlineCppFn_last(const QList_isize& self)
+const ptrdiff_t &inlineCppFn_last(const QList_isize &self)
 {
-return self.constLast();
+    return self.constLast();
 }
 
-
-
-
-
-
-rust::Vec<ptrdiff_t> inlineCppFn_TraitImpl_From_ref_QList_isize_for_Vec_isize_from(const QList_isize& src)
+rust::Vec<ptrdiff_t>
+inlineCppFn_TraitImpl_From_ref_QList_isize_for_Vec_isize_from(const QList_isize &src)
 {
-rust::Vec<ptrdiff_t>result;result.reserve(static_cast<size_t>(src.size()));for(ptrdiff_t item:src)result.push_back(item);return result;
+    rust::Vec<ptrdiff_t> result;
+    result.reserve(static_cast<size_t>(src.size()));
+    for (ptrdiff_t item : src)
+        result.push_back(item);
+    return result;
 }
 
-
-
-ptrdiff_t const* inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_isize_index(const QList_isize& self, size_t index)
+ptrdiff_t const *
+inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_isize_index(const QList_isize &self,
+                                                                size_t index)
 {
-return index<static_cast<size_t>(self.size())?&self[index]:nullptr;
+    return index < static_cast<size_t>(self.size()) ? &self[index] : nullptr;
 }
 
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_isize_eq(const QList_isize& lhs, const QList_isize& rhs)
+bool inlineCppFn_TraitImpl_PartialEq_for_QList_isize_eq(const QList_isize &lhs,
+                                                        const QList_isize &rhs)
 {
-return lhs==rhs;
+    return lhs == rhs;
 }
 
-
-bool inlineCppFn_TraitImpl_PartialEq_array_of_isize_N_for_QList_isize_eq(const QList_isize& self, rust::Slice<const  ptrdiff_t> rhs)
+bool inlineCppFn_TraitImpl_PartialEq_array_of_isize_N_for_QList_isize_eq(
+        const QList_isize &self, rust::Slice<const ptrdiff_t> rhs)
 {
-for(size_t i=0;i<rhs.size();++i){if(self[i]!=rhs[i])return false;}return true;
+    for (size_t i = 0; i < rhs.size(); ++i) {
+        if (self[i] != rhs[i])
+            return false;
+    }
+    return true;
 }
-
 
 } // namespace rust::bridge::qlist_isize
-

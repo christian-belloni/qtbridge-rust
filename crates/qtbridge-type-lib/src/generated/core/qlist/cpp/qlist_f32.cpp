@@ -7,10 +7,7 @@
 
 namespace rust::bridge::qlist_f32 {
 
-
-
-
-void QList_Drop(QList_f32& v)
+void QList_Drop(QList_f32 &v)
 {
     v.~QList_f32();
 }
@@ -20,109 +17,94 @@ QList_f32 QList_Default()
     return QList_f32();
 }
 
-QList_f32 QList_Clone(const QList_f32& src)
+QList_f32 QList_Clone(const QList_f32 &src)
 {
-    return {src};
+    return { src };
 }
-
 
 QMetaType QList_QMetaType()
 {
-        return QMetaType::fromType<QList_f32>();
+    return QMetaType::fromType<QList_f32>();
 }
 
-
-
-void inlineCppFn_append(QList_f32& self, float value)
+void inlineCppFn_append(QList_f32 &self, float value)
 {
-self.append(value);
+    self.append(value);
 }
 
-
-size_t inlineCppFn_capacity(const QList_f32& self)
+size_t inlineCppFn_capacity(const QList_f32 &self)
 {
-return self.capacity();
+    return self.capacity();
 }
 
-
-void inlineCppFn_clear(QList_f32& self)
+void inlineCppFn_clear(QList_f32 &self)
 {
-self.clear();
+    self.clear();
 }
 
-
-bool inlineCppFn_contains(const QList_f32& self, const float& value)
+bool inlineCppFn_contains(const QList_f32 &self, const float &value)
 {
-return self.contains(value);
+    return self.contains(value);
 }
 
-
-
-void inlineCppFn_push_back(QList_f32& self, float value)
+void inlineCppFn_push_back(QList_f32 &self, float value)
 {
-self.push_back(value);
+    self.push_back(value);
 }
 
-
-void inlineCppFn_remove(QList_f32& self, ptrdiff_t i, ptrdiff_t n)
+void inlineCppFn_remove(QList_f32 &self, ptrdiff_t i, ptrdiff_t n)
 {
-self.remove(i,n);
+    self.remove(i, n);
 }
 
-
-void inlineCppFn_reserve(QList_f32& self, size_t size)
+void inlineCppFn_reserve(QList_f32 &self, size_t size)
 {
-self.reserve(static_cast<qsizetype>(size));
+    self.reserve(static_cast<qsizetype>(size));
 }
 
-
-ptrdiff_t inlineCppFn_size(const QList_f32& self)
+ptrdiff_t inlineCppFn_size(const QList_f32 &self)
 {
-return self.size();
+    return self.size();
 }
 
-
-
-const float& inlineCppFn_first(const QList_f32& self)
+const float &inlineCppFn_first(const QList_f32 &self)
 {
-return self.constFirst();
+    return self.constFirst();
 }
 
-
-const float& inlineCppFn_last(const QList_f32& self)
+const float &inlineCppFn_last(const QList_f32 &self)
 {
-return self.constLast();
+    return self.constLast();
 }
 
-
-
-
-
-
-rust::Vec<float> inlineCppFn_TraitImpl_From_ref_QList_f32_for_Vec_f32_from(const QList_f32& src)
+rust::Vec<float> inlineCppFn_TraitImpl_From_ref_QList_f32_for_Vec_f32_from(const QList_f32 &src)
 {
-rust::Vec<float>result;result.reserve(static_cast<size_t>(src.size()));for(float item:src)result.push_back(item);return result;
+    rust::Vec<float> result;
+    result.reserve(static_cast<size_t>(src.size()));
+    for (float item : src)
+        result.push_back(item);
+    return result;
 }
 
-
-
-float const* inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_f32_index(const QList_f32& self, size_t index)
+float const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_f32_index(const QList_f32 &self,
+                                                                           size_t index)
 {
-return index<static_cast<size_t>(self.size())?&self[index]:nullptr;
+    return index < static_cast<size_t>(self.size()) ? &self[index] : nullptr;
 }
 
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_f32_eq(const QList_f32& lhs, const QList_f32& rhs)
+bool inlineCppFn_TraitImpl_PartialEq_for_QList_f32_eq(const QList_f32 &lhs, const QList_f32 &rhs)
 {
-return lhs==rhs;
+    return lhs == rhs;
 }
 
-
-bool inlineCppFn_TraitImpl_PartialEq_array_of_f32_N_for_QList_f32_eq(const QList_f32& self, rust::Slice<const  float> rhs)
+bool inlineCppFn_TraitImpl_PartialEq_array_of_f32_N_for_QList_f32_eq(const QList_f32 &self,
+                                                                     rust::Slice<const float> rhs)
 {
-for(size_t i=0;i<rhs.size();++i){if(self[i]!=rhs[i])return false;}return true;
+    for (size_t i = 0; i < rhs.size(); ++i) {
+        if (self[i] != rhs[i])
+            return false;
+    }
+    return true;
 }
-
 
 } // namespace rust::bridge::qlist_f32
-

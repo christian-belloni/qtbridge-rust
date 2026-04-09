@@ -11,40 +11,31 @@
 #include "qtbridge-type-lib/src/generated/core/qvariant/cpp/qvariant.h"
 #include "rust/cxx.h"
 
-
-
-
 namespace rust::bridge::qmodelindex {
 
-
-
-void QModelIndex_Drop(QModelIndex& v);
+void QModelIndex_Drop(QModelIndex &v);
 QModelIndex QModelIndex_Default();
-QModelIndex QModelIndex_Clone(const QModelIndex& src);
+QModelIndex QModelIndex_Clone(const QModelIndex &src);
 
+int32_t inlineCppFn_column(const QModelIndex &self);
 
+int32_t inlineCppFn_row(const QModelIndex &self);
 
+size_t inlineCppFn_internal_pointer(const QModelIndex &self);
 
-int32_t inlineCppFn_column(const QModelIndex& self);
+QVariant inlineCppFn_data(const QModelIndex &self);
 
-int32_t inlineCppFn_row(const QModelIndex& self);
-
-size_t inlineCppFn_internal_pointer(const QModelIndex& self);
-
-QVariant inlineCppFn_data(const QModelIndex& self);
-
-bool inlineCppFn_is_valid(const QModelIndex& self);
+bool inlineCppFn_is_valid(const QModelIndex &self);
 
 } // namespace rust::bridge::qmodelindex
-
-
 
 namespace rust {
 
 template <>
-struct IsRelocatable<::QModelIndex> : ::std::true_type {};
+struct IsRelocatable<::QModelIndex> : ::std::true_type
+{
+};
 
- } // namespace rust
-
+} // namespace rust
 
 #endif // _QMODELINDEX_RUST_BRIDGE_H_

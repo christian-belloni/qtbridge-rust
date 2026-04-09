@@ -12,24 +12,14 @@
 #include "rust/cxx.h"
 #include "rustconv.h"
 
-
-
-
 namespace rust::bridge::qguiapplication {
 
-
-
-
-
-
-
-std::unique_ptr<QGuiApplication> inlineCppFn_new(const int32_t& argc, size_t const* argv);
+std::unique_ptr<QGuiApplication> inlineCppFn_new(const int32_t &argc, size_t const *argv);
 
 int32_t inlineCppFn_exec();
 
 void inlineCppFn_set_application_name(rust::Str name);
 
 } // namespace rust::bridge::qguiapplication
-
 
 #endif // _QGUIAPPLICATION_RUST_BRIDGE_H_

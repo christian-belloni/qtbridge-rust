@@ -7,10 +7,7 @@
 
 namespace rust::bridge::qhash_i32_qbytearray {
 
-
-
-
-void QHash_Drop(QHash_i32_QByteArray& v)
+void QHash_Drop(QHash_i32_QByteArray &v)
 {
     v.~QHash_i32_QByteArray();
 }
@@ -20,77 +17,63 @@ QHash_i32_QByteArray QHash_Default()
     return QHash_i32_QByteArray();
 }
 
-QHash_i32_QByteArray QHash_Clone(const QHash_i32_QByteArray& src)
+QHash_i32_QByteArray QHash_Clone(const QHash_i32_QByteArray &src)
 {
-    return {src};
+    return { src };
 }
 
-
-
-
-void inlineCppFn_clear(QHash_i32_QByteArray& self)
+void inlineCppFn_clear(QHash_i32_QByteArray &self)
 {
-self.clear();
+    self.clear();
 }
 
-
-bool inlineCppFn_contains(const QHash_i32_QByteArray& self, const int32_t& key)
+bool inlineCppFn_contains(const QHash_i32_QByteArray &self, const int32_t &key)
 {
-return self.contains(key);
+    return self.contains(key);
 }
 
-
-void inlineCppFn_insert(QHash_i32_QByteArray& self, const int32_t& key, const QByteArray& value)
+void inlineCppFn_insert(QHash_i32_QByteArray &self, const int32_t &key, const QByteArray &value)
 {
-self.insert(key,value);
+    self.insert(key, value);
 }
 
-
-bool inlineCppFn_is_empty(const QHash_i32_QByteArray& self)
+bool inlineCppFn_is_empty(const QHash_i32_QByteArray &self)
 {
-return self.isEmpty();
+    return self.isEmpty();
 }
 
-
-bool inlineCppFn_remove(QHash_i32_QByteArray& self, const int32_t& key)
+bool inlineCppFn_remove(QHash_i32_QByteArray &self, const int32_t &key)
 {
-return self.remove(key);
+    return self.remove(key);
 }
 
-
-ptrdiff_t inlineCppFn_size(const QHash_i32_QByteArray& self)
+ptrdiff_t inlineCppFn_size(const QHash_i32_QByteArray &self)
 {
-return self.size();
+    return self.size();
 }
 
-
-
-QList_i32 inlineCppFn_keys(const QHash_i32_QByteArray& self)
+QList_i32 inlineCppFn_keys(const QHash_i32_QByteArray &self)
 {
-return self.keys();
+    return self.keys();
 }
 
-
-QList_QByteArray inlineCppFn_values(const QHash_i32_QByteArray& self)
+QList_QByteArray inlineCppFn_values(const QHash_i32_QByteArray &self)
 {
-return self.values();
+    return self.values();
 }
 
-
-QByteArray inlineCppFn_value(const QHash_i32_QByteArray& self, const int32_t& key)
+QByteArray inlineCppFn_value(const QHash_i32_QByteArray &self, const int32_t &key)
 {
-return self.value(key);
+    return self.value(key);
 }
 
-
-
-
-
-QByteArray const* inlineCppFn_TraitImpl_std_ops_Index_ref_i32_for_QHash_i32_QByteArray_index(const QHash_i32_QByteArray& self, const int32_t& key)
+QByteArray const *inlineCppFn_TraitImpl_std_ops_Index_ref_i32_for_QHash_i32_QByteArray_index(
+        const QHash_i32_QByteArray &self, const int32_t &key)
 {
-auto findIt=self.find(key);if(findIt==self.end())return nullptr;return&*findIt;
+    auto findIt = self.find(key);
+    if (findIt == self.end())
+        return nullptr;
+    return &*findIt;
 }
-
 
 } // namespace rust::bridge::qhash_i32_qbytearray
-

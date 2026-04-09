@@ -7,10 +7,9 @@
 
 namespace rust::bridge::qmap_qstring_qvariant {
 
-
 static_assert(qMetaTypeId<QMap_QString_QVariant>() == 8);
 
-void QMap_Drop(QMap_QString_QVariant& v)
+void QMap_Drop(QMap_QString_QVariant &v)
 {
     v.~QMap_QString_QVariant();
 }
@@ -20,74 +19,58 @@ QMap_QString_QVariant QMap_Default()
     return QMap_QString_QVariant();
 }
 
-QMap_QString_QVariant QMap_Clone(const QMap_QString_QVariant& src)
+QMap_QString_QVariant QMap_Clone(const QMap_QString_QVariant &src)
 {
-    return {src};
+    return { src };
 }
 
-
-
-
-void inlineCppFn_clear(QMap_QString_QVariant& self)
+void inlineCppFn_clear(QMap_QString_QVariant &self)
 {
-self.clear();
+    self.clear();
 }
 
-
-void inlineCppFn_insert(QMap_QString_QVariant& self, const QString& key, const QVariant& value)
+void inlineCppFn_insert(QMap_QString_QVariant &self, const QString &key, const QVariant &value)
 {
-self.insert(key,value);
+    self.insert(key, value);
 }
 
-
-bool inlineCppFn_is_empty(const QMap_QString_QVariant& self)
+bool inlineCppFn_is_empty(const QMap_QString_QVariant &self)
 {
-return self.isEmpty();
+    return self.isEmpty();
 }
 
-
-int32_t inlineCppFn_remove(QMap_QString_QVariant& self, const QString& key)
+int32_t inlineCppFn_remove(QMap_QString_QVariant &self, const QString &key)
 {
-return self.remove(key);
+    return self.remove(key);
 }
 
-
-int32_t inlineCppFn_size(const QMap_QString_QVariant& self)
+int32_t inlineCppFn_size(const QMap_QString_QVariant &self)
 {
-return self.size();
+    return self.size();
 }
 
-
-
-QList_QString inlineCppFn_keys(const QMap_QString_QVariant& self)
+QList_QString inlineCppFn_keys(const QMap_QString_QVariant &self)
 {
-return self.keys();
+    return self.keys();
 }
 
-
-QList_QVariant inlineCppFn_values(const QMap_QString_QVariant& self)
+QList_QVariant inlineCppFn_values(const QMap_QString_QVariant &self)
 {
-return self.values();
+    return self.values();
 }
 
-
-QVariant inlineCppFn_value(const QMap_QString_QVariant& self, const QString& key)
+QVariant inlineCppFn_value(const QMap_QString_QVariant &self, const QString &key)
 {
-return self.value(key);
+    return self.value(key);
 }
 
-
-
-
-
-
-
-
-QVariant const* inlineCppFn_TraitImpl_std_ops_Index_ref_QString_for_QMap_QString_QVariant_index(const QMap_QString_QVariant& self, const QString& key)
+QVariant const *inlineCppFn_TraitImpl_std_ops_Index_ref_QString_for_QMap_QString_QVariant_index(
+        const QMap_QString_QVariant &self, const QString &key)
 {
-auto findIt=self.find(key);if(findIt==self.end())return nullptr;return&*findIt;
+    auto findIt = self.find(key);
+    if (findIt == self.end())
+        return nullptr;
+    return &*findIt;
 }
-
 
 } // namespace rust::bridge::qmap_qstring_qvariant
-

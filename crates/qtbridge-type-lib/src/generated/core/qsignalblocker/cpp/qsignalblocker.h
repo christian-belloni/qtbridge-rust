@@ -10,30 +10,21 @@
 #include "qtbridge-type-lib/src/generated/core/qobject/cpp/qobject.h"
 #include "rust/cxx.h"
 
-
-
-
 namespace rust::bridge::qsignalblocker {
 
+void QSignalBlocker_Drop(QSignalBlocker &v);
 
-
-void QSignalBlocker_Drop(QSignalBlocker& v);
-
-
-
-
-QSignalBlocker inlineCppFn_new(QObject& qobj);
+QSignalBlocker inlineCppFn_new(QObject &qobj);
 
 } // namespace rust::bridge::qsignalblocker
-
-
 
 namespace rust {
 
 template <>
-struct IsRelocatable<::QSignalBlocker> : ::std::true_type {};
+struct IsRelocatable<::QSignalBlocker> : ::std::true_type
+{
+};
 
- } // namespace rust
-
+} // namespace rust
 
 #endif // _QSIGNALBLOCKER_RUST_BRIDGE_H_

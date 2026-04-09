@@ -7,29 +7,20 @@
 
 namespace rust::bridge::qguiapplication {
 
-
-
-
-
-
-
-std::unique_ptr<QGuiApplication> inlineCppFn_new(const int32_t& argc, size_t const* argv)
+std::unique_ptr<QGuiApplication> inlineCppFn_new(const int32_t &argc, size_t const *argv)
 {
-return std::make_unique<QGuiApplication>(const_cast<int&>(argc),const_cast<char**>(reinterpret_cast<char*const*>(argv)));
+    return std::make_unique<QGuiApplication>(
+            const_cast<int &>(argc), const_cast<char **>(reinterpret_cast<char *const *>(argv)));
 }
-
 
 int32_t inlineCppFn_exec()
 {
-return QGuiApplication::exec();
+    return QGuiApplication::exec();
 }
-
 
 void inlineCppFn_set_application_name(rust::Str name)
 {
-QGuiApplication::setApplicationName(RustStrToQString(name));
+    QGuiApplication::setApplicationName(RustStrToQString(name));
 }
 
-
 } // namespace rust::bridge::qguiapplication
-
