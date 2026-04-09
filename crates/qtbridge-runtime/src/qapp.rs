@@ -3,7 +3,7 @@
 
 use cxx::UniquePtr;
 use qtbridge_type_lib::{QGuiApplication, QQmlApplicationEngine, QString, QVariant, QVariantMap};
-
+use crate::qml_register::QmlRegister;
 /// Runs a minimal application from an embedded QML file.
 ///
 /// This macro is a convenience helper for small applications and examples.
@@ -86,7 +86,7 @@ impl QApp {
     pub fn new() -> Self {
         let app = QGuiApplication::new();
         let engine = QQmlApplicationEngine::new();
-         Self {
+        Self {
             engine: engine,
             app: app,
             initial_properties: QVariantMap::default(),
@@ -203,6 +203,36 @@ impl QApp {
             self.engine.pin_mut().set_initial_properties(&self.initial_properties);
         }
         self.engine.pin_mut().load_data(code);
+        self
+    }
+
+    /// Register a QML type, making it instantiable from QML.
+    ///
+    /// ```rust
+    ///# use qtbridge::{QApp, qobject_impl};
+    /// #[derive(Default)]
+    /// pub struct Backend {
+    /// }
+    /// #[qobject_impl(Singleton)]
+    /// impl Backend {
+    /// }
+    /// QApp::new()
+    ///     .register::<Backend>()
+    ///     .load_qml(br#"
+    ///         import QtQuick
+    ///         import QtQuick.Controls
+    ///         ApplicationWindow {
+    ///#            Component.onCompleted: closeTimer.start()
+    ///#            Timer {
+    ///#                id: closeTimer
+    ///#                interval: 1
+    ///#                onTriggered: Qt.quit()
+    ///#            }
+    ///      }"#)
+    ///     .run();
+    /// ```
+    pub fn register<T: QmlRegister>(&mut self) -> &mut Self {
+        T::register();
         self
     }
 

@@ -180,8 +180,8 @@ pub use qtbridge_build_common;
 /// "#;
 ///
 /// fn main() {
-///     <Counter as qtbridge::QmlRegister>::register();
 ///     QApp::new()
+///         .register::<Counter>()
 ///         .load_qml(QML_CODE.as_bytes())
 ///         .run();
 /// }
@@ -268,8 +268,8 @@ pub use qtbridge_gen::qobject_impl;
 /// "#;
 ///
 /// fn main() {
-///     <backend::Counter as qtbridge::QmlRegister>::register();
 ///     QApp::new()
+///         .register::<backend::Counter>()
 ///         .load_qml(QML_CODE.as_bytes())
 ///         .run();
 /// }

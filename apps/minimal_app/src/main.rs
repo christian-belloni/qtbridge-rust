@@ -50,8 +50,8 @@ mod backend {
 }
 
 fn main() {
-    <backend::Backend as qtbridge::QmlRegister>::register();
     QApp::new()
+        .register::<backend::Backend>()
         .load_qml(include_bytes!("Main.qml"))
         .run();
 }

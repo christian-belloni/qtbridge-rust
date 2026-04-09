@@ -33,8 +33,8 @@ impl Backend {
 }
 
 fn main() {
-    <Backend as qtbridge::QmlRegister>::register();
     QApp::new()
+        .register::<Backend>()
         .load_qml(include_bytes!("qml/Main.qml"))
         .run();
 }
