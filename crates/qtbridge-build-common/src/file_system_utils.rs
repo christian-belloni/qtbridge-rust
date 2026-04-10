@@ -152,7 +152,55 @@ pub fn get_path_from(from_dir: &Path, to: &Path) -> Result<PathBuf, String> {
 pub fn absolute_path(input: &Path) -> Result<PathBuf, String> {
     let absolute = path::absolute(input)
         .map_err(|err| format!("Failed to get absolute path from '{}'.\nError: {err}", input.display()))?;
+
+    #[cfg(target_os = "linux")]
+    let absolute = resolve_dots_in_path(&absolute);
+
     Ok(absolute)
+}
+
+/// Resolve parent directories ("..") and current directory (".") components
+/// in the input path. This is needed because `std::path::absolute()` does not handle that
+/// on POSIX platforms.
+pub fn resolve_dots_in_path(input: &Path) -> PathBuf {
+    let mut comps = Vec::new();
+    let mut changed = false;
+
+    input.components()
+        .for_each(|comp| {
+            let comp_str = comp.as_os_str()
+                .to_string_lossy()
+                .to_string();
+            match comp_str.as_str() {
+                ".." => {
+                    if comps.last().is_some_and(|c| c != "..") {
+                        // Resolve ".." by dropping parent subfolder
+                        comps.pop();
+                        changed = true
+                    }
+                    else {
+                        // No explicit parent subfolder in the path. Keep ".." as is.
+                        comps.push(comp_str);
+                    }
+                },
+                "." => {
+                    if comps.is_empty() {
+                        comps.push(comp_str);
+                    }
+                    else {
+                        // Ignore "." if it is not at the beginning.
+                        changed = true;
+                    }
+                },
+                _ => {
+                    comps.push(comp_str);
+                }
+            }
+        });
+    match changed {
+        true => PathBuf::from_iter(comps),
+        false => PathBuf::from(input),
+    }
 }
 
 /// Return path using '/' as directory separator
