@@ -107,10 +107,10 @@ pub trait GenerateFiles {
     fn process_file(&mut self, input_path: &Path) -> Result<FileTree, String>;
     fn package_name() -> &'static str;
 
-    fn generate_files(&mut self, input_root: &Path, generate_lists_for_build_rs: bool) -> Result<GenerateFilesOutput, String>
+    fn generate_files(&mut self, input_root: &Path, output_root: &Path, generate_lists_for_build_rs: bool) -> Result<GenerateFilesOutput, String>
         where Self: Sized
     {
-        generate_files(input_root, self, generate_lists_for_build_rs)
+        generate_files(input_root, output_root, self, generate_lists_for_build_rs)
     }
 
     fn place_files(&self, dest_crate_root: &Path, output: &GenerateFilesOutput) -> Result<(), String> {
@@ -118,13 +118,8 @@ pub trait GenerateFiles {
     }
 }
 
-fn generate_files<Generator: GenerateFiles>(input_root: &Path, generator: &mut Generator, generate_lists_for_build_rs: bool) -> Result<GenerateFilesOutput, String>
+fn generate_files<Generator: GenerateFiles>(input_root: &Path, out_root: &Path, generator: &mut Generator, generate_lists_for_build_rs: bool) -> Result<GenerateFilesOutput, String>
 {
-    // First generate files in output directory of this project.
-    // Later if everything is Ok, generated files are moved to the destination.
-    let out_dir_var = std::env::var("OUT_DIR")
-        .map_err(|err| format!("Failed to get 'OUT_DIR' environment variable.\nError: {err}"))?;
-    let out_root = absolute_path(&PathBuf::from(out_dir_var))?.join("type_gen");
     let out_src_dir = out_root.join("src");
     let generated_root = out_src_dir.join("generated");
 
