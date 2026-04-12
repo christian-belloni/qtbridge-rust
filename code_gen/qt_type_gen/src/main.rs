@@ -2,9 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use std::path::{Path, PathBuf};
-use std::fs;
 
-use qtbridge_build_common::file_system_utils::{absolute_path, create_dirs, find_all_files, write_to_file};
+use qtbridge_build_common::file_system_utils::{get_workspace_dir, write_to_file};
 use qtbridge_build_common::generate_types::{CodeFile, FileTree, GenerateFiles, RustFileInfo, get_header};
 use qtbridge_gen_common::format_code::{format_rust_code, try_format_cpp_code};
 use qtbridge_gen_common::naming;
@@ -13,7 +12,7 @@ use qt_type_gen_lib::bridge::BridgeTypesGenerator;
 use qt_type_gen_lib::generate_type_info::generate_qt_types_getters_code;
 
 const INPUT_ROOT: &str = "src/input";
-const DEST_CRATE_ROOT: &str = "../../crates/qtbridge-type-lib";
+const DEST_CRATE_ROOT: &str = "crates/qtbridge-type-lib";
 
 struct TypeGenerator {
     gen_impl: BridgeTypesGenerator,
@@ -99,45 +98,41 @@ impl GenerateFiles for TypeGenerator {
     }
 }
 
-fn main() {
+fn generate() -> Result<(), String> {
+    let workspace_root = get_workspace_dir()?;
+    let qt_type_gen_dir = workspace_root.join("code_gen/qt_type_gen");
+    std::env::set_current_dir(qt_type_gen_dir)
+        .map_err(|err| format!("set_current_dir() failed: {err}"))?;
+
+    // TODO: make these paths configurable via CL arguments?
     let input_root = PathBuf::from(INPUT_ROOT);
 
     // First generate files in OUT_DIR of this project.
     // Later if everything is Ok, move generated files to the destination.
-    let out_dir_var = std::env::var("OUT_DIR")
-        .map_err(|err| format!("Failed to get 'OUT_DIR' environment variable.\nError: {err}"))
-        .unwrap();
-    let staging_root = absolute_path(&PathBuf::from(out_dir_var))
-        .unwrap()
-        .join("type_gen");
+    let tmp_dir = std::env::temp_dir();
+    let staging_root = tmp_dir.join("type_gen");
 
-    let dst_crate_root = PathBuf::from(DEST_CRATE_ROOT);
+    let dst_crate_root = workspace_root.join(DEST_CRATE_ROOT);
 
     // Generate code for Qt types
     let mut generator = TypeGenerator::new(input_root.clone());
-    let generator_output = generator.generate_files(&input_root, &staging_root, true)
-        .unwrap();
+    let generator_output = generator.generate_files(&input_root, &staging_root, true)?;
 
-    generator.check_unresolved_dependencies()
-        .unwrap();
+    generator.check_unresolved_dependencies()?;
 
     let mut dest = dst_crate_root.join("generated_files_bridge.rs");
-    fs::write(&dest, &generator_output.generated_files_bridge_code).unwrap();
+    write_to_file(&dest, &generator_output.generated_files_bridge_code)?;
     dest = dst_crate_root.join("generated_files_cpp.rs");
-    fs::write(&dest, &generator_output.generated_files_cpp_code).unwrap();
+    write_to_file(&dest, &generator_output.generated_files_cpp_code)?;
 
-    generator.place_files(&dst_crate_root, &generator_output)
-        .unwrap();
+    generator.place_files(&dst_crate_root, &generator_output)?;
 
-    // Mark build as dirty if any of input files was changed
-    find_all_files(&input_root, true)
+    TypeGenerator::store_qt_type_init_code(&dst_crate_root.join("src/qt_types.rs"))?;
+
+    Ok(())
+}
+
+fn main() {
+    generate()
         .unwrap()
-        .iter()
-        .for_each(|path| println!("cargo::rerun-if-changed={}", path.display()));
-
-    let qt_type_info_dir = PathBuf::from(DEST_CRATE_ROOT);
-    create_dirs(&qt_type_info_dir)
-        .unwrap();
-    TypeGenerator::store_qt_type_init_code(&qt_type_info_dir.join("src/qt_types.rs"))
-        .unwrap();
 }

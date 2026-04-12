@@ -13,10 +13,11 @@ pub fn relative_input_file_path_to_path_qualified(src: &str) -> Result<Vec<Strin
             .to_ascii_lowercase())
         .collect();
 
-    if comps.get(0).is_some_and(|c0| c0 == "src") &&
-       comps.get(1).is_some_and(|c1| c1 == "input") {
-        comps.drain(0..2);
-    }
+    if let Some(src_pos) = comps.iter().position(|c| c == "src") &&
+       let Some(input_pos) = comps.iter().position(|c| c == "input") &&
+       src_pos + 1 == input_pos {
+        comps.drain(0..=input_pos);
+       }
 
     let Some(last_comp) = comps.last_mut() else {
         return Err("Path does not contain module components".into())
