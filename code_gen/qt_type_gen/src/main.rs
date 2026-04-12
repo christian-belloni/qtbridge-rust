@@ -51,6 +51,7 @@ impl GenerateFiles for TypeGenerator {
     }
 
     fn process_file(&mut self, input_path: &Path) -> Result<FileTree, String> {
+        println!("Processing input file '{}'", input_path.display());
         let generated_submodules = self.gen_impl.process_input_file(input_path)?;
 
         let mut out_tree = FileTree::new();
@@ -73,24 +74,28 @@ impl GenerateFiles for TypeGenerator {
                 });
 
 
-            out_tree.insert(rust_filepath,
+            out_tree.insert(rust_filepath.clone(),
                 CodeFile::new_rust(rust_code, Some(submod.input_file_path.clone()), RustFileInfo {
                     has_cxx_bridge: submod.is_cxx_present,
                     is_pub_mod: true,
                     local_reexports,
                     global_mod_idents: global_reexports,
                 }));
+            println!("Generated file: '{}'", rust_filepath.display());
+
 
             if !submod.code.cpp_header.is_empty() {
                 let header_filepath = mod_path_cpp.join(naming::cpp::filename::type_gen_header(&submod.name));
                 let header_code = try_format_cpp_code(&submod.code.cpp_header)?;
-                out_tree.insert(header_filepath, CodeFile::new_header(header_code, Some(submod.input_file_path.clone())));
+                out_tree.insert(header_filepath.clone(), CodeFile::new_header(header_code, Some(submod.input_file_path.clone())));
+                println!("Generated file: '{}'", header_filepath.display());
             }
 
             if !submod.code.cpp_src.is_empty() {
                 let cpp_filepath = mod_path_cpp.join(naming::cpp::filename::type_gen_cpp(&submod.name));
                 let cpp_code = try_format_cpp_code(&submod.code.cpp_src)?;
-                out_tree.insert(cpp_filepath, CodeFile::new_cpp(cpp_code, Some(submod.input_file_path.clone())));
+                out_tree.insert(cpp_filepath.clone(), CodeFile::new_cpp(cpp_code, Some(submod.input_file_path.clone())));
+                println!("Generated file: '{}'", cpp_filepath.display());
             }
         }
 
@@ -106,6 +111,7 @@ fn generate() -> Result<(), String> {
 
     // TODO: make these paths configurable via CL arguments?
     let input_root = PathBuf::from(INPUT_ROOT);
+    println!("Running code generation on the input folder '{}'", workspace_root.join(&input_root).display());
 
     // First generate files in OUT_DIR of this project.
     // Later if everything is Ok, move generated files to the destination.
@@ -125,9 +131,12 @@ fn generate() -> Result<(), String> {
     dest = dst_crate_root.join("generated_files_cpp.rs");
     write_to_file(&dest, &generator_output.generated_files_cpp_code)?;
 
+    println!("Moving staged files to '{}'", dst_crate_root.display());
     generator.place_files(&dst_crate_root, &generator_output)?;
 
     TypeGenerator::store_qt_type_init_code(&dst_crate_root.join("src/qt_types.rs"))?;
+
+    println!("Done");
 
     Ok(())
 }
