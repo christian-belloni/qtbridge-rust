@@ -16,7 +16,7 @@ pub mod ffi {
         type QListModelProxyRust;
         # [Self = QListModelProxyRust]
         # [cxx_name = dropSelf]
-        unsafe fn drop_self_impl(self_ptr: *mut QListModelProxyRust, rust_obj_ptr: *const u8);
+        unsafe fn drop_self(self_ptr: *mut QListModelProxyRust, rust_obj_ptr: *const u8);
         # [cxx_name = index]
         fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex;
         # [cxx_name = rowCount]

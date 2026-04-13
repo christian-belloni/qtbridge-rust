@@ -9,7 +9,7 @@ pub mod ffi {
         type QObjectProxyRust;
         # [Self = QObjectProxyRust]
         # [cxx_name = dropSelf]
-        unsafe fn drop_self_impl(self_ptr: *mut QObjectProxyRust, rust_obj_ptr: *const u8);
+        unsafe fn drop_self(self_ptr: *mut QObjectProxyRust, rust_obj_ptr: *const u8);
     }
 }
 unsafe impl cxx::ExternType for QObjectProxyRust {

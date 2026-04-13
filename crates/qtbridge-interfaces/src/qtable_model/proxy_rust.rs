@@ -516,9 +516,6 @@ impl QRustProxy for QTableModelProxyRust {
         }};
         raw_self
     }
-    fn drop_self(raw_self: *mut Self, rust_obj_ptr: *const u8) {
-        Self::drop_self_impl(raw_self, rust_obj_ptr)
-    }
     fn get_static_meta_object() -> &'static QMetaObject {
         ffi::static_qmeta_object_of_qtable_model_proxy_cpp()
     }
@@ -540,7 +537,7 @@ impl QRustProxy for QTableModelProxyRust {
 }
 
 impl QTableModelProxyRust {
-    pub fn drop_self_impl(raw_self: *mut Self, rust_obj_ptr: *const u8) {
+    pub fn drop_self(raw_self: *mut Self, rust_obj_ptr: *const u8) {
         let boxed_self = unsafe { Box::from_raw(raw_self) };
         (boxed_self.on_drop)(rust_obj_ptr);
     }

@@ -63,7 +63,6 @@ pub trait QRustProxy {
     type ProxyCppType;
     type AdapterType: ?Sized;
     fn new(rust_obj: &Rc<RefCell<Self::AdapterType>>, construction: ConstructionMode, on_drop: fn(rust_obj: *const u8)) -> *mut Self;
-    fn drop_self(raw_self: *mut Self, rust_obj_ptr: *const u8);
     fn get_static_meta_object() -> &'static QMetaObject;
     fn get_size_of_cpp_proxy() -> usize;
     fn get_align_of_cpp_proxy() -> usize;

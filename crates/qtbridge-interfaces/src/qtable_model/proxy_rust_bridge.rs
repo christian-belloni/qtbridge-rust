@@ -16,7 +16,7 @@ pub mod ffi {
         type QTableModelProxyRust;
         # [Self = QTableModelProxyRust]
         # [cxx_name = dropSelf]
-        unsafe fn drop_self_impl(self_ptr: *mut QTableModelProxyRust, rust_obj_ptr: *const u8);
+        unsafe fn drop_self(self_ptr: *mut QTableModelProxyRust, rust_obj_ptr: *const u8);
         # [cxx_name = index]
         fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex;
         # [cxx_name = parent]
