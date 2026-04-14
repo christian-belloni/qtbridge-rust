@@ -22,7 +22,7 @@ class QAbstractItemModelProxyCpp : public QAbstractItemModel, public DispatchMet
     using Base = QAbstractItemModel;
 
 public:
-    QAbstractItemModelProxyCpp(uint8_t* rustObj, QAbstractItemModelProxyRust* rustProxy);
+    QAbstractItemModelProxyCpp(QAbstractItemModelProxyRust* rustProxy);
     ~QAbstractItemModelProxyCpp();
 
     // Virtual methods
@@ -67,13 +67,12 @@ public:
     QModelIndex createIndex(int32_t row, int32_t column, size_t ptr) const;
 
 private:
-    uint8_t* m_rustObj;
     QAbstractItemModelProxyRust* m_rustProxy;
 };
 
 // Functions for object construction
-QAbstractItemModelProxyCpp* create_QAbstractItemModelProxyCpp(uint8_t* rustObj, QAbstractItemModelProxyRust* rustProxy);
-QAbstractItemModelProxyCpp* create_QAbstractItemModelProxyCpp_At(uint8_t* addr, uint8_t* rustObj, QAbstractItemModelProxyRust* rustProxy);
+QAbstractItemModelProxyCpp* create_QAbstractItemModelProxyCpp(QAbstractItemModelProxyRust* rustProxy);
+QAbstractItemModelProxyCpp* create_QAbstractItemModelProxyCpp_At(uint8_t* addr, QAbstractItemModelProxyRust* rustProxy);
 const QMetaObject& staticQMetaObjectOf_QAbstractItemModelProxyCpp();
 size_t sizeOf_QAbstractItemModelProxyCpp();
 size_t alignOf_QAbstractItemModelProxyCpp();

@@ -239,31 +239,30 @@ pub struct QAbstractItemModelProxyRust {
     cpp_proxy: *mut QAbstractItemModelProxyCpp,
     #[allow(dead_code)]
     rust_obj: RustObjAccess<dyn QAbstractItemModelAdapter>,
-    on_drop: fn(rust_obj: *const u8),
+    on_drop: Box<dyn FnOnce()>,
 }
 
 impl QRustProxy for QAbstractItemModelProxyRust {
     type ProxyCppType = QAbstractItemModelProxyCpp;
     type AdapterType = dyn QAbstractItemModelAdapter;
 
-    fn new(rust_obj: &Rc<RefCell<dyn QAbstractItemModelAdapter>>, construct: ConstructionMode, on_drop: fn(rust_obj: *const u8)) -> *mut Self {
-        let raw_rust_obj = rust_obj.as_ptr();
+    fn new<OnDropFn: FnOnce() + 'static>(rust_obj: &Rc<RefCell<dyn QAbstractItemModelAdapter>>, construct: ConstructionMode, on_drop: OnDropFn) -> *mut Self {
         let boxed_self = Box::new(Self {
             cpp_proxy: std::ptr::null_mut(),
             rust_obj: match construct {
                 ConstructionMode::Strong | ConstructionMode::AtAddress(_) => RustObjAccess::new_strong(rust_obj.clone()),
                 ConstructionMode::Weak => RustObjAccess::new_weak(Rc::downgrade(rust_obj)),
             },
-            on_drop,
+            on_drop: Box::new(on_drop),
         });
         let raw_self = Box::into_raw(boxed_self);
 
         unsafe{ (*raw_self).cpp_proxy = match construct {
             ConstructionMode::AtAddress(addr) => {
-                ffi::create_qabstract_item_model_proxy_cpp_at( addr, raw_rust_obj.cast(), raw_self)
+                ffi::create_qabstract_item_model_proxy_cpp_at(addr, raw_self)
             }
             ConstructionMode::Strong | ConstructionMode::Weak => {
-                ffi::create_qabstract_item_model_proxy_cpp(raw_rust_obj.cast(), raw_self)
+                ffi::create_qabstract_item_model_proxy_cpp(raw_self)
             }
         }};
         raw_self
@@ -289,9 +288,9 @@ impl QRustProxy for QAbstractItemModelProxyRust {
 }
 
 impl QAbstractItemModelProxyRust {
-    pub fn drop_self(raw_self: *mut Self, rust_obj_ptr: *const u8) {
-        let boxed_self = unsafe { Box::from_raw(raw_self) };
-        (boxed_self.on_drop)(rust_obj_ptr);
+    pub fn drop_self(self_ptr: *mut Self) {
+        let boxed_self = unsafe { Box::from_raw(self_ptr) };
+        (boxed_self.on_drop)();
     }
     pub fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex {
         call_rust_trait_impl!(self, index(row, column, parent))

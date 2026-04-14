@@ -23,9 +23,9 @@ pub mod ffi {
         include!("qtbridge-interfaces/src/generated/qabstract_item_model/cpp/QAbstractItemModelProxyCpp.h");
         type QAbstractItemModelProxyCpp;
         # [rust_name = create_qabstract_item_model_proxy_cpp]
-        unsafe fn create_QAbstractItemModelProxyCpp(rust_obj: *mut u8, rust_proxy: *mut QAbstractItemModelProxyRust) -> *mut QAbstractItemModelProxyCpp;
+        unsafe fn create_QAbstractItemModelProxyCpp(rust_proxy: *mut QAbstractItemModelProxyRust) -> *mut QAbstractItemModelProxyCpp;
         # [rust_name = create_qabstract_item_model_proxy_cpp_at]
-        unsafe fn create_QAbstractItemModelProxyCpp_At(addr: *mut u8, rust_obj: *mut u8, rust_proxy: *mut QAbstractItemModelProxyRust)
+        unsafe fn create_QAbstractItemModelProxyCpp_At(addr: *mut u8, rust_proxy: *mut QAbstractItemModelProxyRust)
         -> *mut QAbstractItemModelProxyCpp;
         # [rust_name = static_qmeta_object_of_qabstract_item_model_proxy_cpp]
         fn staticQMetaObjectOf_QAbstractItemModelProxyCpp() -> &'static QMetaObject;

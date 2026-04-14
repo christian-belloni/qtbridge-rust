@@ -17,9 +17,9 @@ pub mod ffi {
         include!("qtbridge-interfaces/src/qobject/cpp/QObjectProxyCpp.h");
         type QObjectProxyCpp;
         # [rust_name = create_qobject_proxy_cpp]
-        unsafe fn create_QObjectProxyCpp(rust_obj: *mut u8, rust_proxy: *mut QObjectProxyRust) -> *mut QObjectProxyCpp;
+        unsafe fn create_QObjectProxyCpp(rust_proxy: *mut QObjectProxyRust) -> *mut QObjectProxyCpp;
         # [rust_name = create_qobject_proxy_cpp_at]
-        unsafe fn create_QObjectProxyCpp_At(addr: *mut u8, rust_obj: *mut u8, rust_proxy: *mut QObjectProxyRust) -> *mut QObjectProxyCpp;
+        unsafe fn create_QObjectProxyCpp_At(addr: *mut u8, rust_proxy: *mut QObjectProxyRust) -> *mut QObjectProxyCpp;
         # [rust_name = static_qmeta_object_of_qobject_proxy_cpp]
         fn staticQMetaObjectOf_QObjectProxyCpp() -> &'static QMetaObject;
         # [rust_name = size_of_qobject_proxy_cpp]

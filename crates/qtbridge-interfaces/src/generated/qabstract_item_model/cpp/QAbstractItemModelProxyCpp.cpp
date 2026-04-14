@@ -5,13 +5,12 @@
 
 namespace rust::bridge {
 
-QAbstractItemModelProxyCpp::QAbstractItemModelProxyCpp(uint8_t* rustObj, QAbstractItemModelProxyRust* rustProxy)
-    : m_rustObj(rustObj)
-    , m_rustProxy(rustProxy)
+QAbstractItemModelProxyCpp::QAbstractItemModelProxyCpp(QAbstractItemModelProxyRust* rustProxy)
+    : m_rustProxy(rustProxy)
 {}
 QAbstractItemModelProxyCpp::~QAbstractItemModelProxyCpp()
 {
-    QAbstractItemModelProxyRust::dropSelf(m_rustProxy, m_rustObj);
+    QAbstractItemModelProxyRust::dropSelf(m_rustProxy);
 }
 
 // Virtual methods
@@ -163,14 +162,14 @@ QModelIndex QAbstractItemModelProxyCpp::createIndex(int32_t row, int32_t column,
 
 // Functions for object construction
 
-QAbstractItemModelProxyCpp* create_QAbstractItemModelProxyCpp(uint8_t* rustObj, QAbstractItemModelProxyRust* rustProxy)
+QAbstractItemModelProxyCpp* create_QAbstractItemModelProxyCpp(QAbstractItemModelProxyRust* rustProxy)
 {
-    return new QAbstractItemModelProxyCpp(rustObj, rustProxy);
+    return new QAbstractItemModelProxyCpp(rustProxy);
 }
 
-QAbstractItemModelProxyCpp* create_QAbstractItemModelProxyCpp_At(uint8_t* addr, uint8_t* rustObj, QAbstractItemModelProxyRust* rustProxy)
+QAbstractItemModelProxyCpp* create_QAbstractItemModelProxyCpp_At(uint8_t* addr, QAbstractItemModelProxyRust* rustProxy)
 {
-    return new (addr) QAbstractItemModelProxyCpp(rustObj, rustProxy);
+    return new (addr) QAbstractItemModelProxyCpp(rustProxy);
 }
 
 const QMetaObject& staticQMetaObjectOf_QAbstractItemModelProxyCpp()

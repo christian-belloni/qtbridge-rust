@@ -22,7 +22,7 @@ class QAIMProxyCpp : public QAbstractItemModel, public DispatchMetaCallCpp
     using Base = QAbstractItemModel;
 
 public:
-    QAIMProxyCpp(uint8_t* rustObj, QAIMProxyRust* rustProxy);
+    QAIMProxyCpp(QAIMProxyRust* rustProxy);
     ~QAIMProxyCpp();
 
     // Virtual methods
@@ -68,13 +68,12 @@ public:
     QModelIndex createIndex(int32_t row, int32_t column, size_t ptr) const;
 
 private:
-    uint8_t* m_rustObj;
     QAIMProxyRust* m_rustProxy;
 };
 
 // Functions for object construction
-QAIMProxyCpp* create_QAIMProxyCpp(uint8_t* rustObj, QAIMProxyRust* rustProxy);
-QAIMProxyCpp* create_QAIMProxyCpp_At(uint8_t* addr, uint8_t* rustObj, QAIMProxyRust* rustProxy);
+QAIMProxyCpp* create_QAIMProxyCpp(QAIMProxyRust* rustProxy);
+QAIMProxyCpp* create_QAIMProxyCpp_At(uint8_t* addr, QAIMProxyRust* rustProxy);
 const QMetaObject& staticQMetaObjectOf_QAIMProxyCpp();
 size_t sizeOf_QAIMProxyCpp();
 size_t alignOf_QAIMProxyCpp();

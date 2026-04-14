@@ -13,7 +13,7 @@ pub mod ffi {
         type QObjectProxyRust;
         # [Self = QObjectProxyRust]
         # [cxx_name = dropSelf]
-        unsafe fn drop_self(self_ptr: *mut QObjectProxyRust, rust_obj_ptr: *const u8);
+        unsafe fn drop_self(self_ptr: *mut QObjectProxyRust);
 
         # [cxx_name = invokeSlot]
         fn invoke_slot(&self, slot_id: u32, args: &[*const u8], outputs: &[*mut u8]);

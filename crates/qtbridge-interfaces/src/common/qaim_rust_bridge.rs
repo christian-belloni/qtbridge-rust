@@ -8,8 +8,7 @@ use super::QAIMProxyCpp;
 pub struct QGenericAIMProxyRust<T: ?Sized + 'static> {
     pub(crate) cpp_proxy: *mut QAIMProxyCpp,
     pub(crate) rust_proxy: *mut QAIMProxyRust,
-    pub(crate) rust_obj: RustObjAccess<T>,
-    pub(crate) on_drop: fn(rust_obj: *const u8),
+    pub(crate) rust_obj: RustObjAccess<T>
 }
 
 impl<T: ?Sized + 'static> QGenericAIMProxyRust<T> {
@@ -87,9 +86,7 @@ impl<T: ?Sized + 'static> QGenericAIMProxyRust<T> {
         call_cpp_impl!(self, base_create_index(row, column, ptr))
     }
 }
-
 pub trait QAIMProxyImpl {
-    fn drop_self(&self, rust_obj_ptr: *const u8);
     fn index(&self, row: i32, col: i32, parent: &QModelIndex) -> QModelIndex;
     fn parent(&self, child: &QModelIndex) -> QModelIndex;
     fn row_count(&self, parent: &QModelIndex) -> i32;
@@ -113,28 +110,26 @@ macro_rules! impl_generic_aim_proxy {
             type ProxyCppType = QAIMProxyCpp;
             type AdapterType = $adapter;
 
-            fn new(rust_obj: &Rc<RefCell<$adapter>>, construct: ConstructionMode, on_drop: fn(rust_obj: *const u8)) -> *mut Self {
-                let raw_rust_obj = rust_obj.as_ptr();
+            fn new<OnDropFn: FnOnce() + 'static>(rust_obj: &Rc<RefCell<$adapter>>, construct: ConstructionMode, on_drop: OnDropFn) -> *mut Self {
                 let boxed_self = Box::new(Self {
                     cpp_proxy: std::ptr::null_mut(),
                     rust_proxy: std::ptr::null_mut(),
                     rust_obj: match construct {
                         ConstructionMode::Strong | ConstructionMode::AtAddress(_) => RustObjAccess::new_strong(rust_obj.clone()),
                         ConstructionMode::Weak => RustObjAccess::new_weak(Rc::downgrade(rust_obj)),
-                    },
-                    on_drop,
+                    }
                 });
                 let raw_self = Box::into_raw(boxed_self);
 
-                let aim_proxy = QAIMProxyRust::new(raw_self);
+                let aim_proxy = QAIMProxyRust::new(raw_self, on_drop);
                 unsafe { (*raw_self).rust_proxy = aim_proxy; }
 
                 unsafe{ (*raw_self).cpp_proxy = match construct {
                     ConstructionMode::AtAddress(addr) => {
-                        ffi::create_qaim_proxy_cpp_at( addr, raw_rust_obj.cast(), (*raw_self).rust_proxy)
+                        ffi::create_qaim_proxy_cpp_at(addr, (*raw_self).rust_proxy)
                     }
                     ConstructionMode::Strong | ConstructionMode::Weak => {
-                        ffi::create_qaim_proxy_cpp(raw_rust_obj.cast(), (*raw_self).rust_proxy)
+                        ffi::create_qaim_proxy_cpp((*raw_self).rust_proxy)
                     }
                 }};
                 raw_self
@@ -160,9 +155,6 @@ macro_rules! impl_generic_aim_proxy {
         }
 
         impl QAIMProxyImpl for QGenericAIMProxyRust<$adapter> {
-            fn drop_self(&self, rust_obj_ptr: *const u8) {
-                (self.on_drop)(rust_obj_ptr);
-            }
             fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex {
                 call_rust_trait_impl!(self, index(row, column, parent))
             }
@@ -212,6 +204,7 @@ pub(crate) use impl_generic_aim_proxy;
 
 pub struct QAIMProxyRust {
     rust_obj: *mut dyn QAIMProxyImpl,
+    on_drop: Box<dyn FnOnce()>,
 }
 
 impl QAIMProxyRust {
@@ -222,15 +215,16 @@ impl QAIMProxyRust {
         unsafe { &mut *self.rust_obj }
     }
 
-    pub fn new<T: QAIMProxyImpl + 'static>(ptr: *mut T) -> *mut Self {
+    pub fn new<T: QAIMProxyImpl + 'static, OnDropFn: FnOnce() + 'static>(ptr: *mut T, on_drop: OnDropFn) -> *mut Self {
         Box::into_raw(Box::new(Self {
             rust_obj: ptr as *mut dyn QAIMProxyImpl,
+            on_drop: Box::new(on_drop),
         }))
     }
-    pub fn drop_self(self_ptr: *mut QAIMProxyRust, rust_obj_ptr: *const u8) {
-        let proxy = unsafe { Box::from_raw(self_ptr) };
-        let inner = unsafe { Box::from_raw(proxy.rust_obj) };
-        inner.drop_self(rust_obj_ptr);
+    pub fn drop_self(self_ptr: *mut Self) {
+        unsafe { drop(Box::from_raw((*self_ptr).rust_obj)) };
+        let boxed_self = unsafe { Box::from_raw(self_ptr) };
+        (boxed_self.on_drop)();
     }
     pub fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex {
         self.obj().index(row, column, parent)
@@ -290,7 +284,7 @@ pub mod ffi {
         type QAIMProxyRust;
         # [Self = QAIMProxyRust]
         # [cxx_name = dropSelf]
-        unsafe fn drop_self(self_ptr: *mut QAIMProxyRust, rust_obj_ptr: *const u8);
+        unsafe fn drop_self(self_ptr: *mut QAIMProxyRust);
         # [cxx_name = index]
         fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex;
         # [cxx_name = parent]

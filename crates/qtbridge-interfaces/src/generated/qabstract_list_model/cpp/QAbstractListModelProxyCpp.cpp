@@ -5,13 +5,12 @@
 
 namespace rust::bridge {
 
-QAbstractListModelProxyCpp::QAbstractListModelProxyCpp(uint8_t* rustObj, QAbstractListModelProxyRust* rustProxy)
-    : m_rustObj(rustObj)
-    , m_rustProxy(rustProxy)
+QAbstractListModelProxyCpp::QAbstractListModelProxyCpp(QAbstractListModelProxyRust* rustProxy)
+    : m_rustProxy(rustProxy)
 {}
 QAbstractListModelProxyCpp::~QAbstractListModelProxyCpp()
 {
-    QAbstractListModelProxyRust::dropSelf(m_rustProxy, m_rustObj);
+    QAbstractListModelProxyRust::dropSelf(m_rustProxy);
 }
 
 // Virtual methods
@@ -132,14 +131,14 @@ void QAbstractListModelProxyCpp::endResetModel()
 
 // Functions for object construction
 
-QAbstractListModelProxyCpp* create_QAbstractListModelProxyCpp(uint8_t* rustObj, QAbstractListModelProxyRust* rustProxy)
+QAbstractListModelProxyCpp* create_QAbstractListModelProxyCpp(QAbstractListModelProxyRust* rustProxy)
 {
-    return new QAbstractListModelProxyCpp(rustObj, rustProxy);
+    return new QAbstractListModelProxyCpp(rustProxy);
 }
 
-QAbstractListModelProxyCpp* create_QAbstractListModelProxyCpp_At(uint8_t* addr, uint8_t* rustObj, QAbstractListModelProxyRust* rustProxy)
+QAbstractListModelProxyCpp* create_QAbstractListModelProxyCpp_At(uint8_t* addr, QAbstractListModelProxyRust* rustProxy)
 {
-    return new (addr) QAbstractListModelProxyCpp(rustObj, rustProxy);
+    return new (addr) QAbstractListModelProxyCpp(rustProxy);
 }
 
 const QMetaObject& staticQMetaObjectOf_QAbstractListModelProxyCpp()

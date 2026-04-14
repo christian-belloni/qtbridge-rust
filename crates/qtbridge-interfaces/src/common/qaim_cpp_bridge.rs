@@ -23,9 +23,9 @@ pub mod ffi {
         include!("qtbridge-interfaces/src/common/cpp/QAIMProxyCpp.h");
         type QAIMProxyCpp;
         # [rust_name = create_qaim_proxy_cpp]
-        unsafe fn create_QAIMProxyCpp(rust_obj: *mut u8, rust_proxy: *mut QAIMProxyRust) -> *mut QAIMProxyCpp;
+        unsafe fn create_QAIMProxyCpp(rust_proxy: *mut QAIMProxyRust) -> *mut QAIMProxyCpp;
         # [rust_name = create_qaim_proxy_cpp_at]
-        unsafe fn create_QAIMProxyCpp_At(addr: *mut u8, rust_obj: *mut u8, rust_proxy: *mut QAIMProxyRust)
+        unsafe fn create_QAIMProxyCpp_At(addr: *mut u8, rust_proxy: *mut QAIMProxyRust)
         -> *mut QAIMProxyCpp;
         # [rust_name = static_qmeta_object_of_qaim_proxy_cpp]
         fn staticQMetaObjectOf_QAIMProxyCpp() -> &'static QMetaObject;

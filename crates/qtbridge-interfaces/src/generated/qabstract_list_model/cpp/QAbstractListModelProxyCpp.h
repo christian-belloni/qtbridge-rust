@@ -22,7 +22,7 @@ class QAbstractListModelProxyCpp : public QAbstractListModel, public DispatchMet
     using Base = QAbstractListModel;
 
 public:
-    QAbstractListModelProxyCpp(uint8_t* rustObj, QAbstractListModelProxyRust* rustProxy);
+    QAbstractListModelProxyCpp(QAbstractListModelProxyRust* rustProxy);
     ~QAbstractListModelProxyCpp();
 
     // Virtual methods
@@ -59,13 +59,12 @@ public:
     void endResetModel();
 
 private:
-    uint8_t* m_rustObj;
     QAbstractListModelProxyRust* m_rustProxy;
 };
 
 // Functions for object construction
-QAbstractListModelProxyCpp* create_QAbstractListModelProxyCpp(uint8_t* rustObj, QAbstractListModelProxyRust* rustProxy);
-QAbstractListModelProxyCpp* create_QAbstractListModelProxyCpp_At(uint8_t* addr, uint8_t* rustObj, QAbstractListModelProxyRust* rustProxy);
+QAbstractListModelProxyCpp* create_QAbstractListModelProxyCpp(QAbstractListModelProxyRust* rustProxy);
+QAbstractListModelProxyCpp* create_QAbstractListModelProxyCpp_At(uint8_t* addr, QAbstractListModelProxyRust* rustProxy);
 const QMetaObject& staticQMetaObjectOf_QAbstractListModelProxyCpp();
 size_t sizeOf_QAbstractListModelProxyCpp();
 size_t alignOf_QAbstractListModelProxyCpp();

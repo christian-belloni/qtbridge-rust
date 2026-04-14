@@ -62,7 +62,7 @@ pub enum ConstructionMode {
 pub trait QRustProxy {
     type ProxyCppType;
     type AdapterType: ?Sized;
-    fn new(rust_obj: &Rc<RefCell<Self::AdapterType>>, construction: ConstructionMode, on_drop: fn(rust_obj: *const u8)) -> *mut Self;
+    fn new<OnDropFn: FnOnce() + 'static>(rust_obj: &Rc<RefCell<Self::AdapterType>>, construction: ConstructionMode, on_drop: OnDropFn) -> *mut Self;
     fn get_static_meta_object() -> &'static QMetaObject;
     fn get_size_of_cpp_proxy() -> usize;
     fn get_align_of_cpp_proxy() -> usize;

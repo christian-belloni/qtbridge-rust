@@ -5,13 +5,12 @@
 
 namespace rust::bridge {
 
-QAIMProxyCpp::QAIMProxyCpp(uint8_t* rustObj, QAIMProxyRust* rustProxy)
-    : m_rustObj(rustObj)
-    , m_rustProxy(rustProxy)
+QAIMProxyCpp::QAIMProxyCpp(QAIMProxyRust* rustProxy)
+    : m_rustProxy(rustProxy)
 {}
 QAIMProxyCpp::~QAIMProxyCpp()
 {
-    QAIMProxyRust::dropSelf(m_rustProxy, m_rustObj);
+    QAIMProxyRust::dropSelf(m_rustProxy);
 }
 
 // DispatchMetaCallCpp implementation
@@ -167,14 +166,14 @@ QModelIndex QAIMProxyCpp::createIndex(int32_t row, int32_t column, size_t ptr) c
 
 // Functions for object construction
 
-QAIMProxyCpp* create_QAIMProxyCpp(uint8_t* rustObj, QAIMProxyRust* rustProxy)
+QAIMProxyCpp* create_QAIMProxyCpp(QAIMProxyRust* rustProxy)
 {
-    return new QAIMProxyCpp(rustObj, rustProxy);
+    return new QAIMProxyCpp(rustProxy);
 }
 
-QAIMProxyCpp* create_QAIMProxyCpp_At(uint8_t* addr, uint8_t* rustObj, QAIMProxyRust* rustProxy)
+QAIMProxyCpp* create_QAIMProxyCpp_At(uint8_t* addr, QAIMProxyRust* rustProxy)
 {
-    return new (addr) QAIMProxyCpp(rustObj, rustProxy);
+    return new (addr) QAIMProxyCpp(rustProxy);
 }
 
 const QMetaObject& staticQMetaObjectOf_QAIMProxyCpp()

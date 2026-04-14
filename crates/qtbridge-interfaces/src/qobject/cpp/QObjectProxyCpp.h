@@ -16,7 +16,7 @@ class QObjectProxyCpp : public QObject, public DispatchMetaCallCpp
     using Base = QObject;
 
 public:
-    QObjectProxyCpp(uint8_t* rustObj, QObjectProxyRust* rustProxy);
+    QObjectProxyCpp(QObjectProxyRust* rustProxy);
     ~QObjectProxyCpp();
 
     // DispatchMetaCallCpp implementation
@@ -26,13 +26,12 @@ public:
     void writeProperty(uint32_t propId, const QVariant& value) const override;
 
 private:
-    uint8_t* m_rustObj;
     QObjectProxyRust* m_rustProxy;
 };
 
 // Functions for object construction
-QObjectProxyCpp* create_QObjectProxyCpp(uint8_t* rustObj, QObjectProxyRust* rustProxy);
-QObjectProxyCpp* create_QObjectProxyCpp_At(uint8_t* addr, uint8_t* rustObj, QObjectProxyRust* rustProxy);
+QObjectProxyCpp* create_QObjectProxyCpp(QObjectProxyRust* rustProxy);
+QObjectProxyCpp* create_QObjectProxyCpp_At(uint8_t* addr, QObjectProxyRust* rustProxy);
 const QMetaObject& staticQMetaObjectOf_QObjectProxyCpp();
 size_t sizeOf_QObjectProxyCpp();
 size_t alignOf_QObjectProxyCpp();

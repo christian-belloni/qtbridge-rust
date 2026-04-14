@@ -5,13 +5,12 @@
 
 namespace rust::bridge {
 
-QObjectProxyCpp::QObjectProxyCpp(uint8_t* rustObj, QObjectProxyRust* rustProxy)
-    : m_rustObj(rustObj)
-    , m_rustProxy(rustProxy)
+QObjectProxyCpp::QObjectProxyCpp(QObjectProxyRust* rustProxy)
+    : m_rustProxy(rustProxy)
 {}
 QObjectProxyCpp::~QObjectProxyCpp()
 {
-    QObjectProxyRust::dropSelf(m_rustProxy, m_rustObj);
+    QObjectProxyRust::dropSelf(m_rustProxy);
 }
 
 
@@ -39,14 +38,14 @@ void QObjectProxyCpp::writeProperty(uint32_t propId, const QVariant& value) cons
 
 // Functions for object construction
 
-QObjectProxyCpp* create_QObjectProxyCpp(uint8_t* rustObj, QObjectProxyRust* rustProxy)
+QObjectProxyCpp* create_QObjectProxyCpp(QObjectProxyRust* rustProxy)
 {
-    return new QObjectProxyCpp(rustObj, rustProxy);
+    return new QObjectProxyCpp(rustProxy);
 }
 
-QObjectProxyCpp* create_QObjectProxyCpp_At(uint8_t* addr, uint8_t* rustObj, QObjectProxyRust* rustProxy)
+QObjectProxyCpp* create_QObjectProxyCpp_At(uint8_t* addr, QObjectProxyRust* rustProxy)
 {
-    return new (addr) QObjectProxyCpp(rustObj, rustProxy);
+    return new (addr) QObjectProxyCpp(rustProxy);
 }
 
 const QMetaObject& staticQMetaObjectOf_QObjectProxyCpp()
