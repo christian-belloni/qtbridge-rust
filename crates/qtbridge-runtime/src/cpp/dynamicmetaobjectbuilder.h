@@ -42,10 +42,10 @@ public:
     const QMetaObject* getDynamicQMetaObject() const;
 
     void addClassInfo(rust::Str name, rust::Str value);
-    void registerProperty(rust::Str name, const QMetaType& metaType, PropertyGetterFn getter, PropertySetterFn setter, rust::Str notifySignal);
-    void registerPropertyReadOnly(rust::Str name, const QMetaType& metaType, PropertyGetterFn getter, bool isConstant, rust::Str notifySignal);
+    void registerProperty(rust::Str name, uint32_t propId, const QMetaType& metaType, PropertyGetterFn getter, PropertySetterFn setter, rust::Str notifySignal);
+    void registerPropertyReadOnly(rust::Str name, uint32_t propId, const QMetaType& metaType, PropertyGetterFn getter, bool isConstant, rust::Str notifySignal);
     void registerSignal(rust::Str name, rust::Slice<const QMetaType> argMetaTypes);
-    void registerSlot(rust::Str name, rust::Slice<const QMetaType> argMetaTypes, const QMetaType& returnMetaType, SlotCallbackFn callback);
+    void registerSlot(rust::Str name, uint32_t slotId, rust::Slice<const QMetaType> argMetaTypes, const QMetaType& returnMetaType, SlotCallbackFn callback);
     void endMetaRegistration();
 
     void emitSignal(QObject& obj, rust::Str name, rust::Slice<const uint8_t* const> argv) const;

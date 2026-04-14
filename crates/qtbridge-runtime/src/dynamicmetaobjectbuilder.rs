@@ -29,16 +29,16 @@ pub mod ffi {
         fn addClassInfo(self: Pin<&mut Self>, name: &str, value: &str);
 
         #[rust_name = "register_property"]
-        fn registerProperty(self: Pin<&mut Self>, name: &str, meta_type: &QMetaType, getter: unsafe fn(receiver: *mut u8)->QVariant, setter: unsafe fn(receiver: *mut u8, value: &QVariant), notify_signal: &str);
+        fn registerProperty(self: Pin<&mut Self>, name: &str, prop_id: u32, meta_type: &QMetaType, getter: unsafe fn(receiver: *mut u8)->QVariant, setter: unsafe fn(receiver: *mut u8, value: &QVariant), notify_signal: &str);
 
         #[rust_name = "register_property_read_only"]
-        fn registerPropertyReadOnly(self: Pin<&mut Self>, name: &str, meta_type: &QMetaType, getter: unsafe fn(receiver: *mut u8)->QVariant, is_constant: bool, notify_signal: &str);
+        fn registerPropertyReadOnly(self: Pin<&mut Self>, name: &str, prop_id: u32, meta_type: &QMetaType, getter: unsafe fn(receiver: *mut u8)->QVariant, is_constant: bool, notify_signal: &str);
 
         #[rust_name = "register_signal"]
         fn registerSignal(self: Pin<&mut Self>, name: &str, arg_meta_types: &[QMetaType]);
 
         #[rust_name = "register_slot"]
-        fn registerSlot(self: Pin<&mut Self>, name: &str, arg_meta_types: &[QMetaType], return_meta_type: &QMetaType, callback: unsafe fn(receiver: *mut u8, inputs: &[*const u8], output: &[*mut u8]));
+        fn registerSlot(self: Pin<&mut Self>, name: &str, slot_id: u32, arg_meta_types: &[QMetaType], return_meta_type: &QMetaType, callback: unsafe fn(receiver: *mut u8, inputs: &[*const u8], output: &[*mut u8]));
 
         #[rust_name = "end_meta_registration"]
         fn endMetaRegistration(self: Pin<&mut Self>);

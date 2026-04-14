@@ -21,12 +21,13 @@ struct QSlotMetaParams {
 }
 
 pub struct QSlotInfo {
+    id: u32,                      // Id that will be used to identify a slot in the handler function.
     meta_params: QSlotMetaParams, // Params extracted from qslot attribute
     func: syn::ImplItemFn,        // Slot function
 }
 
 impl QSlotInfo {
-    pub fn new(input: FunctionWithAttributes) -> syn::Result<Self> {
+    pub fn new(input: FunctionWithAttributes, id: u32) -> syn::Result<Self> {
         Self::check_signature(&input.sig)?;
 
         let (attrs, slot_attr) = partition_attr_by(input.attrs.clone(), Self::is_for_me);
@@ -48,6 +49,7 @@ impl QSlotInfo {
         };
 
         Ok(QSlotInfo {
+            id,
             meta_params,
             func,
         })
@@ -98,6 +100,7 @@ impl QSlotInfo {
     /// ```
     pub fn get_meta_registration_code(&self, struct_ident: &syn::Ident) -> syn::Result<TokenStream> {
         let name = self.get_qml_name_span().0;
+        let id = &self.id;
         let sig = &self.func.sig;
         let method_ident = &sig.ident;
 
@@ -122,7 +125,7 @@ impl QSlotInfo {
         };
         let bridge_code = bridge_generator.generate_bridge_metacall_to_user_fn(fn_call)?;
         let register_slot = quote! {
-            meta_obj.as_mut().register_slot(#name, &[#(#input_meta_types::get_qmetatype()),*], #result_meta_type,
+            meta_obj.as_mut().register_slot(#name, #id, &[#(#input_meta_types::get_qmetatype()),*], #result_meta_type,
                 slot_callback_for::<#struct_ident>(|this, #inputs_ident, #outputs_ident| {
                     #bridge_code
                 }));

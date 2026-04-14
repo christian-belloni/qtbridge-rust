@@ -92,7 +92,7 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream, origin: &CallOrigin
     let mut other_methods = Vec::<syn::Signature>::new(); // Methods that are not signal or slot, but potentially can be property setter/getter
 
     for item in &orig_impl.items {
-        let qmeta_item = match extract_qobject_item(&item) {
+        let qmeta_item = match extract_qobject_item(&item, slots.len() as u32, properties.len() as u32) {
             Ok(s) => s,
             Err(err) => return Err(syn::Error::new(err.span(), format!("Failed to process item of 'impl' block. Error: {}", err))),
         };
@@ -199,7 +199,7 @@ pub(crate) enum QObjectImplItem {
 }
 
 /// Returns Result with parsed QSignalInfo/QSlotInfo/QProperty/Overridden method (if found)
-fn extract_qobject_item(item_in: &syn::ImplItem) -> syn::Result<Option<QObjectImplItem>> {
+fn extract_qobject_item(item_in: &syn::ImplItem, slot_count: u32, prop_count: u32) -> syn::Result<Option<QObjectImplItem>> {
     // TODO: more code validating signal/slot function signature?
 
     match &item_in {
@@ -212,7 +212,7 @@ fn extract_qobject_item(item_in: &syn::ImplItem) -> syn::Result<Option<QObjectIm
 
                 for (idx, attr) in attrs.iter().enumerate() {
                     if QSlotInfo::is_for_me(attr) {
-                        result = Some(QObjectImplItem::Slot(QSlotInfo::new(func)?));
+                        result = Some(QObjectImplItem::Slot(QSlotInfo::new(func, slot_count + 1)?));
                     }
                     else if QSignalInfo::is_for_me(attr) {
                         result = Some(QObjectImplItem::Signal(QSignalInfo::new(func)?))
@@ -236,7 +236,7 @@ fn extract_qobject_item(item_in: &syn::ImplItem) -> syn::Result<Option<QObjectIm
             let ident_option: Option<String> = item_macro.mac.path.get_ident().map(|i| i.to_string());
                 match ident_option.as_deref() {
                     Some("qproperty") => {
-                        let prop = QPropertyInfo::new(item_macro)?;
+                        let prop = QPropertyInfo::new(item_macro, prop_count + 1)?;
                         Ok(prop.map(QObjectImplItem::Property))
                     },
                     Some("qclass_info") => {

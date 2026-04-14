@@ -29,6 +29,7 @@ impl qtbridge::qtbridge_runtime::QMetaInfo for SomeStruct {
         );
         meta_obj.as_mut().register_slot(
             "onThatValueChanged",
+            1u32,
             &[qtbridge_type_lib::QString::get_qmetatype()],
             &QMetaType::default(),
             slot_callback_for::<SomeStruct>(|this, inputs, _outputs| {
@@ -41,6 +42,7 @@ impl qtbridge::qtbridge_runtime::QMetaInfo for SomeStruct {
         );
         meta_obj.as_mut().register_property(
             "this_value",
+            1u32,
             &qtbridge_type_lib::QString::get_qmetatype(),
             property_read_callback_for::<SomeStruct>(|this| this.get_value().into()),
             property_write_callback_for::<SomeStruct>(|this, value| {
@@ -61,6 +63,7 @@ impl qtbridge::qtbridge_runtime::QMetaInfo for SomeStruct {
             .add_class_info("DefaultProperty", "this_value");
         meta_obj.as_mut().register_property(
             "otherValue",
+            2u32,
             &get_meta_type_of_fn_return_value(|this: &Self| &this.otherValueVar),
             property_read_callback_for::<SomeStruct>(|this| (&this.otherValueVar).into()),
             property_write_callback_for::<SomeStruct>(|this, value| {

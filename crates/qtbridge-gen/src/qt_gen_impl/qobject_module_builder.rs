@@ -270,7 +270,7 @@ impl QObjectModuleBuilder {
 
         let output;
         if QSlotInfo::is_for_me(meta_attr) {
-            let slot = QSlotInfo::new(func)?;
+            let slot = QSlotInfo::new(func, self.get_slot_id())?;
             output = slot.expand_tokens()?;
             self.slots.push(slot);
         }
@@ -293,7 +293,7 @@ impl QObjectModuleBuilder {
             .unwrap_or_default();
         match name.as_str() {
             "qproperty" => {
-                let property = QPropertyInfo::new(input)?
+                let property = QPropertyInfo::new(input, self.get_property_id())?
                     .ok_or_else(|| syn::Error::new(input.span(), "Not a qproperty"))?;
                 self.properties.push(property);
                 Ok(None)
@@ -306,6 +306,14 @@ impl QObjectModuleBuilder {
             }
             _ => Ok(Some(input.clone()))
         }
+    }
+
+    fn get_slot_id(&self) -> u32 {
+        self.slots.len() as u32 + 1
+    }
+
+    fn get_property_id(&self) -> u32 {
+        self.properties.len() as u32 + 1
     }
 
     fn handle_impl_item_verbatim(&mut self, input: &TokenStream) -> syn::Result<Option<TokenStream>> {

@@ -17,6 +17,9 @@ use qt_meta_gen::traits::{QmlName, find_by_qml_name};
 pub struct QPropertyInfo{
     name: syn::LitStr,
     span: Span,
+
+    /// Id that will be used to identify a property in the handler function.
+    id: u32,
     read_method: Option<syn::Ident>,
     write_method: Option<syn::Ident>,
     notify_signal: Option<syn::LitStr>,
@@ -32,7 +35,7 @@ pub struct QPropertyInfo{
 }
 
 impl QPropertyInfo {
-    pub fn new(item: &syn::ImplItemMacro) -> syn::Result<Option<Self>> {
+    pub fn new(item: &syn::ImplItemMacro, id: u32) -> syn::Result<Option<Self>> {
         if !item.mac.path.is_ident("qproperty") {
             return Ok(None); // Not a 'qproperty!' macro
         }
@@ -43,6 +46,7 @@ impl QPropertyInfo {
 
         let mut prop = item.mac.parse_body::<QPropertyInfo>()?;
         prop.span = item.mac.span(); // Change span to include whole macro
+        prop.id = id;
         Ok(Some(prop))
     }
 
@@ -173,6 +177,7 @@ impl QPropertyInfo {
 
         let QPropertyInfo {
             name,
+            id,
             span,
             notify_signal,
             member,
@@ -221,12 +226,12 @@ impl QPropertyInfo {
         };
         let property_registration = if let Some(write_callback) = write_callback {
             quote! {
-                meta_obj.as_mut().register_property(#name, &#metatype_expr, #read_callback, #write_callback, #signal_name);
+                meta_obj.as_mut().register_property(#name, #id, &#metatype_expr, #read_callback, #write_callback, #signal_name);
             }
         } else {
             let is_const = self.is_const();
             quote! {
-                meta_obj.as_mut().register_property_read_only(#name, &(#metatype_expr), #read_callback, #is_const, #signal_name);
+                meta_obj.as_mut().register_property_read_only(#name, #id, &(#metatype_expr), #read_callback, #is_const, #signal_name);
             }
         };
         Ok(quote! {
@@ -394,6 +399,7 @@ impl syn::parse::Parse for QPropertyInfo {
         Ok(QPropertyInfo {
             name,
             span,
+            id: 0,
             read_method,
             write_method,
             notify_signal,
