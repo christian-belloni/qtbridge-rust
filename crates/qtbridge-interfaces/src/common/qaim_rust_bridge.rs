@@ -100,6 +100,9 @@ pub trait QAIMProxyImpl {
     fn remove_columns(&mut self, first: i32, count: i32, parent: &QModelIndex) -> bool;
     fn remove_rows(&mut self, first: i32, count: i32, parent: &QModelIndex) -> bool;
     fn sibling(&self, row: i32, col: i32, idx: &QModelIndex) -> QModelIndex;
+    fn invoke_slot(&mut self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]);
+    fn read_property(&self, prop_id: u32) -> QVariant;
+    fn write_property(&mut self, prop_id: u32, value: &QVariant);
 }
 
 macro_rules! impl_generic_aim_proxy {
@@ -189,6 +192,15 @@ macro_rules! impl_generic_aim_proxy {
             fn sibling(&self, row: i32, column: i32, idx: &QModelIndex) -> QModelIndex {
                 call_rust_trait_impl!(self, sibling(row, column, idx))
             }
+            fn invoke_slot(&mut self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]) {
+                call_rust_trait_impl!(mut self, invoke_slot(slot_id, inputs, outputs))
+            }
+            fn read_property(&self, prop_id: u32) -> QVariant {
+                call_rust_trait_impl!(self, read_property(prop_id))
+            }
+            fn write_property(&mut self, prop_id: u32, value: &QVariant) {
+                call_rust_trait_impl!(mut self, write_property(prop_id, value))
+            }
         }
     };
 }
@@ -246,6 +258,15 @@ impl QAIMProxyRust {
     pub fn sibling(&self, row: i32, column: i32, idx: &QModelIndex) -> QModelIndex {
         self.obj().sibling(row, column, idx)
     }
+    pub fn invoke_slot(&mut self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]) {
+        self.obj_mut().invoke_slot(slot_id, inputs, outputs)
+    }
+    pub fn read_property(&self, prop_id: u32) -> QVariant {
+        self.obj().read_property(prop_id)
+    }
+    pub fn write_property(&mut self, prop_id: u32, value: &QVariant) {
+        self.obj_mut().write_property(prop_id, value)
+    }
 }
 
 #[cxx::bridge]
@@ -281,6 +302,14 @@ pub mod ffi {
         fn remove_rows(&mut self, first: i32, count: i32, parent: &QModelIndex) -> bool;
         # [cxx_name = sibling]
         fn sibling(&self, row: i32, column: i32, idx: &QModelIndex) -> QModelIndex;
+
+        # [cxx_name = invokeSlot]
+        fn invoke_slot(&mut self, slot_id: u32, args: &[*const u8], outputs: &[*mut u8]);
+        # [cxx_name = readProperty]
+        fn read_property(&self, prop_id: u32) -> QVariant;
+        # [cxx_name = writeProperty]
+        fn write_property(&mut self, prop_id: u32, value: &QVariant);
+
     }
 }
 unsafe impl cxx::ExternType for QAIMProxyRust {

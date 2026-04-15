@@ -45,6 +45,23 @@ QModelIndex QAbstractListModelProxyCpp::sibling(int32_t row, int32_t column, con
 }
 
 
+// DispatchMetaCallCpp implementation
+void QAbstractListModelProxyCpp::invokeSlot(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const
+{
+    m_rustProxy->invokeSlot(slotId, inputs, outputs);
+}
+
+QVariant QAbstractListModelProxyCpp::readProperty(uint32_t propId) const
+{
+    return m_rustProxy->readProperty(propId);
+}
+
+void QAbstractListModelProxyCpp::writeProperty(uint32_t propId, const QVariant& value) const
+{
+    m_rustProxy->writeProperty(propId, value);
+}
+
+
 // Access to base implementation of virtual functions
 QModelIndex QAbstractListModelProxyCpp::base_index(int32_t row, int32_t column, const QModelIndex& parent) const
 {

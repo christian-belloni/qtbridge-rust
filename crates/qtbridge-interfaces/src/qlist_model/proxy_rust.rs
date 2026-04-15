@@ -5,14 +5,14 @@ use crate::common::qaim_cpp_bridge::{QAIMProxyCpp, ffi};
 use crate::common::qaim_rust_bridge::{QAIMProxyRust, QAIMProxyImpl, QGenericAIMProxyRust, impl_generic_aim_proxy};
 use crate::{RustObjAccess, call_rust_trait_impl};
 use qtbridge_runtime::qrustproxy::{QRustProxy, ConstructionMode};
-use qtbridge_runtime::QObjectHolder;
+use qtbridge_runtime::{DispatchMetaCall, QObjectHolder};
 use qtbridge_runtime::QModelItem;
 use qtbridge_type_lib::{QByteArray, QHash, QMetaObject, QMetaType, QModelIndex, QVariant};
 use std::cell::RefCell;
 use std::rc::Rc;
 
 #[doc(hidden)]
-pub trait QListModelAdapter {
+pub trait QListModelAdapter: DispatchMetaCall {
     fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex;
     fn parent(&self, child: &QModelIndex) -> QModelIndex;
     fn row_count(&self, parent: &QModelIndex) -> i32;

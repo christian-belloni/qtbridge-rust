@@ -4,12 +4,12 @@
 use super::proxy_cpp_bridge::{QAbstractItemModelProxyCpp, ffi};
 use crate::{RustObjAccess, call_rust_trait_impl, call_cpp_impl};
 use qtbridge_runtime::qrustproxy::{QRustProxy, ConstructionMode};
-use qtbridge_runtime::QObjectHolder;
+use qtbridge_runtime::{DispatchMetaCall, QObjectHolder};
 use qtbridge_type_lib::{QByteArray, QHash, QMetaObject, QMetaType, QModelIndex, QVariant};
 use std::cell::RefCell;
 use std::rc::Rc;
 
-pub trait QAbstractItemModelAdapter {
+pub trait QAbstractItemModelAdapter: DispatchMetaCall {
     fn index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex;
     fn parent(&self, child: &QModelIndex) -> QModelIndex;
     fn row_count(&self, parent: &QModelIndex) -> i32;
@@ -287,6 +287,21 @@ impl QRustProxy for QAbstractItemModelProxyRust {
         self.cpp_proxy
     }
 }
+
+impl DispatchMetaCall for QAbstractItemModelProxyRust {
+    fn invoke_slot(&mut self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]) {
+        self.invoke_slot(slot_id, inputs, outputs)
+    }
+
+    fn read_property(&self, prop_id: u32) -> QVariant {
+        self.read_property(prop_id)
+    }
+
+    fn write_property(&mut self, prop_id: u32, value: &QVariant) {
+        self.write_property(prop_id, value)
+    }
+}
+
 impl QAbstractItemModelProxyRust {
     pub fn drop_self(raw_self: *mut Self, rust_obj_ptr: *const u8) {
         let boxed_self = unsafe { Box::from_raw(raw_self) };
@@ -319,6 +334,17 @@ impl QAbstractItemModelProxyRust {
     pub fn sibling(&self, row: i32, column: i32, idx: &QModelIndex) -> QModelIndex {
         call_rust_trait_impl!(self, sibling(row, column, idx))
     }
+
+    pub fn invoke_slot(&mut self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]) {
+        call_rust_trait_impl!(mut self, invoke_slot(slot_id, inputs, outputs))
+    }
+    pub fn read_property(&self, prop_id: u32) -> QVariant {
+        call_rust_trait_impl!(self, read_property(prop_id))
+    }
+    pub fn write_property(&mut self, prop_id: u32, value: &QVariant) {
+        call_rust_trait_impl!(mut self, write_property(prop_id, value))
+    }
+
     pub fn base_role_names(&self) -> QHash<i32, QByteArray> {
         call_cpp_impl!(self, base_role_names())
     }

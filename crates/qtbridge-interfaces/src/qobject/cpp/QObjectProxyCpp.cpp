@@ -15,6 +15,23 @@ QObjectProxyCpp::~QObjectProxyCpp()
 }
 
 
+// DispatchMetaCallCpp implementation
+void QObjectProxyCpp::invokeSlot(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const
+{
+    m_rustProxy->invokeSlot(slotId, inputs, outputs);
+}
+
+QVariant QObjectProxyCpp::readProperty(uint32_t propId) const
+{
+    return m_rustProxy->readProperty(propId);
+}
+
+void QObjectProxyCpp::writeProperty(uint32_t propId, const QVariant& value) const
+{
+    m_rustProxy->writeProperty(propId, value);
+}
+
+
 // Functions for object construction
 
 QObjectProxyCpp* create_QObjectProxyCpp(uint8_t* rustObj, QObjectProxyRust* rustProxy)

@@ -14,6 +14,22 @@ QAIMProxyCpp::~QAIMProxyCpp()
     QAIMProxyRust::dropSelf(m_rustProxy, m_rustObj);
 }
 
+// DispatchMetaCallCpp implementation
+void QAIMProxyCpp::invokeSlot(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const
+{
+    m_rustProxy->invokeSlot(slotId, inputs, outputs);
+}
+
+QVariant QAIMProxyCpp::readProperty(uint32_t propId) const
+{
+    return m_rustProxy->readProperty(propId);
+}
+
+void QAIMProxyCpp::writeProperty(uint32_t propId, const QVariant& value) const
+{
+    m_rustProxy->writeProperty(propId, value);
+}
+
 // Virtual methods
 QModelIndex QAIMProxyCpp::index(int32_t row, int32_t column, const QModelIndex& parent) const
 {

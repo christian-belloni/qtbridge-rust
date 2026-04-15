@@ -7,6 +7,7 @@
 #include <QMetaObject>
 #include <QQmlListProperty>
 #include <cstdint>
+#include "qtbridge-runtime/src/cpp/dispatchmetacallcpp.h"
 #include "qtbridge-runtime/src/cpp/rustobjectgetter.h"
 #include "qtbridge-interfaces/src/common/qaim_rust_bridge.rs.h"
 #include "qtbridge-type-lib/src/generated/core/qbytearray/cpp/qbytearray.h"
@@ -17,7 +18,7 @@
 
 namespace rust::bridge {
 
-class QAIMProxyCpp : public QAbstractItemModel, public RustObjectGetter
+class QAIMProxyCpp : public QAbstractItemModel, public DispatchMetaCallCpp, public RustObjectGetter
 {
     using Base = QAbstractItemModel;
 
@@ -35,6 +36,11 @@ public:
     bool setData(const QModelIndex& index, const QVariant& value, int32_t role) override;
     bool removeRows(int32_t first, int32_t count, const QModelIndex& parent) override;
     QModelIndex sibling(int32_t row, int32_t column, const QModelIndex& idx) const override;
+
+    // DispatchMetaCallCpp implementation
+    void invokeSlot(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const override;
+    QVariant readProperty(uint32_t propId) const override;
+    void writeProperty(uint32_t propId, const QVariant& value) const override;
 
     // Access to base implementation of virtual functions
     QHash<int32_t,QByteArray> base_roleNames() const;
