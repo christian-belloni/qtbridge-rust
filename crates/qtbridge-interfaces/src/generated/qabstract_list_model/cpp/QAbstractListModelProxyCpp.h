@@ -8,7 +8,6 @@
 #include <QQmlListProperty>
 #include <cstdint>
 #include "qtbridge-runtime/src/cpp/dispatchmetacallcpp.h"
-#include "qtbridge-runtime/src/cpp/rustobjectgetter.h"
 #include "qtbridge-interfaces/src/generated/qabstract_list_model/proxy_rust_bridge.rs.h"
 #include "qtbridge-type-lib/src/generated/core/qbytearray/cpp/qbytearray.h"
 #include "qtbridge-type-lib/src/generated/core/qhash/cpp/qhash_i32_qbytearray.h"
@@ -18,7 +17,7 @@
 
 namespace rust::bridge {
 
-class QAbstractListModelProxyCpp : public QAbstractListModel, public DispatchMetaCallCpp, public RustObjectGetter
+class QAbstractListModelProxyCpp : public QAbstractListModel, public DispatchMetaCallCpp
 {
     using Base = QAbstractListModel;
 
@@ -59,6 +58,7 @@ public:
     void endResetModel();
 
 private:
+    uint8_t* m_rustObj;
     QAbstractListModelProxyRust* m_rustProxy;
 };
 

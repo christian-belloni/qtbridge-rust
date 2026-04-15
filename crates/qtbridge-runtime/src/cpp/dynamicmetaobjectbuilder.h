@@ -8,10 +8,8 @@
 #include <memory>
 #include "rust/cxx.h"
 
-class MetaMethodIncomingParams;
 class QMetaType;
 class QObject;
-class QVariant;
 
 /**
  * Runtime builder for QMetaObject.
@@ -31,21 +29,15 @@ class QVariant;
 class DynamicMetaObjectBuilder
 {
 public:
-    // Rust callbacks to be passed across the bridge
-    using PropertyGetterFn = rust::Fn<QVariant(uint8_t* receiver)>;
-    using PropertySetterFn = rust::Fn<void(uint8_t* receiver, const QVariant& value)>;
-    using SlotCallbackFn   = rust::Fn<void(uint8_t* receiver, rust::Slice<const uint8_t* const> inputs, rust::Slice<uint8_t* const> output)>;
-
     DynamicMetaObjectBuilder(const QMetaObject* staticMetaObj, rust::Str className);
 
     void setToQObject(QObject& dst) const;
     const QMetaObject* getDynamicQMetaObject() const;
 
     void addClassInfo(rust::Str name, rust::Str value);
-    void registerProperty(rust::Str name, uint32_t propId, const QMetaType& metaType, PropertyGetterFn getter, PropertySetterFn setter, rust::Str notifySignal);
-    void registerPropertyReadOnly(rust::Str name, uint32_t propId, const QMetaType& metaType, PropertyGetterFn getter, bool isConstant, rust::Str notifySignal);
+    void registerProperty(rust::Str name, uint32_t propId, const QMetaType& metaType, bool isConstant, rust::Str notifySignal);
     void registerSignal(rust::Str name, rust::Slice<const QMetaType> argMetaTypes);
-    void registerSlot(rust::Str name, uint32_t slotId, rust::Slice<const QMetaType> argMetaTypes, const QMetaType& returnMetaType, SlotCallbackFn callback);
+    void registerSlot(rust::Str name, uint32_t slotId, rust::Slice<const QMetaType> argMetaTypes, const QMetaType& returnMetaType);
     void endMetaRegistration();
 
     void emitSignal(QObject& obj, rust::Str name, rust::Slice<const uint8_t* const> argv) const;

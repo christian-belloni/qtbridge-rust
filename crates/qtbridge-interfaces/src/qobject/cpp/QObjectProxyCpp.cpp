@@ -6,7 +6,7 @@
 namespace rust::bridge {
 
 QObjectProxyCpp::QObjectProxyCpp(uint8_t* rustObj, QObjectProxyRust* rustProxy)
-    :  RustObjectGetter(rustObj)
+    : m_rustObj(rustObj)
     , m_rustProxy(rustProxy)
 {}
 QObjectProxyCpp::~QObjectProxyCpp()

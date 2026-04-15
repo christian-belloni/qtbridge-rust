@@ -7,12 +7,11 @@
 #include <QObject>
 #include <QQmlListProperty>
 #include "qtbridge-runtime/src/cpp/dispatchmetacallcpp.h"
-#include "qtbridge-runtime/src/cpp/rustobjectgetter.h"
 #include "qtbridge-interfaces/src/qobject/proxy_rust_bridge.rs.h"
 
 namespace rust::bridge {
 
-class QObjectProxyCpp : public QObject, public DispatchMetaCallCpp, public RustObjectGetter
+class QObjectProxyCpp : public QObject, public DispatchMetaCallCpp
 {
     using Base = QObject;
 
@@ -26,6 +25,7 @@ public:
     void writeProperty(uint32_t propId, const QVariant& value) const override;
 
 private:
+    uint8_t* m_rustObj;
     QObjectProxyRust* m_rustProxy;
 };
 

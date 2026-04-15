@@ -38,7 +38,7 @@ public:
 
     // TODO: assume that
     //      notifySignal = name + "Changed"; ?
-    void registerProperty(const QByteArray& name, uint32_t propId, const QMetaType& metaType, PropertyGetterFn getter, std::optional<PropertySetterFn> setter, bool isConstant, const QByteArray& notifySignal)
+    void registerProperty(const QByteArray& name, uint32_t propId, const QMetaType& metaType, bool isConstant, const QByteArray& notifySignal)
     {
         std::optional<int> signal;
         if (!notifySignal.isEmpty())
@@ -48,7 +48,7 @@ public:
                 throw std::runtime_error("Failed to find signal by name");
         }
 
-        doRegisterProperty(name, propId, metaType, std::move(getter), std::move(setter), isConstant, signal);
+        doRegisterProperty(name, propId, metaType, isConstant, signal);
     }
 
     void registerSignal(const QByteArray& name, QSpan<const QMetaType> argMetaTypes)
@@ -67,7 +67,7 @@ public:
             throw std::runtime_error("Failed to register signal");
     }
 
-    void registerSlot(const QByteArray& name, uint32_t slotId, QSpan<const QMetaType> argMetaTypes, const QMetaType& returnMetaType, SlotCallbackFn&& func)
+    void registerSlot(const QByteArray& name, uint32_t slotId, QSpan<const QMetaType> argMetaTypes, const QMetaType& returnMetaType)
     {
         if (!m_mob)
             throw std::runtime_error("Slot registration must be done before endMetaRegistration() call");
@@ -81,7 +81,7 @@ public:
             builder.setReturnType(returnMetaType.name());
         const int localId = builder.index();
 
-        m_slots.emplace(localId, SlotInfo{ slotId, std::move(func) });
+        m_slots.emplace(localId, SlotInfo{ slotId });
     }
 
     void endMetaRegistration()
@@ -114,7 +114,7 @@ public:
     }
 
 private:
-    void doRegisterProperty(const QByteArray& name, uint32_t propId, const QMetaType& metaType, PropertyGetterFn getter, std::optional<PropertySetterFn> setter, bool isConstant, std::optional<int> signalIndex)
+    void doRegisterProperty(const QByteArray& name, uint32_t propId, const QMetaType& metaType, bool isConstant, std::optional<int> signalIndex)
     {
         if (!m_mob)
             throw std::runtime_error("Property registration must be done before endMetaRegistration() call");
@@ -122,14 +122,14 @@ private:
         if (!metaType.isValid())
             throw std::runtime_error("Invalid property type");
 
-        const bool writable = setter.has_value();
+        const bool writable = !isConstant;
         metaType.registerType();
 
         //TODO: pass notifierId argument to addProperty?
         QMetaPropertyBuilder builder = m_mob->addProperty(name, metaType.name());
         builder.setReadable(true);
         builder.setWritable(writable);
-        builder.setConstant(!writable && isConstant);
+        builder.setConstant(isConstant);
 
         if (signalIndex)
         {
@@ -140,7 +140,7 @@ private:
         }
 
         const auto localId = builder.index();
-        auto [_, added] = m_properties.emplace(localId, PropertyInfo{ propId, metaType, std::move(getter), std::move(*setter) });
+        auto [_, added] = m_properties.emplace(localId, PropertyInfo{ propId, metaType, });
         if (!added)
             throw std::runtime_error("Failed to register property");
     }
@@ -331,8 +331,6 @@ private:
     {
         uint32_t m_userId;
         QMetaType m_type;
-        PropertyGetterFn m_getter;
-        PropertySetterFn m_setter;
     };
 
     struct SignalInfo
@@ -343,7 +341,6 @@ private:
     struct SlotInfo
     {
         uint32_t m_userId;
-        SlotCallbackFn m_callback;
     };
 
 private:
@@ -374,14 +371,9 @@ void DynamicMetaObjectBuilder::addClassInfo(rust::Str name, rust::Str value)
     m_impl->addClassInfo(RustStrToQByteArray(name), RustStrToQByteArray(value));
 }
 
-void DynamicMetaObjectBuilder::registerProperty(rust::Str name, uint32_t propId, const QMetaType& metaType, PropertyGetterFn getter, PropertySetterFn setter, rust::Str notifySignal)
+void DynamicMetaObjectBuilder::registerProperty(rust::Str name, uint32_t propId, const QMetaType& metaType, bool isConstant, rust::Str notifySignal)
 {
-    m_impl->registerProperty(RustStrToQByteArray(name), propId, metaType, std::move(getter), std::move(setter), false, RustStrToQByteArray(notifySignal));
-}
-
-void DynamicMetaObjectBuilder::registerPropertyReadOnly(rust::Str name, uint32_t propId, const QMetaType& metaType, PropertyGetterFn getter, bool isConstant, rust::Str notifySignal)
-{
-    m_impl->registerProperty(RustStrToQByteArray(name), propId, metaType, std::move(getter), std::nullopt, isConstant, RustStrToQByteArray(notifySignal));
+    m_impl->registerProperty(RustStrToQByteArray(name), propId, metaType, isConstant, RustStrToQByteArray(notifySignal));
 }
 
 void DynamicMetaObjectBuilder::registerSignal(rust::Str name, rust::Slice<const QMetaType> argMetaTypes)
@@ -389,9 +381,9 @@ void DynamicMetaObjectBuilder::registerSignal(rust::Str name, rust::Slice<const 
     m_impl->registerSignal(RustStrToQByteArray(name), RustSliceToQSpan(argMetaTypes));
 }
 
-void DynamicMetaObjectBuilder::registerSlot(rust::Str name, uint32_t slotId, rust::Slice<const QMetaType> argMetaTypes, const QMetaType& returnMetaType, SlotCallbackFn callback)
+void DynamicMetaObjectBuilder::registerSlot(rust::Str name, uint32_t slotId, rust::Slice<const QMetaType> argMetaTypes, const QMetaType& returnMetaType)
 {
-    m_impl->registerSlot(RustStrToQByteArray(name), slotId, RustSliceToQSpan(argMetaTypes), returnMetaType, std::move(callback));
+    m_impl->registerSlot(RustStrToQByteArray(name), slotId, RustSliceToQSpan(argMetaTypes), returnMetaType);
 }
 
 void DynamicMetaObjectBuilder::endMetaRegistration()

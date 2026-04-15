@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use proc_macro2::TokenStream;
-use quote::{ToTokens, format_ident, quote};
+use quote::{ToTokens, quote};
 use syn::{spanned::Spanned, Ident, LitStr};
 use qtbridge_gen_common::case_conv;
 use qtbridge_gen_common::function_with_attributes::{BlockOrSemi, FunctionWithAttributes};
@@ -87,52 +87,28 @@ impl QSlotInfo {
     /// meta_obj.as_mut().register_slot(
     ///     "doSomething",
     ///     &[i32::get_qmetatype(), qtbridge_type_lib::QString::get_qmetatype()],
-    ///     &qtbridge_type_lib::QString::get_qmetatype(),
-    ///     slot_callback_for::<ThisStruct>(|this, inputs, outputs| {
-    ///         let arg_0_ref = unsafe {
-    ///             inputs[0usize].cast::<i32>().as_ref()
-    ///         }.expect("Argument reference is null");
-    ///         let arg_1_ref = unsafe {
-    ///             inputs[1usize].cast::<qtbridge_type_lib::QString>().as_ref()
-    ///         }.expect("Argument reference is null");
-    ///         let arg_0_var: i32 = arg_0_ref.clone();
-    ///         let arg_1_var: <String as ToOwned>::Owned = arg_1_ref.into();
-    ///         let result = this.do_something(arg_0_var, &arg_1_var);
-    ///         let output_0_ptr: *mut qtbridge_type_lib::QString = outputs[0].cast();
-    ///         unsafe { std::ptr::write(output_0_ptr, result.into()) }
-    ///     }));
+    ///     &qtbridge_type_lib::QString::get_qmetatype());
     /// ```
-    pub fn get_meta_registration_code(&self, struct_ident: &syn::Ident) -> syn::Result<TokenStream> {
+    pub fn get_meta_registration_code(&self) -> syn::Result<TokenStream> {
         let name = self.get_qml_name_span().0;
         let id = &self.id;
         let sig = &self.func.sig;
-        let method_ident = &sig.ident;
 
         let bridge_generator = MetaCallBridgeGenerator::new(sig)?;
         let input_meta_types = bridge_generator.get_input_metatypes()
             .collect::<Vec<_>>();
         let output_meta_types = bridge_generator.get_output_metatype();
-        let mut inputs_ident = meta_call_bridge_generator::get_inputs_ident();
-        let mut outputs_ident = meta_call_bridge_generator::get_outputs_ident();
-        if input_meta_types.is_empty() {
-            inputs_ident = format_ident!("_{inputs_ident}")
-        }
-        if output_meta_types.is_none() {
-            outputs_ident = format_ident!("_{outputs_ident}")
-        }
+
         let result_meta_type = output_meta_types
             .map(|ty| quote!{ &#ty::get_qmetatype() })
             .unwrap_or_else(|| quote! { &QMetaType::default()} );
 
-        let fn_call = syn::parse_quote! {
-            this.#method_ident()
-        };
-        let bridge_code = bridge_generator.generate_bridge_metacall_to_user_fn(fn_call)?;
         let register_slot = quote! {
-            meta_obj.as_mut().register_slot(#name, #id, &[#(#input_meta_types::get_qmetatype()),*], #result_meta_type,
-                slot_callback_for::<#struct_ident>(|this, #inputs_ident, #outputs_ident| {
-                    #bridge_code
-                }));
+            meta_obj.as_mut().register_slot(
+                #name,
+                #id,
+                &[#(#input_meta_types::get_qmetatype()),*],
+                #result_meta_type);
         };
 
         Ok(register_slot)

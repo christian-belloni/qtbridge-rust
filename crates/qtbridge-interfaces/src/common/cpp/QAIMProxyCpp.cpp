@@ -6,7 +6,7 @@
 namespace rust::bridge {
 
 QAIMProxyCpp::QAIMProxyCpp(uint8_t* rustObj, QAIMProxyRust* rustProxy)
-    :  RustObjectGetter(rustObj)
+    : m_rustObj(rustObj)
     , m_rustProxy(rustProxy)
 {}
 QAIMProxyCpp::~QAIMProxyCpp()

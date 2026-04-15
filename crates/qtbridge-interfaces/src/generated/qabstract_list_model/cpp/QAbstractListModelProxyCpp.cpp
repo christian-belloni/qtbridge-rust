@@ -6,7 +6,7 @@
 namespace rust::bridge {
 
 QAbstractListModelProxyCpp::QAbstractListModelProxyCpp(uint8_t* rustObj, QAbstractListModelProxyRust* rustProxy)
-    :  RustObjectGetter(rustObj)
+    : m_rustObj(rustObj)
     , m_rustProxy(rustProxy)
 {}
 QAbstractListModelProxyCpp::~QAbstractListModelProxyCpp()

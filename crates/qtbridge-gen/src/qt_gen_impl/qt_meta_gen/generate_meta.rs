@@ -23,8 +23,8 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext, origin: &CallOrigin
     let generics = &ctx.generics;
     let use_block = generate_meta_reg_use_block(ctx.signals, ctx.slots, ctx.properties, origin);
     let signals_meta_reg = generate_signals_meta_registration(ctx.signals)?;
-    let slots_meta_reg = generate_slots_meta_registration(ctx.struct_ident, ctx.slots)?;
-    let properties_meta_reg = generate_properties_meta_registration(ctx.struct_ident, ctx.properties, ctx.signals)?;
+    let slots_meta_reg = generate_slots_meta_registration(ctx.slots)?;
+    let properties_meta_reg = generate_properties_meta_registration(ctx.properties, ctx.signals)?;
     let class_infos_reg = generate_class_infos_meta_registration(ctx.class_infos)?;
 
     let struct_ident = &ctx.struct_ident;
@@ -131,30 +131,7 @@ fn generate_meta_reg_use_block(signals: &[QSignalInfo], slots: &[QSlotInfo], pro
 
     };
 
-    let mut meta_callbacks = Vec::new();
-    if !slots.is_empty() {
-        meta_callbacks.push(quote! {slot_callback_for});
-    }
-    if !properties.is_empty() {
-        meta_callbacks.push(quote! {property_read_callback_for});
-        if properties.iter().any(|p| !p.is_read_only()) {
-            meta_callbacks.push(quote! {property_write_callback_for});
-        }
-    }
-
-    let import_metacallbacks = match meta_callbacks.len() {
-        0 => quote!{},
-        1 => {
-            let mcb = meta_callbacks.first().unwrap();
-            quote!{ metacallbacks::#mcb; }
-        },
-        2.. => quote!{ metacallbacks::{#(#meta_callbacks),*};},
-    };
-
     let mut bridge_imports = Vec::new();
-    if !import_metacallbacks.is_empty() {
-        bridge_imports.push(import_metacallbacks);
-    }
     if is_property_with_not_deduced_type {
         bridge_imports.push(quote!{ get_meta_type_of_fn_return_value });
     }
@@ -182,18 +159,18 @@ fn generate_signals_meta_registration(signals: &[QSignalInfo]) -> syn::Result<To
     Ok(result)
 }
 
-fn generate_slots_meta_registration(struct_ident: &syn::Ident, slots: &[QSlotInfo]) -> syn::Result<TokenStream> {
+fn generate_slots_meta_registration(slots: &[QSlotInfo]) -> syn::Result<TokenStream> {
     let mut result = TokenStream::new();
 
     for slot in slots {
-        let register_slot = slot.get_meta_registration_code(struct_ident)?;
+        let register_slot = slot.get_meta_registration_code()?;
         register_slot.to_tokens(&mut result);
     }
 
     Ok(result)
 }
 
-fn generate_properties_meta_registration(struct_ident: &syn::Ident, properties: &[QPropertyInfo], signals: &[QSignalInfo]) -> syn::Result<TokenStream> {
+fn generate_properties_meta_registration(properties: &[QPropertyInfo], signals: &[QSignalInfo]) -> syn::Result<TokenStream> {
     let mut result = TokenStream::new();
 
     for property in properties {
@@ -205,7 +182,7 @@ fn generate_properties_meta_registration(struct_ident: &syn::Ident, properties: 
                 return Err(syn::Error::new(notify_signal.span(), format!("Failed to find signal with name '{notify_signal_name}'")));
             }
         }
-        let register_property = property.get_meta_registration_code(struct_ident, signal)?;
+        let register_property = property.get_meta_registration_code(signal)?;
         register_property.to_tokens(&mut result);
     }
 

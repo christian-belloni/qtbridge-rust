@@ -54,10 +54,6 @@ impl QPropertyInfo {
         self.id
     }
 
-    pub fn is_read_only(&self) -> bool {
-        self.write_method.is_none() && self.member.is_none()
-    }
-
     pub fn is_const(&self) -> bool {
         self.constant.is_some()
     }
@@ -177,7 +173,7 @@ impl QPropertyInfo {
         Ok(())
     }
 
-    pub fn get_meta_registration_code(&self, struct_ident: &syn::Ident, signal: Option<&QSignalInfo>) -> syn::Result<TokenStream> {
+    pub fn get_meta_registration_code(&self, signal: Option<&QSignalInfo>) -> syn::Result<TokenStream> {
 
         let QPropertyInfo {
             name,
@@ -219,38 +215,18 @@ impl QPropertyInfo {
             return Err(syn::Error::new(*span, "Error in signal handling logic. Signal name mismatch"));
         }
 
-        let read_callback = self.generate_read_callback(struct_ident)?;
-        let write_callback = self.generate_write_callback(struct_ident, signal)?;
-        let default_code = if self.default.is_some() {
-            quote! {
+        let default_code = self.default.is_some()
+            .then(|| quote! {
                 meta_obj.as_mut().add_class_info("DefaultProperty", #name);
-            }
-        } else {
-            quote! {}
+            });
+        let is_const = self.is_const();
+        let property_registration = quote! {
+                meta_obj.as_mut().register_property(#name, #id, &(#metatype_expr), #is_const, #signal_name);
         };
-        let property_registration = if let Some(write_callback) = write_callback {
-            quote! {
-                meta_obj.as_mut().register_property(#name, #id, &#metatype_expr, #read_callback, #write_callback, #signal_name);
-            }
-        } else {
-            let is_const = self.is_const();
-            quote! {
-                meta_obj.as_mut().register_property_read_only(#name, #id, &(#metatype_expr), #read_callback, #is_const, #signal_name);
-            }
-        };
+
         Ok(quote! {
             #property_registration
             #default_code
-        })
-    }
-
-    fn generate_read_callback(&self, struct_ident: &syn::Ident) -> syn::Result<TokenStream> {
-        let read_code = self.get_read_code()?;
-
-        Ok(quote! {
-            property_read_callback_for::<#struct_ident>(|this| {
-                #read_code
-            })
         })
     }
 
@@ -264,17 +240,6 @@ impl QPropertyInfo {
         else {
             Err(syn::Error::new(self.span, "Neither 'Read' nor 'Member' is specified for property"))
         }
-    }
-
-    fn generate_write_callback(&self, struct_ident: &syn::Ident, signal: Option<&QSignalInfo>) -> syn::Result<Option<TokenStream>> {
-        self.get_write_code(signal)
-            .map(|opt_code|
-                opt_code.map(|code| quote! {
-                    property_write_callback_for::<#struct_ident>(|this, value| {
-                        #code
-                    })
-                })
-            )
     }
 
     pub fn get_write_code(&self, signal: Option<&QSignalInfo>) -> syn::Result<Option<TokenStream>> {
