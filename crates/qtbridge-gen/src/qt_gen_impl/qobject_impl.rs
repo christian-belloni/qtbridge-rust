@@ -163,7 +163,7 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream, origin: &CallOrigin
     // Generate traits code
     let qmeta_info_impl = generate_qmetainfo_trait_impl(&ctx, &origin)
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaInfo trait.\nError: {}", err)))?;
-    let dispatch_meta_call = generate_dispatch_meta_call(&struct_ident, generics, origin)
+    let dispatch_meta_call = generate_dispatch_meta_call(&struct_ident, generics, &signals, &slots, &properties, origin)
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of DispatchMetaCall trait.\nError: {}", err)))?
         .to_token_stream();
     let qmetatype_get_impl = generate_qmeta_type_get(&struct_ident, &generics, &origin)

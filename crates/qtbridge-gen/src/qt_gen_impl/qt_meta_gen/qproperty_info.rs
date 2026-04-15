@@ -50,6 +50,10 @@ impl QPropertyInfo {
         Ok(Some(prop))
     }
 
+    pub fn id(&self) -> u32 {
+        self.id
+    }
+
     pub fn is_read_only(&self) -> bool {
         self.write_method.is_none() && self.member.is_none()
     }
@@ -241,15 +245,7 @@ impl QPropertyInfo {
     }
 
     fn generate_read_callback(&self, struct_ident: &syn::Ident) -> syn::Result<TokenStream> {
-        let read_code = if let Some(getter_fn) = &self.read_method {
-            quote!{ this.#getter_fn().into() }
-        }
-        else if let Some(member) = &self.member {
-            quote! { (&this.#member).into() }
-        }
-        else {
-            return Err(syn::Error::new(self.span, "Neither 'Read' nor 'Member' is specified for property"));
-        };
+        let read_code = self.get_read_code()?;
 
         Ok(quote! {
             property_read_callback_for::<#struct_ident>(|this| {
@@ -258,7 +254,30 @@ impl QPropertyInfo {
         })
     }
 
+    pub fn get_read_code(&self) -> syn::Result<TokenStream> {
+        if let Some(getter_fn) = &self.read_method {
+            Ok(quote!{ this.#getter_fn().into() })
+        }
+        else if let Some(member) = &self.member {
+            Ok(quote! { (&this.#member).into() })
+        }
+        else {
+            Err(syn::Error::new(self.span, "Neither 'Read' nor 'Member' is specified for property"))
+        }
+    }
+
     fn generate_write_callback(&self, struct_ident: &syn::Ident, signal: Option<&QSignalInfo>) -> syn::Result<Option<TokenStream>> {
+        self.get_write_code(signal)
+            .map(|opt_code|
+                opt_code.map(|code| quote! {
+                    property_write_callback_for::<#struct_ident>(|this, value| {
+                        #code
+                    })
+                })
+            )
+    }
+
+    pub fn get_write_code(&self, signal: Option<&QSignalInfo>) -> syn::Result<Option<TokenStream>> {
         if self.is_const() {
             return Ok(None)
         }
@@ -274,12 +293,10 @@ impl QPropertyInfo {
             let pass_arg = get_take_value_code(&format_ident!("value"), self.write_value_pass.unwrap_or(ValuePass::ByValue));
 
             return Ok(Some(quote! {
-                property_write_callback_for::<#struct_ident>(|this, value| {
-                    let Ok(value) = TryInto::<<#ty_wo_ref as ToOwned>::Owned>::try_into(value) else {
-                        panic!("Failed to convert value '{}' to type '{}' in qproperty '{}'", value.to_string(), #ty_str, #name);
-                    };
-                    this.#setter_fn(#pass_arg);
-                })
+                let Ok(value) = TryInto::<<#ty_wo_ref as ToOwned>::Owned>::try_into(value) else {
+                    panic!("Failed to convert value '{}' to type '{}' in qproperty '{}'", value.to_string(), #ty_str, #name);
+                };
+                this.#setter_fn(#pass_arg);
             }))
         }
 
@@ -319,12 +336,10 @@ impl QPropertyInfo {
             };
 
             Ok(Some(quote!{
-                property_write_callback_for::<#struct_ident>(|this, value| {
-                    let Ok(value) = value.try_into() else {
-                        panic!("Failed to convert value '{}' to type '{}' in qproperty '{}'", value.to_string(), std::any::type_name_of_val(&this.#member), #name);
-                    };
-                    #write_code
-                })
+                let Ok(value) = value.try_into() else {
+                    panic!("Failed to convert value '{}' to type '{}' in qproperty '{}'", value.to_string(), std::any::type_name_of_val(&this.#member), #name);
+                };
+                #write_code
             }))
         }
         else {

@@ -59,6 +59,10 @@ impl QSlotInfo {
         attr.style == syn::AttrStyle::Outer && attr.path().is_ident("qslot")
     }
 
+    pub fn id(&self) -> u32 {
+        self.id
+    }
+
     /// Get count of arguments after &self
     pub fn get_typed_arg_count(&self) -> usize {
         get_typed_args(&self.func.sig).count()
@@ -132,6 +136,19 @@ impl QSlotInfo {
         };
 
         Ok(register_slot)
+    }
+
+    /// Generate code that goes to the dedicated arm of `match` operator in DispatchMetaCall::invoke_slot().
+    pub fn get_invoke_code(&self) -> syn::Result<TokenStream> {
+        let sig = &self.func.sig;
+        let method_ident = &sig.ident;
+
+        let bridge_generator = MetaCallBridgeGenerator::new(sig)?;
+
+        let fn_call = syn::parse_quote! {
+            this.#method_ident()
+        };
+        bridge_generator.generate_bridge_metacall_to_user_fn(fn_call)
     }
 
     fn check_signature(sign: &syn::Signature) -> syn::Result<()> {

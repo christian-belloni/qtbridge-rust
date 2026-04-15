@@ -116,7 +116,7 @@ impl QObjectModuleBuilder {
         // Generate traits code.
         let qmeta_info_impl_tokens = generate_qmetainfo_trait_impl(&ctx, &self.origin)
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaInfo trait.\nError: {}", err)))?;
-        let dispatch_meta_call = generate_dispatch_meta_call(&self.struct_ident, &self.struct_generics, &self.origin)
+        let dispatch_meta_call = generate_dispatch_meta_call(&self.struct_ident, &self.struct_generics, &self.signals, &self.slots, &self.properties, &self.origin)
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of DispatchMetaCall trait.\nError: {err}")))?;
         let qmetatype_get_impl_tokens = generate_qmeta_type_get(&self.struct_ident, &self.struct_generics, &self.origin)
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaTypeGet trait.\nError: {}", err)))?;
