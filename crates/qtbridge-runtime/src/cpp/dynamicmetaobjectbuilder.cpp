@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 #include "dynamicmetaobjectbuilder.h"
+#include "dispatchmetacallcpp.h"
 #include "rustconv.h"
-#include "rustobjectgetter.h"
 #include <QMetaType>
 #include <QObject>
 #include <QScopedPointer>
@@ -176,36 +176,32 @@ private:
         if (!m_mo)
             throw std::logic_error(__func__ + " called before endMetaRegistration()"s);
 
-        auto rustPtrGetter = dynamic_cast<const RustObjectGetter*>(o);
-        if (!rustPtrGetter)
-            throw std::runtime_error("Failed to get pointer to rust object");
-        uint8_t* rustPtr = rustPtrGetter->getRustObject();
+        auto dispatch = dynamic_cast<DispatchMetaCallCpp*>(o);
+        if (!dispatch)
+            qFatal("Failed to get pointer to QObject handling meta call");
 
-        if (rustPtr)
+        switch (call)
         {
-            switch (call)
-            {
-                case QMetaObject::InvokeMetaMethod:
-                    if (handleMetaCallInvoke(o, rustPtr, id, argv))
-                        return -1;
-                break;
-                case QMetaObject::ReadProperty:
-                    if (handleMetaCallReadProperty(rustPtr, id, argv))
-                        return -1;
-                break;
-                case QMetaObject::WriteProperty:
-                    if (handleMetaCallWriteProperty(rustPtr, id, argv))
-                        return -1;
-                break;
-                default:
-                break;
-            }
+            case QMetaObject::InvokeMetaMethod:
+                if (handleMetaCallInvoke(o, *dispatch, id, argv))
+                    return -1;
+            break;
+            case QMetaObject::ReadProperty:
+                if (handleMetaCallReadProperty(*dispatch, id, argv))
+                    return -1;
+            break;
+            case QMetaObject::WriteProperty:
+                if (handleMetaCallWriteProperty(*dispatch, id, argv))
+                    return -1;
+            break;
+            default:
+            break;
         }
 
         return o->qt_metacall(call, id, argv);
     }
 
-    bool handleMetaCallInvoke(QObject* o, uint8_t* clientPtr, int id, void** argv)
+    bool handleMetaCallInvoke(QObject* o, DispatchMetaCallCpp& dispatch, int id, void** argv)
     {
         const int methodId = id - m_mo->methodOffset();
         if (methodId < 0 || methodId >= m_mo->methodCount())
@@ -239,7 +235,7 @@ private:
                 auto outputSlice = returnType.isValid() ?
                     rust::Slice<uint8_t* const>(u8Argv, 1) :
                     rust::Slice<uint8_t* const>();
-                slotIt->second.m_callback(clientPtr, inputsSlice, outputSlice);
+                dispatch.invokeSlot(slotIt->second.m_userId, inputsSlice, outputSlice);
                 return true;
             }
             break;
@@ -250,7 +246,7 @@ private:
         return false;
     }
 
-    bool handleMetaCallReadProperty(uint8_t* clientPtr, int id, void** argv)
+    bool handleMetaCallReadProperty(const DispatchMetaCallCpp& dispatch, int id, void** argv)
     {
         const int propId = id - m_mo->propertyOffset();
         if (propId < 0 || propId >= m_mo->propertyCount())
@@ -264,17 +260,15 @@ private:
         if (propIt == m_properties.end())
             return false;
 
-        auto& getterFunc = propIt->second.m_getter;
-
         const QMetaProperty property = m_mo->property(id);
-        const QVariant result = getterFunc(clientPtr);
+        const QVariant result = dispatch.readProperty(propIt->second.m_userId);
         if (!QMetaType::convert(result.metaType(), result.data(), property.metaType(), dstArg))
             throw std::logic_error("Property type mismatch");
 
         return true;
     }
 
-    bool handleMetaCallWriteProperty(uint8_t* clientPtr, int id, void** argv)
+    bool handleMetaCallWriteProperty(DispatchMetaCallCpp& dispatch, int id, void** argv)
     {
         const int propId = id - m_mo->propertyOffset();
         if (propId < 0 || propId >= m_mo->propertyCount())
@@ -288,10 +282,9 @@ private:
         if (propIt == m_properties.end())
             return false;
 
-        auto& setterFunc = propIt->second.m_setter;
         const QMetaProperty property = m_mo->property(id);
-        const auto v = QVariant::fromMetaType(property.metaType(), arg);
-        setterFunc(clientPtr, v);
+        const QVariant value = QVariant::fromMetaType(property.metaType(), arg);
+        dispatch.writeProperty(propIt->second.m_userId, value);
 
         return true;
     }
