@@ -82,10 +82,21 @@ fn get_qml_code_for(type_suffix: &str) -> String {
         Item {{
             required property var testObject
 
+            Timer {{
+                id: timer
+                interval: 1
+                property var signalValue
+                onTriggered: {{
+                    testObject.signalArg{type_suffix} = signalValue
+                    Qt.quit()
+                }}
+            }}
+
             Connections {{
                 target: testObject
                 function onSignalVec{type_suffix}(v) {{
-                    testObject.signalArg{type_suffix} = v
+                    timer.signalValue = v
+                    timer.start()
                 }}
             }}
         }}
@@ -104,11 +115,15 @@ fn test_type<T>(emit_fn: fn(&TestObject), check_fn: fn(&TestObject) -> bool)
     let obj = TestObject::default_with_attached_qobject();
 
     let mut app = QApp::new();
-    app.add_initial_property("testObject", &obj.borrow().as_qvariant())
+    let obj_var = obj.borrow().as_qvariant();
+    app.add_initial_property("testObject", &obj_var)
        .load_qml(qml.as_bytes());
 
     // Emit the signal.
     emit_fn(&obj.borrow());
+
+    // Handle delayed signal
+    app.run();
 
     // Check that the corresponding property contains the value the signal was called with.
     assert!(check_fn(&obj.borrow()), "failing signal type: {type_str}");

@@ -457,7 +457,9 @@ where
     // Write the value to the tested property and compare it to value returned from getter functor.
     let type_name = get_type_name::<Vec<T>>();
     let property_name = format!("property{}", capitalize_first_char(&type_name));
-    obj.borrow().get_qobject().set_property(&property_name, Vec::from(test_value).into());
+    let qobj_ptr = obj.borrow().get_qobject_ptr();
+    let qobj = unsafe { qobj_ptr.as_mut() }.unwrap();
+    qobj.set_property(&property_name, Vec::from(test_value).into());
     let values = TestValues::from(&obj.borrow());
     let property_type = TestObj::property_type();
     assert_eq!(test_value, get_value(&values), "check failed for type {type_name} of {property_type}");

@@ -138,7 +138,8 @@ where
 
     // Init QApp with QML code for the given signal.
     let mut app = QApp::new();
-    app.add_initial_property("testObject", &obj.borrow().as_qvariant())
+    let obj_var = obj.borrow().as_qvariant();
+    app.add_initial_property("testObject", &obj_var)
        .load_qml(qml.as_bytes());
 
     // Read the value returned from the slot and stored to the dedicated property.

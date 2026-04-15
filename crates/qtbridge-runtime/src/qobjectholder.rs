@@ -58,13 +58,20 @@ pub trait QObjectHolder : DispatchMetaCall + QMetaInfo + Default {
         }
     }
 
+    #[doc(hidden)]
+    fn get_qobject_ptr(&self) -> *mut QObject {
+        let Some(rust_proxy) = Self::try_get_rust_proxy_mut(&self) else {
+            return std::ptr::null_mut()
+        };
+        let cpp_proxy = rust_proxy.get_cpp_proxy();
+        cpp_proxy as *mut QObject
+    }
+
     /// Try to get the [`QObject`] linked to this Rust `struct`.
     #[doc(hidden)]
     fn try_get_qobject(&self) -> Option<&mut QObject> {
-        let rust_proxy = Self::try_get_rust_proxy_mut(&self)?;
-        let cpp_proxy = rust_proxy.get_cpp_proxy();
-        let qobject_ptr: *const QObject = cpp_proxy.cast();
-        unsafe { qobject_ptr.cast_mut().as_mut() }
+        let ptr = self.get_qobject_ptr();
+        unsafe { ptr.as_mut() }
     }
 
     /// Get the [`QObject`] linked to this Rust `struct`. Panics if no

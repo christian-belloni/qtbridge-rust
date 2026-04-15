@@ -168,7 +168,8 @@ fn test_type<F>(arg_type_suffix: &str, arg_value: &str, check_fn: F)
     // Run QApp with QML code for the given slot.
     let obj = TestObject::default_with_attached_qobject();
     let mut app = QApp::new();
-    app.add_initial_property("testObject", &obj.borrow().as_qvariant())
+    let obj_var = obj.borrow().as_qvariant();
+    app.add_initial_property("testObject", &obj_var)
         .load_qml(get_qml_code_for(&suffix, arg_value).as_bytes());
     assert!(check_fn(&obj.borrow()), "failing slot type: {arg_type_suffix}");
 }
