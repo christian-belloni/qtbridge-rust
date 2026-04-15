@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 pub mod generate_meta;
+pub mod generate_dispatch_meta_call;
 pub mod generate_qmetatype_get;
 pub mod meta_call_bridge_generator;
 pub mod traits;

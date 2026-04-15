@@ -27,6 +27,17 @@ mod some_module {
             })
         }
     }
+    impl qtbridge::qtbridge_runtime::DispatchMetaCall for SomeStruct {
+        fn invoke_slot(&mut self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]) {
+            unimplemented!()
+        }
+        fn read_property(&self, prop_id: u32) -> qtbridge::qtbridge_type_lib::QVariant {
+            unimplemented!()
+        }
+        fn write_property(&mut self, prop_id: u32, value: &qtbridge::qtbridge_type_lib::QVariant) {
+            unimplemented!()
+        }
+    }
     impl qtbridge::qtbridge_type_lib::QMetaTypeGet for SomeStruct {
         fn get_qmetatype() -> qtbridge::qtbridge_type_lib::QMetaType {
             use std::sync::OnceLock;

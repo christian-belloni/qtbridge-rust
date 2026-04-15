@@ -10,6 +10,7 @@ use qtbridge_gen_common::function_with_attributes::FunctionWithAttributes;
 use qtbridge_gen_common::parse_utils::is_path_with_segments_str;
 use qtbridge_gen_common::type_utils::get_ident_of_last_path_segment_or_err;
 use crate::qt_gen_impl::qt_meta_gen;
+use crate::qt_gen_impl::qt_meta_gen::generate_dispatch_meta_call::generate_dispatch_meta_call;
 use qt_meta_gen::generate_meta::{QMetaInfoContext, generate_qmetainfo_trait_impl};
 use qt_meta_gen::generate_qmetatype_get::{generate_qmeta_type_get};
 use qt_meta_gen::traits::{QmlName, find_duplicate_by_qml_name};
@@ -115,6 +116,8 @@ impl QObjectModuleBuilder {
         // Generate traits code.
         let qmeta_info_impl_tokens = generate_qmetainfo_trait_impl(&ctx, &self.origin)
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaInfo trait.\nError: {}", err)))?;
+        let dispatch_meta_call = generate_dispatch_meta_call(&self.struct_ident, &self.struct_generics, &self.origin)
+            .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of DispatchMetaCall trait.\nError: {err}")))?;
         let qmetatype_get_impl_tokens = generate_qmeta_type_get(&self.struct_ident, &self.struct_generics, &self.origin)
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaTypeGet trait.\nError: {}", err)))?;
 
@@ -124,6 +127,7 @@ impl QObjectModuleBuilder {
         }
         // TODO: return items below as high level AST but not TokenStreams
         output_module_items.push(syn::parse2(qmeta_info_impl_tokens)?);             // impl qtbridge::qtbridge_runtime::QMetaInfo
+        output_module_items.push(dispatch_meta_call.into());                        // impl qtbridge::qtbridge_runtime::DispatchMetaCall
         output_module_items.push(syn::parse2(qmetatype_get_impl_tokens)?);          // impl qtbridge::qtbridge_type_lib::QMetaTypeGet
 
         if !self.struct_is_generic() {

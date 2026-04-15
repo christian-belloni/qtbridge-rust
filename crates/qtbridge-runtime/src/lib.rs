@@ -1,6 +1,7 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
+pub mod dispatchmetacall;
 pub mod dynamicmetaobjectbuilder;
 pub mod metacallbacks;
 pub mod qapp;
@@ -13,6 +14,7 @@ pub mod qmetatypeforqobject;
 pub mod qmetatypeutils;
 pub mod qmodelitem;
 
+pub use dispatchmetacall::DispatchMetaCall;
 pub use dynamicmetaobjectbuilder::{DynamicMetaObjectBuilder, create_dynamic_meta_object_builder};
 pub use qmetatypeutils::get_meta_type_of_fn_return_value;
 pub use qapp::QApp;

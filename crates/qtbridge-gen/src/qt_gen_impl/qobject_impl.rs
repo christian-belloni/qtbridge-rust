@@ -9,6 +9,7 @@ use qtbridge_gen_common::function_with_attributes::FunctionWithAttributes;
 use qtbridge_gen_common::type_qualified_mapping::CallOrigin;
 use qtbridge_gen_common::type_utils::get_ident_of_last_path_segment_or_err;
 use crate::qt_gen_impl;
+use crate::qt_gen_impl::qt_meta_gen::generate_dispatch_meta_call::generate_dispatch_meta_call;
 use qt_gen_impl::qobject_macro_params::QObjectMacroParams;
 use qt_gen_impl::iface_impl::InterfaceImpl;
 use qt_gen_impl::qml_element::qml_element;
@@ -29,6 +30,9 @@ pub struct QObjectImplOutput {
     /// Implementation of QMetaInfo trait
     pub qmeta_info_impl: TokenStream,
 
+    /// Implementation of DispatchMetaCall trait
+    pub dispatch_meta_call: TokenStream,
+
     /// Implementation of QMetaTypeInterfaceGet trait
     pub qmetatype_get_impl: TokenStream,
 
@@ -43,12 +47,13 @@ impl QObjectImplOutput {
     // Implement as regular function but not as ToTokens trait
     // not to add a 'quote' dependency to qt_gen project
     pub fn to_token_stream(&self) -> TokenStream {
-        let Self{ new_impl, drop_impl, qmeta_info_impl, qmetatype_get_impl, impl_details , qml_registration} = &self;
+        let Self{ new_impl, drop_impl, qmeta_info_impl, dispatch_meta_call, qmetatype_get_impl, impl_details , qml_registration} = &self;
 
         quote!{
             #new_impl
             #drop_impl
             #qmeta_info_impl
+            #dispatch_meta_call
             #qmetatype_get_impl
             #impl_details
             #qml_registration
@@ -158,6 +163,9 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream, origin: &CallOrigin
     // Generate traits code
     let qmeta_info_impl = generate_qmetainfo_trait_impl(&ctx, &origin)
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaInfo trait.\nError: {}", err)))?;
+    let dispatch_meta_call = generate_dispatch_meta_call(&struct_ident, generics, origin)
+        .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of DispatchMetaCall trait.\nError: {}", err)))?
+        .to_token_stream();
     let qmetatype_get_impl = generate_qmeta_type_get(&struct_ident, &generics, &origin)
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaTypeGet trait.\nError: {}", err)))?;
 
@@ -176,6 +184,7 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream, origin: &CallOrigin
         new_impl,
         drop_impl,
         qmeta_info_impl,
+        dispatch_meta_call,
         qmetatype_get_impl,
         impl_details,
         qml_registration,
