@@ -43,6 +43,7 @@ instructions:
       equals_value: Windows
     userMessageOnFailure: >
       Failed to download rust installer.
+
   - type: ExecuteCommand
     command: "C:\\utils\\rustup-init.exe -q -y"
     maxTimeInSeconds: 6000
@@ -68,6 +69,15 @@ instructions:
       condition: property
       property: host.os
       equals_value: Windows
+
+  # Nightly rustfmt is required for the optional 'normalize_doc_attributes'
+  # required for documentation of generated code. Code itself does not require nightly
+  - type: ExecuteCommand
+    command: "rustup toolchain install nightly --component rustfmt --component clippy"
+    maxTimeInSeconds: 6000
+    maxTimeBetweenOutput: 1200
+    userMessageOnFailure: >
+      Failed to install nightly Rust toolchain.
 
   - type: EnvironmentVariable
     variableName: RUST_BACKTRACE
