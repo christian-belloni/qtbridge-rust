@@ -232,10 +232,10 @@ impl QPropertyInfo {
 
     pub fn get_read_code(&self) -> syn::Result<TokenStream> {
         if let Some(getter_fn) = &self.read_method {
-            Ok(quote!{ this.#getter_fn().into() })
+            Ok(quote!{ self.#getter_fn().into() })
         }
         else if let Some(member) = &self.member {
-            Ok(quote! { (&this.#member).into() })
+            Ok(quote! { (&self.#member).into() })
         }
         else {
             Err(syn::Error::new(self.span, "Neither 'Read' nor 'Member' is specified for property"))
@@ -261,7 +261,7 @@ impl QPropertyInfo {
                 let Ok(value) = TryInto::<<#ty_wo_ref as ToOwned>::Owned>::try_into(value) else {
                     panic!("Failed to convert value '{}' to type '{}' in qproperty '{}'", value.to_string(), #ty_str, #name);
                 };
-                this.#setter_fn(#pass_arg);
+                self.#setter_fn(#pass_arg);
             }))
         }
 
@@ -274,7 +274,7 @@ impl QPropertyInfo {
             let write_code = if signal_name.is_empty() {
                 // TODO: still auto generate name for signal otherwise? E.g. On{property_name}Changed
                 quote!{
-                    this.#member = value;
+                    self.#member = value;
                 }
             }
             else {
@@ -286,23 +286,23 @@ impl QPropertyInfo {
                 let mut signal_arg = None;
                 if signal.get_typed_arg_count() > 0 {
                     signal_arg = match get_type_pass(signal.get_arg_type(0)?) {
-                        ValuePass::ByValue => Some(quote! { this.#member.clone() }),
-                        ValuePass::ByConstReference => Some(quote! { &this.#member }),
-                        ValuePass::ByMutReference => Some(quote! { &mut this.#member }),
+                        ValuePass::ByValue => Some(quote! { self.#member.clone() }),
+                        ValuePass::ByConstReference => Some(quote! { &self.#member }),
+                        ValuePass::ByMutReference => Some(quote! { &mut self.#member }),
                     };
                 }
 
                 quote! {
-                    if this.#member != value {
-                        this.#member = value;
-                        this.#signal_name_ident(#signal_arg);
+                    if self.#member != value {
+                        self.#member = value;
+                        self.#signal_name_ident(#signal_arg);
                     }
                 }
             };
 
             Ok(Some(quote!{
                 let Ok(value) = value.try_into() else {
-                    panic!("Failed to convert value '{}' to type '{}' in qproperty '{}'", value.to_string(), std::any::type_name_of_val(&this.#member), #name);
+                    panic!("Failed to convert value '{}' to type '{}' in qproperty '{}'", value.to_string(), std::any::type_name_of_val(&self.#member), #name);
                 };
                 #write_code
             }))

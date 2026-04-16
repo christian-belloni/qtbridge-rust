@@ -122,7 +122,7 @@ impl QSlotInfo {
         let bridge_generator = MetaCallBridgeGenerator::new(sig)?;
 
         let fn_call = syn::parse_quote! {
-            this.#method_ident()
+            self.#method_ident()
         };
         bridge_generator.generate_bridge_metacall_to_user_fn(fn_call)
     }

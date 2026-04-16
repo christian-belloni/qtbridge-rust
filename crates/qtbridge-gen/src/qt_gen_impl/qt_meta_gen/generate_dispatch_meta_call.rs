@@ -57,21 +57,18 @@ pub fn generate_dispatch_meta_call(struct_ident: &syn::Ident, generics: &syn::Ge
         #where_clause
         {
             fn invoke_slot(&mut self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]) {
-                let this = self;
                 match slot_id {
                     #(#slot_handlers),*
                     _ => panic!("Unhandled slot id {slot_id}")
                 }
             }
             fn read_property(&self, prop_id: u32) -> #type_library::QVariant {
-                let this = self;
                 match prop_id {
                     #(#prop_read_handlers),*
                     _ => panic!("Unhandled property id {prop_id}")
                 }
             }
             fn write_property(&mut self, prop_id: u32, value: &#type_library::QVariant) {
-                let this = self;
                 match prop_id {
                     #(#prop_write_handlers),*
                     _ => panic!("Unhandled property id {prop_id}")

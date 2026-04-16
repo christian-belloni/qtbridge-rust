@@ -29,19 +29,16 @@ mod some_module {
     }
     impl qtbridge::qtbridge_runtime::DispatchMetaCall for SomeStruct {
         fn invoke_slot(&mut self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]) {
-            let this = self;
             match slot_id {
                 _ => panic!("Unhandled slot id {slot_id}"),
             }
         }
         fn read_property(&self, prop_id: u32) -> qtbridge::qtbridge_type_lib::QVariant {
-            let this = self;
             match prop_id {
                 _ => panic!("Unhandled property id {prop_id}"),
             }
         }
         fn write_property(&mut self, prop_id: u32, value: &qtbridge::qtbridge_type_lib::QVariant) {
-            let this = self;
             match prop_id {
                 _ => panic!("Unhandled property id {prop_id}"),
             }
