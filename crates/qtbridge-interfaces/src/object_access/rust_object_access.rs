@@ -209,9 +209,8 @@ impl<T: ?Sized> RustObjAccess<T> {
             }
 
             // If try_borrow() fails - it means that the object is already borrowed mutably.
-            // TODO: uncomments the lines below once borrowing in metacalls is in place
-            // rc.try_borrow()
-            //     .map_err(|_err| RustObjAccessError::ExpectedBorrowed)?;
+            rc.try_borrow()
+                .map_err(|_err| RustObjAccessError::ExpectedBorrowed)?;
         }
 
         let mut borrowed = RustObjBorrowHandle::new_unguarded(rc, false);
@@ -251,17 +250,16 @@ impl<T: ?Sized> RustObjAccess<T> {
         // TODO: add #[cfg(debug_assertions)] if these checks as slow.
         {
             // If try_borrow_mut() succeeds - then object is not borrowed.
-            // TODO: uncomments lines below once borrowing in metacalls is in place
-            // match rc.try_borrow_mut() {
-            //     Ok(_) => return Err(RustObjAccessError::ExpectedBorrowedMut),
-            //     Err(_) => {},
-            // }
+            match rc.try_borrow_mut() {
+                Ok(_) => return Err(RustObjAccessError::ExpectedBorrowedMut),
+                Err(_) => {},
+            }
 
-            // // If try_borrow() succeeds - then object is borrowed but immutably.
-            // match rc.try_borrow() {
-            //     Ok(_) => return Err(RustObjAccessError::ExpectedBorrowedMut),
-            //     Err(_) => {},
-            // }
+            // If try_borrow() succeeds - then object is borrowed but immutably.
+            match rc.try_borrow() {
+                Ok(_) => return Err(RustObjAccessError::ExpectedBorrowedMut),
+                Err(_) => {},
+            }
         }
 
         let mut borrowed = RustObjBorrowHandle::new_unguarded(rc, true);
