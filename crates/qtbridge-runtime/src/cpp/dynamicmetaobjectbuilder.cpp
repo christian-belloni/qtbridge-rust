@@ -8,15 +8,12 @@
 #include <QObject>
 #include <QScopedPointer>
 #include <QSpan>
+#include <QtLogging>
 #include <QVariant>
 #include <private/qobject_p.h>
 #include <private/qmetaobjectbuilder_p.h>
-#include <cassert>
 #include <map>
 #include <optional>
-#include <stdexcept>
-
-using namespace std::string_literals;
 
 class DynamicMetaObjectBuilder::Impl : public QDynamicMetaObjectData
 {
@@ -45,7 +42,7 @@ public:
         {
             signal = getSignalIndexByName(notifySignal);
             if (!signal)
-                throw std::runtime_error("Failed to find signal by name");
+                qFatal() << "Failed to find a signal by name: " << notifySignal;
         }
 
         doRegisterProperty(name, propId, metaType, isConstant, signal);
@@ -54,7 +51,7 @@ public:
     void registerSignal(const QByteArray& name, QSpan<const QMetaType> argMetaTypes)
     {
         if (!m_mob)
-            throw std::runtime_error("Signal registration must be done before endMetaRegistration() call");
+            qFatal() << "Signal registration must be done before endMetaRegistration() call";
 
         for (const QMetaType& type: argMetaTypes)
             type.registerType();
@@ -64,13 +61,13 @@ public:
         const int localId = builder.index();
         auto [_, added] = m_signals.emplace(localId, SignalInfo{ name });
         if (!added)
-            throw std::runtime_error("Failed to register signal");
+            qFatal() << "Failed to register signal " << name;
     }
 
     void registerSlot(const QByteArray& name, uint32_t slotId, QSpan<const QMetaType> argMetaTypes, const QMetaType& returnMetaType)
     {
         if (!m_mob)
-            throw std::runtime_error("Slot registration must be done before endMetaRegistration() call");
+            qFatal() << "Failed to register slot " << name << ". Slot registration must be done before endMetaRegistration() call";
 
         for (const QMetaType& type: argMetaTypes)
             type.registerType();
@@ -93,7 +90,7 @@ public:
         }
         else
         {
-            assert(false && "The function is called more than once");
+            qFatal() << __func__ << "() is called more than once";
         }
     }
 
@@ -102,7 +99,7 @@ public:
         if (auto idx = getSignalIndexByName(name))
             doEmitSignal(obj, *idx, argv);
         else
-            throw std::runtime_error("Failed to find signal by name");
+            qFatal() << "Failed to find signal " << name << " by name";
     }
 
     const QMetaObject* getDynamicQMetaObject()
@@ -117,10 +114,10 @@ private:
     void doRegisterProperty(const QByteArray& name, uint32_t propId, const QMetaType& metaType, bool isConstant, std::optional<int> signalIndex)
     {
         if (!m_mob)
-            throw std::runtime_error("Property registration must be done before endMetaRegistration() call");
+            qFatal() << "Property registration must be done before endMetaRegistration() call";
 
         if (!metaType.isValid())
-            throw std::runtime_error("Invalid property type");
+            qFatal() << "Invalid type of property " << name;
 
         const bool writable = !isConstant;
         metaType.registerType();
@@ -135,20 +132,20 @@ private:
         {
             const int idx = *signalIndex;
             if (!m_signals.count(idx))
-                throw std::runtime_error("Unknown property change signal");
+                qFatal() << "Unknown property change signal";
             builder.setNotifySignal(m_mob->method(idx));
         }
 
         const auto localId = builder.index();
         auto [_, added] = m_properties.emplace(localId, PropertyInfo{ propId, metaType, });
         if (!added)
-            throw std::runtime_error("Failed to register property");
+            qFatal() << "Failed to register property " << name;
     }
 
     void doEmitSignal(QObject& obj, SignalId id, void** params)
     {
         if (!m_mo)
-            throw std::logic_error(__func__ + " called before endMetaRegistration()"s);
+            qFatal() << __func__ << "() called before endMetaRegistration()";
         QMetaObject::activate(&obj, m_mo.get(), id, params);
     }
 
@@ -174,7 +171,7 @@ private:
     int metaCall(QObject* o, QMetaObject::Call call, int id, void** argv) override
     {
         if (!m_mo)
-            throw std::logic_error(__func__ + " called before endMetaRegistration()"s);
+            qFatal() << __func__ << "() called before endMetaRegistration()";
 
         auto dispatch = dynamic_cast<DispatchMetaCallCpp*>(o);
         if (!dispatch)
@@ -227,7 +224,7 @@ private:
                 const int paramCount = method.parameterCount();
                 const QMetaType returnType = method.returnMetaType();
                 if ((paramCount > 0 || returnType.isValid()) && !argv)
-                    throw std::runtime_error("Input meta params are null");
+                    qFatal() << __func__ << "(): input meta params are null";
 
                 uint8_t* const* u8Argv = reinterpret_cast<uint8_t* const*>(argv);
                 const uint8_t* const* inputsBegin = u8Argv + 1;
@@ -263,7 +260,7 @@ private:
         const QMetaProperty property = m_mo->property(id);
         const QVariant result = dispatch.readProperty(propIt->second.m_userId);
         if (!QMetaType::convert(result.metaType(), result.data(), property.metaType(), dstArg))
-            throw std::logic_error("Property type mismatch");
+            qFatal() << "Property type mismatch";
 
         return true;
     }
@@ -295,7 +292,7 @@ private:
         for (const auto& type : argMetaTypes)
         {
             if (!type.isValid())
-                throw std::runtime_error("Unspecified argument type");
+                qFatal() << "Unspecified argument type";
 
             if (!paramStr.isEmpty())
                 paramStr.append(',');
@@ -309,7 +306,7 @@ private:
     QMetaMethod getMetaMethod(int id) const
     {
         if (!m_mo)
-            throw std::logic_error(__func__ + " called before endMetaRegistration()"s);
+            qFatal() << __func__ << "() called before endMetaRegistration()";
 
         const int methodOffset = m_mo->methodOffset();
         const QMetaMethod method = m_mo->method(id + methodOffset);
