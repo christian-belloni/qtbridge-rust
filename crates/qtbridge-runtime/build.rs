@@ -15,6 +15,7 @@ fn main() {
 
     let bridge_files = vec!(
         "dynamicmetaobjectbuilder",
+        "dynamicmetaobjectdata",
         "qresource"
     );
 
