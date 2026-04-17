@@ -1,0 +1,61 @@
+# Copyright (C) 2026 The Qt Company Ltd.
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+[package]
+name = "qt-version"
+version = "0.1.5"
+rust-version = "1.85"
+edition = "2024"
+description = "A utility crate for selecting and resolving supported Qt versions."
+license = "MIT OR Apache-2.0"
+repository.workspace = true
+
+[dependencies]
+semver = "1.0"
+
+[features]
+qt_version_default = []
+qt_version_at_least_6_2 =[]
+qt_version_at_least_6_3 =[]
+qt_version_at_least_6_4 =[]
+qt_version_at_least_6_5 =[]
+qt_version_at_least_6_6 =[]
+qt_version_at_least_6_7 =[]
+qt_version_at_least_6_8 =[]
+qt_version_at_least_6_9 =[]
+qt_version_at_least_6_10 =[]
+qt_version_at_least_6_11 =[]
+qt_version_at_least_6_12 =[]
+qt_version_exact_6_2_0 = []
+qt_version_exact_6_3_0 = []
+qt_version_exact_6_4_0 = []
+qt_version_exact_6_5_0 = []
+qt_version_exact_6_6_0 = []
+qt_version_exact_6_7_0 = []
+qt_version_exact_6_8_0 = []
+qt_version_exact_6_8_1 = []
+qt_version_exact_6_8_2 = []
+qt_version_exact_6_8_3 = []
+qt_version_exact_6_8_4 = []
+qt_version_exact_6_8_5 = []
+qt_version_exact_6_8_6 = []
+qt_version_exact_6_9_0 = []
+qt_version_exact_6_9_1 = []
+qt_version_exact_6_9_2 = []
+qt_version_exact_6_9_3 = []
+qt_version_exact_6_10_0 = []
+qt_version_exact_6_10_1 = []
+qt_version_exact_6_10_2 = []
+qt_version_exact_6_11_0 = []
+qt_version_exact_6_12_0 = []
+qt_version_at_most_6_2 = []
+qt_version_at_most_6_3 = []
+qt_version_at_most_6_4 = []
+qt_version_at_most_6_5 = []
+qt_version_at_most_6_6 = []
+qt_version_at_most_6_7 = []
+qt_version_at_most_6_8 = []
+qt_version_at_most_6_9 = []
+qt_version_at_most_6_10 = []
+qt_version_at_most_6_11 = []
+qt_version_at_most_6_12 = []

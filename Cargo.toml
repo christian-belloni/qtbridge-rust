@@ -30,6 +30,8 @@ members = [
     "crates/qtbridge-type-lib",
     "crates/qtbridge-interfaces",
     "crates/qtbridge-runtime",
+    "crates/qt-artifacts",
+    "crates/qt-version",
 
     "quicktest",
     "quicktest/quicktest_gen",

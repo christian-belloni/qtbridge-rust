@@ -192,3 +192,4 @@ the Rust Foundation. This project is not affiliated with or endorsed by the Rust
 An application built with Qt Bridge for Rust will include code from other crates.
 The main dependency is CXX, "Safe interop between Rust and C++", licensed under the Apache Version
 2.0 License or MIT license.
+

@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "artifacts": [
+    {
+        "version": "6.10.0",
+        "arch" : "x86_64",
+        "os": "windows",
+        "url": "https://download.qt.io/snapshots/ci/qt/qt_minimal_win_x86_64_0.1.2.zip",
+        "sha256": "e1e0ba0d6c49ced30edc4bd9b27cd475097318006e939fe3a71d110300285077",
+        "content": ["bin"]
+    },
+    {
+        "version": "6.10.0",
+        "arch" : "x86_64",
+        "os": "windows",
+        "url": "https://download.qt.io/snapshots/ci/qt/qt_minimal_include_win_x86_64_0.1.2.zip",
+        "sha256": "10c63eae46c0f357da9338f5fae63ba95902c5c4ad17117ecc9ae818b7a181ab",
+        "content": ["include"]
+    },
+    {
+        "version": "6.10.0",
+        "arch" : "x86_64",
+        "os": "linux",
+        "url": "https://download.qt.io/snapshots/ci/qt/qt_minimal_linux_x86_64_0.1.2.tar.gz",
+        "sha256": "6e0167f311bfd9a520449deceeac1020ebef311fcefa98c9d38ab27fac5ee454",
+        "content": ["bin"]
+    },
+    {
+        "version": "6.10.0",
+        "arch" : "x86_64",
+        "os": "linux",
+        "url": "https://download.qt.io/snapshots/ci/qt/qt_minimal_include_linux_x86_64_0.1.2.tar.gz",
+        "sha256": "8445113127f161c034ebeb611c634c3f1b6581a49d8a409b72bfa28175cdeac5",
+        "content": ["include"]
+    },
+    {
+        "version": "6.10.0",
+        "arch" : "arm64",
+        "os": "macos",
+        "url": "https://download.qt.io/snapshots/ci/qt/qt_minimal_macos_arm64_0.1.2.tar.gz",
+        "sha256": "b10f350a7c1e54293457e29b0f17887b255f621ed3bd319e883be4f700c6bcf5",
+        "content": ["bin"]
+    },
+    {
+        "version": "6.10.0",
+        "arch" : "arm64",
+        "os": "macos",
+        "url": "https://download.qt.io/snapshots/ci/qt/qt_minimal_include_macos_arm64_0.1.2.tar.gz",
+        "sha256": "7c844120357dd5517a3071cf8610087931ff8324046ecc0991d12720f72b5447",
+        "content": ["include"]
+    }
+  ]
+}
