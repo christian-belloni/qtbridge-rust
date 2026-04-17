@@ -15,4 +15,3 @@ quicktest_gen = { path = "quicktest_gen" }
 [build-dependencies]
 qtbridge-build-common = { path = "../crates/qtbridge-build-common" }
 cxx-build.workspace = true
-qt_type_gen = { path = "../code_gen/qt_type_gen" }
