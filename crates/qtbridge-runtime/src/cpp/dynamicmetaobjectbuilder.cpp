@@ -3,6 +3,7 @@
 
 #include "dynamicmetaobjectbuilder.h"
 #include "dispatchmetacallcpp.h"
+#include "dynamicmetaobjectdata.h"
 #include "rustconv.h"
 #include <QMetaType>
 #include <QObject>
@@ -15,15 +16,12 @@
 #include <map>
 #include <optional>
 
-class DynamicMetaObjectBuilder::Impl : public QDynamicMetaObjectData
+class DynamicMetaObjectBuilder::Impl
 {
 public:
-    using PropertyId = int;
-    using SignalId = int;
-    using SlotId = int;
-
     Impl(const QMetaObject* staticMetaObj, const QByteArray& className)
         : m_mob(std::make_unique<QMetaObjectBuilder>())
+        , m_data(std::make_unique<DynamicMetaObjectData>())
     {
         m_mob->setSuperClass(staticMetaObj); // TODO: check without this
         m_mob->setClassName(className.isEmpty() ? QByteArray(staticMetaObj->className()) : className);
@@ -40,7 +38,7 @@ public:
         std::optional<int> signal;
         if (!notifySignal.isEmpty())
         {
-            signal = getSignalIndexByName(notifySignal);
+            signal = m_data->getSignalIndex(notifySignal);
             if (!signal)
                 qFatal() << "Failed to find a signal by name: " << notifySignal;
         }
@@ -58,10 +56,8 @@ public:
 
         QByteArray signature = generateFuncSignature(name, argMetaTypes);
         QMetaMethodBuilder builder = m_mob->addSignal(signature);
-        const int localId = builder.index();
-        auto [_, added] = m_signals.emplace(localId, SignalInfo{ name });
-        if (!added)
-            qFatal() << "Failed to register signal " << name;
+        const int index = builder.index();
+        m_data->addSignal(index, name);
     }
 
     void registerSlot(const QByteArray& name, uint32_t slotId, QSpan<const QMetaType> argMetaTypes, const QMetaType& returnMetaType)
@@ -76,16 +72,16 @@ public:
         QMetaMethodBuilder builder = m_mob->addSlot(signature);
         if (returnMetaType.isValid())
             builder.setReturnType(returnMetaType.name());
-        const int localId = builder.index();
-
-        m_slots.emplace(localId, SlotInfo{ slotId });
+        const int index = builder.index();
+        m_data->addSlot(index, name, slotId);
     }
 
     void endMetaRegistration()
     {
         if (m_mob)
         {
-            m_mo.reset(m_mob->toMetaObject());
+            std::unique_ptr<QMetaObject, QScopedPointerPodDeleter> metaObject(m_mob->toMetaObject());
+            m_data->setMetaObject(std::move(metaObject));
             m_mob.reset();
         }
         else
@@ -94,20 +90,25 @@ public:
         }
     }
 
-    void emitSignal(QObject& obj, const QByteArray& name, rust::Slice<const uint8_t* const> argv)
+    void emitSignal(QObject& obj, const QByteArray& name, rust::Slice<const uint8_t* const> argvSlice)
     {
-        if (auto idx = getSignalIndexByName(name))
-            doEmitSignal(obj, *idx, argv);
+        if (auto index = m_data->getSignalIndex(name))
+        {
+            auto argv = reinterpret_cast<void**>(const_cast<uint8_t**>(argvSlice.data()));
+            QMetaObject::activate(&obj, getDynamicQMetaObject(), *index, argv);
+        }
         else
             qFatal() << "Failed to find signal " << name << " by name";
     }
 
     const QMetaObject* getDynamicQMetaObject()
     {
-        if (!m_mo)
-            endMetaRegistration();
+        return m_data->getMetaObject();
+    }
 
-        return m_mo.get();
+    void setToQObject(QObject& dst) const
+    {
+        QObjectPrivate::get(&dst)->metaObject = m_data.get();
     }
 
 private:
@@ -122,173 +123,21 @@ private:
         const bool writable = !isConstant;
         metaType.registerType();
 
-        //TODO: pass notifierId argument to addProperty?
         QMetaPropertyBuilder builder = m_mob->addProperty(name, metaType.name());
         builder.setReadable(true);
         builder.setWritable(writable);
         builder.setConstant(isConstant);
 
         if (signalIndex)
-        {
-            const int idx = *signalIndex;
-            if (!m_signals.count(idx))
-                qFatal() << "Unknown property change signal";
-            builder.setNotifySignal(m_mob->method(idx));
-        }
+            builder.setNotifySignal(m_mob->method(*signalIndex));
 
-        const auto localId = builder.index();
-        auto [_, added] = m_properties.emplace(localId, PropertyInfo{ propId, metaType, });
-        if (!added)
-            qFatal() << "Failed to register property " << name;
-    }
-
-    void doEmitSignal(QObject& obj, SignalId id, void** params)
-    {
-        if (!m_mo)
-            qFatal() << __func__ << "() called before endMetaRegistration()";
-        QMetaObject::activate(&obj, m_mo.get(), id, params);
-    }
-
-     void doEmitSignal(QObject& obj, SignalId id, rust::Slice<const uint8_t* const> argv)
-     {
-        doEmitSignal(obj, id, reinterpret_cast<void**>(const_cast<uint8_t**>(argv.data())));
-    }
-
-    void objectDestroyed(QObject *) override
-    {
-        // Do nothing here unlike QDynamicMetaObjectData
-        // to avoid double deletion
-    }
-
-    QMetaObject* toDynamicMetaObject(QObject* /*o*/) override
-    {
-        if (!m_mo)
-            endMetaRegistration();
-
-        return m_mo.get();
-    }
-
-    int metaCall(QObject* o, QMetaObject::Call call, int id, void** argv) override
-    {
-        if (!m_mo)
-            qFatal() << __func__ << "() called before endMetaRegistration()";
-
-        auto dispatch = dynamic_cast<DispatchMetaCallCpp*>(o);
-        if (!dispatch)
-            qFatal("Failed to get pointer to QObject handling meta call");
-
-        switch (call)
-        {
-            case QMetaObject::InvokeMetaMethod:
-                if (handleMetaCallInvoke(o, *dispatch, id, argv))
-                    return -1;
-            break;
-            case QMetaObject::ReadProperty:
-                if (handleMetaCallReadProperty(*dispatch, id, argv))
-                    return -1;
-            break;
-            case QMetaObject::WriteProperty:
-                if (handleMetaCallWriteProperty(*dispatch, id, argv))
-                    return -1;
-            break;
-            default:
-            break;
-        }
-
-        return o->qt_metacall(call, id, argv);
-    }
-
-    bool handleMetaCallInvoke(QObject* o, DispatchMetaCallCpp& dispatch, int id, void** argv)
-    {
-        const int methodId = id - m_mo->methodOffset();
-        if (methodId < 0 || methodId >= m_mo->methodCount())
-            return false;
-
-        QMetaMethod method = m_mo->method(id);
-        switch (method.methodType())
-        {
-            case QMetaMethod::Signal:
-            {
-                if (!m_signals.count(methodId))
-                    return false;
-                doEmitSignal(*o, methodId, argv);
-                return true;
-            }
-            break;
-            case QMetaMethod::Slot:
-            {
-                auto slotIt = m_slots.find(methodId);
-                if (slotIt == m_slots.end())
-                    return false;
-
-                const int paramCount = method.parameterCount();
-                const QMetaType returnType = method.returnMetaType();
-                if ((paramCount > 0 || returnType.isValid()) && !argv)
-                    qFatal() << __func__ << "(): input meta params are null";
-
-                uint8_t* const* u8Argv = reinterpret_cast<uint8_t* const*>(argv);
-                const uint8_t* const* inputsBegin = u8Argv + 1;
-                rust::Slice inputsSlice(inputsBegin, static_cast<size_t>(paramCount));
-                auto outputSlice = returnType.isValid() ?
-                    rust::Slice<uint8_t* const>(u8Argv, 1) :
-                    rust::Slice<uint8_t* const>();
-                dispatch.invokeSlot(slotIt->second.m_userId, inputsSlice, outputSlice);
-                return true;
-            }
-            break;
-            default:
-            break;
-        }
-
-        return false;
-    }
-
-    bool handleMetaCallReadProperty(const DispatchMetaCallCpp& dispatch, int id, void** argv)
-    {
-        const int propId = id - m_mo->propertyOffset();
-        if (propId < 0 || propId >= m_mo->propertyCount())
-            return false;
-
-        void* dstArg = argv[0];
-        if (!dstArg)
-            return false;
-
-        auto propIt = m_properties.find(propId);
-        if (propIt == m_properties.end())
-            return false;
-
-        const QMetaProperty property = m_mo->property(id);
-        const QVariant result = dispatch.readProperty(propIt->second.m_userId);
-        if (!QMetaType::convert(result.metaType(), result.data(), property.metaType(), dstArg))
-            qFatal() << "Property type mismatch";
-
-        return true;
-    }
-
-    bool handleMetaCallWriteProperty(DispatchMetaCallCpp& dispatch, int id, void** argv)
-    {
-        const int propId = id - m_mo->propertyOffset();
-        if (propId < 0 || propId >= m_mo->propertyCount())
-            return false;
-
-        void* arg = argv[0];
-        if (!arg)
-            return false;
-
-        auto propIt = m_properties.find(propId);
-        if (propIt == m_properties.end())
-            return false;
-
-        const QMetaProperty property = m_mo->property(id);
-        const QVariant value = QVariant::fromMetaType(property.metaType(), arg);
-        dispatch.writeProperty(propIt->second.m_userId, value);
-
-        return true;
+        const auto index = builder.index();
+        m_data->addProperty(index, name, propId, metaType);
     }
 
     static QByteArray generateFuncSignature(const QByteArray& name, const QSpan<const QMetaType>& argMetaTypes)
     {
-        QString paramStr;
+        QByteArray paramStr;
         for (const auto& type : argMetaTypes)
         {
             if (!type.isValid())
@@ -299,53 +148,13 @@ private:
             paramStr += type.name();
         }
 
-        QString sign = name + '(' + paramStr + ')';
-        return QMetaObject::normalizedSignature(sign.toStdString().c_str());
+        QByteArray sign = name + '(' + paramStr + ')';
+        return QMetaObject::normalizedSignature(sign.constData());
     }
-
-    QMetaMethod getMetaMethod(int id) const
-    {
-        if (!m_mo)
-            qFatal() << __func__ << "() called before endMetaRegistration()";
-
-        const int methodOffset = m_mo->methodOffset();
-        const QMetaMethod method = m_mo->method(id + methodOffset);
-        return method;
-    }
-
-    std::optional<int> getSignalIndexByName(const QByteArray& name) const
-    {
-        for (const auto& [idx, signalInfo] : m_signals)
-        {
-            if (signalInfo.m_name == name)
-                return idx;
-        }
-        return std::nullopt;
-    }
-
-private:
-    struct PropertyInfo
-    {
-        uint32_t m_userId;
-        QMetaType m_type;
-    };
-
-    struct SignalInfo
-    {
-        QByteArray m_name;
-    };
-
-    struct SlotInfo
-    {
-        uint32_t m_userId;
-    };
 
 private:
     std::unique_ptr<QMetaObjectBuilder> m_mob;
-    std::unique_ptr<QMetaObject, QScopedPointerPodDeleter> m_mo;
-    std::map<PropertyId, PropertyInfo> m_properties;
-    std::map<SignalId, SignalInfo> m_signals;
-    std::map<SlotId, SlotInfo> m_slots;
+    std::unique_ptr<DynamicMetaObjectData> m_data;
 };
 
 
@@ -355,7 +164,7 @@ DynamicMetaObjectBuilder::DynamicMetaObjectBuilder(const QMetaObject* staticMeta
 
 void DynamicMetaObjectBuilder::setToQObject(QObject& dst) const
 {
-    QObjectPrivate::get(&dst)->metaObject = m_impl.get();
+    m_impl->setToQObject(dst);
 }
 
 const QMetaObject* DynamicMetaObjectBuilder::getDynamicQMetaObject() const
