@@ -54,8 +54,8 @@ fn test_structs_have_same_meta_object() {
 #[test]
 fn test_structs_have_unique_dynamic_meta_object() {
     use qtbridge::qtbridge_runtime::QMetaInfo;
-    let a = <trivial1::Backend1 as QMetaInfo>::get_shared_dynamic_meta_object();
-    let b = <trivial2::Backend2 as QMetaInfo>::get_shared_dynamic_meta_object();
+    let a = <trivial1::Backend1 as QMetaInfo>::get_shared_dynamic_meta_object_data();
+    let b = <trivial2::Backend2 as QMetaInfo>::get_shared_dynamic_meta_object_data();
     assert!(!::core::ptr::eq(a, b), "Dynamic meta objects are not unique for 2 different types");
 }
 

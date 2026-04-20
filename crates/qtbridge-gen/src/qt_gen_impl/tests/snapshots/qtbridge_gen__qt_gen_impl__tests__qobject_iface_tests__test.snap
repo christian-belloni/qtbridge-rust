@@ -28,13 +28,13 @@ mod some_module {
         fn get_static_meta_object() -> &'static qtbridge::qtbridge_type_lib::QMetaObject {
             <Self as qtbridge::qtbridge_runtime::QObjectHolder>::get_static_meta_object()
         }
-        fn get_shared_dynamic_meta_object(
-        ) -> &'static qtbridge::qtbridge_runtime::DynamicMetaObjectBuilder {
+        fn get_shared_dynamic_meta_object_data(
+        ) -> &'static qtbridge::qtbridge_runtime::DynamicMetaObjectData {
             use std::sync::OnceLock;
-            thread_local! { static DYNAMIC_META_OBJECT : OnceLock < & 'static qtbridge :: qtbridge_runtime :: DynamicMetaObjectBuilder > = OnceLock :: new () ; }
+            thread_local! { static DYNAMIC_META_OBJECT : OnceLock < & 'static qtbridge :: qtbridge_runtime :: DynamicMetaObjectData > = OnceLock :: new () ; }
             DYNAMIC_META_OBJECT.with(|cell| {
                 *cell.get_or_init(|| {
-                    let ptr = Self::create_dynamic_meta_object_builder_for_type();
+                    let ptr = Self::create_dynamic_meta_object_data_for_type();
                     unsafe { ptr.as_ref() }.unwrap()
                 })
             })

@@ -1,10 +1,15 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
+use crate::DynamicMetaObjectData;
+
 #[cxx::bridge]
 pub mod ffi {
 
     unsafe extern "C++" {
+        include!("cpp/dynamicmetaobjectdata.h");
+        type DynamicMetaObjectData = super::DynamicMetaObjectData;
+
         include!("qtbridge-type-lib/src/generated/core/qmetaobject/cpp/qmetaobject.h");
         type QMetaObject = qtbridge_type_lib::QMetaObject;
 
@@ -46,8 +51,11 @@ pub mod ffi {
         #[rust_name = "get_dynamic_qmetaobject"]
         fn getDynamicQMetaObject(self: &Self) -> *const QMetaObject;
 
+        #[rust_name = "take_dynamic_metaobject_data"]
+        fn takeDynamicMetaObjectData(self: Pin<&mut Self>) -> *const DynamicMetaObjectData;
+
         #[rust_name = "create_dynamic_meta_object_builder"]
-        fn createDynamicMetaObjectBuilder(rust_struct_name: &str, static_meta: &QMetaObject) -> *mut DynamicMetaObjectBuilder;
+        fn createDynamicMetaObjectBuilder(rust_struct_name: &str, static_meta: &QMetaObject) -> UniquePtr<DynamicMetaObjectBuilder>;
     }
 }
 

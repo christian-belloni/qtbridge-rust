@@ -1,7 +1,7 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use crate::{DynamicMetaObjectBuilder};
+use crate::{DynamicMetaObjectBuilder, DynamicMetaObjectData};
 use qtbridge_type_lib::QMetaObject;
 use std::any::TypeId;
 use std::cell::RefCell;
@@ -16,25 +16,29 @@ pub trait QMetaInfo : 'static {
 
     fn get_static_meta_object() -> &'static QMetaObject;
 
-    /// Return Dynamic QMetaObject containing information
+    /// Return DynamicMetaObjectData containing information
     /// about signals/slots/properties for given Rust object.
-    fn get_shared_dynamic_meta_object() -> &'static DynamicMetaObjectBuilder;
+    fn get_shared_dynamic_meta_object_data() -> &'static DynamicMetaObjectData;
 
-    fn create_dynamic_meta_object_builder_for_type() -> *const DynamicMetaObjectBuilder {
-        let meta = crate::create_dynamic_meta_object_builder(
+    /// Creates a new `DynamicMetaObjectData` object.
+    ///
+    /// Registers signals/slots/properties for the given Rust type.
+    ///
+    /// Returns a raw pointer to the heap-allocated object.
+    /// Ownership is not managed internally; the caller is responsible for it.
+    fn create_dynamic_meta_object_data_for_type() -> *const DynamicMetaObjectData {
+        let mut builder = crate::create_dynamic_meta_object_builder(
             Self::class_name(),
             Self::get_static_meta_object());
-        let pinned_meta = unsafe {
-            std::pin::Pin::new_unchecked(meta.as_mut().unwrap())
-        };
-        Self::register_meta(pinned_meta);
-        meta
+        Self::register_meta(builder.pin_mut());
+        builder.pin_mut()
+            .take_dynamic_metaobject_data()
     }
 
 }
 
-pub fn dynamic_meta_type_for_generic<T: QMetaInfo + ?Sized>() -> &'static DynamicMetaObjectBuilder {
-    thread_local!(static DYNAMIC_META_MAP: RefCell<HashMap<TypeId, *const DynamicMetaObjectBuilder>> =
+pub fn dynamic_meta_object_data_for_generic<T: QMetaInfo + ?Sized>() -> &'static DynamicMetaObjectData {
+    thread_local!(static DYNAMIC_META_MAP: RefCell<HashMap<TypeId, *const DynamicMetaObjectData>> =
         RefCell::new(HashMap::new()));
 
     let type_id = TypeId::of::<T>();
@@ -49,7 +53,7 @@ pub fn dynamic_meta_type_for_generic<T: QMetaInfo + ?Sized>() -> &'static Dynami
         }
     }
 
-    let meta_data_ptr = T::create_dynamic_meta_object_builder_for_type();
+    let meta_data_ptr = T::create_dynamic_meta_object_data_for_type();
     let meta_data_ref = unsafe { meta_data_ptr.as_ref() }.unwrap();
     DYNAMIC_META_MAP.with_borrow_mut(|dynamic_meta_builder_map| {
         dynamic_meta_builder_map.insert(type_id, meta_data_ptr);

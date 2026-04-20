@@ -15,10 +15,10 @@ pub trait QmlRegister : QMetaTypeGet + QMetaInfo + QObjectHolder + Default
     const IS_SINGLETON: bool;
 
     fn register() {
-        let meta_obj_data = <Self as QMetaInfo>::get_shared_dynamic_meta_object();
+        let meta_obj_data = <Self as QMetaInfo>::get_shared_dynamic_meta_object_data();
         let meta_obj = unsafe {
             meta_obj_data
-                .get_dynamic_qmetaobject()
+                .get_meta_object()
                 .as_ref()
                 .expect("Failed to get QMetaObject")
         };

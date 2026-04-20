@@ -90,6 +90,11 @@ public:
         }
     }
 
+    const DynamicMetaObjectData* takeDynamicMetaObjectData()
+    {
+        return m_data.release();
+    }
+
     void emitSignal(QObject& obj, const QByteArray& name, rust::Slice<const uint8_t* const> argvSlice)
     {
         if (auto index = m_data->getSignalIndex(name))
@@ -162,6 +167,9 @@ DynamicMetaObjectBuilder::DynamicMetaObjectBuilder(const QMetaObject* staticMeta
     : m_impl(std::make_unique<Impl>(staticMetaObj, RustStrToQByteArray(className)))
 {}
 
+DynamicMetaObjectBuilder::~DynamicMetaObjectBuilder()
+{}
+
 void DynamicMetaObjectBuilder::setToQObject(QObject& dst) const
 {
     m_impl->setToQObject(dst);
@@ -170,6 +178,11 @@ void DynamicMetaObjectBuilder::setToQObject(QObject& dst) const
 const QMetaObject* DynamicMetaObjectBuilder::getDynamicQMetaObject() const
 {
     return m_impl->getDynamicQMetaObject();
+}
+
+const DynamicMetaObjectData* DynamicMetaObjectBuilder::takeDynamicMetaObjectData()
+{
+    return m_impl->takeDynamicMetaObjectData();
 }
 
 void DynamicMetaObjectBuilder::addClassInfo(rust::Str name, rust::Str value)
@@ -202,7 +215,7 @@ void DynamicMetaObjectBuilder::emitSignal(QObject& obj, rust::Str name, rust::Sl
     m_impl->emitSignal(obj, RustStrToQByteArray(name), argv);
 }
 
-DynamicMetaObjectBuilder *createDynamicMetaObjectBuilder(rust::Str rustStructName, const QMetaObject& staticMeta)
+std::unique_ptr<DynamicMetaObjectBuilder> createDynamicMetaObjectBuilder(rust::Str rustStructName, const QMetaObject& staticMeta)
 {
-    return new DynamicMetaObjectBuilder(&staticMeta, rustStructName);
+    return std::make_unique<DynamicMetaObjectBuilder>(&staticMeta, rustStructName);
 }

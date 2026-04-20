@@ -36,18 +36,18 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext, origin: &CallOrigin
     let has_generics = !generics.params.is_empty();
     let get_dyn_meta_object_body = if has_generics {
         quote! {
-            #bridge_library::qmetainfo::dynamic_meta_type_for_generic::<Self>()
+            #bridge_library::qmetainfo::dynamic_meta_object_data_for_generic::<Self>()
         }
     } else {
         quote! {
             use std::sync::OnceLock;
             thread_local! {
-                static DYNAMIC_META_OBJECT: OnceLock<&'static #bridge_library::DynamicMetaObjectBuilder> = OnceLock::new();
+                static DYNAMIC_META_OBJECT: OnceLock<&'static #bridge_library::DynamicMetaObjectData> = OnceLock::new();
             }
 
             DYNAMIC_META_OBJECT.with(|cell| {
                 *cell.get_or_init(|| {
-                    let ptr = Self::create_dynamic_meta_object_builder_for_type();
+                    let ptr = Self::create_dynamic_meta_object_data_for_type();
                     unsafe { ptr.as_ref() }.unwrap()
                 })
             })
@@ -71,7 +71,7 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext, origin: &CallOrigin
                 <Self as #bridge_library::QObjectHolder>::get_static_meta_object()
             }
 
-            fn get_shared_dynamic_meta_object() -> &'static #bridge_library::DynamicMetaObjectBuilder {
+            fn get_shared_dynamic_meta_object_data() -> &'static #bridge_library::DynamicMetaObjectData {
                 #get_dyn_meta_object_body
             }
         }

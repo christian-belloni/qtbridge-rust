@@ -8,6 +8,7 @@
 #include <memory>
 #include "rust/cxx.h"
 
+class DynamicMetaObjectData;
 class QMetaType;
 class QObject;
 
@@ -30,6 +31,7 @@ class DynamicMetaObjectBuilder
 {
 public:
     DynamicMetaObjectBuilder(const QMetaObject* staticMetaObj, rust::Str className);
+    ~DynamicMetaObjectBuilder();
 
     void setToQObject(QObject& dst) const;
     const QMetaObject* getDynamicQMetaObject() const;
@@ -40,6 +42,8 @@ public:
     void registerSlot(rust::Str name, uint32_t slotId, rust::Slice<const QMetaType> argMetaTypes, const QMetaType& returnMetaType);
     void endMetaRegistration();
 
+    const DynamicMetaObjectData* takeDynamicMetaObjectData();
+
     void emitSignal(QObject& obj, rust::Str name, rust::Slice<const uint8_t* const> argv) const;
 
 private:
@@ -49,6 +53,6 @@ private:
     std::unique_ptr<Impl> m_impl;
 };
 
-DynamicMetaObjectBuilder *createDynamicMetaObjectBuilder(rust::Str rustStructName, const QMetaObject& staticMeta);
+std::unique_ptr<DynamicMetaObjectBuilder> createDynamicMetaObjectBuilder(rust::Str rustStructName, const QMetaObject& staticMeta);
 
 #endif // #ifndef DYNAMICMETAOBJECTBUILDER_H

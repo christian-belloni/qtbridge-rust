@@ -28,8 +28,8 @@ pub fn interface_for_generic<T: QObjectHolder + 'static>() -> &'static QMetaType
 fn monomorphize_meta_object_fn<T: QObjectHolder>() -> extern "C" fn(*const QMetaTypeInterface) -> *mut QMetaObject {
     extern "C" fn meta_object_fn<T: QObjectHolder>(_iface: *const QMetaTypeInterface) -> *mut QMetaObject {
         let meta_obj_data =
-        <T as QMetaInfo>::get_shared_dynamic_meta_object();
-        meta_obj_data.get_dynamic_qmetaobject().cast_mut()
+        <T as QMetaInfo>::get_shared_dynamic_meta_object_data();
+        meta_obj_data.get_meta_object()
     }
     meta_object_fn::<T>
 }
