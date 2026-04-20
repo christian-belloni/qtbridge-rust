@@ -10,7 +10,6 @@
 
 class DynamicMetaObjectData;
 class QMetaType;
-class QObject;
 
 /**
  * Runtime builder for QMetaObject.
@@ -33,8 +32,6 @@ public:
     DynamicMetaObjectBuilder(const QMetaObject* staticMetaObj, rust::Str className);
     ~DynamicMetaObjectBuilder();
 
-    void setToQObject(QObject& dst) const;
-    const QMetaObject* getDynamicQMetaObject() const;
 
     void addClassInfo(rust::Str name, rust::Str value);
     void registerProperty(rust::Str name, uint32_t propId, const QMetaType& metaType, bool isConstant, rust::Str notifySignal);
@@ -43,8 +40,6 @@ public:
     void endMetaRegistration();
 
     const DynamicMetaObjectData* takeDynamicMetaObjectData();
-
-    void emitSignal(QObject& obj, rust::Str name, rust::Slice<const uint8_t* const> argv) const;
 
 private:
     // Use pimpl idiom not to expose private APIs

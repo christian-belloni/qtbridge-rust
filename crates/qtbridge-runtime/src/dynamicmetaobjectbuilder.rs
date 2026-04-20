@@ -27,9 +27,6 @@ pub mod ffi {
         include!("cpp/dynamicmetaobjectbuilder.h");
         type DynamicMetaObjectBuilder;
 
-        #[rust_name = "set_to_qobject"]
-        fn setToQObject(&self, dst: &mut QObject);
-
         #[rust_name = "add_class_info"]
         fn addClassInfo(self: Pin<&mut Self>, name: &str, value: &str);
 
@@ -44,12 +41,6 @@ pub mod ffi {
 
         #[rust_name = "end_meta_registration"]
         fn endMetaRegistration(self: Pin<&mut Self>);
-
-        #[rust_name = "emit_signal"]
-        fn emitSignal(self: &Self, qobj: &mut QObject, name: &str, argv: &[*const u8]);
-
-        #[rust_name = "get_dynamic_qmetaobject"]
-        fn getDynamicQMetaObject(self: &Self) -> *const QMetaObject;
 
         #[rust_name = "take_dynamic_metaobject_data"]
         fn takeDynamicMetaObjectData(self: Pin<&mut Self>) -> *const DynamicMetaObjectData;

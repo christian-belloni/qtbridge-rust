@@ -2,18 +2,13 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 #include "dynamicmetaobjectbuilder.h"
-#include "dispatchmetacallcpp.h"
 #include "dynamicmetaobjectdata.h"
 #include "rustconv.h"
 #include <QMetaType>
-#include <QObject>
 #include <QScopedPointer>
 #include <QSpan>
 #include <QtLogging>
-#include <QVariant>
-#include <private/qobject_p.h>
 #include <private/qmetaobjectbuilder_p.h>
-#include <map>
 #include <optional>
 
 class DynamicMetaObjectBuilder::Impl
@@ -95,27 +90,6 @@ public:
         return m_data.release();
     }
 
-    void emitSignal(QObject& obj, const QByteArray& name, rust::Slice<const uint8_t* const> argvSlice)
-    {
-        if (auto index = m_data->getSignalIndex(name))
-        {
-            auto argv = reinterpret_cast<void**>(const_cast<uint8_t**>(argvSlice.data()));
-            QMetaObject::activate(&obj, getDynamicQMetaObject(), *index, argv);
-        }
-        else
-            qFatal() << "Failed to find signal " << name << " by name";
-    }
-
-    const QMetaObject* getDynamicQMetaObject()
-    {
-        return m_data->getMetaObject();
-    }
-
-    void setToQObject(QObject& dst) const
-    {
-        QObjectPrivate::get(&dst)->metaObject = m_data.get();
-    }
-
 private:
     void doRegisterProperty(const QByteArray& name, uint32_t propId, const QMetaType& metaType, bool isConstant, std::optional<int> signalIndex)
     {
@@ -170,16 +144,6 @@ DynamicMetaObjectBuilder::DynamicMetaObjectBuilder(const QMetaObject* staticMeta
 DynamicMetaObjectBuilder::~DynamicMetaObjectBuilder()
 {}
 
-void DynamicMetaObjectBuilder::setToQObject(QObject& dst) const
-{
-    m_impl->setToQObject(dst);
-}
-
-const QMetaObject* DynamicMetaObjectBuilder::getDynamicQMetaObject() const
-{
-    return m_impl->getDynamicQMetaObject();
-}
-
 const DynamicMetaObjectData* DynamicMetaObjectBuilder::takeDynamicMetaObjectData()
 {
     return m_impl->takeDynamicMetaObjectData();
@@ -208,11 +172,6 @@ void DynamicMetaObjectBuilder::registerSlot(rust::Str name, uint32_t slotId, rus
 void DynamicMetaObjectBuilder::endMetaRegistration()
 {
     m_impl->endMetaRegistration();
-}
-
-void DynamicMetaObjectBuilder::emitSignal(QObject& obj, rust::Str name, rust::Slice<const uint8_t* const> argv) const
-{
-    m_impl->emitSignal(obj, RustStrToQByteArray(name), argv);
 }
 
 std::unique_ptr<DynamicMetaObjectBuilder> createDynamicMetaObjectBuilder(rust::Str rustStructName, const QMetaObject& staticMeta)
