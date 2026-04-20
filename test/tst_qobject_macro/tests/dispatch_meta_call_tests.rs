@@ -34,14 +34,14 @@ fn invoke_slot_panics_on_invalid_slot_id() {
 
 #[test]
 #[should_panic]
-fn read_property_panics_on_invalid_slot_id() {
+fn read_property_panics_on_invalid_property_id() {
     let obj = TestObject::default_with_attached_qobject();
     obj.borrow().read_property(0);
 }
 
 #[test]
 #[should_panic]
-fn write_property_panics_on_invalid_slot_id() {
+fn write_property_panics_on_invalid_property_id() {
     let obj = TestObject::default_with_attached_qobject();
     obj.borrow_mut().write_property(0, &QVariant::default());
 }

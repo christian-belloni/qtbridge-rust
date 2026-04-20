@@ -58,3 +58,32 @@ fn test() {
     let formatted = format_rust_code(&strip_docs(output)).unwrap();
     assert_snapshot!(formatted);
 }
+
+#[test]
+fn test_dispatch_meta_call() {
+    let input = quote! {
+        impl SomeStruct {
+            qproperty!("this_value", Member = first_value, Notify = "thisValueChanged");
+            qproperty!("otherValue", Member = second_value);
+            qproperty!("thirdValue", Member = third_value);
+
+            #[qslot]
+            fn slot_one(&self) {
+            }
+
+            #[qslot]
+            fn slot_two(&self, arg: &str) {
+            }
+
+            #[qsignal]
+            fn this_value_changed(&self) {
+            }
+        }
+    };
+
+    let output = qobject_impl(input, quote!{}, &CallOrigin::External)
+        .unwrap()
+        .dispatch_meta_call;
+    let formatted = format_rust_code(&strip_docs(output)).unwrap();
+    assert_snapshot!(formatted);
+}
