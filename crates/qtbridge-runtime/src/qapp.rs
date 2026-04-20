@@ -206,22 +206,28 @@ impl QApp {
         self
     }
 
-    /// Register a QML type, making it instantiable from QML.
+    /// Registers a QML type, making it instantiable from QML.
+    ///
+    /// This is a convenience wrapper that calls [`QmlRegister::register`]
+    /// for the given type `T`.
     ///
     /// ```rust
     ///# use qtbridge::{QApp, qobject_impl};
     /// #[derive(Default)]
     /// pub struct Backend {
     /// }
-    /// #[qobject_impl(Singleton)]
+    /// #[qobject_impl]
     /// impl Backend {
     /// }
+    ///
     /// QApp::new()
     ///     .register::<Backend>()
     ///     .load_qml(br#"
     ///         import QtQuick
     ///         import QtQuick.Controls
+    ///#        import qtbridge_runtime
     ///         ApplicationWindow {
+    ///             Backend {}
     ///#            Component.onCompleted: closeTimer.start()
     ///#            Timer {
     ///#                id: closeTimer
