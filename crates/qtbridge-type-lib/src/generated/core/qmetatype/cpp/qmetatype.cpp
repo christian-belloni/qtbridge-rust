@@ -32,6 +32,11 @@ bool inlineCppFn_is_valid(QMetaType const &self)
     return self.isValid();
 }
 
+rust::String inlineCppFn_name(QMetaType const &self)
+{
+    return CStrToRustString(self.name());
+}
+
 void inlineCppFn_register_type(QMetaType const &self)
 {
     self.registerType();
@@ -100,6 +105,11 @@ QMetaType inlineCppFn_TraitImpl_QMetaTypeGet_for_isize_get_qmetatype()
 QMetaType inlineCppFn_TraitImpl_QMetaTypeGet_for_usize_get_qmetatype()
 {
     return QMetaType::fromType<size_t>();
+}
+
+QMetaType inlineCppFn_TraitImpl_QMetaTypeGet_for_ptr_mut_QObject_get_qmetatype()
+{
+    return QMetaType::fromType<QObject *>();
 }
 
 } // namespace rust::bridge::qmetatype

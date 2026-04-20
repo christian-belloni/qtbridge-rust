@@ -1,10 +1,11 @@
 use std::mem::MaybeUninit;
-use crate::{QMetaTypeInterface};
+use crate::{QMetaTypeInterface, QObject};
 
 #[qt_gen::bridge]
 mod qmetatype {
     include_in_cpp!(<QMetaType>);
-    include_in_cpp!(<QStringList>);
+    include_in_cpp!(<QObject>);
+    include_in_cpp!("rustconv.h");
 
     #[doc(hidden)]
     pub enum QMetaTypeFlag {
@@ -28,6 +29,7 @@ mod qmetatype {
     }
 
     #[derive_cpp(Default)]
+    #[derive(Debug)]
     /// The QMetaType struct manages named types in the meta-object system.
     ///
     /// See also: [QMetaType documentation](https://doc.qt.io/qt-6/qmetatype.html).
@@ -64,6 +66,14 @@ mod qmetatype {
         })(self)
     }
 
+    /// Returns the type name associated with this QMetaType, or an empty string if type is not valid.
+    pub fn name(&self) -> String {
+        let cpp = cpp_fn!(|&self| -> String {
+            return CStrToRustString(self.name());
+        });
+        cpp(self)
+    }
+
     /// Registers this QMetaType with the type registry so it can be found by name, using QMetaType::fromName().
     pub fn register_type(&self) {
         cpp_fn!(|&self| {
@@ -71,7 +81,7 @@ mod qmetatype {
         })(self)
     }
 
-    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, f32, f64, isize, usize]]
+    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, f32, f64, isize, usize, *mut QObject]]
     impl<T> QMetaTypeGet for T {
         fn get_qmetatype() -> QMetaType {
             cpp_fn!(|| -> QMetaType {

@@ -8,6 +8,7 @@
 
 #include <QObject>
 #include <cstdint>
+#include "qtbridge-type-lib/src/generated/core/qmetaobject/cpp/qmetaobject.h"
 #include "qtbridge-type-lib/src/generated/core/qvariant/cpp/qvariant.h"
 #include "rust/cxx.h"
 
@@ -16,6 +17,8 @@ namespace rust::bridge::qobject {
 void inlineCppFn_delete(QObject *obj);
 
 void inlineCppFn_destruct(QObject *obj);
+
+QMetaObject const *inlineCppFn_get_qmeta_object(QObject const &self);
 
 QVariant inlineCppFn_property(QObject const &self, rust::Slice<const uint8_t> name);
 

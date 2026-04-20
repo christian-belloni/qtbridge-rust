@@ -116,15 +116,6 @@ mod qvariant {
         }
     }
 
-    impl From<*mut QObject> for QVariant {
-        fn from(value: *mut QObject) -> Self {
-            let conv_fn = cpp_fn!(|from: *mut QObject| -> Self {
-                return QVariant::fromValue(from);
-            });
-            unsafe { conv_fn(value) }
-        }
-    }
-
     impl TryFrom<&QVariant> for () {
         type Error = ();
         fn try_from(value: &QVariant) -> Result<Self, Self::Error> {
@@ -178,7 +169,7 @@ mod qvariant {
     }
 
     // TODO: consider reusing QMetaType for conversions instead of this
-    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, isize, usize, f32, f64]]
+    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, isize, usize, f32, f64, *mut QObject]]
     impl<T> From<&T> for QVariant {
         fn from(value: &T) -> Self {
             cpp_fn!(|value: &T| -> Self {
@@ -187,7 +178,7 @@ mod qvariant {
         }
     }
 
-    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, f32, f64, isize, usize, String, Vec<String>]]
+    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, f32, f64, isize, usize, String, Vec<String>, *mut QObject]]
     impl<T> From<T> for QVariant {
         fn from(value: T) -> Self {
             QVariant::from(&value)
@@ -221,7 +212,7 @@ mod qvariant {
         }
     }
 
-    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, isize, usize, f32, f64]]
+    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, isize, usize, f32, f64, *mut QObject]]
     impl<T> TryFrom<&QVariant> for T {
         type Error = ();
 
@@ -234,7 +225,7 @@ mod qvariant {
                 return true;
             });
 
-            let mut x = T::default();
+            let mut x = <T>::default();
             match convert_fn(value, &mut x) {
                 true => Ok(x),
                 false => Err(()),
@@ -264,7 +255,7 @@ mod qvariant {
         }
     }
 
-    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, isize, usize, f32, f64, String]]
+    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, isize, usize, f32, f64, String, *mut QObject]]
     impl<T> TryFrom<QVariant> for T {
         type Error = ();
         fn try_from(value: QVariant) -> Result<Self, ()> {

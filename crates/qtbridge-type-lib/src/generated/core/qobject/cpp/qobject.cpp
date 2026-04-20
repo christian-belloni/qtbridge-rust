@@ -17,6 +17,11 @@ void inlineCppFn_destruct(QObject *obj)
     obj->~QObject();
 }
 
+QMetaObject const *inlineCppFn_get_qmeta_object(QObject const &self)
+{
+    return self.metaObject();
+}
+
 QVariant inlineCppFn_property(QObject const &self, rust::Slice<const uint8_t> name)
 {
     return self.property(reinterpret_cast<const char *>(name.data()));

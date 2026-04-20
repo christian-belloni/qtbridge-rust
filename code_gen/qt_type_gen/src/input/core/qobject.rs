@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use std::mem::MaybeUninit;
-use crate::QVariant;
+use crate::{QMetaObject, QVariant};
 
 #[qt_gen::bridge]
 mod qobject {
@@ -29,6 +29,14 @@ mod qobject {
             obj->~QObject();
         });
         unsafe { cpp(obj) }
+    }
+
+    /// Returns a pointer to the meta-object of this object.
+    pub fn get_qmeta_object(&self) -> *const QMetaObject {
+        let cpp = cpp_fn!(|&self| -> *const QMetaObject {
+            return self.metaObject();
+        });
+        unsafe { cpp(self) }
     }
 
     /// Returns a [QVariant][crate::QVariant] containing the value of the object's property with the given name.

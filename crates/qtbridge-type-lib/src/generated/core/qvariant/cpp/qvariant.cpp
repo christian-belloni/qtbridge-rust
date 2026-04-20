@@ -54,11 +54,6 @@ inlineCppFn_TraitImpl_From_ref_Vec_String_for_QVariant_from(rust::Vec<rust::Stri
     return QVariant(std::move(sl));
 }
 
-QVariant inlineCppFn_TraitImpl_From_ptr_mut_QObject_for_QVariant_from(QObject *from)
-{
-    return QVariant::fromValue(from);
-}
-
 bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_String_try_from(QVariant const &from,
                                                                     rust::String &result)
 {
@@ -140,6 +135,11 @@ QVariant inlineCppFn_TraitImpl_From_ref_f32_for_QVariant_from(float const &value
 }
 
 QVariant inlineCppFn_TraitImpl_From_ref_f64_for_QVariant_from(double const &value)
+{
+    return QVariant::fromValue(value);
+}
+
+QVariant inlineCppFn_TraitImpl_From_ref_ptr_mut_QObject_for_QVariant_from(QObject *const &value)
 {
     return QVariant::fromValue(value);
 }
@@ -347,6 +347,15 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_f64_try_from(QVariant const 
     if (!from.canConvert<double>())
         return false;
     result = from.value<double>();
+    return true;
+}
+
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_ptr_mut_QObject_try_from(QVariant const &from,
+                                                                             QObject *&result)
+{
+    if (!from.canConvert<QObject *>())
+        return false;
+    result = from.value<QObject *>();
     return true;
 }
 

@@ -48,6 +48,11 @@ inline rust::String QStringToRustString(const QString& src)
     return QByteArrayToRustString(src.toUtf8());
 }
 
+inline rust::String CStrToRustString(const char* src)
+{
+    return QStringToRustString(QString::fromLocal8Bit(src));
+}
+
 inline QStringList RustStringListToQStringList(const rust::Vec<rust::String>& sl)
 {
     QStringList result;

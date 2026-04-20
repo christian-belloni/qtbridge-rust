@@ -7,9 +7,12 @@
 #define _QMETAOBJECT_RUST_BRIDGE_H_
 
 #include <QMetaObject>
+#include "qtbridge-type-lib/src/generated/core/qmetatype/cpp/qmetatype.h"
 #include "rust/cxx.h"
 
 namespace rust::bridge::qmetaobject {
+
+QMetaType inlineCppFn_meta_type(QMetaObject const &self);
 
 } // namespace rust::bridge::qmetaobject
 

@@ -64,8 +64,6 @@ mod ffi {
         fn inlineCppFn_TraitImpl_From_string_slice_for_QVariant_from(from: &str) -> QVariant;
         # [rust_name = inline_cpp_fn_trait_impl_from_ref_vec_string_for_qvariant_from]
         fn inlineCppFn_TraitImpl_From_ref_Vec_String_for_QVariant_from(from: &Vec<String>) -> QVariant;
-        # [rust_name = inline_cpp_fn_trait_impl_from_ptr_mut_qobject_for_qvariant_from]
-        unsafe fn inlineCppFn_TraitImpl_From_ptr_mut_QObject_for_QVariant_from(from: *mut QObject) -> QVariant;
         # [rust_name = inline_cpp_fn_trait_impl_try_from_ref_qvariant_for_string_try_from]
         fn inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_String_try_from(from: &QVariant, result: &mut String) -> bool;
         # [rust_name = inline_cpp_fn_trait_impl_try_from_ref_qvariant_for_vec_string_try_from]
@@ -96,6 +94,8 @@ mod ffi {
         fn inlineCppFn_TraitImpl_From_ref_f32_for_QVariant_from(value: &f32) -> QVariant;
         # [rust_name = inline_cpp_fn_trait_impl_from_ref_f64_for_qvariant_from]
         fn inlineCppFn_TraitImpl_From_ref_f64_for_QVariant_from(value: &f64) -> QVariant;
+        # [rust_name = inline_cpp_fn_trait_impl_from_ref_ptr_mut_qobject_for_qvariant_from]
+        fn inlineCppFn_TraitImpl_From_ref_ptr_mut_QObject_for_QVariant_from(value: &*mut QObject) -> QVariant;
         # [rust_name = inline_cpp_fn_trait_impl_from_ref_vec_bool_for_qvariant_from]
         fn inlineCppFn_TraitImpl_From_ref_Vec_bool_for_QVariant_from(value: &Vec<bool>) -> QVariant;
         # [rust_name = inline_cpp_fn_trait_impl_from_ref_vec_i8_for_qvariant_from]
@@ -152,6 +152,8 @@ mod ffi {
         fn inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_f32_try_from(from: &QVariant, result: &mut f32) -> bool;
         # [rust_name = inline_cpp_fn_trait_impl_try_from_ref_qvariant_for_f64_try_from]
         fn inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_f64_try_from(from: &QVariant, result: &mut f64) -> bool;
+        # [rust_name = inline_cpp_fn_trait_impl_try_from_ref_qvariant_for_ptr_mut_qobject_try_from]
+        fn inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_ptr_mut_QObject_try_from(from: &QVariant, result: &mut *mut QObject) -> bool;
         # [rust_name = inline_cpp_fn_trait_impl_try_from_ref_qvariant_for_vec_bool_try_from]
         fn inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_bool_try_from(from: &QVariant, result: &mut QList_bool) -> bool;
         # [rust_name = inline_cpp_fn_trait_impl_try_from_ref_qvariant_for_vec_i8_try_from]
@@ -259,12 +261,6 @@ impl From<&Vec<String>> for QVariant {
         conv_fn(value)
     }
 }
-impl From<*mut QObject> for QVariant {
-    fn from(value: *mut QObject) -> Self {
-        let conv_fn = ffi::inline_cpp_fn_trait_impl_from_ptr_mut_qobject_for_qvariant_from;
-        unsafe { conv_fn(value) }
-    }
-}
 impl TryFrom<&QVariant> for () {
     type Error = ();
     fn try_from(value: &QVariant) -> Result<Self, Self::Error> {
@@ -361,6 +357,11 @@ impl From<&f64> for QVariant {
         ffi::inline_cpp_fn_trait_impl_from_ref_f64_for_qvariant_from(value)
     }
 }
+impl From<&*mut QObject> for QVariant {
+    fn from(value: &*mut QObject) -> Self {
+        ffi::inline_cpp_fn_trait_impl_from_ref_ptr_mut_qobject_for_qvariant_from(value)
+    }
+}
 impl From<bool> for QVariant {
     fn from(value: bool) -> Self {
         QVariant::from(&value)
@@ -433,6 +434,11 @@ impl From<String> for QVariant {
 }
 impl From<Vec<String>> for QVariant {
     fn from(value: Vec<String>) -> Self {
+        QVariant::from(&value)
+    }
+}
+impl From<*mut QObject> for QVariant {
+    fn from(value: *mut QObject) -> Self {
         QVariant::from(&value)
     }
 }
@@ -592,7 +598,7 @@ impl TryFrom<&QVariant> for bool {
     type Error = ();
     fn try_from(value: &QVariant) -> Result<Self, ()> {
         let convert_fn = ffi::inline_cpp_fn_trait_impl_try_from_ref_qvariant_for_bool_try_from;
-        let mut x = bool::default();
+        let mut x = <bool>::default();
         match convert_fn(value, &mut x) {
             true => Ok(x),
             false => Err(()),
@@ -603,7 +609,7 @@ impl TryFrom<&QVariant> for i8 {
     type Error = ();
     fn try_from(value: &QVariant) -> Result<Self, ()> {
         let convert_fn = ffi::inline_cpp_fn_trait_impl_try_from_ref_qvariant_for_i8_try_from;
-        let mut x = i8::default();
+        let mut x = <i8>::default();
         match convert_fn(value, &mut x) {
             true => Ok(x),
             false => Err(()),
@@ -614,7 +620,7 @@ impl TryFrom<&QVariant> for u8 {
     type Error = ();
     fn try_from(value: &QVariant) -> Result<Self, ()> {
         let convert_fn = ffi::inline_cpp_fn_trait_impl_try_from_ref_qvariant_for_u8_try_from;
-        let mut x = u8::default();
+        let mut x = <u8>::default();
         match convert_fn(value, &mut x) {
             true => Ok(x),
             false => Err(()),
@@ -625,7 +631,7 @@ impl TryFrom<&QVariant> for i16 {
     type Error = ();
     fn try_from(value: &QVariant) -> Result<Self, ()> {
         let convert_fn = ffi::inline_cpp_fn_trait_impl_try_from_ref_qvariant_for_i16_try_from;
-        let mut x = i16::default();
+        let mut x = <i16>::default();
         match convert_fn(value, &mut x) {
             true => Ok(x),
             false => Err(()),
@@ -636,7 +642,7 @@ impl TryFrom<&QVariant> for u16 {
     type Error = ();
     fn try_from(value: &QVariant) -> Result<Self, ()> {
         let convert_fn = ffi::inline_cpp_fn_trait_impl_try_from_ref_qvariant_for_u16_try_from;
-        let mut x = u16::default();
+        let mut x = <u16>::default();
         match convert_fn(value, &mut x) {
             true => Ok(x),
             false => Err(()),
@@ -647,7 +653,7 @@ impl TryFrom<&QVariant> for i32 {
     type Error = ();
     fn try_from(value: &QVariant) -> Result<Self, ()> {
         let convert_fn = ffi::inline_cpp_fn_trait_impl_try_from_ref_qvariant_for_i32_try_from;
-        let mut x = i32::default();
+        let mut x = <i32>::default();
         match convert_fn(value, &mut x) {
             true => Ok(x),
             false => Err(()),
@@ -658,7 +664,7 @@ impl TryFrom<&QVariant> for u32 {
     type Error = ();
     fn try_from(value: &QVariant) -> Result<Self, ()> {
         let convert_fn = ffi::inline_cpp_fn_trait_impl_try_from_ref_qvariant_for_u32_try_from;
-        let mut x = u32::default();
+        let mut x = <u32>::default();
         match convert_fn(value, &mut x) {
             true => Ok(x),
             false => Err(()),
@@ -669,7 +675,7 @@ impl TryFrom<&QVariant> for i64 {
     type Error = ();
     fn try_from(value: &QVariant) -> Result<Self, ()> {
         let convert_fn = ffi::inline_cpp_fn_trait_impl_try_from_ref_qvariant_for_i64_try_from;
-        let mut x = i64::default();
+        let mut x = <i64>::default();
         match convert_fn(value, &mut x) {
             true => Ok(x),
             false => Err(()),
@@ -680,7 +686,7 @@ impl TryFrom<&QVariant> for u64 {
     type Error = ();
     fn try_from(value: &QVariant) -> Result<Self, ()> {
         let convert_fn = ffi::inline_cpp_fn_trait_impl_try_from_ref_qvariant_for_u64_try_from;
-        let mut x = u64::default();
+        let mut x = <u64>::default();
         match convert_fn(value, &mut x) {
             true => Ok(x),
             false => Err(()),
@@ -691,7 +697,7 @@ impl TryFrom<&QVariant> for isize {
     type Error = ();
     fn try_from(value: &QVariant) -> Result<Self, ()> {
         let convert_fn = ffi::inline_cpp_fn_trait_impl_try_from_ref_qvariant_for_isize_try_from;
-        let mut x = isize::default();
+        let mut x = <isize>::default();
         match convert_fn(value, &mut x) {
             true => Ok(x),
             false => Err(()),
@@ -702,7 +708,7 @@ impl TryFrom<&QVariant> for usize {
     type Error = ();
     fn try_from(value: &QVariant) -> Result<Self, ()> {
         let convert_fn = ffi::inline_cpp_fn_trait_impl_try_from_ref_qvariant_for_usize_try_from;
-        let mut x = usize::default();
+        let mut x = <usize>::default();
         match convert_fn(value, &mut x) {
             true => Ok(x),
             false => Err(()),
@@ -713,7 +719,7 @@ impl TryFrom<&QVariant> for f32 {
     type Error = ();
     fn try_from(value: &QVariant) -> Result<Self, ()> {
         let convert_fn = ffi::inline_cpp_fn_trait_impl_try_from_ref_qvariant_for_f32_try_from;
-        let mut x = f32::default();
+        let mut x = <f32>::default();
         match convert_fn(value, &mut x) {
             true => Ok(x),
             false => Err(()),
@@ -724,7 +730,18 @@ impl TryFrom<&QVariant> for f64 {
     type Error = ();
     fn try_from(value: &QVariant) -> Result<Self, ()> {
         let convert_fn = ffi::inline_cpp_fn_trait_impl_try_from_ref_qvariant_for_f64_try_from;
-        let mut x = f64::default();
+        let mut x = <f64>::default();
+        match convert_fn(value, &mut x) {
+            true => Ok(x),
+            false => Err(()),
+        }
+    }
+}
+impl TryFrom<&QVariant> for *mut QObject {
+    type Error = ();
+    fn try_from(value: &QVariant) -> Result<Self, ()> {
+        let convert_fn = ffi::inline_cpp_fn_trait_impl_try_from_ref_qvariant_for_ptr_mut_qobject_try_from;
+        let mut x = <*mut QObject>::default();
         match convert_fn(value, &mut x) {
             true => Ok(x),
             false => Err(()),
@@ -953,6 +970,12 @@ impl TryFrom<QVariant> for f64 {
     }
 }
 impl TryFrom<QVariant> for String {
+    type Error = ();
+    fn try_from(value: QVariant) -> Result<Self, ()> {
+        Self::try_from(&value)
+    }
+}
+impl TryFrom<QVariant> for *mut QObject {
     type Error = ();
     fn try_from(value: QVariant) -> Result<Self, ()> {
         Self::try_from(&value)

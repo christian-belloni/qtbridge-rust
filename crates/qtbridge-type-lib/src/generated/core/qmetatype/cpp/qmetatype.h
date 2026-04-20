@@ -7,10 +7,12 @@
 #define _QMETATYPE_RUST_BRIDGE_H_
 
 #include <QMetaType>
-#include <QStringList>
+#include <QObject>
 #include <cstdint>
 #include "qtbridge-type-lib/src/generated/core/qmetatypeinterface/cpp/qmetatypeinterface.h"
+#include "qtbridge-type-lib/src/generated/core/qobject/cpp/qobject.h"
 #include "rust/cxx.h"
+#include "rustconv.h"
 
 namespace rust::bridge::qmetatype {
 
@@ -23,6 +25,8 @@ QMetaType inlineCppFn_new_with_interface(::QtPrivate::QMetaTypeInterface const *
 int32_t inlineCppFn_id(QMetaType const &self);
 
 bool inlineCppFn_is_valid(QMetaType const &self);
+
+rust::String inlineCppFn_name(QMetaType const &self);
 
 void inlineCppFn_register_type(QMetaType const &self);
 
@@ -51,6 +55,8 @@ QMetaType inlineCppFn_TraitImpl_QMetaTypeGet_for_f64_get_qmetatype();
 QMetaType inlineCppFn_TraitImpl_QMetaTypeGet_for_isize_get_qmetatype();
 
 QMetaType inlineCppFn_TraitImpl_QMetaTypeGet_for_usize_get_qmetatype();
+
+QMetaType inlineCppFn_TraitImpl_QMetaTypeGet_for_ptr_mut_QObject_get_qmetatype();
 
 } // namespace rust::bridge::qmetatype
 

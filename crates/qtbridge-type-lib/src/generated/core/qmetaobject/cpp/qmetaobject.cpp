@@ -7,4 +7,9 @@
 
 namespace rust::bridge::qmetaobject {
 
+QMetaType inlineCppFn_meta_type(QMetaObject const &self)
+{
+    return self.metaType();
+}
+
 } // namespace rust::bridge::qmetaobject
