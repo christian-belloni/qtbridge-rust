@@ -6,6 +6,12 @@ use crate::DynamicMetaObjectData;
 #[cxx::bridge]
 pub mod ffi {
 
+    #[repr(i8)]
+    enum Mutability {
+        Immutable,
+        Mutable,
+    }
+
     unsafe extern "C++" {
         include!("cpp/dynamicmetaobjectdata.h");
         type DynamicMetaObjectData = super::DynamicMetaObjectData;
@@ -21,6 +27,9 @@ pub mod ffi {
 
         include!("qtbridge-type-lib/src/generated/core/qvariant/cpp/qvariant.h");
         type QVariant = qtbridge_type_lib::QVariant;
+
+        include!("cpp/dynamicmetaobjectdata.h");
+        type Mutability;
     }
 
     unsafe extern "C++" {
@@ -37,7 +46,7 @@ pub mod ffi {
         fn registerSignal(self: Pin<&mut Self>, name: &str, arg_meta_types: &[QMetaType]);
 
         #[rust_name = "register_slot"]
-        fn registerSlot(self: Pin<&mut Self>, name: &str, slot_id: u32, arg_meta_types: &[QMetaType], return_meta_type: &QMetaType, is_mutable: bool);
+        fn registerSlot(self: Pin<&mut Self>, name: &str, slot_id: u32, arg_meta_types: &[QMetaType], return_meta_type: &QMetaType, mutability: Mutability);
 
         #[rust_name = "end_meta_registration"]
         fn endMetaRegistration(self: Pin<&mut Self>);
@@ -52,5 +61,5 @@ pub mod ffi {
 
 //unsafe impl Sync for crate::DynamicMetaObjectBuilder {}
 
-pub use ffi::{DynamicMetaObjectBuilder, create_dynamic_meta_object_builder};
+pub use ffi::{DynamicMetaObjectBuilder, Mutability, create_dynamic_meta_object_builder};
 

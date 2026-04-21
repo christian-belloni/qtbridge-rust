@@ -7,8 +7,8 @@
 #include <cstdint>
 #include <memory>
 #include "rust/cxx.h"
+#include "dynamicmetaobjectdata.h"
 
-class DynamicMetaObjectData;
 class QMetaObjectBuilder;
 class QMetaType;
 
@@ -36,7 +36,7 @@ public:
     void addClassInfo(rust::Str name, rust::Str value);
     void registerProperty(rust::Str name, uint32_t propId, const QMetaType& metaType, bool isConstant, rust::Str notifySignal);
     void registerSignal(rust::Str name, rust::Slice<const QMetaType> argMetaTypes);
-    void registerSlot(rust::Str name, uint32_t slotId, rust::Slice<const QMetaType> argMetaTypes, const QMetaType& returnMetaType, bool isMutable);
+    void registerSlot(rust::Str name, uint32_t slotId, rust::Slice<const QMetaType> argMetaTypes, const QMetaType& returnMetaType, Mutability mutability);
     void endMetaRegistration();
 
     const DynamicMetaObjectData* takeDynamicMetaObjectData();

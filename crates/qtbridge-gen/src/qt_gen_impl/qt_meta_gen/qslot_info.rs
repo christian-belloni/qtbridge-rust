@@ -107,7 +107,10 @@ impl QSlotInfo {
             .map(|ty| quote!{ &#ty::get_qmetatype() })
             .unwrap_or_else(|| quote! { &QMetaType::default()} );
 
-        let is_mut = self.is_mut();
+        let mutability = match self.is_mut() {
+            true => quote! { Mutable },
+            false => quote! { Immutable },
+        };
 
         let register_slot = quote! {
             meta_obj.as_mut().register_slot(
@@ -115,7 +118,7 @@ impl QSlotInfo {
                 #id,
                 &[#(#input_meta_types::get_qmetatype()),*],
                 #result_meta_type,
-                #is_mut);
+                qtbridge::qtbridge_runtime::dynamicmetaobjectbuilder::Mutability::#mutability);
         };
 
         Ok(register_slot)

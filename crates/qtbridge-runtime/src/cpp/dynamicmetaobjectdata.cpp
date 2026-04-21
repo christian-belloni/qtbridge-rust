@@ -20,9 +20,9 @@ void DynamicMetaObjectData::addSignal(int index, const QByteArray& name)
         qFatal() << "Failed to register signal " << name << ". Given index is already in use.";
 }
 
-void DynamicMetaObjectData::addSlot(int index, const QByteArray& name, uint32_t userId, bool is_mutable)
+void DynamicMetaObjectData::addSlot(int index, const QByteArray& name, uint32_t userId, Mutability mutability)
 {
-    auto [_, added] = m_slots.emplace(index, SlotInfo{ userId, is_mutable });
+    auto [_, added] = m_slots.emplace(index, SlotInfo{ userId, mutability });
     if (!added)
         qFatal() << "Failed to register slot " << name << ". Given index is already in use.";
 }
@@ -147,7 +147,7 @@ bool DynamicMetaObjectData::handleMetaCallInvoke(QObject* o, DispatchMetaCallCpp
                 rust::Slice<uint8_t* const>(u8Argv, 1) :
                 rust::Slice<uint8_t* const>();
             const uint32_t userId = slotIt->second.m_userId;
-            slotIt->second.m_isMutable ?
+            slotIt->second.m_mutability == Mutability::Mutable ?
                 dispatch.invokeSlotMut(userId, inputsSlice, outputSlice) :
                 dispatch.invokeSlot(userId, inputsSlice, outputSlice);
             return true;

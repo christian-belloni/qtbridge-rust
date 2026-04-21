@@ -16,6 +16,11 @@
 
 class DispatchMetaCallCpp;
 
+enum class Mutability: int8_t {
+    Immutable = 0,
+    Mutable = 1,
+};
+
 /**
  * Class that stores dynamic `QMetaObject` built by `DynamicMetaObjectBuilder`.
  *
@@ -29,7 +34,7 @@ public:
 
     void addProperty(int index, const QByteArray& name, uint32_t userId, const QMetaType& metaType);
     void addSignal(int index, const QByteArray& name);
-    void addSlot(int index, const QByteArray& name, uint32_t userId, bool is_mutable);
+    void addSlot(int index, const QByteArray& name, uint32_t userId, Mutability mutability);
 
     void emitSignal(QObject& obj, rust::Str name, rust::Slice<const uint8_t* const> argvSlice) const;
 
@@ -64,8 +69,11 @@ private:
 
     struct SlotInfo
     {
+        // Id of the slot handler on the Rust side (used corresponding match operator arm).
         uint32_t m_userId;
-        bool m_isMutable;
+
+        // Indicates whether the Rust-side slot method takes `&self` or `&mut self`.
+        Mutability m_mutability;
     };
 
 private:
