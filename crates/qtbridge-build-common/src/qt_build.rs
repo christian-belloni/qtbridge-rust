@@ -94,8 +94,18 @@ pub fn qt_libs_dir() -> String {
 }
 
 pub fn link_qt_modules(modules: impl IntoIterator<Item: Display>) {
-
     let qt_libs_dir = qt_libs_dir();
+
+    // Qt is usually installed as frameworks on macOS. Check if this is the case by
+    // looking for QtCore.framework. If it doesn't exist, fall back to using plain
+    // libraries as with the other platforms
+    if cfg!(target_os = "macos") && PathBuf::from(&qt_libs_dir).join("QtCore.framework").exists() {
+        println!("cargo::rustc-link-search=framework={qt_libs_dir}");
+        modules.into_iter()
+            .for_each(|module| println!("cargo::rustc-link-lib=framework=Qt{module}"));
+        return;
+    }
+
     println!("cargo::rustc-link-search={qt_libs_dir}");
 
     modules.into_iter()
