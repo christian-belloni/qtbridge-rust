@@ -9,6 +9,7 @@
 #include "rust/cxx.h"
 
 class DynamicMetaObjectData;
+class QMetaObjectBuilder;
 class QMetaType;
 
 /**
@@ -32,7 +33,6 @@ public:
     DynamicMetaObjectBuilder(const QMetaObject* staticMetaObj, rust::Str className);
     ~DynamicMetaObjectBuilder();
 
-
     void addClassInfo(rust::Str name, rust::Str value);
     void registerProperty(rust::Str name, uint32_t propId, const QMetaType& metaType, bool isConstant, rust::Str notifySignal);
     void registerSignal(rust::Str name, rust::Slice<const QMetaType> argMetaTypes);
@@ -42,10 +42,8 @@ public:
     const DynamicMetaObjectData* takeDynamicMetaObjectData();
 
 private:
-    // Use pimpl idiom not to expose private APIs
-    // and hide implementation details
-    class Impl;
-    std::unique_ptr<Impl> m_impl;
+    std::unique_ptr<QMetaObjectBuilder> m_mob;
+    std::unique_ptr<DynamicMetaObjectData> m_data;
 };
 
 std::unique_ptr<DynamicMetaObjectBuilder> createDynamicMetaObjectBuilder(rust::Str rustStructName, const QMetaObject& staticMeta);

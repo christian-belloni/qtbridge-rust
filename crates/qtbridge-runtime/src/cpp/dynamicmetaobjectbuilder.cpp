@@ -11,110 +11,9 @@
 #include <private/qmetaobjectbuilder_p.h>
 #include <optional>
 
-class DynamicMetaObjectBuilder::Impl
+namespace
 {
-public:
-    Impl(const QMetaObject* staticMetaObj, const QByteArray& className)
-        : m_mob(std::make_unique<QMetaObjectBuilder>())
-        , m_data(std::make_unique<DynamicMetaObjectData>())
-    {
-        m_mob->setSuperClass(staticMetaObj); // TODO: check without this
-        m_mob->setClassName(className.isEmpty() ? QByteArray(staticMetaObj->className()) : className);
-    }
-
-    void addClassInfo(const QByteArray& name, const QByteArray& value) {
-        m_mob->addClassInfo(name, value);
-    }
-
-    // TODO: assume that
-    //      notifySignal = name + "Changed"; ?
-    void registerProperty(const QByteArray& name, uint32_t propId, const QMetaType& metaType, bool isConstant, const QByteArray& notifySignal)
-    {
-        std::optional<int> signal;
-        if (!notifySignal.isEmpty())
-        {
-            signal = m_data->getSignalIndex(notifySignal);
-            if (!signal)
-                qFatal() << "Failed to find a signal by name: " << notifySignal;
-        }
-
-        doRegisterProperty(name, propId, metaType, isConstant, signal);
-    }
-
-    void registerSignal(const QByteArray& name, QSpan<const QMetaType> argMetaTypes)
-    {
-        if (!m_mob)
-            qFatal() << "Signal registration must be done before endMetaRegistration() call";
-
-        for (const QMetaType& type: argMetaTypes)
-            type.registerType();
-
-        QByteArray signature = generateFuncSignature(name, argMetaTypes);
-        QMetaMethodBuilder builder = m_mob->addSignal(signature);
-        const int index = builder.index();
-        m_data->addSignal(index, name);
-    }
-
-    void registerSlot(const QByteArray& name, uint32_t slotId, QSpan<const QMetaType> argMetaTypes, const QMetaType& returnMetaType)
-    {
-        if (!m_mob)
-            qFatal() << "Failed to register slot " << name << ". Slot registration must be done before endMetaRegistration() call";
-
-        for (const QMetaType& type: argMetaTypes)
-            type.registerType();
-
-        QByteArray signature = generateFuncSignature(name, argMetaTypes);
-        QMetaMethodBuilder builder = m_mob->addSlot(signature);
-        if (returnMetaType.isValid())
-            builder.setReturnType(returnMetaType.name());
-        const int index = builder.index();
-        m_data->addSlot(index, name, slotId);
-    }
-
-    void endMetaRegistration()
-    {
-        if (m_mob)
-        {
-            std::unique_ptr<QMetaObject, QScopedPointerPodDeleter> metaObject(m_mob->toMetaObject());
-            m_data->setMetaObject(std::move(metaObject));
-            m_mob.reset();
-        }
-        else
-        {
-            qFatal() << __func__ << "() is called more than once";
-        }
-    }
-
-    const DynamicMetaObjectData* takeDynamicMetaObjectData()
-    {
-        return m_data.release();
-    }
-
-private:
-    void doRegisterProperty(const QByteArray& name, uint32_t propId, const QMetaType& metaType, bool isConstant, std::optional<int> signalIndex)
-    {
-        if (!m_mob)
-            qFatal() << "Property registration must be done before endMetaRegistration() call";
-
-        if (!metaType.isValid())
-            qFatal() << "Invalid type of property " << name;
-
-        const bool writable = !isConstant;
-        metaType.registerType();
-
-        QMetaPropertyBuilder builder = m_mob->addProperty(name, metaType.name());
-        builder.setReadable(true);
-        builder.setWritable(writable);
-        builder.setConstant(isConstant);
-
-        if (signalIndex)
-            builder.setNotifySignal(m_mob->method(*signalIndex));
-
-        const auto index = builder.index();
-        m_data->addProperty(index, name, propId, metaType);
-    }
-
-    static QByteArray generateFuncSignature(const QByteArray& name, const QSpan<const QMetaType>& argMetaTypes)
+    QByteArray generateFuncSignature(const QByteArray& name, const QSpan<const QMetaType>& argMetaTypes)
     {
         QByteArray paramStr;
         for (const auto& type : argMetaTypes)
@@ -131,47 +30,110 @@ private:
         return QMetaObject::normalizedSignature(sign.constData());
     }
 
-private:
-    std::unique_ptr<QMetaObjectBuilder> m_mob;
-    std::unique_ptr<DynamicMetaObjectData> m_data;
-};
+} // namespace anonymous
 
 
 DynamicMetaObjectBuilder::DynamicMetaObjectBuilder(const QMetaObject* staticMetaObj, rust::Str className)
-    : m_impl(std::make_unique<Impl>(staticMetaObj, RustStrToQByteArray(className)))
-{}
+    : m_mob(std::make_unique<QMetaObjectBuilder>())
+    , m_data(std::make_unique<DynamicMetaObjectData>())
+{
+    m_mob->setSuperClass(staticMetaObj); // TODO: check without this
+    m_mob->setClassName(className.empty() ? QByteArray(staticMetaObj->className()) : RustStrToQByteArray(className));
+}
 
 DynamicMetaObjectBuilder::~DynamicMetaObjectBuilder()
 {}
 
-const DynamicMetaObjectData* DynamicMetaObjectBuilder::takeDynamicMetaObjectData()
-{
-    return m_impl->takeDynamicMetaObjectData();
-}
-
 void DynamicMetaObjectBuilder::addClassInfo(rust::Str name, rust::Str value)
 {
-    m_impl->addClassInfo(RustStrToQByteArray(name), RustStrToQByteArray(value));
+    m_mob->addClassInfo(RustStrToQByteArray(name), RustStrToQByteArray(value));
 }
 
 void DynamicMetaObjectBuilder::registerProperty(rust::Str name, uint32_t propId, const QMetaType& metaType, bool isConstant, rust::Str notifySignal)
 {
-    m_impl->registerProperty(RustStrToQByteArray(name), propId, metaType, isConstant, RustStrToQByteArray(notifySignal));
+    if (!m_mob)
+        qFatal() << "Property registration must be done before endMetaRegistration() call";
+
+    QByteArray nameBa = RustStrToQByteArray(name);
+
+    if (!metaType.isValid())
+        qFatal() << "Invalid type of property " << nameBa;
+
+    std::optional<int> signalIndex;
+    if (!notifySignal.empty())
+    {
+        QByteArray notifySignalBa = RustStrToQByteArray(notifySignal);
+        signalIndex = m_data->getSignalIndex(notifySignalBa);
+        if (!signalIndex)
+            qFatal() << "Failed to find a signal by name: " << notifySignalBa;
+    }
+
+    const bool writable = !isConstant;
+    metaType.registerType();
+
+    QMetaPropertyBuilder builder = m_mob->addProperty(nameBa, metaType.name());
+    builder.setReadable(true);
+    builder.setWritable(writable);
+    builder.setConstant(isConstant);
+
+    if (signalIndex)
+        builder.setNotifySignal(m_mob->method(*signalIndex));
+
+    const auto index = builder.index();
+    m_data->addProperty(index, nameBa, propId, metaType);
 }
 
 void DynamicMetaObjectBuilder::registerSignal(rust::Str name, rust::Slice<const QMetaType> argMetaTypes)
 {
-    m_impl->registerSignal(RustStrToQByteArray(name), RustSliceToQSpan(argMetaTypes));
+    if (!m_mob)
+        qFatal() << "Signal registration must be done before endMetaRegistration() call";
+
+    for (const QMetaType& type: argMetaTypes)
+        type.registerType();
+
+    QByteArray nameBa = RustStrToQByteArray(name);
+    QByteArray signature = generateFuncSignature(nameBa, argMetaTypes);
+    QMetaMethodBuilder builder = m_mob->addSignal(signature);
+    const int index = builder.index();
+    m_data->addSignal(index, nameBa);
 }
 
 void DynamicMetaObjectBuilder::registerSlot(rust::Str name, uint32_t slotId, rust::Slice<const QMetaType> argMetaTypes, const QMetaType& returnMetaType)
 {
-    m_impl->registerSlot(RustStrToQByteArray(name), slotId, RustSliceToQSpan(argMetaTypes), returnMetaType);
+    QByteArray nameBa = RustStrToQByteArray(name);
+
+    if (!m_mob)
+        qFatal() << "Failed to register slot " << nameBa << ". Slot registration must be done before endMetaRegistration() call";
+
+    for (const QMetaType& type: argMetaTypes)
+        type.registerType();
+
+
+    QByteArray signature = generateFuncSignature(nameBa, argMetaTypes);
+    QMetaMethodBuilder builder = m_mob->addSlot(signature);
+    if (returnMetaType.isValid())
+        builder.setReturnType(returnMetaType.name());
+    const int index = builder.index();
+    m_data->addSlot(index, nameBa, slotId);
 }
 
 void DynamicMetaObjectBuilder::endMetaRegistration()
 {
-    m_impl->endMetaRegistration();
+    if (m_mob)
+    {
+        std::unique_ptr<QMetaObject, QScopedPointerPodDeleter> metaObject(m_mob->toMetaObject());
+        m_data->setMetaObject(std::move(metaObject));
+        m_mob.reset();
+    }
+    else
+    {
+        qFatal() << __func__ << "() is called more than once";
+    }
+}
+
+const DynamicMetaObjectData* DynamicMetaObjectBuilder::takeDynamicMetaObjectData()
+{
+    return m_data.release();
 }
 
 std::unique_ptr<DynamicMetaObjectBuilder> createDynamicMetaObjectBuilder(rust::Str rustStructName, const QMetaObject& staticMeta)
