@@ -7,7 +7,7 @@ use syn::{spanned::Spanned, Ident, LitStr};
 use qtbridge_gen_common::case_conv;
 use qtbridge_gen_common::function_with_attributes::{BlockOrSemi, FunctionWithAttributes};
 use qtbridge_gen_common::parse_utils::{parse_name_value, partition_attr_by};
-use qtbridge_gen_common::signature_utils::get_typed_args;
+use qtbridge_gen_common::signature_utils::{get_typed_args, is_self_mut};
 use qtbridge_gen_common::type_registry::meta_types::check_meta_call_signature_types;
 
 use crate::qt_gen_impl::qt_meta_gen;
@@ -59,6 +59,10 @@ impl QSlotInfo {
         attr.style == syn::AttrStyle::Outer && attr.path().is_ident("qslot")
     }
 
+    pub fn is_mut(&self) -> bool {
+        is_self_mut(&self.func.sig)
+    }
+
     pub fn id(&self) -> u32 {
         self.id
     }
@@ -103,12 +107,15 @@ impl QSlotInfo {
             .map(|ty| quote!{ &#ty::get_qmetatype() })
             .unwrap_or_else(|| quote! { &QMetaType::default()} );
 
+        let is_mut = self.is_mut();
+
         let register_slot = quote! {
             meta_obj.as_mut().register_slot(
                 #name,
                 #id,
                 &[#(#input_meta_types::get_qmetatype()),*],
-                #result_meta_type);
+                #result_meta_type,
+                #is_mut);
         };
 
         Ok(register_slot)

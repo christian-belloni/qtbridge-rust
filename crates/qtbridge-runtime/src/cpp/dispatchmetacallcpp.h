@@ -13,6 +13,7 @@ public:
     virtual ~DispatchMetaCallCpp() = default;
 
     virtual void invokeSlot(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const = 0;
+    virtual void invokeSlotMut(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const = 0;
     virtual QVariant readProperty(uint32_t propId) const = 0;
     virtual void writeProperty(uint32_t propId, const QVariant& value) const = 0;
 };

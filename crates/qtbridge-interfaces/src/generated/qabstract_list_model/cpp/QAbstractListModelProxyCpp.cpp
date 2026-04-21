@@ -51,6 +51,11 @@ void QAbstractListModelProxyCpp::invokeSlot(uint32_t slotId, rust::Slice<const u
     m_rustProxy->invokeSlot(slotId, inputs, outputs);
 }
 
+void QAbstractListModelProxyCpp::invokeSlotMut(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const
+{
+    m_rustProxy->invokeSlotMut(slotId, inputs, outputs);
+}
+
 QVariant QAbstractListModelProxyCpp::readProperty(uint32_t propId) const
 {
     return m_rustProxy->readProperty(propId);

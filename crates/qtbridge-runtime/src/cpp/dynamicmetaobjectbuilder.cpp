@@ -98,7 +98,7 @@ void DynamicMetaObjectBuilder::registerSignal(rust::Str name, rust::Slice<const 
     m_data->addSignal(index, nameBa);
 }
 
-void DynamicMetaObjectBuilder::registerSlot(rust::Str name, uint32_t slotId, rust::Slice<const QMetaType> argMetaTypes, const QMetaType& returnMetaType)
+void DynamicMetaObjectBuilder::registerSlot(rust::Str name, uint32_t slotId, rust::Slice<const QMetaType> argMetaTypes, const QMetaType& returnMetaType, bool isMutable)
 {
     QByteArray nameBa = RustStrToQByteArray(name);
 
@@ -114,7 +114,7 @@ void DynamicMetaObjectBuilder::registerSlot(rust::Str name, uint32_t slotId, rus
     if (returnMetaType.isValid())
         builder.setReturnType(returnMetaType.name());
     const int index = builder.index();
-    m_data->addSlot(index, nameBa, slotId);
+    m_data->addSlot(index, nameBa, slotId, isMutable);
 }
 
 void DynamicMetaObjectBuilder::endMetaRegistration()

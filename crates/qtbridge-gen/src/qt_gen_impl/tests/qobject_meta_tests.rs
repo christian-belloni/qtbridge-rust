@@ -75,6 +75,14 @@ fn test_dispatch_meta_call() {
             fn slot_two(&self, arg: &str) {
             }
 
+            #[qslot]
+            fn slot_mut_three(&mut self) {
+            }
+
+            #[qslot]
+            fn slot_mut_four(&mut self) {
+            }
+
             #[qsignal]
             fn this_value_changed(&self) {
             }

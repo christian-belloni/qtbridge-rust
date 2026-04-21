@@ -38,6 +38,7 @@ public:
 
     // DispatchMetaCallCpp implementation
     void invokeSlot(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const override;
+    void invokeSlotMut(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const override;
     QVariant readProperty(uint32_t propId) const override;
     void writeProperty(uint32_t propId, const QVariant& value) const override;
 

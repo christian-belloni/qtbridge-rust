@@ -37,7 +37,7 @@ pub mod ffi {
         fn registerSignal(self: Pin<&mut Self>, name: &str, arg_meta_types: &[QMetaType]);
 
         #[rust_name = "register_slot"]
-        fn registerSlot(self: Pin<&mut Self>, name: &str, slot_id: u32, arg_meta_types: &[QMetaType], return_meta_type: &QMetaType);
+        fn registerSlot(self: Pin<&mut Self>, name: &str, slot_id: u32, arg_meta_types: &[QMetaType], return_meta_type: &QMetaType, is_mutable: bool);
 
         #[rust_name = "end_meta_registration"]
         fn endMetaRegistration(self: Pin<&mut Self>);

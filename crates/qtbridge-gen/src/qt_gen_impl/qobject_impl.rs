@@ -92,10 +92,8 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream, origin: &CallOrigin
     let mut other_methods = Vec::<syn::Signature>::new(); // Methods that are not signal or slot, but potentially can be property setter/getter
 
     for item in &orig_impl.items {
-        let qmeta_item = match extract_qobject_item(&item, slots.len() as u32, properties.len() as u32) {
-            Ok(s) => s,
-            Err(err) => return Err(syn::Error::new(err.span(), format!("Failed to process item of 'impl' block. Error: {}", err))),
-        };
+        let qmeta_item = extract_qobject_item(&item, slots.len() as u32, properties.len() as u32)
+            .map_err(|err| syn::Error::new(err.span(), format!("Failed to process item of 'impl' block. Error: {err}")))?;
 
         let mut item_out_tokens = TokenStream::new();
         match qmeta_item {

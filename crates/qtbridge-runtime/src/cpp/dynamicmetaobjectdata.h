@@ -29,7 +29,7 @@ public:
 
     void addProperty(int index, const QByteArray& name, uint32_t userId, const QMetaType& metaType);
     void addSignal(int index, const QByteArray& name);
-    void addSlot(int index, const QByteArray& name, uint32_t userId);
+    void addSlot(int index, const QByteArray& name, uint32_t userId, bool is_mutable);
 
     void emitSignal(QObject& obj, rust::Str name, rust::Slice<const uint8_t* const> argvSlice) const;
 
@@ -65,6 +65,7 @@ private:
     struct SlotInfo
     {
         uint32_t m_userId;
+        bool m_isMutable;
     };
 
 private:

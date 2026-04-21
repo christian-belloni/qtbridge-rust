@@ -321,8 +321,11 @@ impl QAbstractItemModelProxyRust {
         call_rust_trait_impl!(self, sibling(row, column, idx))
     }
 
-    pub fn invoke_slot(&mut self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]) {
-        call_rust_trait_impl!(mut self, invoke_slot(slot_id, inputs, outputs))
+    pub fn invoke_slot(&self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]) {
+        call_rust_trait_impl!(self, invoke_slot(slot_id, inputs, outputs))
+    }
+    pub fn invoke_slot_mut(&mut self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]) {
+        call_rust_trait_impl!(mut self, invoke_slot_mut(slot_id, inputs, outputs))
     }
     pub fn read_property(&self, prop_id: u32) -> QVariant {
         call_rust_trait_impl!(self, read_property(prop_id))

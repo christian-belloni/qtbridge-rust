@@ -21,6 +21,11 @@ void QObjectProxyCpp::invokeSlot(uint32_t slotId, rust::Slice<const uint8_t *con
     m_rustProxy->invokeSlot(slotId, inputs, outputs);
 }
 
+void QObjectProxyCpp::invokeSlotMut(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const
+{
+    m_rustProxy->invokeSlotMut(slotId, inputs, outputs);
+}
+
 QVariant QObjectProxyCpp::readProperty(uint32_t propId) const
 {
     return m_rustProxy->readProperty(propId);

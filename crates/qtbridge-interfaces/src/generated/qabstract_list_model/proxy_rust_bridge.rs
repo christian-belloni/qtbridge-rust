@@ -33,7 +33,9 @@ pub mod ffi {
         fn sibling(&self, row: i32, column: i32, idx: &QModelIndex) -> QModelIndex;
 
         # [cxx_name = invokeSlot]
-        fn invoke_slot(&mut self, slot_id: u32, args: &[*const u8], outputs: &[*mut u8]);
+        fn invoke_slot(&self, slot_id: u32, args: &[*const u8], outputs: &[*mut u8]);
+        # [cxx_name = invokeSlotMut]
+        fn invoke_slot_mut(&mut self, slot_id: u32, args: &[*const u8], outputs: &[*mut u8]);
         # [cxx_name = readProperty]
         fn read_property(&self, prop_id: u32) -> QVariant;
         # [cxx_name = writeProperty]

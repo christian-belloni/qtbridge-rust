@@ -4,7 +4,8 @@
 use qtbridge_type_lib::QVariant;
 
 pub trait DispatchMetaCall {
-    fn invoke_slot(&mut self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]);
+    fn invoke_slot(&self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]);
+    fn invoke_slot_mut(&mut self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]);
     fn read_property(&self, prop_id: u32) -> QVariant;
     fn write_property(&mut self, prop_id: u32, value: &QVariant);
 }

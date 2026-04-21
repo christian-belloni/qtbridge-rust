@@ -1,11 +1,13 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
+use proc_macro2::TokenStream;
 use quote::quote;
 use syn::visit_mut::VisitMut;
 
 use qtbridge_gen_common::type_qualified_mapping::{CallOrigin, TypeQualifiedMapping};
 
-use crate::qt_gen_impl::qt_meta_gen::{QPropertyInfo, QSignalInfo, QSlotInfo, traits::find_by_qml_name};
+use super::{QPropertyInfo, QSignalInfo, QSlotInfo};
+use super::traits::find_by_qml_name;
 
 pub fn generate_dispatch_meta_call(struct_ident: &syn::Ident, generics: &syn::Generics,
     signals: &[QSignalInfo], slots: &[QSlotInfo], properties: &[QPropertyInfo], origin: &CallOrigin) -> syn::Result<syn::ItemImpl> {
@@ -14,16 +16,14 @@ pub fn generate_dispatch_meta_call(struct_ident: &syn::Ident, generics: &syn::Ge
     let type_library = origin.type_module();
     let bridge_library = origin.bridge_module();
 
-    let slot_handlers = slots.iter()
-        .map(|slot| {
-            let id = slot.id();
-            let code = slot.get_invoke_code()?;
-            Ok(quote! {
-                #id => {
-                    #code
-                }
-            })
-        })
+    let (slots_mut, slots_const): (Vec<_>, Vec<_>) = slots.iter()
+        .partition(|s| s.is_mut());
+
+    let slot_mut_handlers = slots_mut.into_iter()
+        .map(get_slot_handler_code)
+        .collect::<syn::Result<Vec<_>>>()?;
+    let slot_const_handlers = slots_const.into_iter()
+        .map(get_slot_handler_code)
         .collect::<syn::Result<Vec<_>>>()?;
 
     let prop_read_handlers = properties.iter()
@@ -56,9 +56,15 @@ pub fn generate_dispatch_meta_call(struct_ident: &syn::Ident, generics: &syn::Ge
         impl #impl_generics #bridge_library::DispatchMetaCall for #struct_ident #type_generics
         #where_clause
         {
-            fn invoke_slot(&mut self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]) {
+            fn invoke_slot(&self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]) {
                 match slot_id {
-                    #(#slot_handlers),*
+                    #(#slot_const_handlers),*
+                    _ => panic!("Unhandled slot id {slot_id}")
+                }
+            }
+            fn invoke_slot_mut(&mut self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]) {
+                match slot_id {
+                    #(#slot_mut_handlers),*
                     _ => panic!("Unhandled slot id {slot_id}")
                 }
             }
@@ -82,4 +88,15 @@ pub fn generate_dispatch_meta_call(struct_ident: &syn::Ident, generics: &syn::Ge
     map.visit_item_impl_mut(&mut result);
 
     Ok(result)
+}
+
+fn get_slot_handler_code(slot: &QSlotInfo) -> syn::Result<TokenStream> {
+    let id = slot.id();
+    let invoke_code = slot.get_invoke_code()?;
+    let code = quote! {
+        #id => {
+            #invoke_code
+        }
+    };
+    Ok(code)
 }
