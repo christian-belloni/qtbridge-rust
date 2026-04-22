@@ -70,6 +70,7 @@ To use this library, you need:
 - One of the supported platforms:
    - Linux (`x86_64`)
    - Windows (`x64`)
+   - macOS (`arm64`) - experimental
 - **Rust** (stable, version >= 1.87)
    - Visit [rustup.rs](https://rustup.rs) to install
 - **Cargo and rustfmt** (comes with Rust)
@@ -92,6 +93,12 @@ set PATH=%PATH%;D:\dev\qt_build\qtbase\bin\
 ```sh
 export PATH=/home/john_doe/dev/qt_build/qtbase/bin:$PATH
 export LD_LIBRARY_PATH="/home/john_doe/dev/qt_build/lib:$LD_LIBRARY_PATH"
+```
+
+- On macOS:
+```sh
+export PATH=/Users/john_doe/dev/qt_build/qtbase/bin:$PATH
+export DYLD_FRAMEWORK_PATH=/Users/john_doe/dev/qt_build/qtbase/lib:$DYLD_FRAMEWORK_PATH
 ```
 
 ### Dependency
