@@ -6,6 +6,17 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::LazyLock;
 
+pub trait QtBuildConfigure {
+    fn configure_for_qt(&mut self) -> &mut Self;
+}
+
+impl QtBuildConfigure for cc::Build {
+    fn configure_for_qt(&mut self) -> &mut Self {
+        set_platform_specific_flags(self);
+        self
+    }
+}
+
 pub fn try_qmake_query(var_name: &str) -> Result<String, String> {
     let output = Command::new("qmake")
         .args(["-query", var_name])
@@ -71,6 +82,47 @@ pub fn qt_include_dirs(modules: impl IntoIterator<Item: Display>, add_private: b
     let qtbase_include_dir = PathBuf::from(&qmake_query("QT_INSTALL_HEADERS"));
     let qt_version = qmake_query("QT_VERSION");
 
+    // With macOS framework installations/builds the header layout in each framework (eg. QtCore):
+    //   Headers/                      public headers
+    //   Headers/6.11/QtCore/private/  private headers
+    //
+    // Public headers are found by the compiler through -F framework search path, and makes
+    // qualified includes work (<QtCore/qobject.h>). In addition we need explicit -I paths:
+    // - private headers (<QtCore/private/qobject_p.h>)
+    // - private headers may use relative includes (e.g. "qglobal.h") that require the
+    //   unversioned Headers/ dir
+    // - We still need to add QT_INSTALL_HEADERS in addition to framework header directories
+    //   because some modules (e.g. QtQmlIntegration) ship only as plain include directories
+    if is_qt_framework_installation() {
+        let frameworks_path = PathBuf::from(qt_libs_dir());
+
+        let mut dirs: Vec<String> = modules.into_iter()
+            .flat_map(|module| {
+                let module_name = format!("Qt{module}");
+                let headers = frameworks_path
+                    .join(format!("{module_name}.framework"))
+                    .join("Headers");
+                if add_private {
+                    let version_path = headers.join(&qt_version);
+                    vec![
+                        // Headers/6.11/
+                        version_path.to_string_lossy().to_string(),
+                        // Headers/6.11/QtCore/
+                        version_path.join(&module_name).to_string_lossy().to_string(),
+                        // Headers/
+                        headers.to_string_lossy().to_string(),
+                    ]
+                } else {
+                    // Headers/
+                    vec![headers.to_string_lossy().to_string()]
+                }
+            })
+            .collect();
+        // include/
+        dirs.push(qtbase_include_dir.to_string_lossy().to_string());
+        return dirs;
+    }
+
     modules.into_iter()
         .flat_map(|module| {
             let module_name = format!("Qt{module}");
@@ -93,13 +145,24 @@ pub fn qt_libs_dir() -> String {
     qmake_query("QT_INSTALL_LIBS")
 }
 
+fn set_platform_specific_flags(builder: &mut cc::Build) {
+    if is_qt_framework_installation() {
+        builder.flag(format!("-F{}", qt_libs_dir()));
+    }
+}
+
+fn is_qt_framework_installation() -> bool {
+    if !cfg!(target_os = "macos") {
+        return false;
+    }
+    PathBuf::from(qt_libs_dir()).join("QtCore.framework").exists()
+}
+
 pub fn link_qt_modules(modules: impl IntoIterator<Item: Display>) {
     let qt_libs_dir = qt_libs_dir();
 
-    // Qt is usually installed as frameworks on macOS. Check if this is the case by
-    // looking for QtCore.framework. If it doesn't exist, fall back to using plain
-    // libraries as with the other platforms
-    if cfg!(target_os = "macos") && PathBuf::from(&qt_libs_dir).join("QtCore.framework").exists() {
+    if is_qt_framework_installation() {
+        // On macOS Qt is typically installed as frameworks, not as plain libraries
         println!("cargo::rustc-link-search=framework={qt_libs_dir}");
         modules.into_iter()
             .for_each(|module| println!("cargo::rustc-link-lib=framework=Qt{module}"));

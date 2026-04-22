@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use std::path::{Path, PathBuf};
-use qtbridge_build_common::qt_build::{link_qt_modules, qt_include_dirs, run_moc};
+use qtbridge_build_common::qt_build::{link_qt_modules, qt_include_dirs, run_moc, QtBuildConfigure};
 
 fn main() {
 
@@ -71,7 +71,8 @@ fn main() {
         .include("../crates/")
         .include("src")
         .include("../crates/qtbridge-type-lib/src/")
-        .include(out_dir);
+        .include(out_dir)
+        .configure_for_qt();
 
     let qt_include_dirs = qt_include_dirs(qt_modules, true);
     for include_dir in qt_include_dirs {

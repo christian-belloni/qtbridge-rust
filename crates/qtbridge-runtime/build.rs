@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use std::path::Path;
-use qtbridge_build_common::qt_build::{qt_include_dirs, link_qt_modules};
+use qtbridge_build_common::qt_build::{qt_include_dirs, link_qt_modules, QtBuildConfigure};
 
 fn main() {
 
@@ -68,7 +68,8 @@ fn main() {
         .flag_if_supported("/permissive-")
         .include("../")
         .include(type_lib_include)
-        .include("src");
+        .include("src")
+        .configure_for_qt();
 
     let qt_include_dirs = qt_include_dirs(qt_modules, true);
     for include_dir in qt_include_dirs {

@@ -9,3 +9,6 @@ license.workspace = true
 rust-version.workspace = true
 repository.workspace = true
 description = "Qt Bridge: Common code for build scripts and macros"
+
+[dependencies]
+cc = "1"

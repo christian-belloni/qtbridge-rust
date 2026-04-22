@@ -1,7 +1,7 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use qtbridge_build_common::qt_build::{link_qt_modules, qt_include_dirs};
+use qtbridge_build_common::qt_build::{link_qt_modules, qt_include_dirs, QtBuildConfigure};
 
 const FILES_BRIDGE: [&'static str; 8] = [
     "src/generated/qabstract_item_model/proxy_cpp_bridge.rs",
@@ -37,7 +37,8 @@ fn main() {
         .include("src")
         .include("../")
         .include(type_lib_include)
-        .include(runtime_include);
+        .include(runtime_include)
+        .configure_for_qt();
 
     FILES_CPP.iter()
         .for_each(|file| {

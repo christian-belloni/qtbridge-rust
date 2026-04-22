@@ -1,7 +1,7 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use qtbridge_build_common::qt_build::{link_qt_modules, qt_include_dirs};
+use qtbridge_build_common::qt_build::{link_qt_modules, qt_include_dirs, QtBuildConfigure};
 
 mod generated_files_bridge;
 use generated_files_bridge::GENERATED_FILES_BRIDGE;
@@ -23,7 +23,8 @@ fn main() {
         .flag_if_supported("/Zc:__cplusplus")
         .flag_if_supported("/permissive-")
         .include("src")
-        .include("../");
+        .include("../")
+        .configure_for_qt();
 
     GENERATED_FILES_CPP.iter()
         .for_each(|file| {
