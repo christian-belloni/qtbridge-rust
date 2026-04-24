@@ -30,9 +30,6 @@ pub struct QPropertyInfo{
     getter_type: Option<syn::Type>,
     setter_type: Option<syn::Type>,
     member_type: Option<syn::Type>,
-
-    /// How the value is passed to the setter (by reference or by value)
-    write_value_pass: Option<ValuePass>,
 }
 
 impl QPropertyInfo {
@@ -165,11 +162,9 @@ impl QPropertyInfo {
             getter_type = Some(ty.clone());
         }
 
-        self.write_value_pass = None;
         if let Some(setter) = self.write_method.as_ref() {
             let ty = deduce_type_from_setter(setter, methods)?;
             deduced.push((ty, setter.span(), "setter"));
-            self.write_value_pass = Some(get_type_pass(ty));
             setter_type = Some(ty.clone());
         }
 
@@ -284,7 +279,9 @@ impl QPropertyInfo {
                 .ok_or_else(|| syn::Error::new(self.span, "Failed to generate write property callback. Type is not deduced"))?;
             let ty_wo_ref = remove_refs(ty);
             let ty_str = type_to_string(ty_wo_ref)?;
-            let pass_arg = get_take_value_code(&format_ident!("value"), self.write_value_pass.unwrap_or(ValuePass::ByValue));
+            let write_value_pass = get_type_pass(self.setter_type.as_ref()
+                .ok_or_else(|| syn::Error::new(setter_fn.span(), "Property setter type is not deduced"))?);
+            let pass_arg = get_take_value_code(&format_ident!("value"), write_value_pass);
 
             return Ok(Some(quote! {
                 let Ok(value) = TryInto::<<#ty_wo_ref as ToOwned>::Owned>::try_into(value) else {
@@ -419,7 +416,6 @@ impl syn::parse::Parse for QPropertyInfo {
             getter_type: None,
             setter_type: None,
             member_type: None,
-            write_value_pass: None,
         })
     }
 
