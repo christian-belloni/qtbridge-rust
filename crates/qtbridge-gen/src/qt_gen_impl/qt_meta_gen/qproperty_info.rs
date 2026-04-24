@@ -27,8 +27,9 @@ pub struct QPropertyInfo{
     constant: Option<syn::Ident>,
     default: Option<syn::Ident>,
 
-    /// The type of the property, deduced from getter, setter or member variable. TODO: don't use string here
-    deduced_type: Option<syn::Type>,
+    getter_type: Option<syn::Type>,
+    setter_type: Option<syn::Type>,
+    member_type: Option<syn::Type>,
 
     /// How the value is passed to the setter (by reference or by value)
     write_value_pass: Option<ValuePass>,
@@ -59,7 +60,7 @@ impl QPropertyInfo {
     }
 
     pub fn is_type_deduced(&self) -> bool {
-        self.deduced_type.is_some()
+        self.get_deduced_type().is_some()
     }
 
     pub fn get_notify_signal(&self) -> Option<&syn::LitStr> {
@@ -67,8 +68,9 @@ impl QPropertyInfo {
     }
 
     fn get_deduced_type(&self) -> Option<&syn::Type> {
-        self.deduced_type
-            .as_ref()
+        self.getter_type.as_ref()
+            .or(self.setter_type.as_ref())
+            .or(self.member_type.as_ref())
     }
 
     pub fn validate(&self, signals: &[QSignalInfo]) -> syn::Result<()> {
@@ -153,23 +155,29 @@ impl QPropertyInfo {
     // Sets the property type based on the type deduced from its accessors or member variable.
     pub fn set_type(&mut self, methods: &[syn::Signature], fields: Option<&syn::FieldsNamed>) -> syn::Result<()> {
         let mut deduced = Vec::new(); // Array of tuples (Type, Span, "deduced from")
+        let mut getter_type = None;
+        let mut setter_type = None;
+        let mut member_type = None;
 
         if let Some(getter) = self.read_method.as_ref() {
-            let getter_type = deduce_type_from_getter(getter, methods)?;
-            deduced.push((getter_type, getter.span(), "getter"));
+            let ty = deduce_type_from_getter(getter, methods)?;
+            deduced.push((ty, getter.span(), "getter"));
+            getter_type = Some(ty.clone());
         }
 
         self.write_value_pass = None;
         if let Some(setter) = self.write_method.as_ref() {
-            let setter_type = deduce_type_from_setter(setter, methods)?;
-            deduced.push((setter_type, setter.span(), "setter"));
-            self.write_value_pass = Some(get_type_pass(setter_type));
+            let ty = deduce_type_from_setter(setter, methods)?;
+            deduced.push((ty, setter.span(), "setter"));
+            self.write_value_pass = Some(get_type_pass(ty));
+            setter_type = Some(ty.clone());
         }
 
         if let Some(member) = self.member.as_ref() &&
            let Some(fields) = fields {
-                let member_type = deduce_type_from_member(member, fields.named.iter())?;
-                deduced.push((member_type, member.span(), "member"));
+                let ty = deduce_type_from_member(member, fields.named.iter())?;
+                deduced.push((ty, member.span(), "member"));
+                member_type = Some(ty.clone());
             }
 
         let Some((first_type, _, first_src)) = deduced.first() else {
@@ -188,7 +196,10 @@ impl QPropertyInfo {
             }
         }
 
-        self.deduced_type = Some((*first_type).clone());
+        self.getter_type = getter_type;
+        self.setter_type = setter_type;
+        self.member_type = member_type;
+
         Ok(())
     }
 
@@ -200,11 +211,10 @@ impl QPropertyInfo {
             span,
             notify_signal,
             member,
-            deduced_type,
             ..
         } = self;
 
-        let metatype_expr = match &deduced_type {
+        let metatype_expr = match self.get_deduced_type() {
             // Type of property is deduced from getter, setter or member (works for #[qobject] but not for #[qobject_impl] macro)
             Some(ty) => {
                 let meta_type = get_qmetatype_support_for_type(ty)
@@ -405,7 +415,10 @@ impl syn::parse::Parse for QPropertyInfo {
             member,
             constant,
             default,
-            deduced_type: None,               // Property type is not clear at the moment of parsing. Will be deduced later
+            // Property type is not clear at the moment of parsing. Will be deduced later
+            getter_type: None,
+            setter_type: None,
+            member_type: None,
             write_value_pass: None,
         })
     }
