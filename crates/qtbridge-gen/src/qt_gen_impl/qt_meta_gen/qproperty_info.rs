@@ -273,69 +273,81 @@ impl QPropertyInfo {
 
         let name = &self.name;
 
-        if let Some(setter_fn) = &self.write_method {
-            // Generate write callback that calls given setter
-            let ty = self.get_deduced_type()
-                .ok_or_else(|| syn::Error::new(self.span, "Failed to generate write property callback. Type is not deduced"))?;
-            let ty_wo_ref = remove_refs(ty);
+        let mut input_conv_type = TokenStream::new(); // The type that the input QVariant is converted into.
+        let mut ty_str_expr = quote! { "unknown type" };
+        if let Some(deduced_type) = self.get_deduced_type() {
+            let ty_wo_ref = remove_refs(deduced_type);
+            input_conv_type = quote! {
+                ::<<#ty_wo_ref as ToOwned>::Owned>
+            };
             let ty_str = type_to_string(ty_wo_ref)?;
+            ty_str_expr = quote! { #ty_str };
+        }
+        else if let Some(member) = self.member.as_ref() {
+            ty_str_expr = quote! {
+                std::any::type_name_of_val(&self.#member)
+            };
+        };
+
+        // Code with conversion from QVariant to value that will be passed to the setter function (if `Write = ...` is specified)
+        // or assigned to the member variable (if no `Write` but `Member = ...` is in the property declaration).
+        let input_conv_code = quote! {
+            let Ok(value) = TryInto #input_conv_type::try_into(value) else {
+                panic!("Failed to convert value '{}' to type '{}' in qproperty '{}'", value.to_string(), #ty_str_expr, #name);
+            };
+        };
+
+        let write_value_code;
+        if let Some(setter_fn) = &self.write_method {
+            // Code that calls the setter method if one is specified.
             let write_value_pass = get_type_pass(self.setter_type.as_ref()
                 .ok_or_else(|| syn::Error::new(setter_fn.span(), "Property setter type is not deduced"))?);
             let pass_arg = get_take_value_code(&format_ident!("value"), write_value_pass);
-
-            return Ok(Some(quote! {
-                let Ok(value) = TryInto::<<#ty_wo_ref as ToOwned>::Owned>::try_into(value) else {
-                    panic!("Failed to convert value '{}' to type '{}' in qproperty '{}'", value.to_string(), #ty_str, #name);
-                };
+            write_value_code = quote! {
                 self.#setter_fn(#pass_arg);
-            }))
-        }
-
-        if let Some(member) = &self.member {
-            // Generate write callback that assigns value to given member variable
-            // and emits signal is needed
-            let signal_name = self.notify_signal
-                .as_ref()
-                .map_or(String::new(), |signal| signal.value());
-            let write_code = if signal_name.is_empty() {
-                // TODO: still auto generate name for signal otherwise? E.g. On{property_name}Changed
-                quote!{
-                    self.#member = value;
-                }
             }
-            else {
-                let signal = signal.as_ref().unwrap();
-                if signal_name != signal.get_qml_name_span().0 {
-                    return Err(syn::Error::new(self.span, "Error in signal handling logic. Inconsistent signal name"));
-                }
-                let signal_name_ident = signal.get_rust_name();
-                let mut signal_arg = None;
-                if signal.get_typed_arg_count() > 0 {
-                    signal_arg = match get_type_pass(signal.get_arg_type(0)?) {
-                        ValuePass::ByValue => Some(quote! { self.#member.clone() }),
-                        ValuePass::ByConstReference => Some(quote! { &self.#member }),
-                        ValuePass::ByMutReference => Some(quote! { &mut self.#member }),
-                    };
-                }
-
-                quote! {
-                    if self.#member != value {
-                        self.#member = value;
-                        self.#signal_name_ident(#signal_arg);
-                    }
-                }
+        } else {
+            // Code that assigns the value obtained from the input QVariant to the member variable.
+            // Also emits the `Notify` signal if specified.
+            let Some(member) = self.member.as_ref() else {
+                return Ok(None) // A read-only property
             };
 
-            Ok(Some(quote!{
-                let Ok(value) = value.try_into() else {
-                    panic!("Failed to convert value '{}' to type '{}' in qproperty '{}'", value.to_string(), std::any::type_name_of_val(&self.#member), #name);
-                };
-                #write_code
-            }))
+            // Code that emits the `Notify` signal.
+            let mut emit_signal_code = None;
+            if let Some(notify_signal) = &self.notify_signal {
+                let signal_info = signal
+                    .ok_or_else(|| syn::Error::new(self.notify_signal.span(), "Signal info is not provided"))?;
+                if notify_signal.value() != signal_info.get_qml_name_span().0 {
+                    return Err(syn::Error::new(self.span, "Error in signal handling logic. Inconsistent signal name"));
+                }
+                let signal_name_ident = signal_info.get_rust_name();
+                let signal_arg = signal_info.get_arg_type(0)
+                    .ok()
+                    .map(|arg_type| match get_type_pass(arg_type) {
+                        ValuePass::ByValue => quote! { self.#member.clone() },
+                        ValuePass::ByConstReference => quote! { &self.#member },
+                        ValuePass::ByMutReference => quote! { &mut self.#member },
+                    });
+
+                emit_signal_code = Some(quote! {
+                    self.#signal_name_ident(#signal_arg);
+                });
+            }
+
+            write_value_code = quote! {
+                if self.#member != value {
+                    self.#member = value;
+                    #emit_signal_code
+                }
+            };
         }
-        else {
-            Ok(None)
-        }
+
+        let result = quote! {
+            #input_conv_code
+            #write_value_code
+        };
+        Ok(Some(result))
     }
 }
 

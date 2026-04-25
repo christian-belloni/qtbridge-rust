@@ -37,7 +37,7 @@ impl qtbridge::qtbridge_runtime::DispatchMetaCall for SomeStruct {
     fn write_property(&mut self, prop_id: u32, value: &qtbridge::qtbridge_type_lib::QVariant) {
         match prop_id {
             1u32 => {
-                let Ok(value) = value.try_into() else {
+                let Ok(value) = TryInto::try_into(value) else {
                     panic!(
                         "Failed to convert value '{}' to type '{}' in qproperty '{}'",
                         value.to_string(),
@@ -51,7 +51,7 @@ impl qtbridge::qtbridge_runtime::DispatchMetaCall for SomeStruct {
                 }
             }
             2u32 => {
-                let Ok(value) = value.try_into() else {
+                let Ok(value) = TryInto::try_into(value) else {
                     panic!(
                         "Failed to convert value '{}' to type '{}' in qproperty '{}'",
                         value.to_string(),
@@ -59,10 +59,12 @@ impl qtbridge::qtbridge_runtime::DispatchMetaCall for SomeStruct {
                         "otherValue"
                     );
                 };
-                self.second_value = value;
+                if self.second_value != value {
+                    self.second_value = value;
+                }
             }
             3u32 => {
-                let Ok(value) = value.try_into() else {
+                let Ok(value) = TryInto::try_into(value) else {
                     panic!(
                         "Failed to convert value '{}' to type '{}' in qproperty '{}'",
                         value.to_string(),
@@ -70,7 +72,9 @@ impl qtbridge::qtbridge_runtime::DispatchMetaCall for SomeStruct {
                         "thirdValue"
                     );
                 };
-                self.third_value = value;
+                if self.third_value != value {
+                    self.third_value = value;
+                }
             }
             _ => panic!("Unhandled property id {prop_id}"),
         }
