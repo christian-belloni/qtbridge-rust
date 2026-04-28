@@ -508,7 +508,7 @@ impl NonGenericSubmoduleGeneratorBase {
 
         for trait_ in traits_substituted {
             let prefix = trait_.get_inline_trait_functions_default_prefix()?;
-            trait_.get_rust_code(&prefix).to_tokens(&mut result);
+            trait_.get_rust_code(&prefix)?.to_tokens(&mut result);
         }
 
         Ok(result)

@@ -90,13 +90,13 @@ impl TraitImpl {
     /// Replace generic idents with concrete types
     /// E.g., T -> i32
     fn substitute_types(&self, type_map: &TypeMappingNested<MultiTypeMapping>) -> syn::Result<Self> {
-        let name = type_map.map_path(&self.name);
+        let name = type_map.map_path(&self.name)?;
         let generics = self.generics().clone_generics();
-        let self_type = type_map.map_path(&self.self_type);
+        let self_type = type_map.map_path(&self.self_type)?;
 
         let other_items = self.other_items.iter()
             .map(|item| type_map.map_impl_item(item))
-            .collect();
+            .collect::<syn::Result<_>>()?;
 
         let funcs = self.funcs.iter()
             .map(|f| f.substitute_types(type_map, &self_type))
@@ -119,10 +119,10 @@ impl TraitImpl {
             .try_for_each(|func| func.substitute_generic_qt_types_in_cpp_functions())
     }
 
-    pub fn get_rust_code(&self, func_name_prefix: &str) -> TokenStream {
+    pub fn get_rust_code(&self, func_name_prefix: &str) -> syn::Result<TokenStream> {
         let mut func_tokens = TokenStream::new();
         for func in self.functions() {
-            func.get_rust_func(func_name_prefix)
+            func.get_rust_func(func_name_prefix)?
                 .to_tokens(&mut func_tokens);
         }
 
@@ -133,12 +133,12 @@ impl TraitImpl {
         let impl_generics = (!const_generics.is_empty())
             .then(|| quote! { <#(#const_generics)*> });
 
-        quote! {
+        Ok(quote! {
             impl #impl_generics #name for #self_type {
                 #(#other_items)*
                 #func_tokens
             }
-        }
+        })
     }
 
     pub fn get_inline_trait_functions_default_prefix(&self) -> syn::Result<String> {

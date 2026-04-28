@@ -25,32 +25,32 @@ impl<T: TypeMapping> TypeMappingNested<T> {
         &self.map_impl
     }
 
-    pub fn map_impl_item(&self, src: &syn::ImplItem) -> syn::ImplItem {
+    pub fn map_impl_item(&self, src: &syn::ImplItem) -> syn::Result<syn::ImplItem> {
         let mut result = src.clone();
         let mut v = Visitor::new(self.get_impl());
         v.visit_impl_item_mut(&mut result);
-        result
+        Ok(result)
     }
 
-    pub fn map_item_fn(&self, src: &syn::ItemFn) -> syn::ItemFn {
+    pub fn map_item_fn(&self, src: &syn::ItemFn) -> syn::Result<syn::ItemFn> {
         let mut result = src.clone();
         let mut v = Visitor::new(self.get_impl());
         v.visit_item_fn_mut(&mut result);
-        result
+        Ok(result)
     }
 
-    pub fn map_signature(&self, src: &syn::Signature) -> syn::Signature {
+    pub fn map_signature(&self, src: &syn::Signature) -> syn::Result<syn::Signature> {
         let mut result = src.clone();
         let mut v = Visitor::new(self.get_impl());
         v.visit_signature_mut(&mut result);
-        result
+        Ok(result)
     }
 
-    pub fn map_path(&self, src: &syn::Path) -> syn::Path {
+    pub fn map_path(&self, src: &syn::Path) -> syn::Result<syn::Path> {
         let mut result = src.clone();
         let mut v = Visitor::new(self.get_impl());
         v.visit_path_mut(&mut result);
-        result
+        Ok(result)
     }
 }
 

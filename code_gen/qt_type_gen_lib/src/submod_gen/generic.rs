@@ -252,7 +252,7 @@ impl GenericSubmoduleGenerator {
                 }
             }
             else {
-                function.get_rust_func(&prefix)
+                function.get_rust_func(&prefix)?
                     .to_token_stream()
             };
             func_tokens.to_tokens(&mut result);

@@ -211,17 +211,16 @@ impl MonomorphedSubmoduleGenerator {
 
     fn get_functions_rust_code(&self) -> syn::Result<Vec<syn::ItemFn>> {
         let prefix = Function::get_inline_functions_default_prefix();
-        let result = self.base.functions()
+        self.base.functions()
             .filter(|func| !func.cpp_functions().is_empty())
             .map(|func| {
-                let mut func = func.get_rust_func(&prefix);
+                let mut func = func.get_rust_func(&prefix)?;
                 // Remove doc attributes because they belong to generic file
                 // but not to the monomorped one.
                 func.attrs.retain(|attr| !is_doc_attribute(attr));
-                func
+                Ok(func)
             })
-            .collect();
-        Ok(result)
+            .collect()
     }
 
     fn collect_type_tokens(&mut self) -> syn::Result<()> {

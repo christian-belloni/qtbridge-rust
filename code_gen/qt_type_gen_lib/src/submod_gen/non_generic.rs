@@ -97,10 +97,9 @@ impl NonGenericSubmoduleGenerator {
 
     fn get_functions_rust_code(&self) -> syn::Result<Vec<syn::ItemFn>> {
         let prefix = Function::get_inline_functions_default_prefix();
-        let result = self.base.functions()
+        self.base.functions()
             .map(|func| func.get_rust_func(&prefix))
-            .collect();
-        Ok(result)
+            .collect()
     }
 
     fn collect_type_tokens(&mut self) -> syn::Result<()> {

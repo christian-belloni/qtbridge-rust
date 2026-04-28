@@ -44,11 +44,11 @@ impl Function {
         // TODO: add mapping for Self here locally?
         let new_cpp_funcs = self.cpp_funcs.iter()
             .map(|cpp_func| cpp_func.substitute_types(type_map, self_type))
-            .collect();
+            .collect::<syn::Result<_>>()?;
 
         Ok(Self {
             attrs: self.attrs.clone(),
-            rust_func: type_map.map_item_fn(src_func),
+            rust_func: type_map.map_item_fn(src_func)?,
             cpp_funcs: new_cpp_funcs,
         })
     }
@@ -84,7 +84,7 @@ impl Function {
             .unwrap_or_default()
     }
 
-    pub fn get_rust_func(&self, name_prefix: &str) -> syn::ItemFn {
+    pub fn get_rust_func(&self, name_prefix: &str) -> syn::Result<syn::ItemFn> {
 
         // replace inline function names
         let ident_map: BTreeMap<syn::Ident, syn::Path> = (0..self.cpp_funcs.len())
@@ -98,9 +98,9 @@ impl Function {
             .collect();
 
         let type_map = TypeMappingNested::new(MultiTypeMapping::new(ident_map));
-        let mut result = type_map.map_item_fn(&self.rust_func);
+        let mut result = type_map.map_item_fn(&self.rust_func)?;
         result.attrs = self.docs().into();
-        result
+        Ok(result)
     }
 
     pub fn get_inline_functions_default_prefix() -> String {
@@ -165,7 +165,7 @@ impl Function {
         // Replace Self in return type and other arguments
         if let Some(self_type) = self_type {
             let self_type_map = TypeMappingNested::new(SelfTypeMapping::new(self_type.clone()));
-            new_sign = self_type_map.map_signature(&new_sign);
+            new_sign = self_type_map.map_signature(&new_sign)?;
         }
 
         Ok(new_sign)

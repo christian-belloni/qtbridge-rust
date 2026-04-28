@@ -52,12 +52,12 @@ impl CppFun {
 
     /// Replace generic idents with concrete types
     /// E.g., T -> i32
-    pub fn substitute_types(&self, type_map: &TypeMappingNested<MultiTypeMapping>, self_type: &syn::Path) -> Self {
+    pub fn substitute_types(&self, type_map: &TypeMappingNested<MultiTypeMapping>, self_type: &syn::Path) -> syn::Result<Self> {
         let src_sign = &self.rust_sign;
-        let mut new_sign = type_map.map_signature(src_sign);
+        let mut new_sign = type_map.map_signature(src_sign)?;
 
         let self_map = TypeMappingNested::new(SelfTypeMapping::new(self_type.clone()));
-        new_sign = self_map.map_signature(&new_sign);
+        new_sign = self_map.map_signature(&new_sign)?;
 
         // Substitute types in C++ code
         let cpp_type_map = type_map.get_impl().iter()
@@ -77,11 +77,11 @@ impl CppFun {
                     .map(|new_ident| syn::Ident::new(new_ident, ident.span())))
         };
 
-        Self {
+        Ok(Self {
             rust_sign: new_sign,
             cpp_func_code: new_cpp_code,
             ..self.clone()
-        }
+        })
     }
 
     /// Replace generic QtTypes with argument with the concrete type

@@ -116,16 +116,16 @@ impl BridgeStruct {
             .is_some_and(|attrs| attrs.derive_cpp_traits().contains(&name.to_string()))
     }
 
-    pub fn get_fields_instantiated(&self, type_map: &TypeMappingNested<MultiTypeMapping>) -> Vec<StructureField> {
+    pub fn get_fields_instantiated(&self, type_map: &TypeMappingNested<MultiTypeMapping>) -> syn::Result<Vec<StructureField>> {
 
         // Substitute types of generic fields with definite ones
         // Clone other fields
         self.fields.iter()
             .map(|field| {
-                StructureField {
+                Ok(StructureField {
                     ident: field.ident.clone(),
-                    ty: type_map.map_path(&field.ty)
-                }
+                    ty: type_map.map_path(&field.ty)?
+                })
             })
             .collect()
     }
