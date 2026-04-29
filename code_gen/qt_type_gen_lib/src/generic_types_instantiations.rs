@@ -16,7 +16,7 @@ use crate::generic_instantiation_decl::GenericInstantiationsList;
 ///       V       | [ QVariant   | QVariant | QString ]
 /// ```
 pub struct GenericTypesInstantiations {
-    map: BTreeMap<syn::Ident, Vec<syn::Path>>
+    map: BTreeMap<syn::Ident, Vec<syn::Type>>
 }
 
 impl<'a> GenericTypesInstantiations {
@@ -42,7 +42,7 @@ impl<'a> GenericTypesInstantiations {
         })
     }
 
-    pub fn iter_type_insts(&'a self) -> impl Iterator<Item = (&'a syn::Ident, &'a Vec<syn::Path>)> {
+    pub fn iter_type_insts(&'a self) -> impl Iterator<Item = (&'a syn::Ident, &'a Vec<syn::Type>)> {
         self.map.iter()
     }
 

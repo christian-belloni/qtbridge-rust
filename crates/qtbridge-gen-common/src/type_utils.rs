@@ -84,6 +84,10 @@ pub fn path_to_type(src: syn::Path) -> syn::Type {
     type_path.into()
 }
 
+pub fn ident_to_type(src: syn::Ident) -> syn::Type {
+    path_to_type(ident_to_path(src))
+}
+
 /// Extract `syn::Path` from `syn::Type` if it is `Path` variant.
 pub fn path_from_type(src: &syn::Type) -> syn::Result<&syn::Path> {
     let syn::Type::Path(type_path) = src else {

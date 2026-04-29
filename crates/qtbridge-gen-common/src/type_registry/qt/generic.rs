@@ -7,7 +7,7 @@ use syn::spanned::Spanned;
 use crate::type_registry;
 use type_registry::type_traits::{FindType, GenericArgs, TypeName, TypeInfo};
 use type_registry::{PrimitiveType, StandardType, TypeCategory};
-use crate::type_utils::path_to_type;
+use crate::type_utils::{path_from_type, path_to_type};
 use crate::type_to_string::path_to_string_fallback;
 use super::monomorphed::QtMonomorphedType;
 use super::non_generic::QtNonGenericType;
@@ -375,10 +375,18 @@ impl TryFrom<&syn::GenericArgument> for QtGenericArg {
     }
 }
 
+impl TryFrom<&syn::Type> for QtGenericArg {
+    type Error = syn::Error;
+    fn try_from(value: &syn::Type) -> syn::Result<Self> {
+        let path = path_from_type(value)?;
+        Self::try_from(path)
+    }
+}
+
 impl TryFrom<&syn::Path> for QtGenericArg {
     type Error = syn::Error;
 
-    fn try_from(path: &syn::Path) -> Result<Self, Self::Error> {
+    fn try_from(path: &syn::Path) -> syn::Result<Self> {
         if let Some(primitive) = PrimitiveType::find_by_path(path) {
             return Ok(Self::Primitive(primitive))
         }

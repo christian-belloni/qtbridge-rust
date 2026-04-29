@@ -4,10 +4,10 @@
 use crate::type_mapping_nested::TypeMappingNested;
 
 /// Trait intended to substitute a type given as Ident
-/// for another type specified as syn::Path
+/// for another type specified as syn::Type
 /// in different syntax constructions.
 pub trait TypeMapping {
-    fn map(&self, key: &syn::Ident) -> Option<syn::Path>;
+    fn map(&self, key: &syn::Ident) -> Option<syn::Type>;
 
     fn new_nested(self) -> TypeMappingNested<Self> where Self: Sized {
         TypeMappingNested::new(self)

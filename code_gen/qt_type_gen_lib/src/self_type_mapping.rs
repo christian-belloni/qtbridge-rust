@@ -4,11 +4,11 @@
 use qtbridge_gen_common::type_mapping::TypeMapping;
 
 pub struct SelfTypeMapping {
-    mapped: syn::Path,
+    mapped: syn::Type,
 }
 
 impl SelfTypeMapping {
-    pub fn new(to: syn::Path) -> Self {
+    pub fn new(to: syn::Type) -> Self {
         Self {
             mapped: to
         }
@@ -16,7 +16,7 @@ impl SelfTypeMapping {
 }
 
 impl TypeMapping for SelfTypeMapping {
-    fn map(&self, key: &syn::Ident) -> Option<syn::Path> {
+    fn map(&self, key: &syn::Ident) -> Option<syn::Type> {
         if key == "Self" {
             return Some(self.mapped.clone());
         }

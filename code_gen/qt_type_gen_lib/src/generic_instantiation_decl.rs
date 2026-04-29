@@ -15,12 +15,12 @@ use crate::qmetatype_attribute::QMetaTypeAttribute;
 /// Type (single or tuple) for which structure will be instantiated
 #[derive(Clone)]
 pub struct GenericInstantiationTypes {
-    types: Vec<syn::Path>,
+    types: Vec<syn::Type>,
     span: Span,
 }
 
 impl GenericInstantiationTypes {
-    pub fn list(&self) -> &[syn::Path] {
+    pub fn list(&self) -> &[syn::Type] {
         &self.types
     }
 

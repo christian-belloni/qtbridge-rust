@@ -77,7 +77,7 @@ impl SubmoduleTypeTokens {
             )?;
 
 
-        self.all.collect_from_path(src.self_type())?;
+        self.all.collect_from_type(src.self_type())?;
         self.collect_from_functions(src.functions())?;
 
         // Substitute trait-level generics

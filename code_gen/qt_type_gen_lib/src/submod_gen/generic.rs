@@ -186,7 +186,7 @@ impl GenericSubmoduleGenerator {
         let mut type_tokens = TypeTokens::default();
         // Iterate types mentioned in fields
         fields.iter()
-            .try_for_each(|field| type_tokens.collect_from_path(field.get_type()))?;
+            .try_for_each(|field| type_tokens.collect_from_type(field.get_type()))?;
 
         // Collect types unmentioned in struct fields
         let phantom_types_vec: Vec<_> = self.generics().list().iter()

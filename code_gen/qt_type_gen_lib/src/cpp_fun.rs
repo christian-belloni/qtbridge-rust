@@ -17,7 +17,7 @@ use qtbridge_gen_common::parse_utils::replace_idents_in_token_stream;
 use qtbridge_gen_common::qt_generic_mapping::QtGenericMapping;
 use qtbridge_gen_common::signature_utils::{is_unsafe, ExpectSelfRef};
 use qtbridge_gen_common::type_mapping_nested::TypeMappingNested;
-use qtbridge_gen_common::type_to_cpp::path_to_cpp_allow_unknown;
+use qtbridge_gen_common::type_to_cpp::type_to_cpp_allow_unknown;
 
 use crate::self_type_mapping::SelfTypeMapping;
 
@@ -52,7 +52,7 @@ impl CppFun {
 
     /// Replace generic idents with concrete types
     /// E.g., T -> i32
-    pub fn substitute_types(&self, type_map: &TypeMappingNested<MultiTypeMapping>, self_type: &syn::Path) -> syn::Result<Self> {
+    pub fn substitute_types(&self, type_map: &TypeMappingNested<MultiTypeMapping>, self_type: &syn::Type) -> syn::Result<Self> {
         let src_sign = &self.rust_sign;
         let mut new_sign = type_map.map_signature(src_sign)?;
 
@@ -62,7 +62,7 @@ impl CppFun {
         // Substitute types in C++ code
         let cpp_type_map = type_map.get_impl().iter()
             .filter_map(|(from, to)| {
-                if let Ok(to_cpp) = path_to_cpp_allow_unknown(to) {
+                if let Ok(to_cpp) = type_to_cpp_allow_unknown(to) {
                     return Some((from.clone(), to_cpp));
                 }
                 None

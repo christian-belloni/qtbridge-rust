@@ -7,7 +7,7 @@ use quote::{ToTokens, quote};
 use syn::parse::Parse;
 
 use qtbridge_gen_common::multi_type_mapping::MultiTypeMapping;
-use qtbridge_gen_common::type_to_string::path_to_ident_str;
+use qtbridge_gen_common::type_to_string::{path_to_ident_str, type_to_ident_str};
 use crate::generic_instantiation_decl::{GenericInstantiationTypes, GenericInstantiationsList};
 use crate::function::Function;
 use crate::generic_types_instantiations::GenericTypesInstantiations;
@@ -19,7 +19,7 @@ use crate::trait_impl_generics::TraitImplGenericList;
 pub struct TraitImpl {
     name: syn::Path,
     generics: TraitImplGenericList,
-    self_type: syn::Path,
+    self_type: syn::Type,
     other_items: Vec<syn::ImplItem>,
     funcs: Vec<Function>,
     attrs: Option<TraitImplAttributes>,
@@ -34,7 +34,7 @@ impl TraitImpl {
         &self.generics
     }
 
-    pub fn self_type(&self) -> &syn::Path {
+    pub fn self_type(&self) -> &syn::Type {
         &self.self_type
     }
 
@@ -92,7 +92,7 @@ impl TraitImpl {
     fn substitute_types(&self, type_map: &TypeMappingNested<MultiTypeMapping>) -> syn::Result<Self> {
         let name = type_map.map_path(&self.name)?;
         let generics = self.generics().clone_generics();
-        let self_type = type_map.map_path(&self.self_type)?;
+        let self_type = type_map.map_type(&self.self_type)?;
 
         let other_items = self.other_items.iter()
             .map(|item| type_map.map_impl_item(item))
@@ -144,7 +144,7 @@ impl TraitImpl {
     pub fn get_inline_trait_functions_default_prefix(&self) -> syn::Result<String> {
         let func_prefix = Function::get_inline_functions_default_prefix();
         let name = path_to_ident_str(&self.name)?;
-        let self_type = path_to_ident_str(&self.self_type)?;
+        let self_type = type_to_ident_str(&self.self_type)?;
         Ok(format!("{func_prefix}TraitImpl_{name}_for_{self_type}_"))
     }
 

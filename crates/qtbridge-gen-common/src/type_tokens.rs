@@ -10,7 +10,7 @@ use type_registry::{CxxType, QtType, QtTypeSpanned, StandardType};
 use type_registry::qt::generic::QtGenericArg;
 use type_registry::type_traits::FindType;
 use crate::type_to_string::path_segment_to_string;
-use crate::type_utils::{are_all_args_generic_idents, get_ident_of_last_path_segment_or_err, ident_to_path};
+use crate::type_utils::{are_all_args_generic_idents, get_ident_of_last_path_segment_or_err, ident_to_path, path_from_type};
 
 
 /// Struct to collect, categorize and hold types gathered by visiting AST entities
@@ -95,6 +95,12 @@ impl TypeTokens {
     pub fn collect_from_path(&mut self, src: &syn::Path) -> syn::Result<()> {
         let mut v = Visitor::new(self);
         v.visit_path(src);
+        v.result()
+    }
+
+    pub fn collect_from_type(&mut self, src: &syn::Type) -> syn::Result<()> {
+        let mut v = Visitor::new(self);
+        v.visit_type(src);
         v.result()
     }
 
@@ -208,10 +214,13 @@ impl TypeTokens {
     }
 
     /// Replace generic idents with concrete types they are instantiated (e.g. T -> [i32, i64, f32,..])
-    pub fn substitute_generic_insts<'a>(&mut self, from_ident: &syn::Ident, mut to_paths: impl Iterator<Item = &'a syn::Path>) -> syn::Result<()> {
+    pub fn substitute_generic_insts<'a>(&mut self, from_ident: &syn::Ident, mut to_paths: impl Iterator<Item = &'a syn::Type>) -> syn::Result<()> {
         let from_path = ident_to_path(from_ident.clone());
         if self.remove_unclassified(&from_path) {
-            to_paths.try_for_each(|path| self.collect_from_path(path))?
+            to_paths.try_for_each(|ty| {
+                let path = path_from_type(ty)?;
+                self.collect_from_path(path)
+            })?
         }
 
         Ok(())

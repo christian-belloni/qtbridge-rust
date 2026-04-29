@@ -10,7 +10,8 @@ use qtbridge_gen_common::naming;
 use qtbridge_gen_common::parse_utils::is_doc_attribute;
 use qtbridge_gen_common::type_mapping::TypeMapping;
 use qtbridge_gen_common::type_registry;
-use qtbridge_gen_common::type_to_string::path_to_string_fallback;
+use qtbridge_gen_common::type_to_string::type_to_string_fallback;
+use qtbridge_gen_common::type_utils::path_from_type;
 use type_registry::QtType;
 use type_registry::qt::{generic::QtGenericArg, monomorphed_alias::QtAliasToMonomorphedType};
 use type_registry::type_traits::{FindType, TypeName};
@@ -81,7 +82,8 @@ impl MonomorphedSubmoduleGenerator {
         let impl_ident = self.impl_ident();
         let mut types = vec![self.src_struct_ident().clone(), impl_ident];
 
-        for (_, gen_path) in self.base.type_map().get_impl().iter() {
+        for (_, gen_type) in self.base.type_map().get_impl().iter() {
+            let gen_path = path_from_type(gen_type)?;
             let ty = type_registry::Type::find_by_path_checked(gen_path)?;
             let qt_type = match ty {
                 type_registry::Type::Qt(qt_type) => qt_type,
@@ -112,7 +114,7 @@ impl MonomorphedSubmoduleGenerator {
         let maybe_allow_non_camel_case = need_allow_non_camel_case
             .then_some(quote! { #[allow(non_camel_case_types)] });
         let types_str = types.iter()
-            .map(|path| format!("[{}]", path_to_string_fallback(path)))
+            .map(|ty| format!("[{}]", type_to_string_fallback(ty)))
             .collect::<Vec<_>>()
             .join(", ");
         let type_or_types_str = match types.len() {
@@ -140,7 +142,7 @@ impl MonomorphedSubmoduleGenerator {
         })
     }
 
-    fn get_generic_types(&self) -> syn::Result<Vec<syn::Path>> {
+    fn get_generic_types(&self) -> syn::Result<Vec<syn::Type>> {
         let struct_ = self.structure();
         struct_.generics()
             .list().iter()

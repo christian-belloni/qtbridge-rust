@@ -18,7 +18,7 @@ use crate::structure_attributes::StructureAttributes;
 #[derive(Clone)]
 pub struct StructureField {
     ident: syn::Ident,
-    ty: syn::Path,
+    ty: syn::Type,
 }
 
 #[derive(Clone)]
@@ -124,7 +124,7 @@ impl BridgeStruct {
             .map(|field| {
                 Ok(StructureField {
                     ident: field.ident.clone(),
-                    ty: type_map.map_path(&field.ty)?
+                    ty: type_map.map_type(&field.ty)?
                 })
             })
             .collect()
@@ -187,7 +187,7 @@ impl Parse for BridgeStruct {
 
 
 impl StructureField {
-    pub fn get_type(&self) -> &syn::Path{
+    pub fn get_type(&self) -> &syn::Type{
         &self.ty
     }
 }

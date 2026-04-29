@@ -265,6 +265,15 @@ impl From<*mut QObject> for QVariant {
         unsafe { conv_fn(value) }
     }
 }
+impl TryFrom<&QVariant> for () {
+    type Error = ();
+    fn try_from(value: &QVariant) -> Result<Self, Self::Error> {
+        match value.is_valid() {
+            true => Err(()),
+            false => Ok(()),
+        }
+    }
+}
 impl TryFrom<&QVariant> for String {
     type Error = ();
     fn try_from(value: &QVariant) -> Result<Self, Self::Error> {
@@ -1031,15 +1040,6 @@ impl TryFrom<QVariant> for Vec<String> {
     type Error = ();
     fn try_from(value: QVariant) -> Result<Self, ()> {
         Self::try_from(&value)
-    }
-}
-impl TryFrom<&QVariant> for () {
-    type Error = ();
-    fn try_from(value: &QVariant) -> Result<Self, Self::Error> {
-        match value.is_valid() {
-            true => Err(()),
-            false => Ok(()),
-        }
     }
 }
 impl QVariant {

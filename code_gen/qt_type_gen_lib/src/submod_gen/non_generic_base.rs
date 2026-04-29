@@ -11,6 +11,7 @@ use qtbridge_gen_common::cpp_include::CppInclude;
 use qtbridge_gen_common::type_registry::qt::monomorphed::QtMonomorphedType;
 use qtbridge_gen_common::type_registry::type_traits::{FindType, TypeInfo};
 use qtbridge_gen_common::type_tokens::TypeTokens;
+use qtbridge_gen_common::type_utils::ident_to_type;
 use qtbridge_gen_common::function_bridge::CppFunctionBridge;
 use qtbridge_gen_common::multi_type_mapping::MultiTypeMapping;
 use qtbridge_gen_common::naming;
@@ -18,7 +19,7 @@ use qtbridge_gen_common::path_utils::relative_input_file_path_to_path_qualified;
 use qtbridge_gen_common::type_dependencies::{qt_types_to_bridge_imports, type_tokens_to_cpp_includes};
 use qtbridge_gen_common::type_mapping::TypeMapping;
 use qtbridge_gen_common::type_mapping_nested::TypeMappingNested;
-use qtbridge_gen_common::type_to_cpp::path_to_cpp;
+use qtbridge_gen_common::type_to_cpp::type_to_cpp;
 
 use crate::function::Function;
 use crate::generic_instantiation_decl::GenericInstantiationDecl;
@@ -52,11 +53,9 @@ impl NonGenericSubmoduleGeneratorBase {
 
         struct_ident = struct_ident
             .or_else(|| struct_.map(|s| s.ident().clone()));
-        let struct_path: syn::Path = struct_ident.clone()
-            .unwrap_or_else(|| {
-                format_ident!("dummy")
-            })
-            .into();
+        let struct_type = ident_to_type(struct_ident
+            .clone()
+            .unwrap_or_else(|| format_ident!("dummy")));
 
         let type_map_impl = if let Some(inst) = inst.as_ref() {
             inst.types()
@@ -74,7 +73,7 @@ impl NonGenericSubmoduleGeneratorBase {
         };
         let qmetatype_id = qmetatype.map(|q| q.id().unwrap_or_default());
 
-        let funcs_substituted = get_functions_substituted(src_module.functions(), &struct_path, &type_map)?;
+        let funcs_substituted = get_functions_substituted(src_module.functions(), &struct_type, &type_map)?;
         let traits_substituted = match inst.as_ref() {
             Some(inst) =>get_traits_substituted(
                 src_module.traits().iter()
@@ -326,8 +325,8 @@ impl NonGenericSubmoduleGeneratorBase {
     fn get_inline_cpp_functions_bridges(&self) -> syn::Result<Vec<CppFunctionBridge>> {
 
         let func_prefix = Function::get_inline_functions_default_prefix();
-        let func_self_type: Option<syn::Path> = self.struct_ident()
-            .map(|ident| ident.clone().into());
+        let func_self_type: Option<syn::Type> = self.struct_ident()
+            .map(|ident| ident_to_type(ident.clone()));
         let is_opaque_struct = self.is_opaque_struct();
 
         let mut result = Vec::new();
@@ -610,7 +609,7 @@ namespace {bridge_namespace} {{
             .map(|ident| {
                 let rust_type = self.type_map.get_impl().map(ident)
                     .ok_or_else(|| syn::Error::new(ident.span(), format!("Substitution for type {ident} was not found")))?;
-                let cpp_type = path_to_cpp(&rust_type)
+                let cpp_type = type_to_cpp(&rust_type)
                     .map_err(|err| syn::Error::new(err.span(), format!("Type {ident} can't be used in generic type bridge. Error: {err}")))?;
                 Ok(cpp_type)
             })

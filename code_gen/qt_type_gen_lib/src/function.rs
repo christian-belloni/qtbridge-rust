@@ -12,6 +12,7 @@ use qtbridge_gen_common::multi_type_mapping::MultiTypeMapping;
 use qtbridge_gen_common::naming;
 use qtbridge_gen_common::signature_utils::change_first_arg;
 use qtbridge_gen_common::type_mapping_nested::TypeMappingNested;
+use qtbridge_gen_common::type_utils::ident_to_type;
 
 use crate::cpp_fun::CppFun;
 use crate::cpp_fun_processor::CppFunProcessor;
@@ -33,7 +34,7 @@ impl Function {
 
     /// Replace generic idents with concrete types
     /// E.g., T -> i32
-    pub fn substitute_types(&self, type_map: &TypeMappingNested<MultiTypeMapping>, self_type: &syn::Path) -> syn::Result<Self> {
+    pub fn substitute_types(&self, type_map: &TypeMappingNested<MultiTypeMapping>, self_type: &syn::Type) -> syn::Result<Self> {
         let src_func = &self.rust_func;
         let src_sig = &src_func.sig;
 
@@ -87,12 +88,12 @@ impl Function {
     pub fn get_rust_func(&self, name_prefix: &str) -> syn::Result<syn::ItemFn> {
 
         // replace inline function names
-        let ident_map: BTreeMap<syn::Ident, syn::Path> = (0..self.cpp_funcs.len())
+        let ident_map: BTreeMap<syn::Ident, syn::Type> = (0..self.cpp_funcs.len())
             .map(|idx| {
                 let from_str = case_conv::camel_to_snake(&CppFunProcessor::inline_function_cpp_name_for_num(idx));
                 let to_str = self.get_cpp_func_name(name_prefix, idx).1;
                 let from = format_ident!("{from_str}");
-                let to = format_ident!("{to_str}").into();
+                let to = ident_to_type(format_ident!("{to_str}"));
                 (from, to)
             })
             .collect();
@@ -107,7 +108,7 @@ impl Function {
         format!("{}_", naming::cpp::function::inline_function_prefix())
     }
 
-    pub fn get_cpp_funcs_bridges(&self, name_prefix: &str, self_type: Option<&syn::Path>, is_opaque_struct: bool) -> syn::Result<Vec<CppFunctionBridge>> {
+    pub fn get_cpp_funcs_bridges(&self, name_prefix: &str, self_type: Option<&syn::Type>, is_opaque_struct: bool) -> syn::Result<Vec<CppFunctionBridge>> {
         let mut result = Vec::new();
         for fn_idx in 0..self.cpp_funcs.len() {
             let sign = self.get_cpp_func_bridge_signature(fn_idx, name_prefix, self_type, is_opaque_struct)?;
@@ -133,7 +134,7 @@ impl Function {
         Ok((decls, defs))
     }
 
-    fn get_cpp_func_bridge_signature(&self, cpp_fn_num: usize, name_prefix: &str, self_type: Option<&syn::Path>, is_opaque_struct: bool) -> syn::Result<syn::Signature> {
+    fn get_cpp_func_bridge_signature(&self, cpp_fn_num: usize, name_prefix: &str, self_type: Option<&syn::Type>, is_opaque_struct: bool) -> syn::Result<syn::Signature> {
         let cpp_fn = self.cpp_funcs.get(cpp_fn_num).unwrap();
 
         // Replace Self with definite type

@@ -10,17 +10,17 @@ use crate::type_mapping::TypeMapping;
 ///   Key - generic param name (e.g. 'T')
 ///   Value - concrete type that this param takes (e.g. 'String')
 pub struct MultiTypeMapping {
-    map: BTreeMap<syn::Ident, syn::Path>,
+    map: BTreeMap<syn::Ident, syn::Type>,
 }
 
 impl<'a> MultiTypeMapping {
-    pub fn new(map: BTreeMap<syn::Ident, syn::Path>) -> Self {
+    pub fn new(map: BTreeMap<syn::Ident, syn::Type>) -> Self {
         Self {
             map
         }
     }
 
-    pub fn iter(&'a self) -> impl Iterator<Item = (&'a syn::Ident, &'a syn::Path)> {
+    pub fn iter(&'a self) -> impl Iterator<Item = (&'a syn::Ident, &'a syn::Type)> {
          self.map.iter()
     }
 
@@ -28,13 +28,13 @@ impl<'a> MultiTypeMapping {
         self.map.is_empty()
     }
 
-    pub fn extend<'f>(&mut self, src: impl Iterator<Item = (&'f syn::Ident, &'f syn::Path)>) {
+    pub fn extend<'f>(&mut self, src: impl Iterator<Item = (&'f syn::Ident, &'f syn::Type)>) {
         self.map.extend(src.map(|(gen_ident, gen_type)| (gen_ident.clone(), gen_type.clone())))
     }
 }
 
-impl From<BTreeMap<syn::Ident, syn::Path>> for MultiTypeMapping {
-    fn from(map: BTreeMap<syn::Ident, syn::Path>) -> Self {
+impl From<BTreeMap<syn::Ident, syn::Type>> for MultiTypeMapping {
+    fn from(map: BTreeMap<syn::Ident, syn::Type>) -> Self {
         Self {
             map
         }
@@ -42,7 +42,7 @@ impl From<BTreeMap<syn::Ident, syn::Path>> for MultiTypeMapping {
 }
 
 impl TypeMapping for MultiTypeMapping {
-    fn map(&self, key: &syn::Ident) -> Option<syn::Path> {
+    fn map(&self, key: &syn::Ident) -> Option<syn::Type> {
         self.map.get(key).cloned()
     }
 }

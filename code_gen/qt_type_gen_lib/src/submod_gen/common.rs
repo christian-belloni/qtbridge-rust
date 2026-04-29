@@ -9,7 +9,7 @@ use quote::{format_ident, quote};
 use qtbridge_gen_common::multi_type_mapping::MultiTypeMapping;
 use qtbridge_gen_common::path_utils::relative_input_file_path_to_path_qualified;
 use qtbridge_gen_common::type_mapping_nested::TypeMappingNested;
-use qtbridge_gen_common::type_to_string::path_to_ident_str;
+use qtbridge_gen_common::type_to_string::type_to_ident_str;
 
 use crate::function::Function;
 use crate::generic_instantiation_decl::GenericInstantiationTypes;
@@ -26,7 +26,7 @@ pub fn get_monomorped_struct_ident(struct_: &BridgeStruct, inst: &GenericInstant
 fn get_monomorped_struct_name(struct_: &BridgeStruct, inst: &GenericInstantiationTypes) -> syn::Result<String> {
     let src_ident = struct_.ident();
     let inst_suffix = inst.list().iter()
-        .map(path_to_ident_str)
+        .map(type_to_ident_str)
         .collect::<syn::Result<Vec<_>>>()?
         .join("_");
 
@@ -61,7 +61,7 @@ pub fn get_traits_substituted<'a>(src: impl Iterator<Item = &'a TraitImpl>, type
     Ok(result)
 }
 
-pub fn get_functions_substituted(src: &[Function], self_type: &syn::Path, type_map: &TypeMappingNested<MultiTypeMapping>) -> syn::Result<Vec<Function>> {
+pub fn get_functions_substituted(src: &[Function], self_type: &syn::Type, type_map: &TypeMappingNested<MultiTypeMapping>) -> syn::Result<Vec<Function>> {
     src.iter()
         .map(|func| func.substitute_types(type_map, self_type))
         .collect::<syn::Result<_>>()
