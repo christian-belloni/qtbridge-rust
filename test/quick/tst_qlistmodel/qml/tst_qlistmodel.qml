@@ -71,9 +71,6 @@ TestCase {
         check_sync()
     }
 
-    /* Set fails due to borrowing errors.
-    See https://qt-project.atlassian.net/browse/QTBRIDGES-63
-    TODO: Fix the bug and uncomment this test
     function test_set() {
         rustmodel.resetItems()
         rustmodel.setTwoToNull()
@@ -87,7 +84,6 @@ TestCase {
         compare(rustmodel.data(rustmodel.index(2, 0), 0), "")
         check_sync()
     }
-    */
 
     function test_insert() {
         rustmodel.resetItems()
