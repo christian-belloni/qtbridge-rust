@@ -12,24 +12,47 @@ pub fn is_type_mapped_to_cpp(ty: &syn::Type) -> bool {
     type_to_cpp(ty).is_ok()
 }
 
+/// Maps Rust type given as a `syn::Type` to its C++ equivalent.
 pub fn type_to_cpp(src: &syn::Type) -> syn::Result<String> {
+    let map = TypeMapToCpp::new();
+    map.type_to_cpp(src)
+}
+
+/// Maps Rust type given as a `syn::Path` to its C++ equivalent.
+pub fn path_to_cpp(src: &syn::Path) -> syn::Result<String> {
+    let map = TypeMapToCpp::new();
+    map.path_to_cpp(src)
+}
+
+
+/// Struct that maps Rust types to their corresponding C++ equivalents.
+pub struct TypeMapToCpp {
+}
+
+impl TypeMapToCpp {
+    pub fn new() -> Self {
+        Self {
+        }
+    }
+
+pub fn type_to_cpp(&self, src: &syn::Type) -> syn::Result<String> {
     match src {
         syn::Type::BareFn(bare_fn) =>
-            type_bare_fn_to_cpp(bare_fn),
+            self.type_bare_fn_to_cpp(bare_fn),
         syn::Type::Path(type_path) =>
-            type_path_to_cpp(type_path),
+            self.type_path_to_cpp(type_path),
         syn::Type::Ptr(type_ptr) =>
-            type_ptr_to_cpp(type_ptr),
+            self.type_ptr_to_cpp(type_ptr),
         syn::Type::Reference(type_ref) =>
-            type_ref_to_cpp(type_ref),
+            self.type_ref_to_cpp(type_ref),
         syn::Type::Slice(type_slice) =>
-            type_slice_to_cpp(type_slice),
+            self.type_slice_to_cpp(type_slice),
         _ =>
             Err(syn::Error::new(src.span(), format!("Unsupported type category {:?} of type {}", std::mem::discriminant(src), src.to_token_stream()))),
     }
 }
 
-pub fn type_bare_fn_to_cpp(src: &syn::TypeBareFn) -> syn::Result<String> {
+pub fn type_bare_fn_to_cpp(&self, src: &syn::TypeBareFn) -> syn::Result<String> {
     if let Some(lt) = &src.lifetimes {
         return Err(syn::Error::new(lt.span(), "Bare function with explicit lifetimes are unsupported"))
     }
@@ -42,12 +65,12 @@ pub fn type_bare_fn_to_cpp(src: &syn::TypeBareFn) -> syn::Result<String> {
 
     let return_type = match &src.output {
         syn::ReturnType::Default => "void".into(),
-        syn::ReturnType::Type(_, ty) => type_to_cpp(ty.as_ref())?,
+        syn::ReturnType::Type(_, ty) => self.type_to_cpp(ty.as_ref())?,
     };
 
     let mut all_args_str = String::new();
     for arg in &src.inputs {
-        let mut arg_str = type_to_cpp(&arg.ty)?;
+        let mut arg_str = self.type_to_cpp(&arg.ty)?;
         if let Some((arg_name, _)) = arg.name.as_ref() {
             arg_str.push_str(&arg_name.to_string());
         }
@@ -61,23 +84,23 @@ pub fn type_bare_fn_to_cpp(src: &syn::TypeBareFn) -> syn::Result<String> {
     Ok(format!("rust::Fn<{return_type}({all_args_str})>"))
 }
 
-pub fn type_path_to_cpp(src: &syn::TypePath) -> syn::Result<String> {
+pub fn type_path_to_cpp(&self, src: &syn::TypePath) -> syn::Result<String> {
     if let Some(qself) = &src.qself {
         return Err(syn::Error::new(qself.span(), "QSelf is not supported in type conversion"));
     }
 
-    path_to_cpp(&src.path)
+    self.path_to_cpp(&src.path)
 }
 
-fn type_ptr_to_cpp(src: &syn::TypePtr) -> syn::Result<String> {
+fn type_ptr_to_cpp(&self, src: &syn::TypePtr) -> syn::Result<String> {
     // TODO: Check if this is correct in cases of pointer to pointer or pointer to reference, etc
 
-    let ty = type_to_cpp(src.elem.as_ref())?;
+    let ty = self.type_to_cpp(src.elem.as_ref())?;
     let maybe_const = if src.const_token.is_some() { " const" } else { "" };
     Ok(format!("{ty}{maybe_const}*"))
 }
 
-fn type_ref_to_cpp(src: &syn::TypeReference) -> syn::Result<String> {
+fn type_ref_to_cpp(&self, src: &syn::TypeReference) -> syn::Result<String> {
     // TODO: Check if this is correct in cases of reference to reference or reference to pointer, etc
 
     // Cases need to be handled in special way
@@ -85,7 +108,7 @@ fn type_ref_to_cpp(src: &syn::TypeReference) -> syn::Result<String> {
         syn::Type::Slice(type_slice) => {
             let maybe_const = src.mutability
                 .map_or("const ", |_| "");
-            let ty = type_to_cpp(type_slice.elem.as_ref())?;
+            let ty = self.type_to_cpp(type_slice.elem.as_ref())?;
             return Ok(format!("rust::Slice<{maybe_const} {ty}>"))
         },
         syn::Type::Path(type_path) => {
@@ -97,16 +120,16 @@ fn type_ref_to_cpp(src: &syn::TypeReference) -> syn::Result<String> {
     }
 
     let maybe_const = if src.mutability.is_none() { "const " } else { "" };
-    Ok(format!("{maybe_const}{}&", type_to_cpp(src.elem.as_ref())?))
+    Ok(format!("{maybe_const}{}&", self.type_to_cpp(src.elem.as_ref())?))
 }
 
-fn type_slice_to_cpp(src: &syn::TypeSlice) -> syn::Result<String> {
+fn type_slice_to_cpp(&self, src: &syn::TypeSlice) -> syn::Result<String> {
     // TODO: &mut [T] ?
-    let ty = type_to_cpp(src.elem.as_ref())?;
+    let ty = self.type_to_cpp(src.elem.as_ref())?;
     Ok(format!("rust::Slice<const {ty}>"))
 }
 
-pub fn path_to_cpp(src: &syn::Path) -> syn::Result<String> {
+pub fn path_to_cpp(&self, src: &syn::Path) -> syn::Result<String> {
     let segments = &src.segments;
     let seg0 = segments.first()
         .ok_or(syn::Error::new(src.span(), "Empty type path"))?;
@@ -115,10 +138,10 @@ pub fn path_to_cpp(src: &syn::Path) -> syn::Result<String> {
         1 => {
             match &seg0.arguments {
                 syn::PathArguments::None => {
-                    return type_ident_to_cpp(&seg0.ident, None)
+                    return self.type_ident_to_cpp(&seg0.ident, None)
                 },
                 syn::PathArguments::AngleBracketed(_ab) => {
-                    return path_segment_angle_bracketed_to_cpp(seg0, None)
+                    return self.path_segment_angle_bracketed_to_cpp(seg0, None)
                 },
                 _ => {},
             }
@@ -134,9 +157,9 @@ pub fn path_to_cpp(src: &syn::Path) -> syn::Result<String> {
                 };
                 let result = match &seg1.arguments {
                     syn::PathArguments::None =>
-                        type_ident_to_cpp(&seg1.ident, Some(&category)),
+                        self.type_ident_to_cpp(&seg1.ident, Some(&category)),
                     syn::PathArguments::AngleBracketed(_ab) =>
-                        path_segment_angle_bracketed_to_cpp(seg1, Some(&category)),
+                        self.path_segment_angle_bracketed_to_cpp(seg1, Some(&category)),
                     syn::PathArguments::Parenthesized(p) =>
                         Err(syn::Error::new(seg1.arguments.span(), format!("Parenthesized arguments are unsupported: '{}'", p.to_token_stream()))),
                 };
@@ -149,7 +172,7 @@ pub fn path_to_cpp(src: &syn::Path) -> syn::Result<String> {
     Err(syn::Error::new(src.span(), format!("Conversion of unsupported type to C++: {}", segments.to_token_stream())))
 }
 
-pub fn type_ident_to_cpp(src: &syn::Ident, category: Option<&TypeCategory>) -> syn::Result<String> {
+pub fn type_ident_to_cpp(&self, src: &syn::Ident, category: Option<&TypeCategory>) -> syn::Result<String> {
     let ty = type_registry::Type::find_by_ident_in_opt_category_result(src, category)?;
     let ty_info = ty.dyn_type_info();
     let cpp_name = ty_info.cpp_name()
@@ -160,7 +183,7 @@ pub fn type_ident_to_cpp(src: &syn::Ident, category: Option<&TypeCategory>) -> s
     Ok(result)
 }
 
-fn path_segment_angle_bracketed_to_cpp(src: &syn::PathSegment, category: Option<&TypeCategory>) -> syn::Result<String> {
+fn path_segment_angle_bracketed_to_cpp(&self, src: &syn::PathSegment, category: Option<&TypeCategory>) -> syn::Result<String> {
     let syn::PathArguments::AngleBracketed(ab) = &src.arguments else {
         return Err(syn::Error::new(src.span(), "Expected angle bracketed type"))
     };
@@ -180,7 +203,7 @@ fn path_segment_angle_bracketed_to_cpp(src: &syn::PathSegment, category: Option<
     ab.args.iter()
         .try_for_each(|src_arg| {
             let arg = match src_arg {
-                syn::GenericArgument::Type(ty) => type_to_cpp(ty)?,
+                syn::GenericArgument::Type(ty) => self.type_to_cpp(ty)?,
                 _ => return Err(syn::Error::new(src_arg.span(), format!("Unsupported type of generic argument: {}", src_arg.to_token_stream())))
             };
             args.push(arg);
@@ -188,4 +211,6 @@ fn path_segment_angle_bracketed_to_cpp(src: &syn::PathSegment, category: Option<
         })?;
 
     Ok(format!("{cpp_ident}<{}>", args.join(",")))
+}
+
 }
