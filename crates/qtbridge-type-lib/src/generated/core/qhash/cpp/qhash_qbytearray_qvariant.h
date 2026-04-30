@@ -24,26 +24,26 @@ QHash_QByteArray_QVariant QHash_Clone(const QHash_QByteArray_QVariant &src);
 
 void inlineCppFn_clear(QHash_QByteArray_QVariant &self);
 
-bool inlineCppFn_contains(const QHash_QByteArray_QVariant &self, const QByteArray &key);
+bool inlineCppFn_contains(QHash_QByteArray_QVariant const &self, QByteArray const &key);
 
-void inlineCppFn_insert(QHash_QByteArray_QVariant &self, const QByteArray &key,
-                        const QVariant &value);
+void inlineCppFn_insert(QHash_QByteArray_QVariant &self, QByteArray const &key,
+                        QVariant const &value);
 
-bool inlineCppFn_is_empty(const QHash_QByteArray_QVariant &self);
+bool inlineCppFn_is_empty(QHash_QByteArray_QVariant const &self);
 
-bool inlineCppFn_remove(QHash_QByteArray_QVariant &self, const QByteArray &key);
+bool inlineCppFn_remove(QHash_QByteArray_QVariant &self, QByteArray const &key);
 
-ptrdiff_t inlineCppFn_size(const QHash_QByteArray_QVariant &self);
+ptrdiff_t inlineCppFn_size(QHash_QByteArray_QVariant const &self);
 
-QList_QByteArray inlineCppFn_keys(const QHash_QByteArray_QVariant &self);
+QList_QByteArray inlineCppFn_keys(QHash_QByteArray_QVariant const &self);
 
-QList_QVariant inlineCppFn_values(const QHash_QByteArray_QVariant &self);
+QList_QVariant inlineCppFn_values(QHash_QByteArray_QVariant const &self);
 
-QVariant inlineCppFn_value(const QHash_QByteArray_QVariant &self, const QByteArray &key);
+QVariant inlineCppFn_value(QHash_QByteArray_QVariant const &self, QByteArray const &key);
 
 QVariant const *
 inlineCppFn_TraitImpl_std_ops_Index_ref_QByteArray_for_QHash_QByteArray_QVariant_index(
-        const QHash_QByteArray_QVariant &self, const QByteArray &key);
+        QHash_QByteArray_QVariant const &self, QByteArray const &key);
 
 } // namespace rust::bridge::qhash_qbytearray_qvariant
 

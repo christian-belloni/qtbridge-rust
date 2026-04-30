@@ -32,7 +32,7 @@ void inlineCppFn_load_from_module(QQmlApplicationEngine &self, rust::Str uri, ru
     self.loadFromModule(RustStrToQString(uri), RustStrToQString(type_name));
 }
 
-void inlineCppFn_set_initial_properties(QQmlApplicationEngine &self, const QVariantMap &props)
+void inlineCppFn_set_initial_properties(QQmlApplicationEngine &self, QVariantMap const &props)
 {
     self.setInitialProperties(props);
 }

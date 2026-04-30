@@ -23,11 +23,11 @@ QMetaType QList_QMetaType();
 
 void inlineCppFn_append(QList_bool &self, bool value);
 
-size_t inlineCppFn_capacity(const QList_bool &self);
+size_t inlineCppFn_capacity(QList_bool const &self);
 
 void inlineCppFn_clear(QList_bool &self);
 
-bool inlineCppFn_contains(const QList_bool &self, const bool &value);
+bool inlineCppFn_contains(QList_bool const &self, bool const &value);
 
 void inlineCppFn_push_back(QList_bool &self, bool value);
 
@@ -35,21 +35,21 @@ void inlineCppFn_remove(QList_bool &self, ptrdiff_t i, ptrdiff_t n);
 
 void inlineCppFn_reserve(QList_bool &self, size_t size);
 
-ptrdiff_t inlineCppFn_size(const QList_bool &self);
+ptrdiff_t inlineCppFn_size(QList_bool const &self);
 
-const bool &inlineCppFn_first(const QList_bool &self);
+bool const &inlineCppFn_first(QList_bool const &self);
 
-const bool &inlineCppFn_last(const QList_bool &self);
+bool const &inlineCppFn_last(QList_bool const &self);
 
-rust::Vec<bool> inlineCppFn_TraitImpl_From_ref_QList_bool_for_Vec_bool_from(const QList_bool &src);
+rust::Vec<bool> inlineCppFn_TraitImpl_From_ref_QList_bool_for_Vec_bool_from(QList_bool const &src);
 
-bool const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_bool_index(const QList_bool &self,
+bool const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_bool_index(QList_bool const &self,
                                                                            size_t index);
 
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_bool_eq(const QList_bool &lhs,
-                                                       const QList_bool &rhs);
+bool inlineCppFn_TraitImpl_PartialEq_for_QList_bool_eq(QList_bool const &lhs,
+                                                       QList_bool const &rhs);
 
-bool inlineCppFn_TraitImpl_PartialEq_array_of_bool_N_for_QList_bool_eq(const QList_bool &self,
+bool inlineCppFn_TraitImpl_PartialEq_array_of_bool_N_for_QList_bool_eq(QList_bool const &self,
                                                                        rust::Slice<const bool> rhs);
 
 } // namespace rust::bridge::qlist_bool

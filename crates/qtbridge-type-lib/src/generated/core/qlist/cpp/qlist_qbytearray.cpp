@@ -29,7 +29,7 @@ void inlineCppFn_append(QList_QByteArray &self, QByteArray value)
     self.append(value);
 }
 
-size_t inlineCppFn_capacity(const QList_QByteArray &self)
+size_t inlineCppFn_capacity(QList_QByteArray const &self)
 {
     return self.capacity();
 }
@@ -39,7 +39,7 @@ void inlineCppFn_clear(QList_QByteArray &self)
     self.clear();
 }
 
-bool inlineCppFn_contains(const QList_QByteArray &self, const QByteArray &value)
+bool inlineCppFn_contains(QList_QByteArray const &self, QByteArray const &value)
 {
     return self.contains(value);
 }
@@ -59,36 +59,36 @@ void inlineCppFn_reserve(QList_QByteArray &self, size_t size)
     self.reserve(static_cast<qsizetype>(size));
 }
 
-ptrdiff_t inlineCppFn_size(const QList_QByteArray &self)
+ptrdiff_t inlineCppFn_size(QList_QByteArray const &self)
 {
     return self.size();
 }
 
-const QByteArray &inlineCppFn_first(const QList_QByteArray &self)
+QByteArray const &inlineCppFn_first(QList_QByteArray const &self)
 {
     return self.constFirst();
 }
 
-const QByteArray &inlineCppFn_last(const QList_QByteArray &self)
+QByteArray const &inlineCppFn_last(QList_QByteArray const &self)
 {
     return self.constLast();
 }
 
 QByteArray const *
-inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QByteArray_index(const QList_QByteArray &self,
+inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QByteArray_index(QList_QByteArray const &self,
                                                                      size_t index)
 {
     return index < static_cast<size_t>(self.size()) ? &self[index] : nullptr;
 }
 
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_QByteArray_eq(const QList_QByteArray &lhs,
-                                                             const QList_QByteArray &rhs)
+bool inlineCppFn_TraitImpl_PartialEq_for_QList_QByteArray_eq(QList_QByteArray const &lhs,
+                                                             QList_QByteArray const &rhs)
 {
     return lhs == rhs;
 }
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_QByteArray_N_for_QList_QByteArray_eq(
-        const QList_QByteArray &self, rust::Slice<const QByteArray> rhs)
+        QList_QByteArray const &self, rust::Slice<const QByteArray> rhs)
 {
     for (size_t i = 0; i < rhs.size(); ++i) {
         if (self[i] != rhs[i])

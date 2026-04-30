@@ -17,15 +17,15 @@ void QModelIndex_Drop(QModelIndex &v);
 QModelIndex QModelIndex_Default();
 QModelIndex QModelIndex_Clone(const QModelIndex &src);
 
-int32_t inlineCppFn_column(const QModelIndex &self);
+int32_t inlineCppFn_column(QModelIndex const &self);
 
-int32_t inlineCppFn_row(const QModelIndex &self);
+int32_t inlineCppFn_row(QModelIndex const &self);
 
-size_t inlineCppFn_internal_pointer(const QModelIndex &self);
+size_t inlineCppFn_internal_pointer(QModelIndex const &self);
 
-QVariant inlineCppFn_data(const QModelIndex &self);
+QVariant inlineCppFn_data(QModelIndex const &self);
 
-bool inlineCppFn_is_valid(const QModelIndex &self);
+bool inlineCppFn_is_valid(QModelIndex const &self);
 
 } // namespace rust::bridge::qmodelindex
 

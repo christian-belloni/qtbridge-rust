@@ -24,17 +24,17 @@ QVariant QVariant_Clone(const QVariant &src)
     return { src };
 }
 
-bool inlineCppFn_is_valid(const QVariant &self)
+bool inlineCppFn_is_valid(QVariant const &self)
 {
     return self.isValid();
 }
 
-QMetaType inlineCppFn_meta_type(const QVariant &self)
+QMetaType inlineCppFn_meta_type(QVariant const &self)
 {
     return self.metaType();
 }
 
-rust::String inlineCppFn_TraitImpl_ToString_for_QVariant_to_string(const QVariant &self)
+rust::String inlineCppFn_TraitImpl_ToString_for_QVariant_to_string(QVariant const &self)
 {
     return QStringToRustString(self.toString());
 }
@@ -45,7 +45,7 @@ QVariant inlineCppFn_TraitImpl_From_string_slice_for_QVariant_from(rust::Str fro
 }
 
 QVariant
-inlineCppFn_TraitImpl_From_ref_Vec_String_for_QVariant_from(const rust::Vec<rust::String> &from)
+inlineCppFn_TraitImpl_From_ref_Vec_String_for_QVariant_from(rust::Vec<rust::String> const &from)
 {
     QStringList sl;
     sl.reserve(from.size());
@@ -59,7 +59,7 @@ QVariant inlineCppFn_TraitImpl_From_ptr_mut_QObject_for_QVariant_from(QObject *f
     return QVariant::fromValue(from);
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_String_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_String_try_from(QVariant const &from,
                                                                     rust::String &result)
 {
     if (!from.canConvert<QString>())
@@ -70,7 +70,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_String_try_from(const QVaria
 }
 
 bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_String_try_from(
-        const QVariant &from, rust::Vec<rust::String> &result)
+        QVariant const &from, rust::Vec<rust::String> &result)
 {
     if (!from.canConvert<QStringList>())
         return false;
@@ -79,145 +79,145 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_String_try_from(
     return true;
 }
 
-QVariant inlineCppFn_TraitImpl_From_ref_bool_for_QVariant_from(const bool &value)
+QVariant inlineCppFn_TraitImpl_From_ref_bool_for_QVariant_from(bool const &value)
 {
     return QVariant::fromValue(value);
 }
 
-QVariant inlineCppFn_TraitImpl_From_ref_i8_for_QVariant_from(const int8_t &value)
+QVariant inlineCppFn_TraitImpl_From_ref_i8_for_QVariant_from(int8_t const &value)
 {
     return QVariant::fromValue(value);
 }
 
-QVariant inlineCppFn_TraitImpl_From_ref_u8_for_QVariant_from(const uint8_t &value)
+QVariant inlineCppFn_TraitImpl_From_ref_u8_for_QVariant_from(uint8_t const &value)
 {
     return QVariant::fromValue(value);
 }
 
-QVariant inlineCppFn_TraitImpl_From_ref_i16_for_QVariant_from(const int16_t &value)
+QVariant inlineCppFn_TraitImpl_From_ref_i16_for_QVariant_from(int16_t const &value)
 {
     return QVariant::fromValue(value);
 }
 
-QVariant inlineCppFn_TraitImpl_From_ref_u16_for_QVariant_from(const uint16_t &value)
+QVariant inlineCppFn_TraitImpl_From_ref_u16_for_QVariant_from(uint16_t const &value)
 {
     return QVariant::fromValue(value);
 }
 
-QVariant inlineCppFn_TraitImpl_From_ref_i32_for_QVariant_from(const int32_t &value)
+QVariant inlineCppFn_TraitImpl_From_ref_i32_for_QVariant_from(int32_t const &value)
 {
     return QVariant::fromValue(value);
 }
 
-QVariant inlineCppFn_TraitImpl_From_ref_u32_for_QVariant_from(const uint32_t &value)
+QVariant inlineCppFn_TraitImpl_From_ref_u32_for_QVariant_from(uint32_t const &value)
 {
     return QVariant::fromValue(value);
 }
 
-QVariant inlineCppFn_TraitImpl_From_ref_i64_for_QVariant_from(const int64_t &value)
+QVariant inlineCppFn_TraitImpl_From_ref_i64_for_QVariant_from(int64_t const &value)
 {
     return QVariant::fromValue(value);
 }
 
-QVariant inlineCppFn_TraitImpl_From_ref_u64_for_QVariant_from(const uint64_t &value)
+QVariant inlineCppFn_TraitImpl_From_ref_u64_for_QVariant_from(uint64_t const &value)
 {
     return QVariant::fromValue(value);
 }
 
-QVariant inlineCppFn_TraitImpl_From_ref_isize_for_QVariant_from(const ptrdiff_t &value)
+QVariant inlineCppFn_TraitImpl_From_ref_isize_for_QVariant_from(ptrdiff_t const &value)
 {
     return QVariant::fromValue(value);
 }
 
-QVariant inlineCppFn_TraitImpl_From_ref_usize_for_QVariant_from(const size_t &value)
+QVariant inlineCppFn_TraitImpl_From_ref_usize_for_QVariant_from(size_t const &value)
 {
     return QVariant::fromValue(value);
 }
 
-QVariant inlineCppFn_TraitImpl_From_ref_f32_for_QVariant_from(const float &value)
+QVariant inlineCppFn_TraitImpl_From_ref_f32_for_QVariant_from(float const &value)
 {
     return QVariant::fromValue(value);
 }
 
-QVariant inlineCppFn_TraitImpl_From_ref_f64_for_QVariant_from(const double &value)
+QVariant inlineCppFn_TraitImpl_From_ref_f64_for_QVariant_from(double const &value)
 {
     return QVariant::fromValue(value);
 }
 
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_bool_for_QVariant_from(const rust::Vec<bool> &value)
+QVariant inlineCppFn_TraitImpl_From_ref_Vec_bool_for_QVariant_from(rust::Vec<bool> const &value)
 {
     QList<bool> qlist(value.cbegin(), value.cend());
     return QVariant::fromValue(qlist);
 }
 
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_i8_for_QVariant_from(const rust::Vec<int8_t> &value)
+QVariant inlineCppFn_TraitImpl_From_ref_Vec_i8_for_QVariant_from(rust::Vec<int8_t> const &value)
 {
     QList<int8_t> qlist(value.cbegin(), value.cend());
     return QVariant::fromValue(qlist);
 }
 
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_u8_for_QVariant_from(const rust::Vec<uint8_t> &value)
+QVariant inlineCppFn_TraitImpl_From_ref_Vec_u8_for_QVariant_from(rust::Vec<uint8_t> const &value)
 {
     QList<uint8_t> qlist(value.cbegin(), value.cend());
     return QVariant::fromValue(qlist);
 }
 
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_i16_for_QVariant_from(const rust::Vec<int16_t> &value)
+QVariant inlineCppFn_TraitImpl_From_ref_Vec_i16_for_QVariant_from(rust::Vec<int16_t> const &value)
 {
     QList<int16_t> qlist(value.cbegin(), value.cend());
     return QVariant::fromValue(qlist);
 }
 
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_u16_for_QVariant_from(const rust::Vec<uint16_t> &value)
+QVariant inlineCppFn_TraitImpl_From_ref_Vec_u16_for_QVariant_from(rust::Vec<uint16_t> const &value)
 {
     QList<uint16_t> qlist(value.cbegin(), value.cend());
     return QVariant::fromValue(qlist);
 }
 
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_i32_for_QVariant_from(const rust::Vec<int32_t> &value)
+QVariant inlineCppFn_TraitImpl_From_ref_Vec_i32_for_QVariant_from(rust::Vec<int32_t> const &value)
 {
     QList<int32_t> qlist(value.cbegin(), value.cend());
     return QVariant::fromValue(qlist);
 }
 
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_u32_for_QVariant_from(const rust::Vec<uint32_t> &value)
+QVariant inlineCppFn_TraitImpl_From_ref_Vec_u32_for_QVariant_from(rust::Vec<uint32_t> const &value)
 {
     QList<uint32_t> qlist(value.cbegin(), value.cend());
     return QVariant::fromValue(qlist);
 }
 
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_i64_for_QVariant_from(const rust::Vec<int64_t> &value)
+QVariant inlineCppFn_TraitImpl_From_ref_Vec_i64_for_QVariant_from(rust::Vec<int64_t> const &value)
 {
     QList<int64_t> qlist(value.cbegin(), value.cend());
     return QVariant::fromValue(qlist);
 }
 
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_u64_for_QVariant_from(const rust::Vec<uint64_t> &value)
+QVariant inlineCppFn_TraitImpl_From_ref_Vec_u64_for_QVariant_from(rust::Vec<uint64_t> const &value)
 {
     QList<uint64_t> qlist(value.cbegin(), value.cend());
     return QVariant::fromValue(qlist);
 }
 
 QVariant
-inlineCppFn_TraitImpl_From_ref_Vec_isize_for_QVariant_from(const rust::Vec<ptrdiff_t> &value)
+inlineCppFn_TraitImpl_From_ref_Vec_isize_for_QVariant_from(rust::Vec<ptrdiff_t> const &value)
 {
     QList<ptrdiff_t> qlist(value.cbegin(), value.cend());
     return QVariant::fromValue(qlist);
 }
 
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_usize_for_QVariant_from(const rust::Vec<size_t> &value)
+QVariant inlineCppFn_TraitImpl_From_ref_Vec_usize_for_QVariant_from(rust::Vec<size_t> const &value)
 {
     QList<size_t> qlist(value.cbegin(), value.cend());
     return QVariant::fromValue(qlist);
 }
 
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_f32_for_QVariant_from(const rust::Vec<float> &value)
+QVariant inlineCppFn_TraitImpl_From_ref_Vec_f32_for_QVariant_from(rust::Vec<float> const &value)
 {
     QList<float> qlist(value.cbegin(), value.cend());
     return QVariant::fromValue(qlist);
 }
 
-QVariant inlineCppFn_TraitImpl_From_ref_Vec_f64_for_QVariant_from(const rust::Vec<double> &value)
+QVariant inlineCppFn_TraitImpl_From_ref_Vec_f64_for_QVariant_from(rust::Vec<double> const &value)
 {
     QList<double> qlist(value.cbegin(), value.cend());
     return QVariant::fromValue(qlist);
@@ -233,7 +233,7 @@ QVariant inlineCppFn_TraitImpl_From_ref_Vec_QString_for_QVariant_from(QList<QStr
     return QVariant::fromValue(std::move(list));
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_bool_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_bool_try_from(QVariant const &from,
                                                                   bool &result)
 {
     if (!from.canConvert<bool>())
@@ -242,7 +242,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_bool_try_from(const QVariant
     return true;
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_i8_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_i8_try_from(QVariant const &from,
                                                                 int8_t &result)
 {
     if (!from.canConvert<int8_t>())
@@ -251,7 +251,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_i8_try_from(const QVariant &
     return true;
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_u8_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_u8_try_from(QVariant const &from,
                                                                 uint8_t &result)
 {
     if (!from.canConvert<uint8_t>())
@@ -260,7 +260,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_u8_try_from(const QVariant &
     return true;
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_i16_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_i16_try_from(QVariant const &from,
                                                                  int16_t &result)
 {
     if (!from.canConvert<int16_t>())
@@ -269,7 +269,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_i16_try_from(const QVariant 
     return true;
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_u16_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_u16_try_from(QVariant const &from,
                                                                  uint16_t &result)
 {
     if (!from.canConvert<uint16_t>())
@@ -278,7 +278,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_u16_try_from(const QVariant 
     return true;
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_i32_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_i32_try_from(QVariant const &from,
                                                                  int32_t &result)
 {
     if (!from.canConvert<int32_t>())
@@ -287,7 +287,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_i32_try_from(const QVariant 
     return true;
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_u32_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_u32_try_from(QVariant const &from,
                                                                  uint32_t &result)
 {
     if (!from.canConvert<uint32_t>())
@@ -296,7 +296,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_u32_try_from(const QVariant 
     return true;
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_i64_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_i64_try_from(QVariant const &from,
                                                                  int64_t &result)
 {
     if (!from.canConvert<int64_t>())
@@ -305,7 +305,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_i64_try_from(const QVariant 
     return true;
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_u64_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_u64_try_from(QVariant const &from,
                                                                  uint64_t &result)
 {
     if (!from.canConvert<uint64_t>())
@@ -314,7 +314,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_u64_try_from(const QVariant 
     return true;
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_isize_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_isize_try_from(QVariant const &from,
                                                                    ptrdiff_t &result)
 {
     if (!from.canConvert<ptrdiff_t>())
@@ -323,7 +323,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_isize_try_from(const QVarian
     return true;
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_usize_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_usize_try_from(QVariant const &from,
                                                                    size_t &result)
 {
     if (!from.canConvert<size_t>())
@@ -332,7 +332,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_usize_try_from(const QVarian
     return true;
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_f32_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_f32_try_from(QVariant const &from,
                                                                  float &result)
 {
     if (!from.canConvert<float>())
@@ -341,7 +341,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_f32_try_from(const QVariant 
     return true;
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_f64_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_f64_try_from(QVariant const &from,
                                                                  double &result)
 {
     if (!from.canConvert<double>())
@@ -350,7 +350,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_f64_try_from(const QVariant 
     return true;
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_bool_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_bool_try_from(QVariant const &from,
                                                                       QList<bool> &result)
 {
     if (!from.canConvert<QList<bool>>())
@@ -359,7 +359,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_bool_try_from(const QVar
     return true;
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_i8_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_i8_try_from(QVariant const &from,
                                                                     QList<int8_t> &result)
 {
     if (!from.canConvert<QList<int8_t>>())
@@ -368,7 +368,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_i8_try_from(const QVaria
     return true;
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_u8_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_u8_try_from(QVariant const &from,
                                                                     QList<uint8_t> &result)
 {
     if (!from.canConvert<QList<uint8_t>>())
@@ -377,7 +377,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_u8_try_from(const QVaria
     return true;
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_i16_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_i16_try_from(QVariant const &from,
                                                                      QList<int16_t> &result)
 {
     if (!from.canConvert<QList<int16_t>>())
@@ -386,7 +386,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_i16_try_from(const QVari
     return true;
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_u16_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_u16_try_from(QVariant const &from,
                                                                      QList<uint16_t> &result)
 {
     if (!from.canConvert<QList<uint16_t>>())
@@ -395,7 +395,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_u16_try_from(const QVari
     return true;
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_i32_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_i32_try_from(QVariant const &from,
                                                                      QList<int32_t> &result)
 {
     if (!from.canConvert<QList<int32_t>>())
@@ -404,7 +404,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_i32_try_from(const QVari
     return true;
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_u32_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_u32_try_from(QVariant const &from,
                                                                      QList<uint32_t> &result)
 {
     if (!from.canConvert<QList<uint32_t>>())
@@ -413,7 +413,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_u32_try_from(const QVari
     return true;
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_i64_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_i64_try_from(QVariant const &from,
                                                                      QList<int64_t> &result)
 {
     if (!from.canConvert<QList<int64_t>>())
@@ -422,7 +422,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_i64_try_from(const QVari
     return true;
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_u64_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_u64_try_from(QVariant const &from,
                                                                      QList<uint64_t> &result)
 {
     if (!from.canConvert<QList<uint64_t>>())
@@ -431,7 +431,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_u64_try_from(const QVari
     return true;
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_isize_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_isize_try_from(QVariant const &from,
                                                                        QList<ptrdiff_t> &result)
 {
     if (!from.canConvert<QList<ptrdiff_t>>())
@@ -440,7 +440,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_isize_try_from(const QVa
     return true;
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_usize_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_usize_try_from(QVariant const &from,
                                                                        QList<size_t> &result)
 {
     if (!from.canConvert<QList<size_t>>())
@@ -449,7 +449,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_usize_try_from(const QVa
     return true;
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_f32_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_f32_try_from(QVariant const &from,
                                                                      QList<float> &result)
 {
     if (!from.canConvert<QList<float>>())
@@ -458,7 +458,7 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_f32_try_from(const QVari
     return true;
 }
 
-bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_f64_try_from(const QVariant &from,
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_f64_try_from(QVariant const &from,
                                                                      QList<double> &result)
 {
     if (!from.canConvert<QList<double>>())

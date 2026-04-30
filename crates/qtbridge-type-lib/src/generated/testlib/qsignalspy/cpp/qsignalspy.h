@@ -16,9 +16,9 @@
 
 namespace rust::bridge::qsignalspy {
 
-std::unique_ptr<QSignalSpy> inlineCppFn_new(const QObject &qobject, rust::Str signal_name);
+std::unique_ptr<QSignalSpy> inlineCppFn_new(QObject const &qobject, rust::Str signal_name);
 
-ptrdiff_t inlineCppFn_count(const QSignalSpy &self);
+ptrdiff_t inlineCppFn_count(QSignalSpy const &self);
 
 QVariantList inlineCppFn_take_at(QSignalSpy &self, ptrdiff_t idx);
 

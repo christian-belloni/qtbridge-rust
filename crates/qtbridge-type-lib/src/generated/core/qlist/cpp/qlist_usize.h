@@ -23,11 +23,11 @@ QMetaType QList_QMetaType();
 
 void inlineCppFn_append(QList_usize &self, size_t value);
 
-size_t inlineCppFn_capacity(const QList_usize &self);
+size_t inlineCppFn_capacity(QList_usize const &self);
 
 void inlineCppFn_clear(QList_usize &self);
 
-bool inlineCppFn_contains(const QList_usize &self, const size_t &value);
+bool inlineCppFn_contains(QList_usize const &self, size_t const &value);
 
 void inlineCppFn_push_back(QList_usize &self, size_t value);
 
@@ -35,24 +35,24 @@ void inlineCppFn_remove(QList_usize &self, ptrdiff_t i, ptrdiff_t n);
 
 void inlineCppFn_reserve(QList_usize &self, size_t size);
 
-ptrdiff_t inlineCppFn_size(const QList_usize &self);
+ptrdiff_t inlineCppFn_size(QList_usize const &self);
 
-const size_t &inlineCppFn_first(const QList_usize &self);
+size_t const &inlineCppFn_first(QList_usize const &self);
 
-const size_t &inlineCppFn_last(const QList_usize &self);
+size_t const &inlineCppFn_last(QList_usize const &self);
 
 rust::Vec<size_t>
-inlineCppFn_TraitImpl_From_ref_QList_usize_for_Vec_usize_from(const QList_usize &src);
+inlineCppFn_TraitImpl_From_ref_QList_usize_for_Vec_usize_from(QList_usize const &src);
 
 size_t const *
-inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_usize_index(const QList_usize &self,
+inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_usize_index(QList_usize const &self,
                                                                 size_t index);
 
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_usize_eq(const QList_usize &lhs,
-                                                        const QList_usize &rhs);
+bool inlineCppFn_TraitImpl_PartialEq_for_QList_usize_eq(QList_usize const &lhs,
+                                                        QList_usize const &rhs);
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_usize_N_for_QList_usize_eq(
-        const QList_usize &self, rust::Slice<const size_t> rhs);
+        QList_usize const &self, rust::Slice<const size_t> rhs);
 
 } // namespace rust::bridge::qlist_usize
 

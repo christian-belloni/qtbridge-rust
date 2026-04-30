@@ -27,44 +27,44 @@ void inlineCppFn_clear(QMap_i32_QString &self)
     self.clear();
 }
 
-void inlineCppFn_insert(QMap_i32_QString &self, const int32_t &key, const QString &value)
+void inlineCppFn_insert(QMap_i32_QString &self, int32_t const &key, QString const &value)
 {
     self.insert(key, value);
 }
 
-bool inlineCppFn_is_empty(const QMap_i32_QString &self)
+bool inlineCppFn_is_empty(QMap_i32_QString const &self)
 {
     return self.isEmpty();
 }
 
-int32_t inlineCppFn_remove(QMap_i32_QString &self, const int32_t &key)
+int32_t inlineCppFn_remove(QMap_i32_QString &self, int32_t const &key)
 {
     return self.remove(key);
 }
 
-int32_t inlineCppFn_size(const QMap_i32_QString &self)
+int32_t inlineCppFn_size(QMap_i32_QString const &self)
 {
     return self.size();
 }
 
-QList_i32 inlineCppFn_keys(const QMap_i32_QString &self)
+QList_i32 inlineCppFn_keys(QMap_i32_QString const &self)
 {
     return self.keys();
 }
 
-QList_QString inlineCppFn_values(const QMap_i32_QString &self)
+QList_QString inlineCppFn_values(QMap_i32_QString const &self)
 {
     return self.values();
 }
 
-QString inlineCppFn_value(const QMap_i32_QString &self, const int32_t &key)
+QString inlineCppFn_value(QMap_i32_QString const &self, int32_t const &key)
 {
     return self.value(key);
 }
 
 QString const *
-inlineCppFn_TraitImpl_std_ops_Index_ref_i32_for_QMap_i32_QString_index(const QMap_i32_QString &self,
-                                                                       const int32_t &key)
+inlineCppFn_TraitImpl_std_ops_Index_ref_i32_for_QMap_i32_QString_index(QMap_i32_QString const &self,
+                                                                       int32_t const &key)
 {
     auto findIt = self.find(key);
     if (findIt == self.end())

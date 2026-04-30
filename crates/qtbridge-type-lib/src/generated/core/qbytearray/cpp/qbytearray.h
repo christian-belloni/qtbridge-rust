@@ -17,9 +17,9 @@ void QByteArray_Drop(QByteArray &v);
 QByteArray QByteArray_Default();
 QByteArray QByteArray_Clone(const QByteArray &src);
 
-void inlineCppFn_as_bytes(const QByteArray &self, uint8_t const *&ptr, ptrdiff_t &size);
+void inlineCppFn_as_bytes(QByteArray const &self, uint8_t const *&ptr, ptrdiff_t &size);
 
-ptrdiff_t inlineCppFn_size(const QByteArray &self);
+ptrdiff_t inlineCppFn_size(QByteArray const &self);
 
 QByteArray inlineCppFn_TraitImpl_From_string_slice_for_QByteArray_from(rust::Str value);
 
@@ -27,11 +27,11 @@ QByteArray
 inlineCppFn_TraitImpl_From_ref_slice_of_u8_for_QByteArray_from(rust::Slice<const uint8_t> value);
 
 uint8_t const *
-inlineCppFn_TraitImpl_std_ops_Index_usize_for_QByteArray_index(const QByteArray &self,
+inlineCppFn_TraitImpl_std_ops_Index_usize_for_QByteArray_index(QByteArray const &self,
                                                                size_t index);
 
-bool inlineCppFn_TraitImpl_PartialEq_for_QByteArray_eq(const QByteArray &lhs,
-                                                       const QByteArray &rhs);
+bool inlineCppFn_TraitImpl_PartialEq_for_QByteArray_eq(QByteArray const &lhs,
+                                                       QByteArray const &rhs);
 
 } // namespace rust::bridge::qbytearray
 

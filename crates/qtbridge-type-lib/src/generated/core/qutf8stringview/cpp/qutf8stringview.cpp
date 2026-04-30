@@ -17,7 +17,7 @@ QMetaType QUtf8StringView_QMetaType()
     return QMetaType::fromType<QUtf8StringView>();
 }
 
-void inlineCppFn_as_bytes(const QUtf8StringView &self, uint8_t const *&ptr, ptrdiff_t &size)
+void inlineCppFn_as_bytes(QUtf8StringView const &self, uint8_t const *&ptr, ptrdiff_t &size)
 {
     ptr = reinterpret_cast<const uint8_t *>(self.data());
     size = self.size();

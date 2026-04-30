@@ -23,23 +23,23 @@ QMap_i32_QString QMap_Clone(const QMap_i32_QString &src);
 
 void inlineCppFn_clear(QMap_i32_QString &self);
 
-void inlineCppFn_insert(QMap_i32_QString &self, const int32_t &key, const QString &value);
+void inlineCppFn_insert(QMap_i32_QString &self, int32_t const &key, QString const &value);
 
-bool inlineCppFn_is_empty(const QMap_i32_QString &self);
+bool inlineCppFn_is_empty(QMap_i32_QString const &self);
 
-int32_t inlineCppFn_remove(QMap_i32_QString &self, const int32_t &key);
+int32_t inlineCppFn_remove(QMap_i32_QString &self, int32_t const &key);
 
-int32_t inlineCppFn_size(const QMap_i32_QString &self);
+int32_t inlineCppFn_size(QMap_i32_QString const &self);
 
-QList_i32 inlineCppFn_keys(const QMap_i32_QString &self);
+QList_i32 inlineCppFn_keys(QMap_i32_QString const &self);
 
-QList_QString inlineCppFn_values(const QMap_i32_QString &self);
+QList_QString inlineCppFn_values(QMap_i32_QString const &self);
 
-QString inlineCppFn_value(const QMap_i32_QString &self, const int32_t &key);
+QString inlineCppFn_value(QMap_i32_QString const &self, int32_t const &key);
 
 QString const *
-inlineCppFn_TraitImpl_std_ops_Index_ref_i32_for_QMap_i32_QString_index(const QMap_i32_QString &self,
-                                                                       const int32_t &key);
+inlineCppFn_TraitImpl_std_ops_Index_ref_i32_for_QMap_i32_QString_index(QMap_i32_QString const &self,
+                                                                       int32_t const &key);
 
 } // namespace rust::bridge::qmap_i32_qstring
 

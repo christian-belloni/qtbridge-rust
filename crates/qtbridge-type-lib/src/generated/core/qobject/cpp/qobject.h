@@ -17,7 +17,7 @@ void inlineCppFn_delete(QObject *obj);
 
 void inlineCppFn_destruct(QObject *obj);
 
-QVariant inlineCppFn_property(const QObject &self, rust::Slice<const uint8_t> name);
+QVariant inlineCppFn_property(QObject const &self, rust::Slice<const uint8_t> name);
 
 bool inlineCppFn_set_property(QObject &self, rust::Slice<const uint8_t> name, QVariant value);
 

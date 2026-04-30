@@ -32,7 +32,7 @@ void inlineCppFn_append(QList_usize &self, size_t value)
     self.append(value);
 }
 
-size_t inlineCppFn_capacity(const QList_usize &self)
+size_t inlineCppFn_capacity(QList_usize const &self)
 {
     return self.capacity();
 }
@@ -42,7 +42,7 @@ void inlineCppFn_clear(QList_usize &self)
     self.clear();
 }
 
-bool inlineCppFn_contains(const QList_usize &self, const size_t &value)
+bool inlineCppFn_contains(QList_usize const &self, size_t const &value)
 {
     return self.contains(value);
 }
@@ -62,23 +62,23 @@ void inlineCppFn_reserve(QList_usize &self, size_t size)
     self.reserve(static_cast<qsizetype>(size));
 }
 
-ptrdiff_t inlineCppFn_size(const QList_usize &self)
+ptrdiff_t inlineCppFn_size(QList_usize const &self)
 {
     return self.size();
 }
 
-const size_t &inlineCppFn_first(const QList_usize &self)
+size_t const &inlineCppFn_first(QList_usize const &self)
 {
     return self.constFirst();
 }
 
-const size_t &inlineCppFn_last(const QList_usize &self)
+size_t const &inlineCppFn_last(QList_usize const &self)
 {
     return self.constLast();
 }
 
 rust::Vec<size_t>
-inlineCppFn_TraitImpl_From_ref_QList_usize_for_Vec_usize_from(const QList_usize &src)
+inlineCppFn_TraitImpl_From_ref_QList_usize_for_Vec_usize_from(QList_usize const &src)
 {
     rust::Vec<size_t> result;
     result.reserve(static_cast<size_t>(src.size()));
@@ -88,20 +88,20 @@ inlineCppFn_TraitImpl_From_ref_QList_usize_for_Vec_usize_from(const QList_usize 
 }
 
 size_t const *
-inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_usize_index(const QList_usize &self,
+inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_usize_index(QList_usize const &self,
                                                                 size_t index)
 {
     return index < static_cast<size_t>(self.size()) ? &self[index] : nullptr;
 }
 
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_usize_eq(const QList_usize &lhs,
-                                                        const QList_usize &rhs)
+bool inlineCppFn_TraitImpl_PartialEq_for_QList_usize_eq(QList_usize const &lhs,
+                                                        QList_usize const &rhs)
 {
     return lhs == rhs;
 }
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_usize_N_for_QList_usize_eq(
-        const QList_usize &self, rust::Slice<const size_t> rhs)
+        QList_usize const &self, rust::Slice<const size_t> rhs)
 {
     for (size_t i = 0; i < rhs.size(); ++i) {
         if (self[i] != rhs[i])

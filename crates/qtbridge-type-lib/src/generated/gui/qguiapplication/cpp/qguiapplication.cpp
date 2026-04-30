@@ -7,7 +7,7 @@
 
 namespace rust::bridge::qguiapplication {
 
-std::unique_ptr<QGuiApplication> inlineCppFn_new(const int32_t &argc, size_t const *argv)
+std::unique_ptr<QGuiApplication> inlineCppFn_new(int32_t const &argc, size_t const *argv)
 {
     return std::make_unique<QGuiApplication>(
             const_cast<int &>(argc), const_cast<char **>(reinterpret_cast<char *const *>(argv)));

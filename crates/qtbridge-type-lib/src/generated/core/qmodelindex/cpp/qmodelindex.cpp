@@ -24,27 +24,27 @@ QModelIndex QModelIndex_Clone(const QModelIndex &src)
     return { src };
 }
 
-int32_t inlineCppFn_column(const QModelIndex &self)
+int32_t inlineCppFn_column(QModelIndex const &self)
 {
     return self.column();
 }
 
-int32_t inlineCppFn_row(const QModelIndex &self)
+int32_t inlineCppFn_row(QModelIndex const &self)
 {
     return self.row();
 }
 
-size_t inlineCppFn_internal_pointer(const QModelIndex &self)
+size_t inlineCppFn_internal_pointer(QModelIndex const &self)
 {
     return reinterpret_cast<size_t>(self.internalPointer());
 }
 
-QVariant inlineCppFn_data(const QModelIndex &self)
+QVariant inlineCppFn_data(QModelIndex const &self)
 {
     return self.data();
 }
 
-bool inlineCppFn_is_valid(const QModelIndex &self)
+bool inlineCppFn_is_valid(QModelIndex const &self)
 {
     return self.isValid();
 }

@@ -32,7 +32,7 @@ void inlineCppFn_append(QList_f32 &self, float value)
     self.append(value);
 }
 
-size_t inlineCppFn_capacity(const QList_f32 &self)
+size_t inlineCppFn_capacity(QList_f32 const &self)
 {
     return self.capacity();
 }
@@ -42,7 +42,7 @@ void inlineCppFn_clear(QList_f32 &self)
     self.clear();
 }
 
-bool inlineCppFn_contains(const QList_f32 &self, const float &value)
+bool inlineCppFn_contains(QList_f32 const &self, float const &value)
 {
     return self.contains(value);
 }
@@ -62,22 +62,22 @@ void inlineCppFn_reserve(QList_f32 &self, size_t size)
     self.reserve(static_cast<qsizetype>(size));
 }
 
-ptrdiff_t inlineCppFn_size(const QList_f32 &self)
+ptrdiff_t inlineCppFn_size(QList_f32 const &self)
 {
     return self.size();
 }
 
-const float &inlineCppFn_first(const QList_f32 &self)
+float const &inlineCppFn_first(QList_f32 const &self)
 {
     return self.constFirst();
 }
 
-const float &inlineCppFn_last(const QList_f32 &self)
+float const &inlineCppFn_last(QList_f32 const &self)
 {
     return self.constLast();
 }
 
-rust::Vec<float> inlineCppFn_TraitImpl_From_ref_QList_f32_for_Vec_f32_from(const QList_f32 &src)
+rust::Vec<float> inlineCppFn_TraitImpl_From_ref_QList_f32_for_Vec_f32_from(QList_f32 const &src)
 {
     rust::Vec<float> result;
     result.reserve(static_cast<size_t>(src.size()));
@@ -86,18 +86,18 @@ rust::Vec<float> inlineCppFn_TraitImpl_From_ref_QList_f32_for_Vec_f32_from(const
     return result;
 }
 
-float const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_f32_index(const QList_f32 &self,
+float const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_f32_index(QList_f32 const &self,
                                                                            size_t index)
 {
     return index < static_cast<size_t>(self.size()) ? &self[index] : nullptr;
 }
 
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_f32_eq(const QList_f32 &lhs, const QList_f32 &rhs)
+bool inlineCppFn_TraitImpl_PartialEq_for_QList_f32_eq(QList_f32 const &lhs, QList_f32 const &rhs)
 {
     return lhs == rhs;
 }
 
-bool inlineCppFn_TraitImpl_PartialEq_array_of_f32_N_for_QList_f32_eq(const QList_f32 &self,
+bool inlineCppFn_TraitImpl_PartialEq_array_of_f32_N_for_QList_f32_eq(QList_f32 const &self,
                                                                      rust::Slice<const float> rhs)
 {
     for (size_t i = 0; i < rhs.size(); ++i) {

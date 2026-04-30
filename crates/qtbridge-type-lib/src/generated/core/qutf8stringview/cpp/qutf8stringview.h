@@ -17,7 +17,7 @@ QUtf8StringView QUtf8StringView_Default();
 
 QMetaType QUtf8StringView_QMetaType();
 
-void inlineCppFn_as_bytes(const QUtf8StringView &self, uint8_t const *&ptr, ptrdiff_t &size);
+void inlineCppFn_as_bytes(QUtf8StringView const &self, uint8_t const *&ptr, ptrdiff_t &size);
 
 } // namespace rust::bridge::qutf8stringview
 

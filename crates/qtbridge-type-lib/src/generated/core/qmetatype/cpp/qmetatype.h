@@ -20,11 +20,11 @@ QMetaType inlineCppFn_new(int32_t type_id);
 
 QMetaType inlineCppFn_new_with_interface(::QtPrivate::QMetaTypeInterface const *iface);
 
-int32_t inlineCppFn_id(const QMetaType &self);
+int32_t inlineCppFn_id(QMetaType const &self);
 
-bool inlineCppFn_is_valid(const QMetaType &self);
+bool inlineCppFn_is_valid(QMetaType const &self);
 
-void inlineCppFn_register_type(const QMetaType &self);
+void inlineCppFn_register_type(QMetaType const &self);
 
 QMetaType inlineCppFn_TraitImpl_QMetaTypeGet_for_bool_get_qmetatype();
 

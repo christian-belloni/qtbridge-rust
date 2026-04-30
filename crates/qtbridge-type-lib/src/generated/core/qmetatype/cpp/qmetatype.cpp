@@ -22,17 +22,17 @@ QMetaType inlineCppFn_new_with_interface(::QtPrivate::QMetaTypeInterface const *
     return QMetaType(iface);
 }
 
-int32_t inlineCppFn_id(const QMetaType &self)
+int32_t inlineCppFn_id(QMetaType const &self)
 {
     return self.id();
 }
 
-bool inlineCppFn_is_valid(const QMetaType &self)
+bool inlineCppFn_is_valid(QMetaType const &self)
 {
     return self.isValid();
 }
 
-void inlineCppFn_register_type(const QMetaType &self)
+void inlineCppFn_register_type(QMetaType const &self)
 {
     self.registerType();
 }

@@ -23,11 +23,11 @@ QMetaType QList_QMetaType();
 
 void inlineCppFn_append(QList_u16 &self, uint16_t value);
 
-size_t inlineCppFn_capacity(const QList_u16 &self);
+size_t inlineCppFn_capacity(QList_u16 const &self);
 
 void inlineCppFn_clear(QList_u16 &self);
 
-bool inlineCppFn_contains(const QList_u16 &self, const uint16_t &value);
+bool inlineCppFn_contains(QList_u16 const &self, uint16_t const &value);
 
 void inlineCppFn_push_back(QList_u16 &self, uint16_t value);
 
@@ -35,21 +35,21 @@ void inlineCppFn_remove(QList_u16 &self, ptrdiff_t i, ptrdiff_t n);
 
 void inlineCppFn_reserve(QList_u16 &self, size_t size);
 
-ptrdiff_t inlineCppFn_size(const QList_u16 &self);
+ptrdiff_t inlineCppFn_size(QList_u16 const &self);
 
-const uint16_t &inlineCppFn_first(const QList_u16 &self);
+uint16_t const &inlineCppFn_first(QList_u16 const &self);
 
-const uint16_t &inlineCppFn_last(const QList_u16 &self);
+uint16_t const &inlineCppFn_last(QList_u16 const &self);
 
-rust::Vec<uint16_t> inlineCppFn_TraitImpl_From_ref_QList_u16_for_Vec_u16_from(const QList_u16 &src);
+rust::Vec<uint16_t> inlineCppFn_TraitImpl_From_ref_QList_u16_for_Vec_u16_from(QList_u16 const &src);
 
-uint16_t const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_u16_index(const QList_u16 &self,
+uint16_t const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_u16_index(QList_u16 const &self,
                                                                               size_t index);
 
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_u16_eq(const QList_u16 &lhs, const QList_u16 &rhs);
+bool inlineCppFn_TraitImpl_PartialEq_for_QList_u16_eq(QList_u16 const &lhs, QList_u16 const &rhs);
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_u16_N_for_QList_u16_eq(
-        const QList_u16 &self, rust::Slice<const uint16_t> rhs);
+        QList_u16 const &self, rust::Slice<const uint16_t> rhs);
 
 } // namespace rust::bridge::qlist_u16
 

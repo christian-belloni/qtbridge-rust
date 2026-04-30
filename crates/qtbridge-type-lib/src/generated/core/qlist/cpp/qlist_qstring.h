@@ -21,11 +21,11 @@ QList_QString QList_Clone(const QList_QString &src);
 
 void inlineCppFn_append(QList_QString &self, QString value);
 
-size_t inlineCppFn_capacity(const QList_QString &self);
+size_t inlineCppFn_capacity(QList_QString const &self);
 
 void inlineCppFn_clear(QList_QString &self);
 
-bool inlineCppFn_contains(const QList_QString &self, const QString &value);
+bool inlineCppFn_contains(QList_QString const &self, QString const &value);
 
 void inlineCppFn_push_back(QList_QString &self, QString value);
 
@@ -33,21 +33,21 @@ void inlineCppFn_remove(QList_QString &self, ptrdiff_t i, ptrdiff_t n);
 
 void inlineCppFn_reserve(QList_QString &self, size_t size);
 
-ptrdiff_t inlineCppFn_size(const QList_QString &self);
+ptrdiff_t inlineCppFn_size(QList_QString const &self);
 
-const QString &inlineCppFn_first(const QList_QString &self);
+QString const &inlineCppFn_first(QList_QString const &self);
 
-const QString &inlineCppFn_last(const QList_QString &self);
+QString const &inlineCppFn_last(QList_QString const &self);
 
 QString const *
-inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QString_index(const QList_QString &self,
+inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QString_index(QList_QString const &self,
                                                                   size_t index);
 
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_QString_eq(const QList_QString &lhs,
-                                                          const QList_QString &rhs);
+bool inlineCppFn_TraitImpl_PartialEq_for_QList_QString_eq(QList_QString const &lhs,
+                                                          QList_QString const &rhs);
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_QString_N_for_QList_QString_eq(
-        const QList_QString &self, rust::Slice<const QString> rhs);
+        QList_QString const &self, rust::Slice<const QString> rhs);
 
 } // namespace rust::bridge::qlist_qstring
 

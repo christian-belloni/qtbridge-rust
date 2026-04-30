@@ -29,43 +29,43 @@ void inlineCppFn_clear(QMap_QString_QVariant &self)
     self.clear();
 }
 
-void inlineCppFn_insert(QMap_QString_QVariant &self, const QString &key, const QVariant &value)
+void inlineCppFn_insert(QMap_QString_QVariant &self, QString const &key, QVariant const &value)
 {
     self.insert(key, value);
 }
 
-bool inlineCppFn_is_empty(const QMap_QString_QVariant &self)
+bool inlineCppFn_is_empty(QMap_QString_QVariant const &self)
 {
     return self.isEmpty();
 }
 
-int32_t inlineCppFn_remove(QMap_QString_QVariant &self, const QString &key)
+int32_t inlineCppFn_remove(QMap_QString_QVariant &self, QString const &key)
 {
     return self.remove(key);
 }
 
-int32_t inlineCppFn_size(const QMap_QString_QVariant &self)
+int32_t inlineCppFn_size(QMap_QString_QVariant const &self)
 {
     return self.size();
 }
 
-QList_QString inlineCppFn_keys(const QMap_QString_QVariant &self)
+QList_QString inlineCppFn_keys(QMap_QString_QVariant const &self)
 {
     return self.keys();
 }
 
-QList_QVariant inlineCppFn_values(const QMap_QString_QVariant &self)
+QList_QVariant inlineCppFn_values(QMap_QString_QVariant const &self)
 {
     return self.values();
 }
 
-QVariant inlineCppFn_value(const QMap_QString_QVariant &self, const QString &key)
+QVariant inlineCppFn_value(QMap_QString_QVariant const &self, QString const &key)
 {
     return self.value(key);
 }
 
 QVariant const *inlineCppFn_TraitImpl_std_ops_Index_ref_QString_for_QMap_QString_QVariant_index(
-        const QMap_QString_QVariant &self, const QString &key)
+        QMap_QString_QVariant const &self, QString const &key)
 {
     auto findIt = self.find(key);
     if (findIt == self.end())

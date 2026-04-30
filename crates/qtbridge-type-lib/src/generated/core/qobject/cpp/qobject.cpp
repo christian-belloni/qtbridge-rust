@@ -17,7 +17,7 @@ void inlineCppFn_destruct(QObject *obj)
     obj->~QObject();
 }
 
-QVariant inlineCppFn_property(const QObject &self, rust::Slice<const uint8_t> name)
+QVariant inlineCppFn_property(QObject const &self, rust::Slice<const uint8_t> name)
 {
     return self.property(reinterpret_cast<const char *>(name.data()));
 }

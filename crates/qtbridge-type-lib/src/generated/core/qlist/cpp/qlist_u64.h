@@ -23,11 +23,11 @@ QMetaType QList_QMetaType();
 
 void inlineCppFn_append(QList_u64 &self, uint64_t value);
 
-size_t inlineCppFn_capacity(const QList_u64 &self);
+size_t inlineCppFn_capacity(QList_u64 const &self);
 
 void inlineCppFn_clear(QList_u64 &self);
 
-bool inlineCppFn_contains(const QList_u64 &self, const uint64_t &value);
+bool inlineCppFn_contains(QList_u64 const &self, uint64_t const &value);
 
 void inlineCppFn_push_back(QList_u64 &self, uint64_t value);
 
@@ -35,21 +35,21 @@ void inlineCppFn_remove(QList_u64 &self, ptrdiff_t i, ptrdiff_t n);
 
 void inlineCppFn_reserve(QList_u64 &self, size_t size);
 
-ptrdiff_t inlineCppFn_size(const QList_u64 &self);
+ptrdiff_t inlineCppFn_size(QList_u64 const &self);
 
-const uint64_t &inlineCppFn_first(const QList_u64 &self);
+uint64_t const &inlineCppFn_first(QList_u64 const &self);
 
-const uint64_t &inlineCppFn_last(const QList_u64 &self);
+uint64_t const &inlineCppFn_last(QList_u64 const &self);
 
-rust::Vec<uint64_t> inlineCppFn_TraitImpl_From_ref_QList_u64_for_Vec_u64_from(const QList_u64 &src);
+rust::Vec<uint64_t> inlineCppFn_TraitImpl_From_ref_QList_u64_for_Vec_u64_from(QList_u64 const &src);
 
-uint64_t const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_u64_index(const QList_u64 &self,
+uint64_t const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_u64_index(QList_u64 const &self,
                                                                               size_t index);
 
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_u64_eq(const QList_u64 &lhs, const QList_u64 &rhs);
+bool inlineCppFn_TraitImpl_PartialEq_for_QList_u64_eq(QList_u64 const &lhs, QList_u64 const &rhs);
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_u64_N_for_QList_u64_eq(
-        const QList_u64 &self, rust::Slice<const uint64_t> rhs);
+        QList_u64 const &self, rust::Slice<const uint64_t> rhs);
 
 } // namespace rust::bridge::qlist_u64
 

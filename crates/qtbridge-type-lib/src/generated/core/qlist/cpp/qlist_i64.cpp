@@ -32,7 +32,7 @@ void inlineCppFn_append(QList_i64 &self, int64_t value)
     self.append(value);
 }
 
-size_t inlineCppFn_capacity(const QList_i64 &self)
+size_t inlineCppFn_capacity(QList_i64 const &self)
 {
     return self.capacity();
 }
@@ -42,7 +42,7 @@ void inlineCppFn_clear(QList_i64 &self)
     self.clear();
 }
 
-bool inlineCppFn_contains(const QList_i64 &self, const int64_t &value)
+bool inlineCppFn_contains(QList_i64 const &self, int64_t const &value)
 {
     return self.contains(value);
 }
@@ -62,22 +62,22 @@ void inlineCppFn_reserve(QList_i64 &self, size_t size)
     self.reserve(static_cast<qsizetype>(size));
 }
 
-ptrdiff_t inlineCppFn_size(const QList_i64 &self)
+ptrdiff_t inlineCppFn_size(QList_i64 const &self)
 {
     return self.size();
 }
 
-const int64_t &inlineCppFn_first(const QList_i64 &self)
+int64_t const &inlineCppFn_first(QList_i64 const &self)
 {
     return self.constFirst();
 }
 
-const int64_t &inlineCppFn_last(const QList_i64 &self)
+int64_t const &inlineCppFn_last(QList_i64 const &self)
 {
     return self.constLast();
 }
 
-rust::Vec<int64_t> inlineCppFn_TraitImpl_From_ref_QList_i64_for_Vec_i64_from(const QList_i64 &src)
+rust::Vec<int64_t> inlineCppFn_TraitImpl_From_ref_QList_i64_for_Vec_i64_from(QList_i64 const &src)
 {
     rust::Vec<int64_t> result;
     result.reserve(static_cast<size_t>(src.size()));
@@ -86,18 +86,18 @@ rust::Vec<int64_t> inlineCppFn_TraitImpl_From_ref_QList_i64_for_Vec_i64_from(con
     return result;
 }
 
-int64_t const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_i64_index(const QList_i64 &self,
+int64_t const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_i64_index(QList_i64 const &self,
                                                                              size_t index)
 {
     return index < static_cast<size_t>(self.size()) ? &self[index] : nullptr;
 }
 
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_i64_eq(const QList_i64 &lhs, const QList_i64 &rhs)
+bool inlineCppFn_TraitImpl_PartialEq_for_QList_i64_eq(QList_i64 const &lhs, QList_i64 const &rhs)
 {
     return lhs == rhs;
 }
 
-bool inlineCppFn_TraitImpl_PartialEq_array_of_i64_N_for_QList_i64_eq(const QList_i64 &self,
+bool inlineCppFn_TraitImpl_PartialEq_array_of_i64_N_for_QList_i64_eq(QList_i64 const &self,
                                                                      rust::Slice<const int64_t> rhs)
 {
     for (size_t i = 0; i < rhs.size(); ++i) {

@@ -32,7 +32,7 @@ void inlineCppFn_append(QList_bool &self, bool value)
     self.append(value);
 }
 
-size_t inlineCppFn_capacity(const QList_bool &self)
+size_t inlineCppFn_capacity(QList_bool const &self)
 {
     return self.capacity();
 }
@@ -42,7 +42,7 @@ void inlineCppFn_clear(QList_bool &self)
     self.clear();
 }
 
-bool inlineCppFn_contains(const QList_bool &self, const bool &value)
+bool inlineCppFn_contains(QList_bool const &self, bool const &value)
 {
     return self.contains(value);
 }
@@ -62,22 +62,22 @@ void inlineCppFn_reserve(QList_bool &self, size_t size)
     self.reserve(static_cast<qsizetype>(size));
 }
 
-ptrdiff_t inlineCppFn_size(const QList_bool &self)
+ptrdiff_t inlineCppFn_size(QList_bool const &self)
 {
     return self.size();
 }
 
-const bool &inlineCppFn_first(const QList_bool &self)
+bool const &inlineCppFn_first(QList_bool const &self)
 {
     return self.constFirst();
 }
 
-const bool &inlineCppFn_last(const QList_bool &self)
+bool const &inlineCppFn_last(QList_bool const &self)
 {
     return self.constLast();
 }
 
-rust::Vec<bool> inlineCppFn_TraitImpl_From_ref_QList_bool_for_Vec_bool_from(const QList_bool &src)
+rust::Vec<bool> inlineCppFn_TraitImpl_From_ref_QList_bool_for_Vec_bool_from(QList_bool const &src)
 {
     rust::Vec<bool> result;
     result.reserve(static_cast<size_t>(src.size()));
@@ -86,18 +86,18 @@ rust::Vec<bool> inlineCppFn_TraitImpl_From_ref_QList_bool_for_Vec_bool_from(cons
     return result;
 }
 
-bool const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_bool_index(const QList_bool &self,
+bool const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_bool_index(QList_bool const &self,
                                                                            size_t index)
 {
     return index < static_cast<size_t>(self.size()) ? &self[index] : nullptr;
 }
 
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_bool_eq(const QList_bool &lhs, const QList_bool &rhs)
+bool inlineCppFn_TraitImpl_PartialEq_for_QList_bool_eq(QList_bool const &lhs, QList_bool const &rhs)
 {
     return lhs == rhs;
 }
 
-bool inlineCppFn_TraitImpl_PartialEq_array_of_bool_N_for_QList_bool_eq(const QList_bool &self,
+bool inlineCppFn_TraitImpl_PartialEq_array_of_bool_N_for_QList_bool_eq(QList_bool const &self,
                                                                        rust::Slice<const bool> rhs)
 {
     for (size_t i = 0; i < rhs.size(); ++i) {

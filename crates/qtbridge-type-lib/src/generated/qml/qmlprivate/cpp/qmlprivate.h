@@ -19,12 +19,12 @@ void inlineCppFn_qml_register_element(QMetaType type_id, QMetaType list_id, uint
                                       size_t create_fn, rust::Slice<const uint8_t> uri,
                                       uint8_t version_major, uint8_t version_minor,
                                       rust::Slice<const uint8_t> elm_name,
-                                      const QMetaObject &meta_object);
+                                      QMetaObject const &meta_object);
 
 void inlineCppFn_qml_register_singleton(QMetaType type_id, size_t create_fn,
                                         rust::Slice<const uint8_t> uri, uint8_t version_major,
                                         uint8_t version_minor, rust::Slice<const uint8_t> elm_name,
-                                        const QMetaObject &meta_object);
+                                        QMetaObject const &meta_object);
 
 } // namespace rust::bridge::qmlprivate
 

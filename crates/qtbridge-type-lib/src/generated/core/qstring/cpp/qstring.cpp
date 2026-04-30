@@ -29,12 +29,12 @@ QString inlineCppFn_new(rust::Str src)
     return RustStrToQString(src);
 }
 
-QByteArray inlineCppFn_to_utf8(const QString &self)
+QByteArray inlineCppFn_to_utf8(QString const &self)
 {
     return self.toUtf8();
 }
 
-bool inlineCppFn_TraitImpl_PartialEq_for_QString_eq(const QString &lhs, const QString &rhs)
+bool inlineCppFn_TraitImpl_PartialEq_for_QString_eq(QString const &lhs, QString const &rhs)
 {
     return lhs == rhs;
 }

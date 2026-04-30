@@ -25,7 +25,7 @@ void inlineCppFn_load_data(QQmlApplicationEngine &self, rust::Slice<const uint8_
 
 void inlineCppFn_load_from_module(QQmlApplicationEngine &self, rust::Str uri, rust::Str type_name);
 
-void inlineCppFn_set_initial_properties(QQmlApplicationEngine &self, const QVariantMap &props);
+void inlineCppFn_set_initial_properties(QQmlApplicationEngine &self, QVariantMap const &props);
 
 } // namespace rust::bridge::qqmlapplicationengine
 

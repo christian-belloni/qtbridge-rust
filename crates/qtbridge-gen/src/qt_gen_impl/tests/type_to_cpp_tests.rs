@@ -59,7 +59,7 @@ fn require_that_type_to_cpp_returns_expected_string_when_called_on_supported_typ
         ("cxx::UniquePtr<QMetaObject>", "std::unique_ptr<QMetaObject>"),
 
         // Function pointers
-        ("fn (&i64, *mut f32, bool) -> *const u8", "rust::Fn<uint8_t const*(const int64_t&, float*, bool)>")
+        ("fn (&i64, *mut f32, bool) -> *const u8", "rust::Fn<uint8_t const*(int64_t const&, float*, bool)>")
     ];
 
     for (rust_str, expected_cpp) in cases {
@@ -73,10 +73,10 @@ fn require_that_type_to_cpp_returns_expected_string_when_called_on_supported_typ
 #[test]
 fn require_that_type_to_cpp_returns_expected_string_when_called_on_reference_to_supported_types() {
     let cases = [
-        ("&i64",           "const int64_t&"),
-        ("&f64",           "const double&"),
+        ("&i64",           "int64_t const&"),
+        ("&f64",           "double const&"),
         ("&mut bool",      "bool&"),
-        ("&std::Vec<f32>", "const rust::Vec<float>&"),
+        ("&std::Vec<f32>", "rust::Vec<float> const&"),
     ];
 
     for (rust_str, expected_cpp) in cases {

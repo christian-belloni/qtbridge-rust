@@ -118,8 +118,6 @@ impl TypeMapToCpp {
     }
 
     fn type_ref_to_cpp(&self, src: &syn::TypeReference) -> syn::Result<String> {
-        // TODO: Check if this is correct in cases of reference to reference or reference to pointer, etc
-
         // Cases need to be handled in special way
         match src.elem.as_ref() {
             syn::Type::Slice(type_slice) => {
@@ -136,8 +134,8 @@ impl TypeMapToCpp {
             _ => {}
         }
 
-        let maybe_const = if src.mutability.is_none() { "const " } else { "" };
-        Ok(format!("{maybe_const}{}&", self.type_to_cpp(src.elem.as_ref())?))
+        let maybe_const = if src.mutability.is_none() { " const" } else { "" };
+        Ok(format!("{}{maybe_const}&", self.type_to_cpp(src.elem.as_ref())?))
     }
 
     fn type_slice_to_cpp(&self, src: &syn::TypeSlice) -> syn::Result<String> {

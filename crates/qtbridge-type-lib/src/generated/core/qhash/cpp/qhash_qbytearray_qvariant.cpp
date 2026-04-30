@@ -27,50 +27,50 @@ void inlineCppFn_clear(QHash_QByteArray_QVariant &self)
     self.clear();
 }
 
-bool inlineCppFn_contains(const QHash_QByteArray_QVariant &self, const QByteArray &key)
+bool inlineCppFn_contains(QHash_QByteArray_QVariant const &self, QByteArray const &key)
 {
     return self.contains(key);
 }
 
-void inlineCppFn_insert(QHash_QByteArray_QVariant &self, const QByteArray &key,
-                        const QVariant &value)
+void inlineCppFn_insert(QHash_QByteArray_QVariant &self, QByteArray const &key,
+                        QVariant const &value)
 {
     self.insert(key, value);
 }
 
-bool inlineCppFn_is_empty(const QHash_QByteArray_QVariant &self)
+bool inlineCppFn_is_empty(QHash_QByteArray_QVariant const &self)
 {
     return self.isEmpty();
 }
 
-bool inlineCppFn_remove(QHash_QByteArray_QVariant &self, const QByteArray &key)
+bool inlineCppFn_remove(QHash_QByteArray_QVariant &self, QByteArray const &key)
 {
     return self.remove(key);
 }
 
-ptrdiff_t inlineCppFn_size(const QHash_QByteArray_QVariant &self)
+ptrdiff_t inlineCppFn_size(QHash_QByteArray_QVariant const &self)
 {
     return self.size();
 }
 
-QList_QByteArray inlineCppFn_keys(const QHash_QByteArray_QVariant &self)
+QList_QByteArray inlineCppFn_keys(QHash_QByteArray_QVariant const &self)
 {
     return self.keys();
 }
 
-QList_QVariant inlineCppFn_values(const QHash_QByteArray_QVariant &self)
+QList_QVariant inlineCppFn_values(QHash_QByteArray_QVariant const &self)
 {
     return self.values();
 }
 
-QVariant inlineCppFn_value(const QHash_QByteArray_QVariant &self, const QByteArray &key)
+QVariant inlineCppFn_value(QHash_QByteArray_QVariant const &self, QByteArray const &key)
 {
     return self.value(key);
 }
 
 QVariant const *
 inlineCppFn_TraitImpl_std_ops_Index_ref_QByteArray_for_QHash_QByteArray_QVariant_index(
-        const QHash_QByteArray_QVariant &self, const QByteArray &key)
+        QHash_QByteArray_QVariant const &self, QByteArray const &key)
 {
     auto findIt = self.find(key);
     if (findIt == self.end())

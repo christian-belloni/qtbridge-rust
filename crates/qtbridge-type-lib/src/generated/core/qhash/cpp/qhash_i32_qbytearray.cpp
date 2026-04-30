@@ -27,48 +27,48 @@ void inlineCppFn_clear(QHash_i32_QByteArray &self)
     self.clear();
 }
 
-bool inlineCppFn_contains(const QHash_i32_QByteArray &self, const int32_t &key)
+bool inlineCppFn_contains(QHash_i32_QByteArray const &self, int32_t const &key)
 {
     return self.contains(key);
 }
 
-void inlineCppFn_insert(QHash_i32_QByteArray &self, const int32_t &key, const QByteArray &value)
+void inlineCppFn_insert(QHash_i32_QByteArray &self, int32_t const &key, QByteArray const &value)
 {
     self.insert(key, value);
 }
 
-bool inlineCppFn_is_empty(const QHash_i32_QByteArray &self)
+bool inlineCppFn_is_empty(QHash_i32_QByteArray const &self)
 {
     return self.isEmpty();
 }
 
-bool inlineCppFn_remove(QHash_i32_QByteArray &self, const int32_t &key)
+bool inlineCppFn_remove(QHash_i32_QByteArray &self, int32_t const &key)
 {
     return self.remove(key);
 }
 
-ptrdiff_t inlineCppFn_size(const QHash_i32_QByteArray &self)
+ptrdiff_t inlineCppFn_size(QHash_i32_QByteArray const &self)
 {
     return self.size();
 }
 
-QList_i32 inlineCppFn_keys(const QHash_i32_QByteArray &self)
+QList_i32 inlineCppFn_keys(QHash_i32_QByteArray const &self)
 {
     return self.keys();
 }
 
-QList_QByteArray inlineCppFn_values(const QHash_i32_QByteArray &self)
+QList_QByteArray inlineCppFn_values(QHash_i32_QByteArray const &self)
 {
     return self.values();
 }
 
-QByteArray inlineCppFn_value(const QHash_i32_QByteArray &self, const int32_t &key)
+QByteArray inlineCppFn_value(QHash_i32_QByteArray const &self, int32_t const &key)
 {
     return self.value(key);
 }
 
 QByteArray const *inlineCppFn_TraitImpl_std_ops_Index_ref_i32_for_QHash_i32_QByteArray_index(
-        const QHash_i32_QByteArray &self, const int32_t &key)
+        QHash_i32_QByteArray const &self, int32_t const &key)
 {
     auto findIt = self.find(key);
     if (findIt == self.end())

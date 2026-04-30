@@ -29,7 +29,7 @@ void inlineCppFn_append(QList_QVariant &self, QVariant value)
     self.append(value);
 }
 
-size_t inlineCppFn_capacity(const QList_QVariant &self)
+size_t inlineCppFn_capacity(QList_QVariant const &self)
 {
     return self.capacity();
 }
@@ -39,7 +39,7 @@ void inlineCppFn_clear(QList_QVariant &self)
     self.clear();
 }
 
-bool inlineCppFn_contains(const QList_QVariant &self, const QVariant &value)
+bool inlineCppFn_contains(QList_QVariant const &self, QVariant const &value)
 {
     return self.contains(value);
 }
@@ -59,36 +59,36 @@ void inlineCppFn_reserve(QList_QVariant &self, size_t size)
     self.reserve(static_cast<qsizetype>(size));
 }
 
-ptrdiff_t inlineCppFn_size(const QList_QVariant &self)
+ptrdiff_t inlineCppFn_size(QList_QVariant const &self)
 {
     return self.size();
 }
 
-const QVariant &inlineCppFn_first(const QList_QVariant &self)
+QVariant const &inlineCppFn_first(QList_QVariant const &self)
 {
     return self.constFirst();
 }
 
-const QVariant &inlineCppFn_last(const QList_QVariant &self)
+QVariant const &inlineCppFn_last(QList_QVariant const &self)
 {
     return self.constLast();
 }
 
 QVariant const *
-inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QVariant_index(const QList_QVariant &self,
+inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QVariant_index(QList_QVariant const &self,
                                                                    size_t index)
 {
     return index < static_cast<size_t>(self.size()) ? &self[index] : nullptr;
 }
 
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_QVariant_eq(const QList_QVariant &lhs,
-                                                           const QList_QVariant &rhs)
+bool inlineCppFn_TraitImpl_PartialEq_for_QList_QVariant_eq(QList_QVariant const &lhs,
+                                                           QList_QVariant const &rhs)
 {
     return lhs == rhs;
 }
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_QVariant_N_for_QList_QVariant_eq(
-        const QList_QVariant &self, rust::Slice<const QVariant> rhs)
+        QList_QVariant const &self, rust::Slice<const QVariant> rhs)
 {
     for (size_t i = 0; i < rhs.size(); ++i) {
         if (self[i] != rhs[i])
