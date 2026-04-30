@@ -1,14 +1,14 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-#ifndef _QAIMPROXYCPP__H_
-#define _QAIMPROXYCPP__H_
+#ifndef _QTABLEMODELPROXYCPP_RUST_BRIDGE__H_
+#define _QTABLEMODELPROXYCPP_RUST_BRIDGE__H_
 #include <QAbstractItemModel>
 #include <QMetaObject>
 #include <QQmlListProperty>
 #include <cstdint>
 #include "qtbridge-runtime/src/cpp/dispatchmetacallcpp.h"
-#include "qtbridge-interfaces/src/common/qaim_rust_bridge.rs.h"
+#include "qtbridge-interfaces/src/qtable_model/proxy_rust_bridge.rs.h"
 #include "qtbridge-type-lib/src/generated/core/qbytearray/cpp/qbytearray.h"
 #include "qtbridge-type-lib/src/generated/core/qhash/cpp/qhash_i32_qbytearray.h"
 #include "qtbridge-type-lib/src/generated/core/qmodelindex/cpp/qmodelindex.h"
@@ -17,13 +17,13 @@
 
 namespace rust::bridge {
 
-class QAIMProxyCpp : public QAbstractItemModel, public DispatchMetaCallCpp
+class QTableModelProxyCpp : public QAbstractItemModel, public DispatchMetaCallCpp
 {
     using Base = QAbstractItemModel;
 
 public:
-    QAIMProxyCpp(QAIMProxyRust* rustProxy);
-    ~QAIMProxyCpp();
+    QTableModelProxyCpp(QTableModelProxyRust* rustProxy);
+    ~QTableModelProxyCpp();
 
     // Virtual methods
     QModelIndex index(int32_t row, int32_t column, const QModelIndex& parent) const override;
@@ -33,6 +33,7 @@ public:
     QVariant data(const QModelIndex& index, int32_t role) const override;
     QHash<int32_t,QByteArray> roleNames() const override;
     bool setData(const QModelIndex& index, const QVariant& value, int32_t role) override;
+    bool removeColumns(int32_t first, int32_t count, const QModelIndex& parent) override;
     bool removeRows(int32_t first, int32_t count, const QModelIndex& parent) override;
     QModelIndex sibling(int32_t row, int32_t column, const QModelIndex& idx) const override;
 
@@ -45,6 +46,7 @@ public:
     // Access to base implementation of virtual functions
     QHash<int32_t,QByteArray> base_roleNames() const;
     bool base_setData(const QModelIndex& index, const QVariant& value, int32_t role);
+    bool base_removeColumns(int32_t first, int32_t count, const QModelIndex& parent);
     bool base_removeRows(int32_t first, int32_t count, const QModelIndex& parent);
     QModelIndex base_sibling(int32_t row, int32_t column, const QModelIndex& idx) const;
 
@@ -67,17 +69,17 @@ public:
     QModelIndex createIndex(int32_t row, int32_t column, size_t ptr) const;
 
 private:
-    QAIMProxyRust* m_rustProxy;
+    QTableModelProxyRust* m_rustProxy;
 };
 
 // Functions for object construction
-QAIMProxyCpp* create_QAIMProxyCpp(QAIMProxyRust* rustProxy);
-QAIMProxyCpp* create_QAIMProxyCpp_At(uint8_t* addr, QAIMProxyRust* rustProxy);
-const QMetaObject& staticQMetaObjectOf_QAIMProxyCpp();
-size_t sizeOf_QAIMProxyCpp();
-size_t alignOf_QAIMProxyCpp();
-QMetaType qmetaTypeListOf_QAIMProxyCpp();
+QTableModelProxyCpp* create_QTableModelProxyCpp(QTableModelProxyRust* rustProxy);
+QTableModelProxyCpp* create_QTableModelProxyCpp_At(uint8_t* addr, QTableModelProxyRust* rustProxy);
+const QMetaObject& staticQMetaObjectOf_QTableModelProxyCpp();
+size_t sizeOf_QTableModelProxyCpp();
+size_t alignOf_QTableModelProxyCpp();
+QMetaType qmetaTypeListOf_QTableModelProxyCpp();
 
 } // namespace rust::bridge
 
-#endif // _QAIMPROXYCPP__H_
+#endif // _QTABLEMODELPROXYCPP_RUST_BRIDGE__H_

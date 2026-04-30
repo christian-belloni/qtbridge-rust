@@ -1,7 +1,7 @@
-// Copyright (C) 2026 The Qt Company Ltd.
+// Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use super::qaim_rust_bridge::QAIMProxyRust;
+use super::proxy_rust::QTableModelProxyRust;
 #[cxx::bridge]
 pub mod ffi {
     unsafe extern "C++" {
@@ -15,30 +15,32 @@ pub mod ffi {
         type QModelIndex = qtbridge_type_lib::QModelIndex;
         include!("qtbridge-type-lib/src/generated/core/qvariant/cpp/qvariant.h");
         type QVariant = qtbridge_type_lib::QVariant;
-        include!("qtbridge-interfaces/src/common/qaim_rust_bridge.rs.h");
-        type QAIMProxyRust = super::QAIMProxyRust;
+        include!("qtbridge-interfaces/src/qtable_model/proxy_rust_bridge.rs.h");
+        type QTableModelProxyRust = super::QTableModelProxyRust;
     }
     #[namespace = "rust::bridge"]
     unsafe extern "C++" {
-        include!("qtbridge-interfaces/src/common/cpp/QAIMProxyCpp.h");
-        type QAIMProxyCpp;
-        # [rust_name = create_qaim_proxy_cpp]
-        unsafe fn create_QAIMProxyCpp(rust_proxy: *mut QAIMProxyRust) -> *mut QAIMProxyCpp;
-        # [rust_name = create_qaim_proxy_cpp_at]
-        unsafe fn create_QAIMProxyCpp_At(addr: *mut u8, rust_proxy: *mut QAIMProxyRust)
-        -> *mut QAIMProxyCpp;
-        # [rust_name = static_qmeta_object_of_qaim_proxy_cpp]
-        fn staticQMetaObjectOf_QAIMProxyCpp() -> &'static QMetaObject;
-        # [rust_name = size_of_qaim_proxy_cpp]
-        fn sizeOf_QAIMProxyCpp() -> usize;
-        # [rust_name = align_of_qaim_proxy_cpp]
-        fn alignOf_QAIMProxyCpp() -> usize;
-        # [rust_name = qmetatype_list_of_qaim_proxy_cpp]
-        fn qmetaTypeListOf_QAIMProxyCpp() -> QMetaType;
+        include!("qtbridge-interfaces/src/qtable_model/cpp/QTableModelProxyCpp.h");
+        type QTableModelProxyCpp;
+        # [rust_name = create_qtable_model_proxy_cpp]
+        unsafe fn create_QTableModelProxyCpp(rust_proxy: *mut QTableModelProxyRust) -> *mut QTableModelProxyCpp;
+        # [rust_name = create_qtable_model_proxy_cpp_at]
+        unsafe fn create_QTableModelProxyCpp_At(addr: *mut u8, rust_proxy: *mut QTableModelProxyRust)
+        -> *mut QTableModelProxyCpp;
+        # [rust_name = static_qmeta_object_of_qtable_model_proxy_cpp]
+        fn staticQMetaObjectOf_QTableModelProxyCpp() -> &'static QMetaObject;
+        # [rust_name = size_of_qtable_model_proxy_cpp]
+        fn sizeOf_QTableModelProxyCpp() -> usize;
+        # [rust_name = align_of_qtable_model_proxy_cpp]
+        fn alignOf_QTableModelProxyCpp() -> usize;
+        # [rust_name = qmetatype_list_of_qtable_model_proxy_cpp]
+        fn qmetaTypeListOf_QTableModelProxyCpp() -> QMetaType;
         # [rust_name = base_role_names]
         fn base_roleNames(&self) -> QHash_i32_QByteArray;
         # [rust_name = base_set_data]
         fn base_setData(self: Pin<&mut Self>, index: &QModelIndex, value: &QVariant, role: i32) -> bool;
+        # [rust_name = base_remove_columns]
+        fn base_removeColumns(self: Pin<&mut Self>, first: i32, count: i32, parent: &QModelIndex) -> bool;
         # [rust_name = base_remove_rows]
         fn base_removeRows(self: Pin<&mut Self>, first: i32, count: i32, parent: &QModelIndex) -> bool;
         # [rust_name = base_sibling]
@@ -91,4 +93,4 @@ pub mod ffi {
         fn createIndex(&self, row: i32, column: i32, ptr: usize) -> QModelIndex;
     }
 }
-pub use ffi::QAIMProxyCpp;
+pub use ffi::QTableModelProxyCpp;

@@ -86,10 +86,6 @@ bool QAIMProxyCpp::base_removeRows(int32_t first, int32_t count, const QModelInd
 {
     return Base::removeRows(first, count, parent);
 }
-bool QAIMProxyCpp::base_removeColumns(int32_t first, int32_t count, const QModelIndex& parent)
-{
-    return Base::removeColumns(first, count, parent);
-}
 QModelIndex QAIMProxyCpp::base_sibling(int32_t row, int32_t column, const QModelIndex& idx) const
 {
     return Base::sibling(row, column, idx);

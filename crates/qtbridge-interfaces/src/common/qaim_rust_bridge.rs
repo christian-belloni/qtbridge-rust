@@ -21,9 +21,6 @@ impl<T: ?Sized + 'static> QGenericAIMProxyRust<T> {
     pub fn base_set_data(&mut self, index: &QModelIndex, value: &QVariant, role: i32) -> bool {
         call_cpp_impl!(mut self, base_set_data(index, value, role))
     }
-    pub fn base_remove_columns(&mut self, first: i32, count: i32, parent: &QModelIndex) -> bool {
-        call_cpp_impl!(mut self, base_remove_columns(first, count, parent))
-    }
     pub fn base_remove_rows(&mut self, first: i32, count: i32, parent: &QModelIndex) -> bool {
         call_cpp_impl!(mut self, base_remove_rows(first, count, parent))
     }
@@ -33,42 +30,17 @@ impl<T: ?Sized + 'static> QGenericAIMProxyRust<T> {
     pub fn base_data_changed(&mut self, top_left: &QModelIndex, bottom_right: &QModelIndex) {
         call_cpp_impl!(mut self, base_data_changed(top_left, bottom_right))
     }
-    pub fn base_begin_insert_columns(&mut self, parent: &QModelIndex, first: i32, last: i32) {
-        call_cpp_impl!(mut self, base_begin_insert_columns(parent, first, last))
-    }
-    pub fn base_end_insert_columns(&mut self) {
-        call_cpp_impl!(mut self, base_end_insert_columns())
-    }
     pub fn base_begin_insert_rows(&mut self, parent: &QModelIndex, first: i32, last: i32) {
         call_cpp_impl!(mut self, base_begin_insert_rows(parent, first, last))
     }
     pub fn base_end_insert_rows(&mut self) {
         call_cpp_impl!(mut self, base_end_insert_rows())
     }
-    pub fn base_begin_move_columns(
-        &mut self,
-        source_parent: &QModelIndex,
-        source_first: i32,
-        source_last: i32,
-        destination_parent: &QModelIndex,
-        destination_child: i32,
-    ) {
-        call_cpp_impl!(mut self, base_begin_move_columns(source_parent, source_first, source_last, destination_parent, destination_child))
-    }
-    pub fn base_end_move_columns(&mut self) {
-        call_cpp_impl!(mut self, base_end_move_columns())
-    }
     pub fn base_begin_move_rows(&mut self, source_parent: &QModelIndex, source_first: i32, source_last: i32, destination_parent: &QModelIndex, destination_child: i32) {
         call_cpp_impl!(mut self, base_begin_move_rows(source_parent, source_first, source_last, destination_parent, destination_child))
     }
     pub fn base_end_move_rows(&mut self) {
         call_cpp_impl!(mut self, base_end_move_rows())
-    }
-    pub fn base_begin_remove_columns(&mut self, parent: &QModelIndex, first: i32, last: i32) {
-        call_cpp_impl!(mut self, base_begin_remove_columns(parent, first, last))
-    }
-    pub fn base_end_remove_columns(&mut self) {
-        call_cpp_impl!(mut self, base_end_remove_columns())
     }
     pub fn base_begin_remove_rows(&mut self, parent: &QModelIndex, first: i32, last: i32) {
         call_cpp_impl!(mut self, base_begin_remove_rows(parent, first, last))
@@ -81,9 +53,6 @@ impl<T: ?Sized + 'static> QGenericAIMProxyRust<T> {
     }
     pub fn base_end_reset_model(&mut self) {
         call_cpp_impl!(mut self, base_end_reset_model())
-    }
-    pub fn base_create_index(&self, row: i32, column: i32, ptr: usize) -> QModelIndex {
-        call_cpp_impl!(self, base_create_index(row, column, ptr))
     }
 }
 pub trait QAIMProxyImpl {
