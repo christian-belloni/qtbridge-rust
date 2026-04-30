@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use proc_macro2::{TokenStream, TokenTree};
-use quote::ToTokens;
 use syn::{buffer::Cursor, parse::{Parse, ParseBuffer, StepCursor}};
 
 use crate::type_utils::is_same_path;
@@ -155,28 +154,3 @@ pub fn find_token<F>(src: TokenStream, pred: &F) -> Option<proc_macro2::Ident>
     None
 }
 
-// TODO: maybe this should belong to other file
-pub fn replace_idents_in_token_stream<F>(src_tokens: TokenStream, predicate: &F) -> TokenStream
-    where F: Fn(&proc_macro2::Ident) -> Option<proc_macro2::Ident> {
-
-    let mut new_stream = TokenStream::new();
-    for src_token in src_tokens {
-        let new_token = match src_token {
-            TokenTree::Group(group) => {
-                let new_stream = replace_idents_in_token_stream(group.stream(), predicate);
-                TokenTree::Group(
-                    proc_macro2::Group::new(group.delimiter(), new_stream)
-                )
-            }
-            TokenTree::Ident(ident) => {
-                let new_ident = predicate(&ident)
-                    .unwrap_or(ident);
-                TokenTree::Ident(new_ident)
-            },
-            _ => src_token.clone(),
-        };
-        new_token.to_tokens(&mut new_stream);
-    }
-
-    new_stream
-}

@@ -3,9 +3,9 @@
 
 use std::collections::BTreeMap;
 
-use proc_macro2::TokenStream;
+use proc_macro2::{TokenStream, TokenTree};
 
-use quote::{format_ident, quote};
+use quote::{ToTokens, format_ident, quote};
 use syn::parse::discouraged::Speculative;
 use syn::Token;
 
@@ -13,7 +13,6 @@ use qtbridge_gen_common::case_conv;
 use qtbridge_gen_common::cpp_fn_sign::CppFnSign;
 use qtbridge_gen_common::format_code::token_stream_to_code;
 use qtbridge_gen_common::multi_type_mapping::MultiTypeMapping;
-use qtbridge_gen_common::parse_utils::replace_idents_in_token_stream;
 use qtbridge_gen_common::qt_generic_mapping::QtGenericMapping;
 use qtbridge_gen_common::signature_utils::{is_unsafe, ExpectSelfRef};
 use qtbridge_gen_common::type_mapping_nested::TypeMappingNested;
@@ -68,13 +67,10 @@ impl CppFun {
                 None
             }).collect::<BTreeMap<_, _>>();
 
-        let new_cpp_code = if cpp_type_map.is_empty() {
-            self.cpp_func_code.clone()
-        }
-        else {
-            replace_idents_in_token_stream(self.cpp_func_code.clone(), &|ident|
-                cpp_type_map.get(ident)
-                    .map(|new_ident| syn::Ident::new(new_ident, ident.span())))
+        let cpp_tokens = self.cpp_func_code.clone();
+        let new_cpp_code = match cpp_type_map.is_empty() {
+            true => cpp_tokens,
+            false => Self::substitute_cpp_tokens(cpp_tokens, &cpp_type_map)?,
         };
 
         Ok(Self {
@@ -82,6 +78,30 @@ impl CppFun {
             cpp_func_code: new_cpp_code,
             ..self.clone()
         })
+    }
+
+    fn substitute_cpp_tokens(src: TokenStream, type_map: &BTreeMap<syn::Ident, String>) -> syn::Result<TokenStream> {
+        let mut result = TokenStream::new();
+        for src_token in src {
+            let new_tokens = match src_token {
+                TokenTree::Group(group) => {
+                    let new_stream = Self::substitute_cpp_tokens(group.stream(), type_map)?;
+                    TokenTree::Group(
+                        proc_macro2::Group::new(group.delimiter(), new_stream)
+                    ).to_token_stream()
+                }
+                TokenTree::Ident(ident) => {
+                    match type_map.get(&ident) {
+                        Some(ty_str) => syn::parse_str(ty_str)?,
+                        None => ident.to_token_stream(),
+                    }
+                }
+                _ => src_token.to_token_stream(),
+            };
+            new_tokens.to_tokens(&mut result);
+        }
+
+        Ok(result)
     }
 
     /// Replace generic QtTypes with argument with the concrete type
