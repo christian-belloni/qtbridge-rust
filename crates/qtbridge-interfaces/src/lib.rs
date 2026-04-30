@@ -60,8 +60,6 @@
 //! * **Notes**: Never meant for user implementation or usage. Facilitates dynamic behavior and
 //!   internal bridging without exposing associated types to user code.
 
-pub mod common;
-
 pub mod qobject;
 
 pub mod qlist_model;
@@ -73,5 +71,5 @@ pub use qtable_model::{QTableModel, QTableModelBase};
 pub mod object_access;
 pub use object_access::rust_object_access::RustObjAccess;
 
-pub mod generated;
+mod generated;
 pub use generated::*;

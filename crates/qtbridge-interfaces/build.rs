@@ -8,8 +8,8 @@ const FILES_BRIDGE: [&'static str; 10] = [
     "src/generated/qabstract_item_model/proxy_rust_bridge.rs",
     "src/generated/qabstract_list_model/proxy_cpp_bridge.rs",
     "src/generated/qabstract_list_model/proxy_rust_bridge.rs",
-    "src/common/qaim_cpp_bridge.rs",
-    "src/common/qaim_rust_bridge.rs",
+    "src/qlist_model/proxy_cpp_bridge.rs",
+    "src/qlist_model/proxy_rust_bridge.rs",
     "src/qobject/proxy_cpp_bridge.rs",
     "src/qobject/proxy_rust_bridge.rs",
     "src/qtable_model/proxy_cpp_bridge.rs",
@@ -19,7 +19,7 @@ const FILES_BRIDGE: [&'static str; 10] = [
 const FILES_CPP: [&'static str; 5] = [
     "src/generated/qabstract_item_model/cpp/QAbstractItemModelProxyCpp.cpp",
     "src/generated/qabstract_list_model/cpp/QAbstractListModelProxyCpp.cpp",
-    "src/common/cpp/QAIMProxyCpp.cpp",
+    "src/qlist_model/cpp/QListModelProxyCpp.cpp",
     "src/qobject/cpp/QObjectProxyCpp.cpp",
     "src/qtable_model/cpp/QTableModelProxyCpp.cpp",
 ];
@@ -46,7 +46,6 @@ fn main() {
     FILES_CPP.iter()
         .for_each(|file| {
             builder.file(file);
-            println!("cargo::rerun-if-changed={file}");
         });
 
     let qt_modules = ["Core", "Gui", "Qml"];
