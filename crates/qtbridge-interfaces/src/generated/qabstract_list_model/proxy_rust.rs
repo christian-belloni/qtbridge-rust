@@ -5,7 +5,7 @@ use super::proxy_cpp_bridge::{QAbstractListModelProxyCpp, ffi};
 use crate::{RustObjAccess, call_rust_trait_impl, call_cpp_impl};
 use qtbridge_runtime::qrustproxy::{QRustProxy, ConstructionMode};
 use qtbridge_runtime::{DispatchMetaCall, QObjectHolder};
-use qtbridge_type_lib::{QByteArray, QHash, QMetaObject, QMetaType, QModelIndex, QVariant};
+use qtbridge_type_lib::{QByteArray, QHash, QModelIndex, QVariant};
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -169,18 +169,6 @@ impl QRustProxy for QAbstractListModelProxyRust {
             }
         }};
         raw_self
-    }
-    fn get_static_meta_object() -> &'static QMetaObject {
-        ffi::static_qmeta_object_of_qabstract_list_model_proxy_cpp()
-    }
-    fn get_size_of_cpp_proxy() -> usize {
-        ffi::size_of_qabstract_list_model_proxy_cpp()
-    }
-    fn get_align_of_cpp_proxy() -> usize {
-        ffi::align_of_qabstract_list_model_proxy_cpp()
-    }
-    fn get_qmetatype_list_of_cpp_proxy() -> QMetaType {
-        ffi::qmetatype_list_of_qabstract_list_model_proxy_cpp()
     }
     fn get_cpp_proxy(&self) -> *const QAbstractListModelProxyCpp {
         self.cpp_proxy as *const _

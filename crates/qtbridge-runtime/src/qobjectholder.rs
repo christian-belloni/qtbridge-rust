@@ -6,6 +6,7 @@ use std::rc::Rc;
 
 use qtbridge_type_lib::{QMetaObject, QMetaType, QMetaTypeGet, QObject, QVariant};
 use crate::qrustproxy::{QRustProxy, ConstructionMode};
+use crate::qcppproxy::QCppProxy;
 use crate::rustobjectgetter::get_rust_object_rc_ptr;
 use crate::{DispatchMetaCall, QMetaInfo, QmlMethodInvoker};
 use std::collections::HashMap;
@@ -236,21 +237,21 @@ pub trait QObjectHolder : DispatchMetaCall + QMetaInfo + Default {
 
     #[doc(hidden)]
     fn get_static_meta_object() -> &'static QMetaObject {
-        <Self::ProxyRust as QRustProxy>::get_static_meta_object()
+        <<Self::ProxyRust as QRustProxy>::ProxyCppType as QCppProxy>::get_static_meta_object()
     }
 
     #[doc(hidden)]
     fn get_size_of_cpp_proxy() -> usize {
-        <Self::ProxyRust as QRustProxy>::get_size_of_cpp_proxy()
+        <<Self::ProxyRust as QRustProxy>::ProxyCppType as QCppProxy>::get_size()
     }
 
     #[doc(hidden)]
     fn get_align_of_cpp_proxy() -> usize {
-        <Self::ProxyRust as QRustProxy>::get_align_of_cpp_proxy()
+        <<Self::ProxyRust as QRustProxy>::ProxyCppType as QCppProxy>::get_align()
     }
 
     #[doc(hidden)]
     fn get_qmetatype_list_of_cpp_proxy() -> QMetaType {
-        <Self::ProxyRust as QRustProxy>::get_qmetatype_list_of_cpp_proxy()
+        <<Self::ProxyRust as QRustProxy>::ProxyCppType as QCppProxy>::get_qmetatype_list()
     }
 }

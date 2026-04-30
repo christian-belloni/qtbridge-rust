@@ -10,6 +10,7 @@ pub mod qmetainfo;
 pub mod qml_register;
 pub mod qresource;
 pub mod qobjectholder;
+pub mod qcppproxy;
 pub mod qrustproxy;
 pub mod qmetatypeforqobject;
 pub mod qmetatypeutils;

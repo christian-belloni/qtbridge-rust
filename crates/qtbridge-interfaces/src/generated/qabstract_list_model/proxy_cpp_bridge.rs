@@ -1,6 +1,9 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
+use qtbridge_runtime::qcppproxy::QCppProxy;
+use qtbridge_type_lib::{QMetaType, QMetaObject};
+
 use super::proxy_rust::QAbstractListModelProxyRust;
 #[cxx::bridge]
 pub mod ffi {
@@ -73,3 +76,18 @@ pub mod ffi {
     }
 }
 pub use ffi::QAbstractListModelProxyCpp;
+
+impl QCppProxy for QAbstractListModelProxyCpp {
+    fn get_static_meta_object() -> &'static QMetaObject {
+        ffi::static_qmeta_object_of_qabstract_list_model_proxy_cpp()
+    }
+    fn get_size() -> usize {
+        ffi::size_of_qabstract_list_model_proxy_cpp()
+    }
+    fn get_align() -> usize {
+        ffi::align_of_qabstract_list_model_proxy_cpp()
+    }
+    fn get_qmetatype_list() -> QMetaType {
+        ffi::qmetatype_list_of_qabstract_list_model_proxy_cpp()
+    }
+}

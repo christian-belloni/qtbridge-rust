@@ -1,7 +1,7 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use qtbridge_type_lib::{QMetaObject, QMetaType};
+use crate::qcppproxy::QCppProxy;
 use std::rc::Rc;
 use std::cell::RefCell;
 
@@ -48,25 +48,18 @@ pub enum ConstructionMode {
 ///
 /// ## `ProxyCppType`
 ///
-/// The concrete C++ proxy type.
+/// The concrete C++ proxy type. Has to implement [´QCppProxy´].
 ///
-/// ## `RcRefCellType`
+/// ## `AdapterType`
 ///
-/// The Rust container type holding the actual object, typically:
-///
-/// ```rust, ignore
-/// Rc<RefCell<dyn MarkerTrait>>
-/// ```
-/// The MarkerTrait is implemented on the users rust struct by the qobject macro.
+/// A wrapper trait for the interface trait that QtBridge users implement. This wrapper
+/// is required because not all traits can be used with dyn and are thus incompatible with
+/// [`RustObjAccess`] (See "object safety" or "dyn compatibility").
 ///
 pub trait QRustProxy {
-    type ProxyCppType;
+    type ProxyCppType: QCppProxy;
     type AdapterType: ?Sized;
     fn new<OnDropFn: FnOnce() + 'static>(rust_obj: &Rc<RefCell<Self::AdapterType>>, construction: ConstructionMode, on_drop: OnDropFn) -> *mut Self;
-    fn get_static_meta_object() -> &'static QMetaObject;
-    fn get_size_of_cpp_proxy() -> usize;
-    fn get_align_of_cpp_proxy() -> usize;
-    fn get_qmetatype_list_of_cpp_proxy() -> QMetaType;
     fn get_cpp_proxy(&self) -> *const Self::ProxyCppType;
     fn get_cpp_proxy_mut(&self) -> *mut Self::ProxyCppType;
 }

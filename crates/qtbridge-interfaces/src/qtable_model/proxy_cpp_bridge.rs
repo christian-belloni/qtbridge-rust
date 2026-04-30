@@ -1,6 +1,9 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
+use qtbridge_runtime::qcppproxy::QCppProxy;
+use qtbridge_type_lib::{QMetaObject, QMetaType};
+
 use super::proxy_rust::QTableModelProxyRust;
 #[cxx::bridge]
 pub mod ffi {
@@ -94,3 +97,18 @@ pub mod ffi {
     }
 }
 pub use ffi::QTableModelProxyCpp;
+
+impl QCppProxy for QTableModelProxyCpp {
+    fn get_static_meta_object() -> &'static QMetaObject {
+        ffi::static_qmeta_object_of_qtable_model_proxy_cpp()
+    }
+    fn get_size() -> usize {
+        ffi::size_of_qtable_model_proxy_cpp()
+    }
+    fn get_align() -> usize {
+        ffi::align_of_qtable_model_proxy_cpp()
+    }
+    fn get_qmetatype_list() -> QMetaType {
+        ffi::qmetatype_list_of_qtable_model_proxy_cpp()
+    }
+}

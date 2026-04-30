@@ -6,7 +6,7 @@ use crate::RustObjAccess;
 use crate::call_rust_trait_impl;
 use qtbridge_runtime::qrustproxy::{QRustProxy, ConstructionMode};
 use qtbridge_runtime::{DispatchMetaCall, QObjectHolder};
-use qtbridge_type_lib::{QMetaObject, QMetaType, QVariant};
+use qtbridge_type_lib::QVariant;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -20,7 +20,6 @@ where T: QObjectHolder<ProxyRust = QObjectProxyRust> {}
 
 pub struct QObjectProxyRust {
     cpp_proxy: *mut QObjectProxyCpp,
-    #[allow(dead_code)]
     rust_obj: RustObjAccess<dyn QObjectAdapter>,
     on_drop: Box<dyn FnOnce()>,
 }
@@ -50,18 +49,6 @@ impl QRustProxy for QObjectProxyRust {
             }
         }};
         raw_self
-    }
-    fn get_static_meta_object() -> &'static QMetaObject {
-        ffi::static_qmeta_object_of_qobject_proxy_cpp()
-    }
-    fn get_size_of_cpp_proxy() -> usize {
-        ffi::size_of_qobject_proxy_cpp()
-    }
-    fn get_align_of_cpp_proxy() -> usize {
-        ffi::align_of_qobject_proxy_cpp()
-    }
-    fn get_qmetatype_list_of_cpp_proxy() -> QMetaType {
-        ffi::qmetatype_list_of_qobject_proxy_cpp()
     }
     fn get_cpp_proxy(&self) -> *const QObjectProxyCpp {
         self.cpp_proxy as *const _
