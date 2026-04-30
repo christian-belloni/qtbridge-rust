@@ -17,7 +17,7 @@ use qtbridge_gen_common::parse_utils::replace_idents_in_token_stream;
 use qtbridge_gen_common::qt_generic_mapping::QtGenericMapping;
 use qtbridge_gen_common::signature_utils::{is_unsafe, ExpectSelfRef};
 use qtbridge_gen_common::type_mapping_nested::TypeMappingNested;
-use qtbridge_gen_common::type_to_cpp::path_to_cpp;
+use qtbridge_gen_common::type_to_cpp::path_to_cpp_allow_unknown;
 
 use crate::self_type_mapping::SelfTypeMapping;
 
@@ -62,7 +62,7 @@ impl CppFun {
         // Substitute types in C++ code
         let cpp_type_map = type_map.get_impl().iter()
             .filter_map(|(from, to)| {
-                if let Ok(to_cpp) = path_to_cpp(to) {
+                if let Ok(to_cpp) = path_to_cpp_allow_unknown(to) {
                     return Some((from.clone(), to_cpp));
                 }
                 None

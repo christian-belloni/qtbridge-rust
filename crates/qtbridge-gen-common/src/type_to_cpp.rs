@@ -14,24 +14,41 @@ pub fn is_type_mapped_to_cpp(ty: &syn::Type) -> bool {
 
 /// Maps Rust type given as a `syn::Type` to its C++ equivalent.
 pub fn type_to_cpp(src: &syn::Type) -> syn::Result<String> {
-    let map = TypeMapToCpp::new();
+    let map = TypeMapToCpp::new(MapUnknown::DoNotMap);
+    map.type_to_cpp(src)
+}
+
+pub fn type_to_cpp_allow_unknown(src: &syn::Type) -> syn::Result<String> {
+    let map = TypeMapToCpp::new(MapUnknown::Map);
     map.type_to_cpp(src)
 }
 
 /// Maps Rust type given as a `syn::Path` to its C++ equivalent.
 pub fn path_to_cpp(src: &syn::Path) -> syn::Result<String> {
-    let map = TypeMapToCpp::new();
+    let map = TypeMapToCpp::new(MapUnknown::DoNotMap);
+    map.path_to_cpp(src)
+}
+
+pub fn path_to_cpp_allow_unknown(src: &syn::Path) -> syn::Result<String> {
+    let map = TypeMapToCpp::new(MapUnknown::Map);
     map.path_to_cpp(src)
 }
 
 
+enum MapUnknown {
+    Map,
+    DoNotMap,
+}
+
 /// Struct that maps Rust types to their corresponding C++ equivalents.
-pub struct TypeMapToCpp {
+struct TypeMapToCpp {
+    map_unknown: MapUnknown
 }
 
 impl TypeMapToCpp {
-    pub fn new() -> Self {
+    pub fn new(map_unknown: MapUnknown) -> Self {
         Self {
+            map_unknown,
         }
     }
 
@@ -173,14 +190,30 @@ impl TypeMapToCpp {
     }
 
     pub fn type_ident_to_cpp(&self, src: &syn::Ident, category: Option<&TypeCategory>) -> syn::Result<String> {
-        let ty = type_registry::Type::find_by_ident_in_opt_category_result(src, category)?;
+        match type_registry::Type::find_by_ident_in_opt_category_result(src, category) {
+            Ok(ty) => {
+                Self::known_type_ident_to_cpp(ty)
+                    .ok_or_else(|| syn::Error::new(src.span(), format!("Type '{src}' is not convertible to C++")))
+            }
+            Err(err) => {
+                match self.map_unknown {
+                    MapUnknown::Map => Ok(src.to_string()),
+                    MapUnknown::DoNotMap => Err(err),
+                }
+            }
+        }
+    }
+
+    fn known_type_ident_to_cpp(ty: type_registry::Type) -> Option<String> {
         let ty_info = ty.dyn_type_info();
-        let cpp_name = ty_info.cpp_name()
-            .ok_or_else(|| syn::Error::new(src.span(), "Type is not convertible to C++"))?;
+        let cpp_name = ty_info.cpp_name()?;
         let ns = ty_info.cpp_namespace()
             .unwrap_or_default();
-        let result = if ns.is_empty() { cpp_name.to_owned() } else { format!("::{ns}::{cpp_name}") };
-        Ok(result)
+        let result = match ns.is_empty() {
+            true => cpp_name.to_owned(),
+            false => format!("::{ns}::{cpp_name}"),
+        };
+        Some(result)
     }
 
     fn path_segment_angle_bracketed_to_cpp(&self, src: &syn::PathSegment, category: Option<&TypeCategory>) -> syn::Result<String> {
