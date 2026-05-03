@@ -7,11 +7,12 @@
 #include <QObject>
 #include <QQmlListProperty>
 #include "qtbridge-runtime/src/cpp/dispatchmetacallcpp.h"
+#include "qtbridge-runtime/src/cpp/rustobjectgetter.h"
 #include "qtbridge-interfaces/src/qobject/proxy_rust_bridge.rs.h"
 
 namespace rust::bridge {
 
-class QObjectProxyCpp : public QObject, public DispatchMetaCallCpp
+class QObjectProxyCpp : public QObject, public DispatchMetaCallCpp, public RustObjectGetter
 {
     using Base = QObject;
 
@@ -24,6 +25,9 @@ public:
     void invokeSlotMut(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const override;
     QVariant readProperty(uint32_t propId) const override;
     void writeProperty(uint32_t propId, const QVariant& value) const override;
+
+    // RustObjectGetter implementation
+    const void* getRustObjectRcPtr() const override;
 
 private:
     QObjectProxyRust* m_rustProxy;

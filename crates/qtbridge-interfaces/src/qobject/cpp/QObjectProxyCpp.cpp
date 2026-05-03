@@ -36,6 +36,13 @@ void QObjectProxyCpp::writeProperty(uint32_t propId, const QVariant& value) cons
 }
 
 
+// RustObjectGetter implementation
+const void* QObjectProxyCpp::getRustObjectRcPtr() const
+{
+    return static_cast<const void*>(m_rustProxy->getRustObjectRcPtr());
+}
+
+
 // Functions for object construction
 
 QObjectProxyCpp* create_QObjectProxyCpp(QObjectProxyRust* rustProxy)

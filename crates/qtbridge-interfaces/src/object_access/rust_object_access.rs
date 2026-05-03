@@ -271,6 +271,9 @@ impl<T: ?Sized> RustObjAccess<T> {
         Ok(result)
     }
 
+    pub fn get_rc(&self) -> Option<Rc<RefCell<T>>> {
+        self.shared_reference.get_rc()
+    }
 }
 
 /// Enum containing possible errors that may occur on attempting to borrow object.

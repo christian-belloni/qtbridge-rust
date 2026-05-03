@@ -40,6 +40,9 @@ pub mod ffi {
         fn read_property(&self, prop_id: u32) -> QVariant;
         # [cxx_name = writeProperty]
         fn write_property(&mut self, prop_id: u32, value: &QVariant);
+
+        # [cxx_name = getRustObjectRcPtr]
+        fn get_rust_object_rc_ptr(&self) -> *const u8;
     }
 }
 unsafe impl cxx::ExternType for QListModelProxyRust {

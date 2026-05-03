@@ -76,6 +76,14 @@ void QTableModelProxyCpp::writeProperty(uint32_t propId, const QVariant& value) 
     m_rustProxy->writeProperty(propId, value);
 }
 
+
+// RustObjectGetter implementation
+const void* QTableModelProxyCpp::getRustObjectRcPtr() const
+{
+    return static_cast<const void*>(m_rustProxy->getRustObjectRcPtr());
+}
+
+
 // Access to base implementation of virtual functions
 QHash<int32_t,QByteArray> QTableModelProxyCpp::base_roleNames() const
 {

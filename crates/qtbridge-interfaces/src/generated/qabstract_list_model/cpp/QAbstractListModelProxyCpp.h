@@ -8,6 +8,7 @@
 #include <QQmlListProperty>
 #include <cstdint>
 #include "qtbridge-runtime/src/cpp/dispatchmetacallcpp.h"
+#include "qtbridge-runtime/src/cpp/rustobjectgetter.h"
 #include "qtbridge-interfaces/src/generated/qabstract_list_model/proxy_rust_bridge.rs.h"
 #include "qtbridge-type-lib/src/generated/core/qbytearray/cpp/qbytearray.h"
 #include "qtbridge-type-lib/src/generated/core/qhash/cpp/qhash_i32_qbytearray.h"
@@ -17,7 +18,7 @@
 
 namespace rust::bridge {
 
-class QAbstractListModelProxyCpp : public QAbstractListModel, public DispatchMetaCallCpp
+class QAbstractListModelProxyCpp : public QAbstractListModel, public DispatchMetaCallCpp, public RustObjectGetter
 {
     using Base = QAbstractListModel;
 
@@ -39,6 +40,9 @@ public:
     void invokeSlotMut(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const override;
     QVariant readProperty(uint32_t propId) const override;
     void writeProperty(uint32_t propId, const QVariant& value) const override;
+
+    // RustObjectGetter implementation
+    const void* getRustObjectRcPtr() const override;
 
     // Access to base implementation of virtual functions
     QModelIndex base_index(int32_t row, int32_t column, const QModelIndex& parent) const;

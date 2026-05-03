@@ -73,6 +73,13 @@ void QAbstractItemModelProxyCpp::writeProperty(uint32_t propId, const QVariant& 
 }
 
 
+// RustObjectGetter implementation
+const void* QAbstractItemModelProxyCpp::getRustObjectRcPtr() const
+{
+    return static_cast<const void*>(m_rustProxy->getRustObjectRcPtr());
+}
+
+
 // Access to base implementation of virtual functions
 QHash<int32_t,QByteArray> QAbstractItemModelProxyCpp::base_roleNames() const
 {

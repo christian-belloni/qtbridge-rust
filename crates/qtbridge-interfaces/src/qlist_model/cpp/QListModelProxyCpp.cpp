@@ -64,6 +64,13 @@ void QListModelProxyCpp::writeProperty(uint32_t propId, const QVariant& value) c
     m_rustProxy->writeProperty(propId, value);
 }
 
+
+// RustObjectGetter implementation
+const void* QListModelProxyCpp::getRustObjectRcPtr() const
+{
+    return static_cast<const void*>(m_rustProxy->getRustObjectRcPtr());
+}
+
 // Access to base implementation of virtual functions
 QModelIndex QListModelProxyCpp::base_index(int32_t row, int32_t column, const QModelIndex& parent) const
 {

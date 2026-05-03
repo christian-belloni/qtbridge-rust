@@ -230,6 +230,11 @@ impl QAbstractListModelProxyRust {
         call_rust_trait_impl!(mut self, write_property(prop_id, value))
     }
 
+    pub fn get_rust_object_rc_ptr(&self) -> *const u8 {
+        self.rust_obj.get_rc()
+            .map_or(std::ptr::null(), |rc| Rc::into_raw(rc) as *const u8)
+    }
+
     pub fn base_index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex {
         call_cpp_impl!(self, base_index(row, column, parent))
     }
