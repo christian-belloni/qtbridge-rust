@@ -13,6 +13,7 @@ pub mod qrustproxy;
 pub mod qmetatypeforqobject;
 pub mod qmetatypeutils;
 pub mod qmodelitem;
+pub mod rustobjectgetter;
 
 pub use dispatchmetacall::DispatchMetaCall;
 pub use dynamicmetaobjectbuilder::{DynamicMetaObjectBuilder, create_dynamic_meta_object_builder};

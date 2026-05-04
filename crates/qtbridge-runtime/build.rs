@@ -13,11 +13,12 @@ fn main() {
     println!("cargo:include={}", include_path.display());
     println!("cargo::metadata=include={}", include_path.display());
 
-    let bridge_files = vec!(
+    let bridge_files = [
         "dynamicmetaobjectbuilder",
         "dynamicmetaobjectdata",
-        "qresource"
-    );
+        "qresource",
+        "rustobjectgetter",
+    ];
 
     let other_rust_files: Vec<&str> = vec!(
     );
