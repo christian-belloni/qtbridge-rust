@@ -9,6 +9,12 @@ description = "Tests for objects annotated with the `#[qobject]` macro."
 
 [dependencies]
 qtbridge = { path = "../../crates/qtbridge" }
+quicktest = { path = "../../quicktest" }
+
+[[test]]
+name = "property_nested_types_tests"
+path = "tests/property_nested_types_tests.rs"
+harness = false
 
 [[test]]
 name = "slot_tests"

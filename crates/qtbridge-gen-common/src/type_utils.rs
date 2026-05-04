@@ -5,6 +5,7 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::spanned::Spanned;
 
+use crate::type_registry::{self, type_traits::{GenericArgs, TypeName, get_type_by_path}};
 use crate::type_to_string::{path_to_string_fallback, type_to_string, type_to_string_fallback};
 
 #[derive(Copy, Clone, PartialEq)]
@@ -58,6 +59,11 @@ pub fn get_take_value_code(value: &syn::Ident, pass: ValuePass) -> TokenStream {
 
 pub fn is_ptr(ty: &syn::Type) -> bool {
     matches!(ty, syn::Type::Ptr(_))
+}
+
+/// Returns `true` if the input represents a reference type.
+pub fn is_ref(ty: &syn::Type) -> bool {
+    matches!(ty, syn::Type::Reference(_))
 }
 
 pub fn is_mut_ref(ty: &syn::Type) -> bool {
@@ -154,4 +160,21 @@ pub fn are_all_args_generic_idents(src: &syn::Path, idents: &[syn::Ident]) -> bo
             }
             false
         })
+}
+
+/// Return the inner type `Ok(Some(T))` extracted from `Rc<RefCell<T>>`.
+/// Return `Ok(None)` if the given path does not match `Rc<RefCell<T>>` pattern.
+pub fn extract_rc_ref_cell_path(path: &syn::Path) -> syn::Result<Option<syn::Path>> {
+    if let Some(ptr_ty) = get_type_by_path::<type_registry::PointerType>(path)? &&
+       ptr_ty.name() == "Rc" &&
+       let Some(cell_ty) = ptr_ty.generic_arg(0) &&
+       cell_ty.name() == "RefCell"
+    {
+        let arg_ty = cell_ty.generic_arg_syn(0)
+            .ok_or_else(|| syn::Error::new(path.span(), "Generic type is expected inside Rc<RefCell<>>"))?;
+
+        return Ok(Some(path_from_type(&arg_ty)?.clone()))
+    }
+
+    Ok(None)
 }

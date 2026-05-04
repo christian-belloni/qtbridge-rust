@@ -1,0 +1,187 @@
+---
+source: crates/qtbridge-gen/src/qt_gen_impl/tests/qobject_meta_tests.rs
+expression: formatted
+---
+pub mod node {
+    pub struct Node {
+        value: i32,
+        left: Option<Rc<RefCell<Node>>>,
+        right: Option<Rc<RefCell<Node>>>,
+    }
+    impl Node {
+        pub fn set_value(&mut self, value: i32) {
+            self.value = value;
+        }
+        fn get_left(&self) -> Rc<RefCell<Self>> {
+            self.left
+                .as_ref()
+                .expect("Left node is not present")
+                .clone()
+        }
+        fn get_right(&self) -> &Rc<RefCell<Self>> {
+            self.right.as_ref().expect("Right node is not present")
+        }
+        pub fn set_left(&mut self, value: &Rc<RefCell<Self>>) {
+            self.left = Some(value.clone());
+        }
+        pub fn set_right(&mut self, value: Rc<RefCell<Self>>) {
+            self.right = Some(value);
+        }
+    }
+    impl Drop for Node {
+        fn drop(&mut self) {
+            <Self as qtbridge::qtbridge_runtime::QObjectHolder>::detach_qobject(self);
+        }
+    }
+    impl qtbridge::qtbridge_runtime::QMetaInfo for Node {
+        fn register_meta(
+            mut meta_obj: std::pin::Pin<&mut qtbridge::qtbridge_runtime::DynamicMetaObjectBuilder>,
+        ) {
+            use qtbridge::qtbridge_type_lib;
+            use qtbridge_type_lib::QMetaTypeGet;
+            meta_obj.as_mut().register_property(
+                "value",
+                1u32,
+                &(<i32>::get_qmetatype()),
+                false,
+                "",
+            );
+            meta_obj.as_mut().register_property(
+                "left",
+                2u32,
+                &(<*mut qtbridge_type_lib::QObject>::get_qmetatype()),
+                false,
+                "",
+            );
+            meta_obj.as_mut().register_property(
+                "right",
+                3u32,
+                &(<*mut qtbridge_type_lib::QObject>::get_qmetatype()),
+                false,
+                "",
+            );
+            meta_obj.as_mut().end_meta_registration();
+        }
+        fn get_static_meta_object() -> &'static qtbridge::qtbridge_type_lib::QMetaObject {
+            <Self as qtbridge::qtbridge_runtime::QObjectHolder>::get_static_meta_object()
+        }
+        fn get_shared_dynamic_meta_object_data(
+        ) -> &'static qtbridge::qtbridge_runtime::DynamicMetaObjectData {
+            use std::sync::OnceLock;
+            thread_local! { static DYNAMIC_META_OBJECT : OnceLock < & 'static qtbridge :: qtbridge_runtime :: DynamicMetaObjectData > = OnceLock :: new () ; }
+            DYNAMIC_META_OBJECT.with(|cell| {
+                *cell.get_or_init(|| {
+                    let ptr = Self::create_dynamic_meta_object_data_for_type();
+                    unsafe { ptr.as_ref() }.unwrap()
+                })
+            })
+        }
+    }
+    impl qtbridge::qtbridge_runtime::DispatchMetaCall for Node {
+        fn invoke_slot(&self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]) {
+            match slot_id {
+                _ => panic!("Unhandled slot id {slot_id}"),
+            }
+        }
+        fn invoke_slot_mut(&mut self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]) {
+            match slot_id {
+                _ => panic!("Unhandled slot id {slot_id}"),
+            }
+        }
+        fn read_property(&self, prop_id: u32) -> qtbridge::qtbridge_type_lib::QVariant {
+            match prop_id {
+                1u32 => (&self.value).into(),
+                2u32 => {
+                    <Self as qtbridge::qtbridge_runtime::QObjectHolder>::rc_ref_cell_to_qobject(
+                        (&self.get_left()),
+                    )
+                    .cast_mut()
+                    .into()
+                }
+                3u32 => {
+                    <Self as qtbridge::qtbridge_runtime::QObjectHolder>::rc_ref_cell_to_qobject(
+                        self.get_right(),
+                    )
+                    .cast_mut()
+                    .into()
+                }
+                _ => panic!("Unhandled property id {prop_id}"),
+            }
+        }
+        fn write_property(&mut self, prop_id: u32, value: &qtbridge::qtbridge_type_lib::QVariant) {
+            match prop_id {
+                1u32 => {
+                    let Ok(value) = TryInto::<<i32 as ToOwned>::Owned>::try_into(value) else {
+                        panic!(
+                            "Failed to convert value '{}' to type '{}' in qproperty '{}'",
+                            value.to_string(),
+                            "i32",
+                            "value"
+                        );
+                    };
+                    self.set_value(value);
+                }
+                2u32 => {
+                    let Ok(value) =
+                        TryInto::<*mut qtbridge::qtbridge_type_lib::QObject>::try_into(value)
+                    else {
+                        panic!(
+                            "Failed to convert value '{}' to type '{}' in qproperty '{}'",
+                            value.to_string(),
+                            "Rc<RefCell<Self>>",
+                            "left"
+                        );
+                    };
+                    let value = unsafe {
+                        <Self as qtbridge::qtbridge_runtime::QObjectHolder>::qobject_to_rc_ref_cell(
+                            value,
+                        )
+                    };
+                    self.set_left(&value);
+                }
+                3u32 => {
+                    let Ok(value) =
+                        TryInto::<*mut qtbridge::qtbridge_type_lib::QObject>::try_into(value)
+                    else {
+                        panic!(
+                            "Failed to convert value '{}' to type '{}' in qproperty '{}'",
+                            value.to_string(),
+                            "Rc<RefCell<Self>>",
+                            "right"
+                        );
+                    };
+                    let value = unsafe {
+                        <Self as qtbridge::qtbridge_runtime::QObjectHolder>::qobject_to_rc_ref_cell(
+                            value,
+                        )
+                    };
+                    self.set_right(value);
+                }
+                _ => panic!("Unhandled property id {prop_id}"),
+            }
+        }
+    }
+    impl qtbridge::qtbridge_type_lib::QMetaTypeGet for Node {
+        fn get_qmetatype() -> qtbridge::qtbridge_type_lib::QMetaType {
+            use std::sync::OnceLock;
+            static META_TYPE_INTERFACE: OnceLock<qtbridge::qtbridge_type_lib::QMetaTypeInterface> =
+                OnceLock::new();
+            let iface = META_TYPE_INTERFACE.get_or_init(
+                qtbridge::qtbridge_runtime::qmetatypeforqobject::init_interface_for::<Self>,
+            );
+            qtbridge::qtbridge_type_lib::QMetaType::new_with_interface(iface as *const _)
+        }
+    }
+    impl qtbridge::qtbridge_runtime::QmlRegister for Node {
+        const URI: &str = "qtbridge_gen";
+        const ELEMENT_NAME: &str = "Node";
+        const MINOR_VERSION: u8 = 1u8;
+        const MAJOR_VERSION: u8 = 0u8;
+        const IS_SINGLETON: bool = false;
+    }
+    impl qtbridge::qtbridge_runtime::QObjectHolder for Node {
+        type ProxyRust = qtbridge::qtbridge_interfaces::qobject::QObjectProxyRust;        fn as_adaptor_trait (rust_obj_rc : std :: rc :: Rc < std :: cell :: RefCell < Self > >) -> std :: rc :: Rc < std :: cell :: RefCell < < Self :: ProxyRust as qtbridge :: qtbridge_runtime :: qrustproxy :: QRustProxy > :: AdapterType > >{
+            rust_obj_rc
+        }
+    }
+}

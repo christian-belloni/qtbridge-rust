@@ -4,6 +4,7 @@
 #![cfg(test)]
 use insta::assert_snapshot;
 use quote::quote;
+use crate::qt_gen_impl::QObjectModuleBuilder;
 use crate::qt_gen_impl::qobject_impl::qobject_impl;
 use qtbridge_gen_common::type_qualified_mapping::CallOrigin;
 use qtbridge_gen_common::format_code::{format_rust_code, strip_docs};
@@ -92,6 +93,56 @@ fn test_dispatch_meta_call() {
     let output = qobject_impl(input, quote!{}, &CallOrigin::External)
         .unwrap()
         .dispatch_meta_call;
+    let formatted = format_rust_code(&strip_docs(output)).unwrap();
+    assert_snapshot!(formatted);
+}
+
+#[test]
+fn test_nested_properties() {
+    let input = quote! {
+        pub mod node {
+            pub struct Node {
+                value: i32,
+                left: Option<Rc<RefCell<Node>>>,
+                right: Option<Rc<RefCell<Node>>>,
+            }
+
+            impl Node {
+                qproperty!("value", Member = value, Write = set_value);
+                qproperty!("left", Read = get_left, Write = set_left);
+                qproperty!("right", Read = get_right, Write = set_right);
+
+                pub fn set_value(&mut self, value: i32) {
+                    self.value = value;
+                }
+
+                fn get_left(&self) -> Rc<RefCell<Self>> {
+                    self.left
+                        .as_ref()
+                        .expect("Left node is not present")
+                        .clone()
+                }
+
+                fn get_right(&self) -> &Rc<RefCell<Self>> {
+                    self.right
+                        .as_ref()
+                        .expect("Right node is not present")
+                }
+
+                pub fn set_left(&mut self, value: &Rc<RefCell<Self>>) {
+                    self.left = Some(value.clone());
+                }
+
+                pub fn set_right(&mut self, value: Rc<RefCell<Self>>) {
+                    self.right = Some(value);
+                }
+            }
+        }
+    };
+
+    let mut builder = QObjectModuleBuilder::new(CallOrigin::External);
+    let output = builder.build_token_stream(input, quote!{})
+        .expect("build_token_stream() failed");
     let formatted = format_rust_code(&strip_docs(output)).unwrap();
     assert_snapshot!(formatted);
 }

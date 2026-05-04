@@ -45,10 +45,8 @@ impl qtbridge::qtbridge_runtime::DispatchMetaCall for SomeStruct {
                         "this_value"
                     );
                 };
-                if self.first_value != value {
-                    self.first_value = value;
-                    self.this_value_changed();
-                }
+                self.first_value = value;
+                self.this_value_changed();
             }
             2u32 => {
                 let Ok(value) = TryInto::try_into(value) else {
@@ -59,9 +57,7 @@ impl qtbridge::qtbridge_runtime::DispatchMetaCall for SomeStruct {
                         "otherValue"
                     );
                 };
-                if self.second_value != value {
-                    self.second_value = value;
-                }
+                self.second_value = value;
             }
             3u32 => {
                 let Ok(value) = TryInto::try_into(value) else {
@@ -72,9 +68,7 @@ impl qtbridge::qtbridge_runtime::DispatchMetaCall for SomeStruct {
                         "thirdValue"
                     );
                 };
-                if self.third_value != value {
-                    self.third_value = value;
-                }
+                self.third_value = value;
             }
             _ => panic!("Unhandled property id {prop_id}"),
         }

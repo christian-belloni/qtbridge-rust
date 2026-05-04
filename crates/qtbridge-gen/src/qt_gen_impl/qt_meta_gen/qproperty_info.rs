@@ -8,7 +8,7 @@ use syn::{parse::Parse, spanned::Spanned};
 use qtbridge_gen_common::parse_utils::parse_name_value;
 use qtbridge_gen_common::type_registry::meta_types::get_qmetatype_support_for_type;
 use qtbridge_gen_common::type_to_string::{type_to_string, type_to_string_fallback};
-use qtbridge_gen_common::type_utils::{ValuePass, get_take_value_code, get_type_pass, remove_refs, remove_ref_to_string};
+use qtbridge_gen_common::type_utils::{ValuePass, extract_rc_ref_cell_path, get_take_value_code, get_type_pass, is_ref, path_from_type, remove_ref, remove_ref_to_string, remove_refs};
 use crate::qt_gen_impl::qt_meta_gen;
 use qt_meta_gen::qproperty_type_deduction::{deduce_type_from_getter, deduce_type_from_member, deduce_type_from_setter};
 use qt_meta_gen::QSignalInfo;
@@ -215,8 +215,9 @@ impl QPropertyInfo {
                 let meta_type = get_qmetatype_support_for_type(ty)
                     .map_err(|err| syn::Error::new(*span, format!("Type '{}' of qproperty can not be mapped to qt.\nError: {err}", type_to_string_fallback(ty))))?
                     .unwrap_or_else(|| ty.clone());
+                let meta_type_wo_ref = remove_ref(&meta_type);
                 quote! {
-                    #meta_type::get_qmetatype()
+                    <#meta_type_wo_ref>::get_qmetatype()
                 }
             },
             // Get an expression that will determine metatype using runtime function
@@ -255,15 +256,36 @@ impl QPropertyInfo {
     }
 
     pub fn get_read_code(&self) -> syn::Result<TokenStream> {
+        let mut value_src_ref;
         if let Some(getter_fn) = &self.read_method {
-            Ok(quote!{ self.#getter_fn().into() })
+            value_src_ref = quote! { self.#getter_fn() };
+            let getter_type = self.getter_type.as_ref()
+                .ok_or_else(|| syn::Error::new(getter_fn.span(), "Property type is not deduced for the getter"))?;
+            if !is_ref(getter_type) {
+                value_src_ref = quote! { (&#value_src_ref) };
+            }
         }
         else if let Some(member) = &self.member {
-            Ok(quote! { (&self.#member).into() })
+            value_src_ref = quote! { (&self.#member) };
         }
         else {
-            Err(syn::Error::new(self.span, "Neither 'Read' nor 'Member' is specified for property"))
+            return Err(syn::Error::new(self.span, "Neither 'Read' nor 'Member' is specified for property"))
+        };
+
+        if let Some(deduced_type) = &self.get_deduced_type() {
+            let deduced_type_path = path_from_type(remove_ref(deduced_type))?;
+            if let Some(rc_ref_cell_inner) = extract_rc_ref_cell_path(deduced_type_path)? {
+                value_src_ref = quote! {
+                    <#rc_ref_cell_inner as qtbridge::qtbridge_runtime::QObjectHolder>::rc_ref_cell_to_qobject(#value_src_ref)
+                        .cast_mut()
+                };
+            }
         }
+
+        Ok(quote! {
+            // TODO: find a solution for member-based property in #[qobject_impl]
+            #value_src_ref.into()
+        })
     }
 
     pub fn get_write_code(&self, signal: Option<&QSignalInfo>) -> syn::Result<Option<TokenStream>> {
@@ -274,12 +296,30 @@ impl QPropertyInfo {
         let name = &self.name;
 
         let mut input_conv_type = TokenStream::new(); // The type that the input QVariant is converted into.
+        let mut intermediate_conv_code = TokenStream::new();
         let mut ty_str_expr = quote! { "unknown type" };
+        let mut compare_before_assign = false;
         if let Some(deduced_type) = self.get_deduced_type() {
+            let deduced_type_path = path_from_type(remove_ref(deduced_type))?;
             let ty_wo_ref = remove_refs(deduced_type);
-            input_conv_type = quote! {
-                ::<<#ty_wo_ref as ToOwned>::Owned>
-            };
+
+            if let Some(rc_ref_cell_inner) = extract_rc_ref_cell_path(deduced_type_path)? {
+                input_conv_type = quote! {
+                    ::<*mut qtbridge::qtbridge_type_lib::QObject>
+                };
+                intermediate_conv_code = quote! {
+                    let value = unsafe {
+                        <#rc_ref_cell_inner as qtbridge::qtbridge_runtime::QObjectHolder>::qobject_to_rc_ref_cell(value)
+                    };
+                }
+            }
+            else {
+                input_conv_type = quote! {
+                    ::<<#ty_wo_ref as ToOwned>::Owned>
+                };
+                compare_before_assign = true;
+            }
+
             let ty_str = type_to_string(ty_wo_ref)?;
             ty_str_expr = quote! { #ty_str };
         }
@@ -335,16 +375,23 @@ impl QPropertyInfo {
                 });
             }
 
-            write_value_code = quote! {
-                if self.#member != value {
+            write_value_code = match compare_before_assign {
+                false => quote! {
                     self.#member = value;
                     #emit_signal_code
-                }
-            };
+                },
+                true => quote! {
+                    if self.#member != value {
+                        self.#member = value;
+                        #emit_signal_code
+                    }
+                },
+            }
         }
 
         let result = quote! {
             #input_conv_code
+            #intermediate_conv_code
             #write_value_code
         };
         Ok(Some(result))

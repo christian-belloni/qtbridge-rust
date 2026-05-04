@@ -1,4 +1,5 @@
 use quote::ToTokens;
+use syn::parse_quote;
 use syn::spanned::Spanned;
 
 use crate::type_registry;
@@ -6,8 +7,8 @@ use type_registry::{QtType, StandardContainer, StandardType, StringType};
 use type_registry::qt::generic::{QtGenericArg, QtGenericTypeWithoutArgs};
 use type_registry::type_traits::{FindType, GenericArgs, MetaTypeId, TypeInfo, TypeName};
 use crate::signature_utils::{get_return_type, get_typed_args, is_arg_self_ref};
-use crate::type_to_string::type_to_string_fallback;
-use crate::type_utils::{is_mut_ref, path_from_type, path_to_type, remove_ref};
+use crate::type_to_string::{path_to_string_fallback, type_to_string_fallback};
+use crate::type_utils::{extract_rc_ref_cell_path, is_mut_ref, path_from_type, path_to_type, remove_ref};
 
 /// Checks whether the given signature can participate in meta-calls
 /// (as slot callbacks or property getters/setters).
@@ -78,6 +79,24 @@ pub fn get_qmetatype_support_for_type(mut src: &syn::Type) -> syn::Result<Option
     // Unwrap if reference
     src = remove_ref(src);
     let path = path_from_type(src)?;
+
+    if let Some(rc_ref_cell_inner) = extract_rc_ref_cell_path(path)? {
+        // Assume that it is Rc<RefCell<T>> wrapping a type from which we can obtain
+        // *QObject and pass it to QML engine. At macro expansion time, we currently
+        // can't determine whether the type implements dereferencing QObject <-> Rc<RefCell<Self>>
+        // or no. So here we assume that it does. Otherwise, compilation will fail
+        // further with an error about unimplemented trait anyway.
+        if type_registry::Type::find_by_path(&rc_ref_cell_inner).is_some() {
+            return Err(syn::Error::new(rc_ref_cell_inner.span(), format!("Only user-defined type can be used in Rc<RefCell<_>> in metacall. Found: '{}'", path_to_string_fallback(&rc_ref_cell_inner))))
+        }
+
+        return Ok(Some(parse_quote! {
+            // It must be a mutable QObject pointer but not the const one,
+            // since QMetaType considers them different types.
+            *mut qtbridge_type_lib::QObject
+        }))
+    }
+
     let ty = type_registry::Type::find_by_path_checked(path)?;
     let meta_id = ty.metatype_id();
 

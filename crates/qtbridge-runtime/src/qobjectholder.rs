@@ -6,6 +6,7 @@ use std::rc::Rc;
 
 use qtbridge_type_lib::{QObject, QVariant, QMetaType, QMetaObject};
 use crate::qrustproxy::{QRustProxy, ConstructionMode};
+use crate::rustobjectgetter::get_rust_object_rc_ptr;
 use crate::{DispatchMetaCall, QMetaInfo};
 use std::collections::HashMap;
 
@@ -81,6 +82,39 @@ pub trait QObjectHolder : DispatchMetaCall + QMetaInfo + Default {
     {
         self.try_get_qobject()
             .expect("QObject is not attached")
+    }
+
+    // TODO: move QObject-related functions below to a dedicated trait:
+    // default_with_attached_qobject()
+    // attach_qobject()
+    // detach_qobject()
+    // get_qobject_ptr()
+    // get_qobject()
+    // try_get_qobject()
+    // rc_ref_cell_to_qobject()
+    // qobject_to_rc_ref_cell()
+
+    #[doc(hidden)]
+    /// Return `QObject` attached to the specified Rust object.
+    fn rc_ref_cell_to_qobject(self_obj: &Rc<RefCell<Self>>) -> *const QObject {
+        // Avoid borrowing here. We don't actually access the Rust object in the function.
+        // We only need its raw pointer to perform the lookup in the instance map.
+        unsafe { self_obj.as_ptr().as_ref() }
+            .unwrap()
+            .get_qobject_ptr()
+    }
+
+    #[doc(hidden)]
+    /// Return the Rust object attached to the specified `QObject`.
+    unsafe fn qobject_to_rc_ref_cell(qobj_ptr: *const QObject) -> Rc<RefCell<Self>> {
+        let qobj_ref = unsafe { qobj_ptr.as_ref() }
+            .expect("Input QObject is null");
+        let raw_u8 = get_rust_object_rc_ptr(qobj_ref);
+        if raw_u8.is_null() {
+            panic!("Rust object associated with given QObject was already dropped")
+        }
+        let raw_ref_cell = raw_u8 as *const RefCell<Self>;
+        unsafe { Rc::from_raw(raw_ref_cell) }
     }
 
     /// This function has to be implemented on the specific type and
