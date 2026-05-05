@@ -173,7 +173,7 @@ pub trait QObjectHolder : DispatchMetaCall + QMetaInfo + Default {
     fn register_instance_in_map(rust_obj_rc: Rc<RefCell<Self>>, construction: ConstructionMode) {
         let key = (*rust_obj_rc).as_ptr() as *const u8;
         let dyn_rc = Self::as_adaptor_trait(rust_obj_rc);
-        let proxy = Self::ProxyRust::new(&dyn_rc, construction, move || Self::unregister_instance_in_map(key));
+        let proxy = Self::ProxyRust::new(&dyn_rc, construction, Box::new(move || Self::unregister_instance_in_map(key)));
         Self::try_borrow_mut_proxies_map(|proxies| {
             proxies.insert(key, proxy as *const u8);
         })

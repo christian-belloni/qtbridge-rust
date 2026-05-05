@@ -246,14 +246,14 @@ impl QRustProxy for QAbstractItemModelProxyRust {
     type ProxyCppType = QAbstractItemModelProxyCpp;
     type AdapterType = dyn QAbstractItemModelAdapter;
 
-    fn new<OnDropFn: FnOnce() + 'static>(rust_obj: &Rc<RefCell<dyn QAbstractItemModelAdapter>>, construct: ConstructionMode, on_drop: OnDropFn) -> *mut Self {
+    fn new(rust_obj: &Rc<RefCell<dyn QAbstractItemModelAdapter>>, construct: ConstructionMode, on_drop: Box<dyn FnOnce() + 'static>) -> *mut Self {
         let boxed_self = Box::new(Self {
             cpp_proxy: std::ptr::null_mut(),
             rust_obj: match construct {
                 ConstructionMode::Strong | ConstructionMode::AtAddress(_) => RustObjAccess::new_strong(rust_obj.clone()),
                 ConstructionMode::Weak => RustObjAccess::new_weak(Rc::downgrade(rust_obj)),
             },
-            on_drop: Box::new(on_drop),
+            on_drop,
         });
         let raw_self = Box::into_raw(boxed_self);
 

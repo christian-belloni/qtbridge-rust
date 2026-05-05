@@ -59,7 +59,7 @@ pub enum ConstructionMode {
 pub trait QRustProxy {
     type ProxyCppType: QCppProxy;
     type AdapterType: ?Sized;
-    fn new<OnDropFn: FnOnce() + 'static>(rust_obj: &Rc<RefCell<Self::AdapterType>>, construction: ConstructionMode, on_drop: OnDropFn) -> *mut Self;
+    fn new(rust_obj: &Rc<RefCell<Self::AdapterType>>, construction: ConstructionMode, on_drop: Box<dyn FnOnce() + 'static>) -> *mut Self;
     fn get_cpp_proxy(&self) -> *const Self::ProxyCppType;
     fn get_cpp_proxy_mut(&self) -> *mut Self::ProxyCppType;
 }
