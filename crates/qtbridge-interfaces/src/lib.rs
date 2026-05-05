@@ -73,3 +73,4 @@ pub use qabstract_item_model::{QAbstractItemModel, QAbstractItemModelBase};
 
 pub mod object_access;
 pub use object_access::rust_object_access::RustObjAccess;
+pub use object_access::rust_object_access2::RustObjAccess2;

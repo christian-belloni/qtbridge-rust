@@ -69,7 +69,6 @@ pub trait QObjectHolder : DispatchMetaCall + QMetaInfo + Default {
         NonNull::new(proxy_ptr as *mut Self::ProxyRust).map(|nn| nn.as_ptr())
     }
 
-
     #[doc(hidden)]
     fn get_qobject_ptr(&self) -> *mut QObject {
         let Some(rust_proxy) = Self::try_get_rust_proxy_mut(&self) else {
