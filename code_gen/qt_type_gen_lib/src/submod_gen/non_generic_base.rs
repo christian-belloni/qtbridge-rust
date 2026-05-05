@@ -301,6 +301,13 @@ impl NonGenericSubmoduleGeneratorBase {
                 fn #func_name_cpp(v: &#ident) -> #ident
             })?)?);
         }
+        if struct_.is_trait_cpp_derived("PartialEq") {
+            let func_name_rust = naming::rust::function::eq(&ident_str);
+            let func_name_cpp = naming::cpp::function::eq(&ident_str);
+            result.push(CppFunctionBridge::new(func_name_rust, syn::parse2(quote! {
+                fn #func_name_cpp(lhs: &#ident, rhs: &#ident) -> bool
+            })?)?);
+        }
 
         Ok(result)
     }
@@ -467,6 +474,16 @@ impl NonGenericSubmoduleGeneratorBase {
                 impl Clone for #ident_inst {
                     fn clone(&self) -> Self {
                         ffi::#func_name(self)
+                    }
+                }
+            }.to_tokens(&mut result);
+        }
+        if struct_.is_trait_cpp_derived("PartialEq") {
+            let func_name = naming::rust::function::eq(&ident_str);
+            quote!{
+                impl PartialEq for #ident_inst {
+                    fn eq(&self, other: &Self) -> bool {
+                        ffi::#func_name(self, other)
                     }
                 }
             }.to_tokens(&mut result);
@@ -728,6 +745,18 @@ struct IsRelocatable<::{maybe_namespace_w_colons}{ident}> : ::std::true_type {{}
 {sig}
 {{
     return {{src}};
+}}
+"#));
+        }
+
+        if struct_.is_trait_cpp_derived("PartialEq") {
+            let func_name = naming::cpp::function::eq(&ident_str);
+            let sig = format!("bool {func_name}(const {ident_inst}& lhs, const {ident_inst}& rhs)");
+            decl.push_str(&format!("{sig};\n"));
+            def.push_str(&format!(r#"
+{sig}
+{{
+    return lhs == rhs;
 }}
 "#));
         }

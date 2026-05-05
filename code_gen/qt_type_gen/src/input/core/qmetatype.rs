@@ -28,7 +28,7 @@ mod qmetatype {
         NeedsMoveConstruction = 0x8000,
     }
 
-    #[derive_cpp(Default)]
+    #[derive_cpp(Default, PartialEq)]
     #[derive(Debug)]
     /// The QMetaType struct manages named types in the meta-object system.
     ///

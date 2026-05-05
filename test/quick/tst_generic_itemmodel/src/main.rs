@@ -108,8 +108,8 @@ fn main() {
     Backend::attach_qobject(&backend2);
 
     use qtbridge::qtbridge_type_lib::QMetaTypeGet;
-    let a = <Backend<i32> as QMetaTypeGet>::get_qmetatype().id();
-    let b = <Backend<String> as QMetaTypeGet>::get_qmetatype().id();
+    let a = <Backend<i32> as QMetaTypeGet>::get_qmetatype();
+    let b = <Backend<String> as QMetaTypeGet>::get_qmetatype();
     assert_ne!(a, b, "QMetaTypes are not unique");
 
     let initial_properties = [

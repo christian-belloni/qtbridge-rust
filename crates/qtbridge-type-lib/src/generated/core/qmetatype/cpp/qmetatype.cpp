@@ -12,6 +12,11 @@ QMetaType QMetaType_Default()
     return QMetaType();
 }
 
+bool QMetaType_Eq(const QMetaType &lhs, const QMetaType &rhs)
+{
+    return lhs == rhs;
+}
+
 QMetaType inlineCppFn_new(int32_t type_id)
 {
     return QMetaType(type_id);

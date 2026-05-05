@@ -17,6 +17,7 @@
 namespace rust::bridge::qmetatype {
 
 QMetaType QMetaType_Default();
+bool QMetaType_Eq(const QMetaType &lhs, const QMetaType &rhs);
 
 QMetaType inlineCppFn_new(int32_t type_id);
 

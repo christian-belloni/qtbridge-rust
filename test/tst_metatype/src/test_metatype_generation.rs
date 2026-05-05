@@ -30,16 +30,16 @@ mod trivial2 {
 #[test]
 fn test_structs_have_unique_metatype() {
     use qtbridge::qtbridge_type_lib::QMetaTypeGet;
-    let a = <trivial1::Backend1 as QMetaTypeGet>::get_qmetatype().id();
-    let b = <trivial2::Backend2 as QMetaTypeGet>::get_qmetatype().id();
+    let a = <trivial1::Backend1 as QMetaTypeGet>::get_qmetatype();
+    let b = <trivial2::Backend2 as QMetaTypeGet>::get_qmetatype();
     assert_ne!(a, b, "QMetaTypes are not unique for 2 different types");
 }
 
 #[test]
 fn test_generics_have_unique_metatype() {
     use qtbridge::qtbridge_type_lib::QMetaTypeGet;
-    let a = <generic_trivial::Backend<i32> as QMetaTypeGet>::get_qmetatype().id();
-    let b = <generic_trivial::Backend<String> as QMetaTypeGet>::get_qmetatype().id();
+    let a = <generic_trivial::Backend<i32> as QMetaTypeGet>::get_qmetatype();
+    let b = <generic_trivial::Backend<String> as QMetaTypeGet>::get_qmetatype();
     assert_ne!(a, b, "QMetaTypes are not unique for 2 generic instantiations");
 }
 

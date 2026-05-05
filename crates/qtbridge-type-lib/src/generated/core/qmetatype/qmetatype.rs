@@ -19,6 +19,8 @@ mod ffi {
     unsafe extern "C++" {
         # [rust_name = qmeta_type_default]
         fn QMetaType_Default() -> QMetaType;
+        # [rust_name = qmeta_type_eq]
+        fn QMetaType_Eq(lhs: &QMetaType, rhs: &QMetaType) -> bool;
         # [rust_name = inline_cpp_fn_new]
         fn inlineCppFn_new(type_id: i32) -> QMetaType;
         # [rust_name = inline_cpp_fn_new_with_interface]
@@ -76,6 +78,11 @@ unsafe impl cxx::ExternType for QMetaType {
 impl Default for QMetaType {
     fn default() -> Self {
         ffi::qmeta_type_default()
+    }
+}
+impl PartialEq for QMetaType {
+    fn eq(&self, other: &Self) -> bool {
+        ffi::qmeta_type_eq(self, other)
     }
 }
 impl QMetaTypeGet for bool {
