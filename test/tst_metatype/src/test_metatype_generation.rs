@@ -46,8 +46,9 @@ fn test_generics_have_unique_metatype() {
 #[test]
 fn test_structs_have_same_meta_object() {
     use qtbridge::qtbridge_runtime::QMetaInfo;
-    let a = <trivial1::Backend1 as QMetaInfo>::get_static_meta_object();
-    let b = <trivial2::Backend2 as QMetaInfo>::get_static_meta_object();
+    use qtbridge::qtbridge_runtime::qcppproxy::QCppProxy;
+    let a = <<trivial1::Backend1 as QMetaInfo>::CppProxy as QCppProxy>::get_static_meta_object();
+    let b = <<trivial2::Backend2 as QMetaInfo>::CppProxy as QCppProxy>::get_static_meta_object();
     assert!(::core::ptr::eq(a, b), "Static meta objects from the same base (QObject) are different");
 }
 

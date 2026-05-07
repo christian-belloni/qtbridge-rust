@@ -3,6 +3,7 @@
 
 use crate::QObjectHolder;
 use crate::QMetaInfo;
+use crate::qcppproxy::QCppProxy;
 use crate::qrustproxy::ConstructionMode;
 use qtbridge_type_lib::QObject;
 use qtbridge_type_lib::QMetaTypeGet;
@@ -35,9 +36,9 @@ pub trait QmlRegister : QMetaTypeGet + QMetaInfo + QObjectHolder + Default
             )
         } else {
             qtbridge_type_lib::qml_register_element(
-                Self::get_qmetatype(),
-                Self::get_qmetatype_list_of_cpp_proxy(),
-                Self::get_size_of_cpp_proxy() as u32,
+                <Self as QMetaTypeGet>::get_qmetatype(),
+                <<Self as QMetaInfo>::CppProxy as QCppProxy>::get_qmetatype_list(),
+                <<Self as QMetaInfo>::CppProxy as QCppProxy>::get_size() as u32,
                 monomorphize_element_ctor::<Self>(),
                 Self::URI.as_bytes(),
                 Self::MAJOR_VERSION,

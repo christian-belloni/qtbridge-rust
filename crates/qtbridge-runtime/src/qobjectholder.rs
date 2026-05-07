@@ -4,9 +4,8 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use qtbridge_type_lib::{QMetaObject, QMetaType, QMetaTypeGet, QObject, QVariant};
+use qtbridge_type_lib::{QMetaTypeGet, QObject, QVariant};
 use crate::qrustproxy::{QRustProxy, ConstructionMode};
-use crate::qcppproxy::QCppProxy;
 use crate::rustobjectgetter::get_rust_object_rc_ptr;
 use crate::{DispatchMetaCall, QMetaInfo, QmlMethodInvoker};
 use std::collections::HashMap;
@@ -18,7 +17,7 @@ pub trait QObjectHolder : DispatchMetaCall + QMetaInfo + Default {
     /// forwarding calls in both directions and managing borrowing of the Rust object
     /// during QAIM calls (and TBD for meta calls as well).
     #[doc(hidden)]
-    type ProxyRust : QRustProxy;
+    type ProxyRust: QRustProxy<ProxyCppType = <Self as QMetaInfo>::CppProxy>;
 
     #[doc(hidden)]
     fn try_borrow_mut_proxies_map<F, R>(f: F) -> R
@@ -235,23 +234,4 @@ pub trait QObjectHolder : DispatchMetaCall + QMetaInfo + Default {
         qobj_ptr.into()
     }
 
-    #[doc(hidden)]
-    fn get_static_meta_object() -> &'static QMetaObject {
-        <<Self::ProxyRust as QRustProxy>::ProxyCppType as QCppProxy>::get_static_meta_object()
-    }
-
-    #[doc(hidden)]
-    fn get_size_of_cpp_proxy() -> usize {
-        <<Self::ProxyRust as QRustProxy>::ProxyCppType as QCppProxy>::get_size()
-    }
-
-    #[doc(hidden)]
-    fn get_align_of_cpp_proxy() -> usize {
-        <<Self::ProxyRust as QRustProxy>::ProxyCppType as QCppProxy>::get_align()
-    }
-
-    #[doc(hidden)]
-    fn get_qmetatype_list_of_cpp_proxy() -> QMetaType {
-        <<Self::ProxyRust as QRustProxy>::ProxyCppType as QCppProxy>::get_qmetatype_list()
-    }
 }

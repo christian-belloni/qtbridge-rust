@@ -34,7 +34,8 @@ pub mod node {
         }
     }
     impl qtbridge::qtbridge_runtime::QMetaInfo for Node {
-        fn register_meta(
+        type CppProxy = qtbridge::qtbridge_interfaces::qobject::QObjectProxyCpp;
+        fn build_dynamic_meta_type(
             mut meta_obj: std::pin::Pin<&mut qtbridge::qtbridge_runtime::DynamicMetaObjectBuilder>,
         ) {
             use qtbridge::qtbridge_type_lib;
@@ -61,9 +62,6 @@ pub mod node {
                 "",
             );
             meta_obj.as_mut().end_meta_registration();
-        }
-        fn get_static_meta_object() -> &'static qtbridge::qtbridge_type_lib::QMetaObject {
-            <Self as qtbridge::qtbridge_runtime::QObjectHolder>::get_static_meta_object()
         }
         fn get_shared_dynamic_meta_object_data(
         ) -> &'static qtbridge::qtbridge_runtime::DynamicMetaObjectData {

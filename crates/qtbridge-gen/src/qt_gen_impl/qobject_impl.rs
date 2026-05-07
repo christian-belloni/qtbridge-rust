@@ -152,11 +152,12 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream, origin: &CallOrigin
 
     let ctx = QMetaInfoContext {
         struct_ident: &struct_ident,
+        iface_ident: &iface_ident,
         generics: &generics,
         signals: &signals,
         slots: &slots,
         properties: &properties,
-        class_infos: &class_infos
+        class_infos: &class_infos,
     };
 
     // Generate traits code

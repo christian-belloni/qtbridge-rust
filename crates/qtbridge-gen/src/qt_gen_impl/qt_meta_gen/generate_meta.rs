@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use qtbridge_gen_common::type_qualified_mapping::CallOrigin;
+use qtbridge_gen_common::naming;
 
 use quote::{ToTokens, format_ident, quote};
 use proc_macro2::TokenStream;
@@ -12,6 +13,7 @@ use qt_meta_gen::{QClassInfo, QPropertyInfo, QSignalInfo, QSlotInfo};
 
 pub struct QMetaInfoContext<'a> {
     pub struct_ident: &'a syn::Ident,
+    pub iface_ident: &'a syn::Ident,
     pub generics: &'a syn::Generics,
     pub signals: &'a [QSignalInfo],
     pub slots: &'a [QSlotInfo],
@@ -27,11 +29,14 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext, origin: &CallOrigin
     let properties_meta_reg = generate_properties_meta_registration(ctx.properties, ctx.signals)?;
     let class_infos_reg = generate_class_infos_meta_registration(ctx.class_infos)?;
 
+    let iface_module = naming::rust::module::from_struct_name(ctx.iface_ident);
+    let proxy_cpp = naming::rust::structure::proxy_cpp(ctx.iface_ident);
+
     let struct_ident = &ctx.struct_ident;
     let (impl_generics, type_generics, where_clause) = generics.split_for_impl();
 
     let bridge_library = origin.bridge_module();
-    let type_library = origin.type_module();
+    let iface_library = origin.iface_module();
 
     let has_generics = !generics.params.is_empty();
     let get_dyn_meta_object_body = if has_generics {
@@ -56,7 +61,10 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext, origin: &CallOrigin
 
     Ok(quote! {
         impl #impl_generics #bridge_library::QMetaInfo for #struct_ident #type_generics #where_clause {
-            fn register_meta(mut meta_obj: std::pin::Pin<&mut #bridge_library::DynamicMetaObjectBuilder>) {
+
+            type CppProxy = #iface_library::#iface_module::#proxy_cpp;
+
+            fn build_dynamic_meta_type(mut meta_obj: std::pin::Pin<&mut #bridge_library::DynamicMetaObjectBuilder>) {
                 #use_block
 
                 #signals_meta_reg
@@ -65,10 +73,6 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext, origin: &CallOrigin
                 #class_infos_reg
 
                 meta_obj.as_mut().end_meta_registration();
-            }
-
-            fn get_static_meta_object() -> &'static #type_library::QMetaObject {
-                <Self as #bridge_library::QObjectHolder>::get_static_meta_object()
             }
 
             fn get_shared_dynamic_meta_object_data() -> &'static #bridge_library::DynamicMetaObjectData {

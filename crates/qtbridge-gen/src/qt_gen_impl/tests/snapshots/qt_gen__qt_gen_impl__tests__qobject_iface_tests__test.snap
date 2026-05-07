@@ -25,9 +25,6 @@ mod some_module {
         ) {
             meta_obj.as_mut().end_meta_registration();
         }
-        fn get_static_meta_object() -> &'static qtbridge::qt_type_lib::QMetaObject {
-            <Self as qtbridge::qtbridge_runtime::QObjectHolder>::get_static_meta_object()
-        }
         fn get_shared_dynamic_meta_object(
         ) -> &'static qtbridge::qtbridge_runtime::DynamicMetaObjectBuilder {
             use std::sync::OnceLock;

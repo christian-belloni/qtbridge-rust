@@ -3,7 +3,8 @@ source: crates/qtbridge-gen/src/qt_gen_impl/tests/qobject_meta_tests.rs
 expression: formatted
 ---
 impl qtbridge::qtbridge_runtime::QMetaInfo for SomeStruct {
-    fn register_meta(
+    type CppProxy = qtbridge::qtbridge_interfaces::qobject::QObjectProxyCpp;
+    fn build_dynamic_meta_type(
         mut meta_obj: std::pin::Pin<&mut qtbridge::qtbridge_runtime::DynamicMetaObjectBuilder>,
     ) {
         use qtbridge::qtbridge_runtime::get_meta_type_of_fn_return_value;
@@ -50,9 +51,6 @@ impl qtbridge::qtbridge_runtime::QMetaInfo for SomeStruct {
         );
         meta_obj.as_mut().add_class_info("Author", "The Qt Company");
         meta_obj.as_mut().end_meta_registration();
-    }
-    fn get_static_meta_object() -> &'static qtbridge::qtbridge_type_lib::QMetaObject {
-        <Self as qtbridge::qtbridge_runtime::QObjectHolder>::get_static_meta_object()
     }
     fn get_shared_dynamic_meta_object_data(
     ) -> &'static qtbridge::qtbridge_runtime::DynamicMetaObjectData {

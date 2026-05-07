@@ -107,11 +107,12 @@ impl QObjectModuleBuilder {
         // TODO: pass QObjectModule to generate_qmetainfo_trait_impl() instead
         let ctx = QMetaInfoContext {
             struct_ident: &self.struct_ident,
+            iface_ident: &iface_ident,
             generics: &self.struct_generics,
             signals: &self.signals,
             slots: &self.slots,
             properties: &self.properties,
-            class_infos: &self.class_infos
+            class_infos: &self.class_infos,
         };
 
         // Generate traits code.

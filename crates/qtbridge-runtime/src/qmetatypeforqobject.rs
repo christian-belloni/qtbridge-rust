@@ -6,6 +6,7 @@ use std::cell::RefCell;
 use std::any::TypeId;
 use std::collections::HashMap;
 use qtbridge_type_lib::{QMetaTypeInterface, QMetaTypeFlag, QMetaObject, QObject};
+use crate::qcppproxy::QCppProxy;
 use crate::{QObjectHolder, QMetaInfo};
 use crate::qrustproxy::ConstructionMode;
 
@@ -64,8 +65,8 @@ pub fn init_interface_for<T: QObjectHolder + 'static>()-> QMetaTypeInterface {
         .leak();
 
     QMetaTypeInterface::fill_fields(
-        <T as QObjectHolder>::get_align_of_cpp_proxy(),
-        <T as QObjectHolder>::get_size_of_cpp_proxy(),
+        <<T as QMetaInfo>::CppProxy as QCppProxy>::get_align(),
+        <<T as QMetaInfo>::CppProxy as QCppProxy>::get_size(),
         flags,
         class_name,
         monomorphize_meta_object_fn::<T>() as usize,
