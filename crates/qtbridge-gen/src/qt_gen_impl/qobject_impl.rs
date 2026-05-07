@@ -128,6 +128,7 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream, origin: &CallOrigin
     }
 
     check_duplicates(&signals, &slots, &properties)?;
+    QPropertyInfo::check_single_default_property(&properties)?;
 
     // Try to deduce properties type here when we have list of potential getters/setters
     for prop in &mut properties {

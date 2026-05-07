@@ -77,6 +77,7 @@ impl QObjectModuleBuilder {
         let mut output_module_items = self.handle_item_mod(&module)?;
 
         self.check_duplicates()?;
+        QPropertyInfo::check_single_default_property(&self.properties)?;
 
         // Try to deduce properties type here when we have list of potential getters/setters
         for prop in &mut self.properties {

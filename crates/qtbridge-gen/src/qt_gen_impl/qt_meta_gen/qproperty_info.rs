@@ -131,6 +131,25 @@ impl QPropertyInfo {
         Ok(())
     }
 
+    /// Returns an error if multiple properties have 'default' attribute.
+    pub fn check_single_default_property(properties: &[Self]) -> syn::Result<()> {
+        let mut first_default: Option<&Self> = None;
+
+        for prop in properties {
+            let Some(default_ident) = &prop.default else {
+                continue
+            };
+            if let Some(first) = first_default {
+                return Err(syn::Error::new(
+                    default_ident.span(),
+                    format!("Multiple default properties within the same object are not allowed. The first one was: '{}'", first.name.value())))
+            }
+            first_default = Some(prop);
+        }
+
+        Ok(())
+    }
+
     // Sets the property type based on the type deduced from its accessors or member variable.
     pub fn set_type(&mut self, methods: &[syn::Signature], fields: Option<&syn::FieldsNamed>) -> syn::Result<()> {
         let mut deduced = Vec::new(); // Array of tuples (Type, Span, "deduced from")
