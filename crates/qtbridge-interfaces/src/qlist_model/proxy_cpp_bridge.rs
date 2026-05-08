@@ -1,7 +1,8 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use qtbridge_runtime::qcppproxy::QCppProxy;
+use qtbridge_runtime::qproxies::QCppProxy;
+use qtbridge_runtime::DynamicMetaObjectData;
 use qtbridge_type_lib::{QMetaObject, QMetaType};
 
 use super::proxy_rust::QListModelProxyRust;
@@ -14,6 +15,8 @@ pub mod ffi {
         type QMetaObject = qtbridge_type_lib::QMetaObject;
         include!("qtbridge-type-lib/src/generated/core/qmetatype/cpp/qmetatype.h");
         type QMetaType = qtbridge_type_lib::QMetaType;
+        include!("qtbridge-runtime/src/cpp/dynamicmetaobjectdata.h");
+        type DynamicMetaObjectData = qtbridge_runtime::DynamicMetaObjectData;
         include!("qtbridge-type-lib/src/generated/core/qmodelindex/cpp/qmodelindex.h");
         type QModelIndex = qtbridge_type_lib::QModelIndex;
         include!("qtbridge-type-lib/src/generated/core/qvariant/cpp/qvariant.h");
@@ -26,9 +29,9 @@ pub mod ffi {
         include!("qtbridge-interfaces/src/qlist_model/cpp/QListModelProxyCpp.h");
         type QListModelProxyCpp;
         # [rust_name = create_qlist_model_proxy_cpp]
-        unsafe fn create_QListModelProxyCpp(rust_proxy: *mut QListModelProxyRust) -> *mut QListModelProxyCpp;
+        unsafe fn create_QListModelProxyCpp(rust_proxy: *mut QListModelProxyRust, metaobject: *const DynamicMetaObjectData) -> *mut QListModelProxyCpp;
         # [rust_name = create_qlist_model_proxy_cpp_at]
-        unsafe fn create_QListModelProxyCpp_At(addr: *mut u8, rust_proxy: *mut QListModelProxyRust)
+        unsafe fn create_QListModelProxyCpp_At(rust_proxy: *mut QListModelProxyRust, metaobject: *const DynamicMetaObjectData, addr: *mut u8)
         -> *mut QListModelProxyCpp;
         # [rust_name = static_qmeta_object_of_qlist_model_proxy_cpp]
         fn staticQMetaObjectOf_QListModelProxyCpp() -> &'static QMetaObject;
@@ -78,6 +81,7 @@ pub mod ffi {
 pub use ffi::QListModelProxyCpp;
 
 impl QCppProxy for QListModelProxyCpp {
+    type ProxyRustType = QListModelProxyRust;
     fn get_static_meta_object() -> &'static QMetaObject {
         ffi::static_qmeta_object_of_qlist_model_proxy_cpp()
     }
@@ -89,5 +93,11 @@ impl QCppProxy for QListModelProxyCpp {
     }
     fn get_qmetatype_list() -> QMetaType {
         ffi::qmetatype_list_of_qlist_model_proxy_cpp()
+    }
+    unsafe fn create(rust_proxy: *mut Self::ProxyRustType, metaobject: &'static DynamicMetaObjectData) -> *mut Self {
+        unsafe { ffi::create_qlist_model_proxy_cpp(rust_proxy, metaobject) }
+    }
+    unsafe fn create_at(rust_proxy: *mut Self::ProxyRustType, metaobject: &'static DynamicMetaObjectData, addr: *mut u8) -> *mut Self {
+        unsafe { ffi::create_qlist_model_proxy_cpp_at(rust_proxy, metaobject, addr) }
     }
 }

@@ -6,9 +6,9 @@ use std::cell::RefCell;
 use std::any::TypeId;
 use std::collections::HashMap;
 use qtbridge_type_lib::{QMetaTypeInterface, QMetaTypeFlag, QMetaObject, QObject};
-use crate::qcppproxy::QCppProxy;
+use crate::qproxies::QCppProxy;
 use crate::{QObjectHolder, QMetaInfo};
-use crate::qrustproxy::ConstructionMode;
+use crate::qproxies::ConstructionMode;
 
 pub fn interface_for_generic<T: QObjectHolder + 'static>() -> &'static QMetaTypeInterface {
     thread_local!(static IFACE_MAP: RefCell<HashMap<TypeId , *const QMetaTypeInterface>> = RefCell::new(HashMap::new ()));

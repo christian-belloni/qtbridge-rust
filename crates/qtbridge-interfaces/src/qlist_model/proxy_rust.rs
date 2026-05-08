@@ -1,10 +1,10 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use super::proxy_cpp_bridge::{QListModelProxyCpp, ffi};
+use super::proxy_cpp_bridge::QListModelProxyCpp;
 use crate::{RustObjAccess, call_rust_trait_impl, call_cpp_impl};
-use qtbridge_runtime::qrustproxy::{QRustProxy, ConstructionMode};
-use qtbridge_runtime::{DispatchMetaCall, QObjectHolder};
+use qtbridge_runtime::qproxies::{ConstructionMode, QCppProxy, QRustProxy};
+use qtbridge_runtime::{DispatchMetaCall, QObjectHolder, DynamicMetaObjectData};
 use qtbridge_runtime::QModelItem;
 use qtbridge_type_lib::{QByteArray, QHash, QModelIndex, QVariant};
 use std::cell::RefCell;
@@ -363,7 +363,7 @@ impl QRustProxy for QListModelProxyRust {
     type ProxyCppType = QListModelProxyCpp;
     type AdapterType = dyn QListModelAdapter;
 
-    fn new(rust_obj: &Rc<RefCell<dyn QListModelAdapter>>, construct: ConstructionMode, on_drop: Box<dyn FnOnce() + 'static>) -> *mut Self {
+    fn new(rust_obj: &Rc<RefCell<dyn QListModelAdapter>>, metaobject: &'static DynamicMetaObjectData, construct: ConstructionMode, on_drop: Box<dyn FnOnce() + 'static>) -> *mut Self {
         let boxed_self = Box::new(Self {
             cpp_proxy: std::ptr::null_mut(),
             rust_obj: match construct {
@@ -376,10 +376,10 @@ impl QRustProxy for QListModelProxyRust {
 
         unsafe{ (*raw_self).cpp_proxy = match construct {
             ConstructionMode::AtAddress(addr) => {
-                ffi::create_qlist_model_proxy_cpp_at( addr, raw_self)
+                QListModelProxyCpp::create_at(raw_self, metaobject, addr)
             }
             ConstructionMode::Strong | ConstructionMode::Weak => {
-                ffi::create_qlist_model_proxy_cpp(raw_self)
+                QListModelProxyCpp::create(raw_self, metaobject)
             }
         }};
         raw_self

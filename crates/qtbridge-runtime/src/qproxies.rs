@@ -1,7 +1,9 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use crate::qcppproxy::QCppProxy;
+
+use qtbridge_type_lib::{QMetaObject, QMetaType};
+use crate::DynamicMetaObjectData;
 use std::rc::Rc;
 use std::cell::RefCell;
 
@@ -9,6 +11,22 @@ pub enum ConstructionMode {
     Strong,
     Weak,
     AtAddress(*mut u8),
+}
+
+
+/// `QCppProxy` defines what a C++ proxy to a QObject (C++) must implement.
+///
+/// This includes access to the C++ static meta-object, which is then extended
+/// on the Rust side to create a dynamic meta-object.
+pub trait QCppProxy {
+    type ProxyRustType: QRustProxy;
+    fn get_static_meta_object() -> &'static QMetaObject;
+    fn get_size() -> usize;
+    fn get_align() -> usize;
+    fn get_qmetatype_list() -> QMetaType;
+    unsafe fn create(rust_proxy: *mut Self::ProxyRustType, metaobject: &'static DynamicMetaObjectData) -> *mut Self;
+    unsafe fn create_at(rust_proxy: *mut Self::ProxyRustType, metaobject: &'static DynamicMetaObjectData, addr: *mut u8) -> *mut Self;
+
 }
 
 /// `QRustProxy` defines the Rust-side bridge object that binds:
@@ -57,9 +75,9 @@ pub enum ConstructionMode {
 /// [`RustObjAccess`] (See "object safety" or "dyn compatibility").
 ///
 pub trait QRustProxy {
-    type ProxyCppType: QCppProxy;
+    type ProxyCppType: QCppProxy<ProxyRustType = Self>;
     type AdapterType: ?Sized;
-    fn new(rust_obj: &Rc<RefCell<Self::AdapterType>>, construction: ConstructionMode, on_drop: Box<dyn FnOnce() + 'static>) -> *mut Self;
+    fn new(rust_obj: &Rc<RefCell<Self::AdapterType>>, metaobject: &'static DynamicMetaObjectData, construction: ConstructionMode, on_drop: Box<dyn FnOnce() + 'static>) -> *mut Self;
     fn get_cpp_proxy(&self) -> *const Self::ProxyCppType;
     fn get_cpp_proxy_mut(&self) -> *mut Self::ProxyCppType;
 }

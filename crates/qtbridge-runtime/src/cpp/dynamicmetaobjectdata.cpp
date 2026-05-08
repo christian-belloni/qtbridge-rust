@@ -50,11 +50,6 @@ std::optional<int> DynamicMetaObjectData::getSignalIndex(const QByteArray& name)
     return std::nullopt;
 }
 
-void DynamicMetaObjectData::setToQObject(QObject& dst) const
-{
-    QObjectPrivate::get(&dst)->metaObject = const_cast<DynamicMetaObjectData*>(this);
-}
-
 void DynamicMetaObjectData::setMetaObject(std::unique_ptr<QMetaObject, QScopedPointerPodDeleter> metaObject)
 {
     m_metaObject = std::move(metaObject);

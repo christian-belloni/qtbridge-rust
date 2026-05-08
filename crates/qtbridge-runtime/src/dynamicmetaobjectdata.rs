@@ -20,9 +20,6 @@ pub mod ffi {
 
         #[rust_name = "get_meta_object"]
         fn getMetaObject(&self) -> *mut QMetaObject;
-
-        #[rust_name = "set_to_qobject"]
-        fn setToQObject(&self, dst: &mut QObject);
     }
 }
 

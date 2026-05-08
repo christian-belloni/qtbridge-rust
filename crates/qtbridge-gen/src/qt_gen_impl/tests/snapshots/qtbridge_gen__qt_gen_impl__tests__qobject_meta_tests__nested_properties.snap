@@ -178,7 +178,14 @@ pub mod node {
         const IS_SINGLETON: bool = false;
     }
     impl qtbridge::qtbridge_runtime::QObjectHolder for Node {
-        type ProxyRust = qtbridge::qtbridge_interfaces::qobject::QObjectProxyRust;        fn as_adaptor_trait (rust_obj_rc : std :: rc :: Rc < std :: cell :: RefCell < Self > >) -> std :: rc :: Rc < std :: cell :: RefCell < < Self :: ProxyRust as qtbridge :: qtbridge_runtime :: qrustproxy :: QRustProxy > :: AdapterType > >{
+        type ProxyRust = qtbridge::qtbridge_interfaces::qobject::QObjectProxyRust;
+        fn as_adaptor_trait(
+            rust_obj_rc: std::rc::Rc<std::cell::RefCell<Self>>,
+        ) -> std::rc::Rc<
+            std::cell::RefCell<
+                <Self::ProxyRust as qtbridge::qtbridge_runtime::qproxies::QRustProxy>::AdapterType,
+            >,
+        > {
             rust_obj_rc
         }
     }

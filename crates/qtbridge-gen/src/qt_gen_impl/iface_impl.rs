@@ -49,7 +49,7 @@ impl InterfaceImpl {
                 fn as_adaptor_trait(
                     rust_obj_rc: std::rc::Rc<std::cell::RefCell<Self>>
                 ) -> std::rc::Rc<std::cell::RefCell<
-                    <Self::ProxyRust as #bridge_library::qrustproxy::QRustProxy>::AdapterType>>
+                    <Self::ProxyRust as #bridge_library::qproxies::QRustProxy>::AdapterType>>
                 {
                     rust_obj_rc
                 }

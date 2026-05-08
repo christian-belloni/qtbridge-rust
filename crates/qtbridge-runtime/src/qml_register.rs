@@ -3,8 +3,8 @@
 
 use crate::QObjectHolder;
 use crate::QMetaInfo;
-use crate::qcppproxy::QCppProxy;
-use crate::qrustproxy::ConstructionMode;
+use crate::qproxies::QCppProxy;
+use crate::qproxies::ConstructionMode;
 use qtbridge_type_lib::QObject;
 use qtbridge_type_lib::QMetaTypeGet;
 pub trait QmlRegister : QMetaTypeGet + QMetaInfo + QObjectHolder + Default
@@ -53,13 +53,11 @@ pub trait QmlRegister : QMetaTypeGet + QMetaInfo + QObjectHolder + Default
 fn element_ctor<T: QmlRegister>(addr: *mut u8, _userdata: *mut u8) {
     let instance = std::rc::Rc::new(std::cell::RefCell::new(T::default()));
     T::register_instance_in_map(instance.clone(), ConstructionMode::AtAddress(addr));
-    T::set_dynamic_meta(&instance);
 }
 
 fn singleton_ctor<T: QmlRegister>() -> *mut QObject {
     let instance = std::rc::Rc::new(std::cell::RefCell::new(T::default()));
     T::register_instance_in_map(instance.clone(), ConstructionMode::Strong);
-    T::set_dynamic_meta(&instance);
     std::ptr::from_mut(T::get_qobject(&instance.borrow()))
 }
 

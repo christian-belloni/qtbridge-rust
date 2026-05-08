@@ -1,7 +1,8 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use qtbridge_runtime::qcppproxy::QCppProxy;
+use qtbridge_runtime::qproxies::QCppProxy;
+use qtbridge_runtime::DynamicMetaObjectData;
 use qtbridge_type_lib::{QMetaObject, QMetaType};
 
 use super::proxy_rust::QObjectProxyRust;
@@ -12,6 +13,8 @@ pub mod ffi {
         type QMetaObject = qtbridge_type_lib::QMetaObject;
         include!("qtbridge-type-lib/src/generated/core/qmetatype/cpp/qmetatype.h");
         type QMetaType = qtbridge_type_lib::QMetaType;
+        include!("qtbridge-runtime/src/cpp/dynamicmetaobjectdata.h");
+        type DynamicMetaObjectData = qtbridge_runtime::DynamicMetaObjectData;
         include!("qtbridge-interfaces/src/qobject/proxy_rust_bridge.rs.h");
         type QObjectProxyRust = super::QObjectProxyRust;
     }
@@ -20,9 +23,9 @@ pub mod ffi {
         include!("qtbridge-interfaces/src/qobject/cpp/QObjectProxyCpp.h");
         type QObjectProxyCpp;
         # [rust_name = create_qobject_proxy_cpp]
-        unsafe fn create_QObjectProxyCpp(rust_proxy: *mut QObjectProxyRust) -> *mut QObjectProxyCpp;
+        unsafe fn create_QObjectProxyCpp(rust_proxy: *mut QObjectProxyRust, metaobject: *const DynamicMetaObjectData) -> *mut QObjectProxyCpp;
         # [rust_name = create_qobject_proxy_cpp_at]
-        unsafe fn create_QObjectProxyCpp_At(addr: *mut u8, rust_proxy: *mut QObjectProxyRust) -> *mut QObjectProxyCpp;
+        unsafe fn create_QObjectProxyCpp_At(rust_proxy: *mut QObjectProxyRust, metaobject: *const DynamicMetaObjectData, addr: *mut u8) -> *mut QObjectProxyCpp;
         # [rust_name = static_qmeta_object_of_qobject_proxy_cpp]
         fn staticQMetaObjectOf_QObjectProxyCpp() -> &'static QMetaObject;
         # [rust_name = size_of_qobject_proxy_cpp]
@@ -36,6 +39,7 @@ pub mod ffi {
 pub use ffi::QObjectProxyCpp;
 
 impl QCppProxy for QObjectProxyCpp {
+    type ProxyRustType = QObjectProxyRust;
     fn get_static_meta_object() -> &'static QMetaObject {
         ffi::static_qmeta_object_of_qobject_proxy_cpp()
     }
@@ -47,5 +51,11 @@ impl QCppProxy for QObjectProxyCpp {
     }
     fn get_qmetatype_list() -> QMetaType {
         ffi::qmetatype_list_of_qobject_proxy_cpp()
+    }
+    unsafe fn create(rust_proxy: *mut Self::ProxyRustType, metaobject: &'static DynamicMetaObjectData) -> *mut Self {
+        unsafe { ffi::create_qobject_proxy_cpp(rust_proxy, metaobject) }
+    }
+    unsafe fn create_at(rust_proxy: *mut Self::ProxyRustType, metaobject: &'static DynamicMetaObjectData, addr: *mut u8) -> *mut Self {
+        unsafe { ffi::create_qobject_proxy_cpp_at(rust_proxy, metaobject, addr) }
     }
 }

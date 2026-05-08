@@ -4,7 +4,7 @@
 use std::any::TypeId;
 use std::cell::RefCell;
 use std::collections::HashMap;
-use crate::qcppproxy::QCppProxy;
+use crate::qproxies::QCppProxy;
 use crate::{DynamicMetaObjectBuilder, DynamicMetaObjectData};
 
 #[cfg(doc)]

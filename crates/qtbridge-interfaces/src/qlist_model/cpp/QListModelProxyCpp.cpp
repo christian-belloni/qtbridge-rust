@@ -133,14 +133,18 @@ void QListModelProxyCpp::endResetModel()
 
 // Functions for object construction
 
-QListModelProxyCpp* create_QListModelProxyCpp(QListModelProxyRust* rustProxy)
+QListModelProxyCpp* create_QListModelProxyCpp(QListModelProxyRust* rustProxy, const DynamicMetaObjectData* metaObject)
 {
-    return new QListModelProxyCpp(rustProxy);
+    auto proxy = new QListModelProxyCpp(rustProxy);
+    QObjectPrivate::get(proxy)->metaObject = const_cast<DynamicMetaObjectData*>(metaObject);
+    return proxy;
 }
 
-QListModelProxyCpp* create_QListModelProxyCpp_At(uint8_t* addr, QListModelProxyRust* rustProxy)
+QListModelProxyCpp* create_QListModelProxyCpp_At(QListModelProxyRust* rustProxy, const DynamicMetaObjectData* metaObject, uint8_t* addr)
 {
-    return new (addr) QListModelProxyCpp(rustProxy);
+    auto proxy = new (addr) QListModelProxyCpp(rustProxy);
+    QObjectPrivate::get(proxy)->metaObject = const_cast<DynamicMetaObjectData*>(metaObject);
+    return proxy;
 }
 
 const QMetaObject& staticQMetaObjectOf_QListModelProxyCpp()

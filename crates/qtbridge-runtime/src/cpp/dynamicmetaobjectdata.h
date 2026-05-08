@@ -38,7 +38,6 @@ public:
 
     void emitSignal(QObject& obj, rust::Str name, rust::Slice<const uint8_t* const> argvSlice) const;
 
-    void setToQObject(QObject& dst) const;
     QMetaObject* getMetaObject() const;
 
     std::optional<int> getSignalIndex(const QByteArray& name) const;

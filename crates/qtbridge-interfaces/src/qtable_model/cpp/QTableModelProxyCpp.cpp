@@ -177,14 +177,18 @@ QModelIndex QTableModelProxyCpp::createIndex(int32_t row, int32_t column, size_t
 
 // Functions for object construction
 
-QTableModelProxyCpp* create_QTableModelProxyCpp(QTableModelProxyRust* rustProxy)
+QTableModelProxyCpp* create_QTableModelProxyCpp(QTableModelProxyRust* rustProxy, const DynamicMetaObjectData* metaObject)
 {
-    return new QTableModelProxyCpp(rustProxy);
+    auto proxy = new QTableModelProxyCpp(rustProxy);
+    QObjectPrivate::get(proxy)->metaObject = const_cast<DynamicMetaObjectData*>(metaObject);
+    return proxy;
 }
 
-QTableModelProxyCpp* create_QTableModelProxyCpp_At(uint8_t* addr, QTableModelProxyRust* rustProxy)
+QTableModelProxyCpp* create_QTableModelProxyCpp_At(QTableModelProxyRust* rustProxy, const DynamicMetaObjectData* metaObject, uint8_t* addr)
 {
-    return new (addr) QTableModelProxyCpp(rustProxy);
+    auto proxy = new (addr) QTableModelProxyCpp(rustProxy);
+    QObjectPrivate::get(proxy)->metaObject = const_cast<DynamicMetaObjectData*>(metaObject);
+    return proxy;
 }
 
 const QMetaObject& staticQMetaObjectOf_QTableModelProxyCpp()

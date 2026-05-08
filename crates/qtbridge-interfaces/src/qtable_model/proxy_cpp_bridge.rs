@@ -1,7 +1,8 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use qtbridge_runtime::qcppproxy::QCppProxy;
+use qtbridge_runtime::qproxies::QCppProxy;
+use qtbridge_runtime::DynamicMetaObjectData;
 use qtbridge_type_lib::{QMetaObject, QMetaType};
 
 use super::proxy_rust::QTableModelProxyRust;
@@ -14,6 +15,8 @@ pub mod ffi {
         type QMetaObject = qtbridge_type_lib::QMetaObject;
         include!("qtbridge-type-lib/src/generated/core/qmetatype/cpp/qmetatype.h");
         type QMetaType = qtbridge_type_lib::QMetaType;
+        include!("qtbridge-runtime/src/cpp/dynamicmetaobjectdata.h");
+        type DynamicMetaObjectData = qtbridge_runtime::DynamicMetaObjectData;
         include!("qtbridge-type-lib/src/generated/core/qmodelindex/cpp/qmodelindex.h");
         type QModelIndex = qtbridge_type_lib::QModelIndex;
         include!("qtbridge-type-lib/src/generated/core/qvariant/cpp/qvariant.h");
@@ -26,9 +29,9 @@ pub mod ffi {
         include!("qtbridge-interfaces/src/qtable_model/cpp/QTableModelProxyCpp.h");
         type QTableModelProxyCpp;
         # [rust_name = create_qtable_model_proxy_cpp]
-        unsafe fn create_QTableModelProxyCpp(rust_proxy: *mut QTableModelProxyRust) -> *mut QTableModelProxyCpp;
+        unsafe fn create_QTableModelProxyCpp(rust_proxy: *mut QTableModelProxyRust, metaobject: *const DynamicMetaObjectData) -> *mut QTableModelProxyCpp;
         # [rust_name = create_qtable_model_proxy_cpp_at]
-        unsafe fn create_QTableModelProxyCpp_At(addr: *mut u8, rust_proxy: *mut QTableModelProxyRust)
+        unsafe fn create_QTableModelProxyCpp_At(rust_proxy: *mut QTableModelProxyRust, metaobject: *const DynamicMetaObjectData, addr: *mut u8)
         -> *mut QTableModelProxyCpp;
         # [rust_name = static_qmeta_object_of_qtable_model_proxy_cpp]
         fn staticQMetaObjectOf_QTableModelProxyCpp() -> &'static QMetaObject;
@@ -99,6 +102,7 @@ pub mod ffi {
 pub use ffi::QTableModelProxyCpp;
 
 impl QCppProxy for QTableModelProxyCpp {
+    type ProxyRustType = QTableModelProxyRust;
     fn get_static_meta_object() -> &'static QMetaObject {
         ffi::static_qmeta_object_of_qtable_model_proxy_cpp()
     }
@@ -110,5 +114,11 @@ impl QCppProxy for QTableModelProxyCpp {
     }
     fn get_qmetatype_list() -> QMetaType {
         ffi::qmetatype_list_of_qtable_model_proxy_cpp()
+    }
+    unsafe fn create(rust_proxy: *mut Self::ProxyRustType, metaobject: &'static DynamicMetaObjectData) -> *mut Self {
+        unsafe { ffi::create_qtable_model_proxy_cpp(rust_proxy, metaobject) }
+    }
+    unsafe fn create_at(rust_proxy: *mut Self::ProxyRustType, metaobject: &'static DynamicMetaObjectData, addr: *mut u8) -> *mut Self {
+        unsafe { ffi::create_qtable_model_proxy_cpp_at(rust_proxy, metaobject, addr) }
     }
 }

@@ -8,6 +8,7 @@
 #include <QQmlListProperty>
 #include <cstdint>
 #include "qtbridge-runtime/src/cpp/dispatchmetacallcpp.h"
+#include "qtbridge-runtime/src/cpp/dynamicmetaobjectdata.h"
 #include "qtbridge-runtime/src/cpp/rustobjectgetter.h"
 #include "qtbridge-interfaces/src/generated/qabstract_list_model/proxy_rust_bridge.rs.h"
 #include "qtbridge-type-lib/src/generated/core/qbytearray/cpp/qbytearray.h"
@@ -67,8 +68,8 @@ private:
 };
 
 // Functions for object construction
-QAbstractListModelProxyCpp* create_QAbstractListModelProxyCpp(QAbstractListModelProxyRust* rustProxy);
-QAbstractListModelProxyCpp* create_QAbstractListModelProxyCpp_At(uint8_t* addr, QAbstractListModelProxyRust* rustProxy);
+QAbstractListModelProxyCpp* create_QAbstractListModelProxyCpp(QAbstractListModelProxyRust* rustProxy, const DynamicMetaObjectData* metaObject);
+QAbstractListModelProxyCpp* create_QAbstractListModelProxyCpp_At(QAbstractListModelProxyRust* rustProxy, const DynamicMetaObjectData* metaObject, uint8_t* addr);
 const QMetaObject& staticQMetaObjectOf_QAbstractListModelProxyCpp();
 size_t sizeOf_QAbstractListModelProxyCpp();
 size_t alignOf_QAbstractListModelProxyCpp();

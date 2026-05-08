@@ -169,14 +169,18 @@ QModelIndex QAbstractItemModelProxyCpp::createIndex(int32_t row, int32_t column,
 
 // Functions for object construction
 
-QAbstractItemModelProxyCpp* create_QAbstractItemModelProxyCpp(QAbstractItemModelProxyRust* rustProxy)
+QAbstractItemModelProxyCpp* create_QAbstractItemModelProxyCpp(QAbstractItemModelProxyRust* rustProxy, const DynamicMetaObjectData* metaObject)
 {
-    return new QAbstractItemModelProxyCpp(rustProxy);
+    auto proxy = new QAbstractItemModelProxyCpp(rustProxy);
+    QObjectPrivate::get(proxy)->metaObject = const_cast<DynamicMetaObjectData*>(metaObject);
+    return proxy;
 }
 
-QAbstractItemModelProxyCpp* create_QAbstractItemModelProxyCpp_At(uint8_t* addr, QAbstractItemModelProxyRust* rustProxy)
+QAbstractItemModelProxyCpp* create_QAbstractItemModelProxyCpp_At(QAbstractItemModelProxyRust* rustProxy, const DynamicMetaObjectData* metaObject, uint8_t* addr)
 {
-    return new (addr) QAbstractItemModelProxyCpp(rustProxy);
+    auto proxy = new (addr) QAbstractItemModelProxyCpp(rustProxy);
+    QObjectPrivate::get(proxy)->metaObject = const_cast<DynamicMetaObjectData*>(metaObject);
+    return proxy;
 }
 
 const QMetaObject& staticQMetaObjectOf_QAbstractItemModelProxyCpp()

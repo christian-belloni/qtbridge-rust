@@ -45,14 +45,18 @@ const void* QObjectProxyCpp::getRustObjectRcPtr() const
 
 // Functions for object construction
 
-QObjectProxyCpp* create_QObjectProxyCpp(QObjectProxyRust* rustProxy)
+QObjectProxyCpp* create_QObjectProxyCpp(QObjectProxyRust* rustProxy, const DynamicMetaObjectData* metaObject)
 {
-    return new QObjectProxyCpp(rustProxy);
+    auto proxy = new QObjectProxyCpp(rustProxy);
+    QObjectPrivate::get(proxy)->metaObject = const_cast<DynamicMetaObjectData*>(metaObject);
+    return proxy;
 }
 
-QObjectProxyCpp* create_QObjectProxyCpp_At(uint8_t* addr, QObjectProxyRust* rustProxy)
+QObjectProxyCpp* create_QObjectProxyCpp_At(QObjectProxyRust* rustProxy, const DynamicMetaObjectData* metaObject, uint8_t* addr)
 {
-    return new (addr) QObjectProxyCpp(rustProxy);
+    auto proxy = new (addr) QObjectProxyCpp(rustProxy);
+    QObjectPrivate::get(proxy)->metaObject = const_cast<DynamicMetaObjectData*>(metaObject);
+    return proxy;
 }
 
 const QMetaObject& staticQMetaObjectOf_QObjectProxyCpp()

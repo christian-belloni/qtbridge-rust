@@ -5,7 +5,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use qtbridge_type_lib::{QMetaTypeGet, QObject, QVariant};
-use crate::qrustproxy::{QRustProxy, ConstructionMode};
+use crate::qproxies::{QRustProxy, ConstructionMode};
 use crate::rustobjectgetter::get_rust_object_rc_ptr;
 use crate::{DispatchMetaCall, QMetaInfo, QmlMethodInvoker};
 use std::collections::HashMap;
@@ -173,7 +173,8 @@ pub trait QObjectHolder : DispatchMetaCall + QMetaInfo + Default {
     fn register_instance_in_map(rust_obj_rc: Rc<RefCell<Self>>, construction: ConstructionMode) {
         let key = (*rust_obj_rc).as_ptr() as *const u8;
         let dyn_rc = Self::as_adaptor_trait(rust_obj_rc);
-        let proxy = Self::ProxyRust::new(&dyn_rc, construction, Box::new(move || Self::unregister_instance_in_map(key)));
+        let dynamic_meta = <Self as QMetaInfo>::get_shared_dynamic_meta_object_data();
+        let proxy = Self::ProxyRust::new(&dyn_rc, dynamic_meta, construction, Box::new(move || Self::unregister_instance_in_map(key)));
         Self::try_borrow_mut_proxies_map(|proxies| {
             proxies.insert(key, proxy as *const u8);
         })
@@ -187,26 +188,16 @@ pub trait QObjectHolder : DispatchMetaCall + QMetaInfo + Default {
             .cast_mut();
     }
 
-    /// Configure the [`QObject`] associated with the given Rust object to use
-    /// the dynamic metaobject specific to this Rust type.
-    #[doc(hidden)]
-    fn set_dynamic_meta(instance: &Rc<RefCell<Self>>)
-    {
-        let dynamic_meta = Self::get_shared_dynamic_meta_object_data();
-        let instance_ref = &instance.borrow();
-        let qobject_ref = instance_ref.get_qobject();
-        dynamic_meta.set_to_qobject(qobject_ref);
-    }
-
     /// Create a new default-initialized instance of this type and attach
     /// the required [`QObject`]. This enables use of this instance in QML.
     /// Instances created with this function must remain at its original heap
     /// location and must not be moved out of `Rc<RefCell<T>>`.
     fn default_with_attached_qobject() -> std::rc::Rc<std::cell::RefCell<Self>> {
-        let instance = std::rc::Rc::new(std::cell::RefCell::new(Self::default()));
+        let instance = Default::default();
         Self::attach_qobject(&instance);
         instance
     }
+
     /// Create and attach a dedicated [`QObject`] to the `instance`.
     /// The instance must remain at its original heap location and must
     /// not be moved out of `Rc<RefCell<T>>`.
@@ -215,7 +206,6 @@ pub trait QObjectHolder : DispatchMetaCall + QMetaInfo + Default {
             instance.clone(),
             ConstructionMode::Weak
         );
-        Self::set_dynamic_meta(instance);
     }
 
     /// Detach and remove the dedicated [`QObject`] from the specified object.

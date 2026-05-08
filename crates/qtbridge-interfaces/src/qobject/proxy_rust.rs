@@ -4,8 +4,8 @@
 use super::proxy_cpp_bridge::{QObjectProxyCpp, ffi};
 use crate::RustObjAccess;
 use crate::call_rust_trait_impl;
-use qtbridge_runtime::qrustproxy::{QRustProxy, ConstructionMode};
-use qtbridge_runtime::{DispatchMetaCall, QObjectHolder};
+use qtbridge_runtime::qproxies::{QRustProxy, ConstructionMode};
+use qtbridge_runtime::{DispatchMetaCall, QObjectHolder, DynamicMetaObjectData};
 use qtbridge_type_lib::QVariant;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -29,7 +29,7 @@ impl QRustProxy for QObjectProxyRust {
     type ProxyCppType = QObjectProxyCpp;
     type AdapterType = dyn QObjectAdapter;
 
-    fn new(rust_obj: &Rc<RefCell<dyn QObjectAdapter>>, construct: ConstructionMode, on_drop: Box<dyn FnOnce() + 'static>) -> *mut Self {
+    fn new(rust_obj: &Rc<RefCell<dyn QObjectAdapter>>, metatype: &'static DynamicMetaObjectData, construct: ConstructionMode, on_drop: Box<dyn FnOnce() + 'static>) -> *mut Self {
         let boxed_self = Box::new(Self {
             cpp_proxy: std::ptr::null_mut(),
             rust_obj: match construct {
@@ -42,10 +42,10 @@ impl QRustProxy for QObjectProxyRust {
 
         unsafe{ (*raw_self).cpp_proxy = match construct {
             ConstructionMode::AtAddress(addr) => {
-                ffi::create_qobject_proxy_cpp_at(addr, raw_self)
+                ffi::create_qobject_proxy_cpp_at(raw_self, metatype, addr)
             }
             ConstructionMode::Strong | ConstructionMode::Weak => {
-                ffi::create_qobject_proxy_cpp(raw_self)
+                ffi::create_qobject_proxy_cpp(raw_self, metatype)
             }
         }};
         raw_self

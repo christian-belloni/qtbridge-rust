@@ -7,6 +7,7 @@
 #include <QObject>
 #include <QQmlListProperty>
 #include "qtbridge-runtime/src/cpp/dispatchmetacallcpp.h"
+#include "qtbridge-runtime/src/cpp/dynamicmetaobjectdata.h"
 #include "qtbridge-runtime/src/cpp/rustobjectgetter.h"
 #include "qtbridge-interfaces/src/qobject/proxy_rust_bridge.rs.h"
 
@@ -34,8 +35,8 @@ private:
 };
 
 // Functions for object construction
-QObjectProxyCpp* create_QObjectProxyCpp(QObjectProxyRust* rustProxy);
-QObjectProxyCpp* create_QObjectProxyCpp_At(uint8_t* addr, QObjectProxyRust* rustProxy);
+QObjectProxyCpp* create_QObjectProxyCpp(QObjectProxyRust* rustProxy, const DynamicMetaObjectData* metaObject);
+QObjectProxyCpp* create_QObjectProxyCpp_At(QObjectProxyRust* rustProxy, const DynamicMetaObjectData* metaObject, uint8_t* addr);
 const QMetaObject& staticQMetaObjectOf_QObjectProxyCpp();
 size_t sizeOf_QObjectProxyCpp();
 size_t alignOf_QObjectProxyCpp();
