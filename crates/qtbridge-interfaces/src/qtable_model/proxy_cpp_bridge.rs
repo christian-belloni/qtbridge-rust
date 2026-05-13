@@ -41,6 +41,8 @@ pub mod ffi {
         fn alignOf_QTableModelProxyCpp() -> usize;
         # [rust_name = qmetatype_list_of_qtable_model_proxy_cpp]
         fn qmetaTypeListOf_QTableModelProxyCpp() -> QMetaType;
+        # [rust_name = emit_signal_cpp]
+        fn emitSignal(&self, signal_name: &str, argv: &[*const u8]);
         # [rust_name = base_role_names]
         fn base_roleNames(&self) -> QHash_i32_QByteArray;
         # [rust_name = base_set_data]
@@ -120,5 +122,8 @@ impl QCppProxy for QTableModelProxyCpp {
     }
     unsafe fn create_at(rust_proxy: *mut Self::ProxyRustType, metaobject: &'static DynamicMetaObjectData, addr: *mut u8) -> *mut Self {
         unsafe { ffi::create_qtable_model_proxy_cpp_at(rust_proxy, metaobject, addr) }
+    }
+    fn emit_signal(&self, signal_name: &str, argv: &[*const u8]) {
+        self.emit_signal_cpp(signal_name, argv)
     }
 }

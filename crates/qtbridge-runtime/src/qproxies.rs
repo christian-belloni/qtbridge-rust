@@ -26,7 +26,7 @@ pub trait QCppProxy {
     fn get_qmetatype_list() -> QMetaType;
     unsafe fn create(rust_proxy: *mut Self::ProxyRustType, metaobject: &'static DynamicMetaObjectData) -> *mut Self;
     unsafe fn create_at(rust_proxy: *mut Self::ProxyRustType, metaobject: &'static DynamicMetaObjectData, addr: *mut u8) -> *mut Self;
-
+    fn emit_signal(&self, signal_name: &str, argv: &[*const u8]);
 }
 
 /// `QRustProxy` defines the Rust-side bridge object that binds:
@@ -80,4 +80,5 @@ pub trait QRustProxy {
     fn new(rust_obj: &Rc<RefCell<Self::AdapterType>>, metaobject: &'static DynamicMetaObjectData, construction: ConstructionMode, on_drop: Box<dyn FnOnce() + 'static>) -> *mut Self;
     fn get_cpp_proxy(&self) -> *const Self::ProxyCppType;
     fn get_cpp_proxy_mut(&self) -> *mut Self::ProxyCppType;
+    fn emit_signal(&self, reference: &Self::AdapterType, signal_name: &str, argv: &[*const u8]);
 }

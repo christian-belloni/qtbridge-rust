@@ -109,18 +109,10 @@ impl<'a> MetaCallBridgeGenerator<'a> {
         Ok(code)
     }
 
-    /// Generates bridge code for invoking a metacall from the Rust function (e.g., signal invocation),
-    /// handling packing and conversion of input arguments and return type.
-    /// # Arguments
+    /// Generates the argv setup for signals handling packing and conversion of input arguments.
     ///
-    /// * `fn_call` - The expression representing the metacall (but using standard, non-metacall specific types).
-    ///
-    /// # Returns
-    ///
-    /// A `TokenStream`containing code block that:
-    /// - Prepares the metacall parameters array.
-    /// - Invokes the `fn_metacall` function.
-    pub fn generate_bridge_user_fn_to_metacall(&self, mut fn_metacall: syn::ExprMethodCall) -> syn::Result<TokenStream> {
+    /// # Returns a `TokenStream` containing the parameter array.
+    pub fn generate_argv_setup_for_signals(&self) -> syn::Result<TokenStream> {
         let input_size = self.inputs.len();
         let argv_size = input_size + 1;
 
@@ -158,19 +150,13 @@ impl<'a> MetaCallBridgeGenerator<'a> {
                     argv_arr_init.push(init);
                 },
             }
-        };
-
-        // Append `argv` to the list of call arguments.
-        fn_metacall.args.push(syn::parse_quote!{ argv.as_slice() });
-
-        // Putting it all together.
+        }
         let code = quote! {
             #(#arg_vars)*
             let argv: [*const u8; #argv_size] = [
                 std::ptr::null(),   // No value return.
                 #(#argv_arr_init),*
             ];
-            #fn_metacall
         };
         Ok(code)
     }

@@ -26,6 +26,8 @@ public:
     QListModelProxyCpp(QListModelProxyRust* rustProxy);
     ~QListModelProxyCpp();
 
+    void emitSignal(rust::Str signalName, rust::Slice<const uint8_t* const> argv) const;
+
     // Virtual methods
     QModelIndex index(int32_t row, int32_t column, const QModelIndex& parent) const override;
     int32_t rowCount(const QModelIndex& parent) const override;

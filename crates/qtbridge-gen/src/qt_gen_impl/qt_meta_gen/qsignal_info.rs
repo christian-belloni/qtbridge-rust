@@ -3,7 +3,7 @@
 
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{parse_quote, Ident, LitStr};
+use syn::{Ident, LitStr};
 use syn::spanned::Spanned;
 
 use qtbridge_gen_common::case_conv;
@@ -142,24 +142,18 @@ impl QmlName for QSignalInfo {
 
 impl ExpandTokens for QSignalInfo {
     fn expand_tokens(&self) -> syn::Result<TokenStream> {
-        let Self {attrs, vis, sig, ..} = self;
-
+        let Self { attrs, vis, sig, .. } = self;
         let bridge_generator = MetaCallBridgeGenerator::new(sig)?;
         let qml_name = self.get_qml_name_span().0;
-        let fn_metacall = parse_quote! {
-            dynamic_meta_obj.emit_signal(qobj, #qml_name)
-        };
-        let bridge_code = bridge_generator.generate_bridge_user_fn_to_metacall(fn_metacall)?;
-
-        // Generate function that calls signal
+        let argv_setup = bridge_generator.generate_argv_setup_for_signals()?;
         let code = quote! {
             #(#attrs)*
             #vis
             #sig
             {
-                let dynamic_meta_obj = <Self as qtbridge::qtbridge_runtime::QMetaInfo>::get_shared_dynamic_meta_object_data();
-                let qobj = <Self as qtbridge::QObjectHolder>::get_qobject(self);
-                #bridge_code
+                let proxy = <Self as qtbridge::QObjectHolder>::get_rust_proxy(self);
+                #argv_setup
+                qtbridge::qtbridge_runtime::qproxies::QRustProxy::emit_signal(proxy, self, #qml_name, argv.as_slice())
             }
         };
         Ok(code)

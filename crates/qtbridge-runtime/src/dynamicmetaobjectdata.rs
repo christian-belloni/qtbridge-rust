@@ -15,9 +15,6 @@ pub mod ffi {
         include!("cpp/dynamicmetaobjectdata.h");
         type DynamicMetaObjectData;
 
-        #[rust_name = "emit_signal"]
-        fn emitSignal(self: &Self, qobj: &mut QObject, name: &str, argv: &[*const u8]);
-
         #[rust_name = "get_meta_object"]
         fn getMetaObject(&self) -> *mut QMetaObject;
     }

@@ -390,6 +390,9 @@ impl QRustProxy for QListModelProxyRust {
     fn get_cpp_proxy_mut(&self) -> *mut QListModelProxyCpp {
         self.cpp_proxy
     }
+    fn emit_signal(&self, _reference: &Self::AdapterType, signal_name: &str, argv: &[*const u8]) {
+        call_cpp_impl!(self, emit_signal(signal_name, argv))
+    }
 }
 
 impl QListModelProxyRust {

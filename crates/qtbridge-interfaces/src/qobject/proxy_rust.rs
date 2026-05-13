@@ -2,9 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use super::proxy_cpp_bridge::{QObjectProxyCpp, ffi};
-use crate::RustObjAccess;
-use crate::call_rust_trait_impl;
-use qtbridge_runtime::qproxies::{QRustProxy, ConstructionMode};
+use crate::{RustObjAccess, call_rust_trait_impl, call_cpp_impl};
+use qtbridge_runtime::qproxies::{QRustProxy, QCppProxy, ConstructionMode};
 use qtbridge_runtime::{DispatchMetaCall, QObjectHolder, DynamicMetaObjectData};
 use qtbridge_type_lib::QVariant;
 use std::cell::RefCell;
@@ -55,6 +54,9 @@ impl QRustProxy for QObjectProxyRust {
     }
     fn get_cpp_proxy_mut(&self) -> *mut QObjectProxyCpp {
         self.cpp_proxy
+    }
+    fn emit_signal(&self, _reference: &Self::AdapterType, signal_name: &str, argv: &[*const u8]) {
+        call_cpp_impl!(self, emit_signal(signal_name, argv))
     }
 }
 
