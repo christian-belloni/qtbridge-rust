@@ -36,6 +36,8 @@ pub mod ffi {
         fn qmetaTypeListOf_QObjectProxyCpp() -> QMetaType;
         # [rust_name = emit_signal_cpp]
         fn emitSignal(&self, signal_name: &str, argv: &[*const u8]);
+        # [rust_name = emit_signal_mut_cpp]
+        fn emitSignalMut(self: Pin<&mut Self>, signal_name: &str, argv: &[*const u8]);
     }
 }
 pub use ffi::QObjectProxyCpp;
@@ -63,5 +65,7 @@ impl QCppProxy for QObjectProxyCpp {
     fn emit_signal(&self, signal_name: &str, argv: &[*const u8]) {
         self.emit_signal_cpp(signal_name, argv)
     }
-
+    fn emit_signal_mut(self: std::pin::Pin<&mut Self>, signal_name: &str, argv: &[*const u8]) {
+        self.emit_signal_mut_cpp(signal_name, argv)
+    }
 }

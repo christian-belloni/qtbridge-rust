@@ -21,6 +21,14 @@ void QAbstractItemModelProxyCpp::emitSignal(rust::Str signalName, rust::Slice<co
         qFatal() << "Error while emiting singal from Rust: The QObject does not contain a Rust dynamic meta object";
 }
 
+void QAbstractItemModelProxyCpp::emitSignalMut(rust::Str signalName, rust::Slice<const uint8_t* const> argv) {
+    auto* meta = dynamic_cast<DynamicMetaObjectData*>(QObjectPrivate::get(this)->metaObject);
+    if (meta)
+        meta->emitSignal(*this, signalName, argv);
+    else
+        qFatal() << "Error while emiting singal from Rust: The QObject does not contain a Rust dynamic meta object";
+}
+
 // Virtual methods
 QModelIndex QAbstractItemModelProxyCpp::index(int32_t row, int32_t column, const QModelIndex& parent) const
 {

@@ -21,6 +21,14 @@ void QTableModelProxyCpp::emitSignal(rust::Str signalName, rust::Slice<const uin
         qFatal() << "Error while emiting singal from Rust: The QObject does not contain a Rust dynamic meta object";
 }
 
+void QTableModelProxyCpp::emitSignalMut(rust::Str signalName, rust::Slice<const uint8_t* const> argv) {
+    auto* meta = dynamic_cast<DynamicMetaObjectData*>(QObjectPrivate::get(this)->metaObject);
+    if (meta)
+        meta->emitSignal(*this, signalName, argv);
+    else
+        qFatal() << "Error while emiting singal from Rust: The QObject does not contain a Rust dynamic meta object";
+}
+
 // Virtual methods
 QModelIndex QTableModelProxyCpp::index(int32_t row, int32_t column, const QModelIndex& parent) const
 {

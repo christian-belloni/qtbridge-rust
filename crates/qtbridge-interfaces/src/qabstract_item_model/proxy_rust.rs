@@ -276,6 +276,9 @@ impl QRustProxy for QAbstractItemModelProxyRust {
     fn emit_signal(&self, _reference: &Self::AdapterType, signal_name: &str, argv: &[*const u8]) {
         call_cpp_impl!(self, emit_signal(signal_name, argv))
     }
+    fn emit_signal_mut(&self, _mut_ref: &mut Self::AdapterType, signal_name: &str, argv: &[*const u8]) {
+        call_cpp_impl!(mut self, emit_signal_mut(signal_name, argv))
+    }
 }
 
 impl QAbstractItemModelProxyRust {

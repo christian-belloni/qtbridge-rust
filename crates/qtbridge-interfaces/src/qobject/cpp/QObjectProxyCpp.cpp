@@ -21,6 +21,14 @@ void QObjectProxyCpp::emitSignal(rust::Str signalName, rust::Slice<const uint8_t
         qFatal() << "Error while emiting singal from Rust: The QObject does not contain a Rust dynamic meta object";
 }
 
+void QObjectProxyCpp::emitSignalMut(rust::Str signalName, rust::Slice<const uint8_t* const> argv) {
+    auto* meta = dynamic_cast<DynamicMetaObjectData*>(QObjectPrivate::get(this)->metaObject);
+    if (meta)
+        meta->emitSignal(*this, signalName, argv);
+    else
+        qFatal() << "Error while emiting singal from Rust: The QObject does not contain a Rust dynamic meta object";
+}
+
 // DispatchMetaCallCpp implementation
 void QObjectProxyCpp::invokeSlot(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const
 {

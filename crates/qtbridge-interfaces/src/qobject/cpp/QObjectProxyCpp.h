@@ -22,6 +22,7 @@ public:
     ~QObjectProxyCpp();
 
     void emitSignal(rust::Str signalName, rust::Slice<const uint8_t* const> argv) const;
+    void emitSignalMut(rust::Str signalName, rust::Slice<const uint8_t* const> argv);
 
     // DispatchMetaCallCpp implementation
     void invokeSlot(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const override;

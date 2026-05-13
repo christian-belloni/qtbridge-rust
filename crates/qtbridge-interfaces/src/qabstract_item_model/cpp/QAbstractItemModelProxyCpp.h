@@ -28,6 +28,7 @@ public:
     ~QAbstractItemModelProxyCpp();
 
     void emitSignal(rust::Str signalName, rust::Slice<const uint8_t* const> argv) const;
+    void emitSignalMut(rust::Str signalName, rust::Slice<const uint8_t* const> argv);
 
     // Virtual methods
     QModelIndex index(int32_t row, int32_t column, const QModelIndex& parent) const override;

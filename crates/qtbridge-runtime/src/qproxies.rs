@@ -6,6 +6,7 @@ use qtbridge_type_lib::{QMetaObject, QMetaType};
 use crate::DynamicMetaObjectData;
 use std::rc::Rc;
 use std::cell::RefCell;
+use std::pin::Pin;
 
 pub enum ConstructionMode {
     Strong,
@@ -27,6 +28,7 @@ pub trait QCppProxy {
     unsafe fn create(rust_proxy: *mut Self::ProxyRustType, metaobject: &'static DynamicMetaObjectData) -> *mut Self;
     unsafe fn create_at(rust_proxy: *mut Self::ProxyRustType, metaobject: &'static DynamicMetaObjectData, addr: *mut u8) -> *mut Self;
     fn emit_signal(&self, signal_name: &str, argv: &[*const u8]);
+    fn emit_signal_mut(self: Pin<&mut Self>, signal_name: &str, argv: &[*const u8]);
 }
 
 /// `QRustProxy` defines the Rust-side bridge object that binds:
@@ -81,4 +83,5 @@ pub trait QRustProxy {
     fn get_cpp_proxy(&self) -> *const Self::ProxyCppType;
     fn get_cpp_proxy_mut(&self) -> *mut Self::ProxyCppType;
     fn emit_signal(&self, reference: &Self::AdapterType, signal_name: &str, argv: &[*const u8]);
+    fn emit_signal_mut(&self, mut_ref: &mut Self::AdapterType, signal_name: &str, argv: &[*const u8]);
 }

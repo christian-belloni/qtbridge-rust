@@ -9,7 +9,7 @@ use syn::spanned::Spanned;
 use qtbridge_gen_common::case_conv;
 use qtbridge_gen_common::function_with_attributes::{FunctionWithAttributes, BlockOrSemi};
 use qtbridge_gen_common::parse_utils::{parse_name_value, partition_attr_by};
-use qtbridge_gen_common::signature_utils::{get_typed_args, get_typed_args_types};
+use qtbridge_gen_common::signature_utils::{get_typed_args, get_typed_args_types, is_self_mut};
 use qtbridge_gen_common::type_utils::remove_refs;
 use qtbridge_gen_common::type_registry::meta_types::{check_meta_call_signature_types, get_qmetatype_support_for_type};
 use crate::qt_gen_impl::qt_meta_gen;
@@ -49,6 +49,10 @@ impl QSignalInfo {
             vis: input.vis,
             sig: input.sig,
         })
+    }
+
+    pub fn is_mut(&self) -> bool {
+        is_self_mut(&self.sig)
     }
 
     pub fn is_for_me(attr: &syn::Attribute) -> bool {
@@ -146,14 +150,21 @@ impl ExpandTokens for QSignalInfo {
         let bridge_generator = MetaCallBridgeGenerator::new(sig)?;
         let qml_name = self.get_qml_name_span().0;
         let argv_setup = bridge_generator.generate_argv_setup_for_signals()?;
+        let is_mut = self.is_mut();
+        let emit_call = if is_mut {
+            quote! { qtbridge::qtbridge_runtime::qproxies::QRustProxy::emit_signal_mut(unsafe { &*proxy }, self, #qml_name, argv.as_slice()) }
+        } else {
+            quote! { qtbridge::qtbridge_runtime::qproxies::QRustProxy::emit_signal(unsafe { &*proxy }, self, #qml_name, argv.as_slice()) }
+        };
         let code = quote! {
             #(#attrs)*
             #vis
             #sig
             {
-                let proxy = <Self as qtbridge::QObjectHolder>::get_rust_proxy(self);
+                let proxy = <Self as qtbridge::QObjectHolder>::try_get_rust_proxy_ptr(self).expect("No proxy");
+
                 #argv_setup
-                qtbridge::qtbridge_runtime::qproxies::QRustProxy::emit_signal(proxy, self, #qml_name, argv.as_slice())
+                #emit_call
             }
         };
         Ok(code)

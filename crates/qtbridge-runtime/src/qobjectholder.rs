@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use std::cell::RefCell;
+use std::ptr::NonNull;
 use std::rc::Rc;
 
 use qtbridge_type_lib::{QMetaTypeGet, QObject, QVariant};
@@ -58,6 +59,16 @@ pub trait QObjectHolder : DispatchMetaCall + QMetaInfo + Default {
             (proxy_ptr as *mut Self::ProxyRust).as_mut()
         }
     }
+
+    #[doc(hidden)]
+    fn try_get_rust_proxy_ptr(&self) -> Option<*mut Self::ProxyRust> {
+        let rust_obj_ptr = std::ptr::from_ref(self).cast::<u8>();
+        let proxy_ptr = Self::try_borrow_mut_proxies_map(|map| {
+            map.get(&rust_obj_ptr).copied().unwrap_or_default()
+        });
+        NonNull::new(proxy_ptr as *mut Self::ProxyRust).map(|nn| nn.as_ptr())
+    }
+
 
     #[doc(hidden)]
     fn get_qobject_ptr(&self) -> *mut QObject {

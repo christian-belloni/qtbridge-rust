@@ -43,6 +43,8 @@ pub mod ffi {
         fn qmetaTypeListOf_QAbstractItemModelProxyCpp() -> QMetaType;
         # [rust_name = emit_signal_cpp]
         fn emitSignal(&self, signal_name: &str, argv: &[*const u8]);
+        # [rust_name = emit_signal_mut_cpp]
+        fn emitSignalMut(self: Pin<&mut Self>, signal_name: &str, argv: &[*const u8]);
         # [rust_name = base_role_names]
         fn base_roleNames(&self) -> QHash_i32_QByteArray;
         # [rust_name = base_set_data]
@@ -123,5 +125,8 @@ impl QCppProxy for QAbstractItemModelProxyCpp {
     }
     fn emit_signal(&self, signal_name: &str, argv: &[*const u8]) {
         self.emit_signal_cpp(signal_name, argv)
+    }
+    fn emit_signal_mut(self: std::pin::Pin<&mut Self>, signal_name: &str, argv: &[*const u8]) {
+        self.emit_signal_mut_cpp(signal_name, argv)
     }
 }
