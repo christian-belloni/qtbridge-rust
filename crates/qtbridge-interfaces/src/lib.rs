@@ -68,8 +68,8 @@ pub use qlist_model::{QListModel, QListModelBase};
 pub mod qtable_model;
 pub use qtable_model::{QTableModel, QTableModelBase};
 
+pub mod qabstract_item_model;
+pub use qabstract_item_model::{QAbstractItemModel, QAbstractItemModelBase};
+
 pub mod object_access;
 pub use object_access::rust_object_access::RustObjAccess;
-
-mod generated;
-pub use generated::*;

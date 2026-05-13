@@ -1,16 +1,16 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-#ifndef _QABSTRACTLISTMODELPROXYCPP_RUST_BRIDGE__H_
-#define _QABSTRACTLISTMODELPROXYCPP_RUST_BRIDGE__H_
-#include <QAbstractListModel>
+#ifndef _QABSTRACTITEMMODELPROXYCPP_RUST_BRIDGE__H_
+#define _QABSTRACTITEMMODELPROXYCPP_RUST_BRIDGE__H_
+#include <QAbstractItemModel>
 #include <QMetaObject>
 #include <QQmlListProperty>
 #include <cstdint>
 #include "qtbridge-runtime/src/cpp/dispatchmetacallcpp.h"
 #include "qtbridge-runtime/src/cpp/dynamicmetaobjectdata.h"
 #include "qtbridge-runtime/src/cpp/rustobjectgetter.h"
-#include "qtbridge-interfaces/src/generated/qabstract_list_model/proxy_rust_bridge.rs.h"
+#include "qtbridge-interfaces/src/qabstract_item_model/proxy_rust_bridge.rs.h"
 #include "qtbridge-type-lib/src/generated/core/qbytearray/cpp/qbytearray.h"
 #include "qtbridge-type-lib/src/generated/core/qhash/cpp/qhash_i32_qbytearray.h"
 #include "qtbridge-type-lib/src/generated/core/qmodelindex/cpp/qmodelindex.h"
@@ -19,17 +19,19 @@
 
 namespace rust::bridge {
 
-class QAbstractListModelProxyCpp : public QAbstractListModel, public DispatchMetaCallCpp, public RustObjectGetter
+class QAbstractItemModelProxyCpp : public QAbstractItemModel, public DispatchMetaCallCpp, public RustObjectGetter
 {
-    using Base = QAbstractListModel;
+    using Base = QAbstractItemModel;
 
 public:
-    QAbstractListModelProxyCpp(QAbstractListModelProxyRust* rustProxy);
-    ~QAbstractListModelProxyCpp();
+    QAbstractItemModelProxyCpp(QAbstractItemModelProxyRust* rustProxy);
+    ~QAbstractItemModelProxyCpp();
 
     // Virtual methods
     QModelIndex index(int32_t row, int32_t column, const QModelIndex& parent) const override;
+    QModelIndex parent(const QModelIndex& child) const override;
     int32_t rowCount(const QModelIndex& parent) const override;
+    int32_t columnCount(const QModelIndex& parent) const override;
     QVariant data(const QModelIndex& index, int32_t role) const override;
     QHash<int32_t,QByteArray> roleNames() const override;
     bool setData(const QModelIndex& index, const QVariant& value, int32_t role) override;
@@ -46,7 +48,6 @@ public:
     const void* getRustObjectRcPtr() const override;
 
     // Access to base implementation of virtual functions
-    QModelIndex base_index(int32_t row, int32_t column, const QModelIndex& parent) const;
     QHash<int32_t,QByteArray> base_roleNames() const;
     bool base_setData(const QModelIndex& index, const QVariant& value, int32_t role);
     bool base_removeRows(int32_t first, int32_t count, const QModelIndex& parent);
@@ -54,27 +55,34 @@ public:
 
     // Access to base implementation of non virtual functions
     void dataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
+    void beginInsertColumns(const QModelIndex& parent, int32_t first, int32_t last);
+    void endInsertColumns();
     void beginInsertRows(const QModelIndex& parent, int32_t first, int32_t last);
     void endInsertRows();
+    void beginMoveColumns(const QModelIndex& sourceParent, int32_t sourceFirst, int32_t sourceLast, const QModelIndex& destinationParent, int32_t destinationChild);
+    void endMoveColumns();
     void beginMoveRows(const QModelIndex& sourceParent, int32_t sourceFirst, int32_t sourceLast, const QModelIndex& destinationParent, int32_t destinationChild);
     void endMoveRows();
+    void beginRemoveColumns(const QModelIndex& parent, int32_t first, int32_t last);
+    void endRemoveColumns();
     void beginRemoveRows(const QModelIndex& parent, int32_t first, int32_t last);
     void endRemoveRows();
     void beginResetModel();
     void endResetModel();
+    QModelIndex createIndex(int32_t row, int32_t column, size_t ptr) const;
 
 private:
-    QAbstractListModelProxyRust* m_rustProxy;
+    QAbstractItemModelProxyRust* m_rustProxy;
 };
 
 // Functions for object construction
-QAbstractListModelProxyCpp* create_QAbstractListModelProxyCpp(QAbstractListModelProxyRust* rustProxy, const DynamicMetaObjectData* metaObject);
-QAbstractListModelProxyCpp* create_QAbstractListModelProxyCpp_At(QAbstractListModelProxyRust* rustProxy, const DynamicMetaObjectData* metaObject, uint8_t* addr);
-const QMetaObject& staticQMetaObjectOf_QAbstractListModelProxyCpp();
-size_t sizeOf_QAbstractListModelProxyCpp();
-size_t alignOf_QAbstractListModelProxyCpp();
-QMetaType qmetaTypeListOf_QAbstractListModelProxyCpp();
+QAbstractItemModelProxyCpp* create_QAbstractItemModelProxyCpp(QAbstractItemModelProxyRust* rustProxy, const DynamicMetaObjectData* metaObject);
+QAbstractItemModelProxyCpp* create_QAbstractItemModelProxyCpp_At(QAbstractItemModelProxyRust* rustProxy, const DynamicMetaObjectData* metaObject, uint8_t* addr);
+const QMetaObject& staticQMetaObjectOf_QAbstractItemModelProxyCpp();
+size_t sizeOf_QAbstractItemModelProxyCpp();
+size_t alignOf_QAbstractItemModelProxyCpp();
+QMetaType qmetaTypeListOf_QAbstractItemModelProxyCpp();
 
 } // namespace rust::bridge
 
-#endif // _QABSTRACTLISTMODELPROXYCPP_RUST_BRIDGE__H_
+#endif // _QABSTRACTITEMMODELPROXYCPP_RUST_BRIDGE__H_

@@ -21,12 +21,12 @@ pub mod ffi {
         type QModelIndex = qtbridge_type_lib::QModelIndex;
         include!("qtbridge-type-lib/src/generated/core/qvariant/cpp/qvariant.h");
         type QVariant = qtbridge_type_lib::QVariant;
-        include!("qtbridge-interfaces/src/generated/qabstract_item_model/proxy_rust_bridge.rs.h");
+        include!("qtbridge-interfaces/src/qabstract_item_model/proxy_rust_bridge.rs.h");
         type QAbstractItemModelProxyRust = super::QAbstractItemModelProxyRust;
     }
     #[namespace = "rust::bridge"]
     unsafe extern "C++" {
-        include!("qtbridge-interfaces/src/generated/qabstract_item_model/cpp/QAbstractItemModelProxyCpp.h");
+        include!("qtbridge-interfaces/src/qabstract_item_model/cpp/QAbstractItemModelProxyCpp.h");
         type QAbstractItemModelProxyCpp;
         # [rust_name = create_qabstract_item_model_proxy_cpp]
         unsafe fn create_QAbstractItemModelProxyCpp(rust_proxy: *mut QAbstractItemModelProxyRust, metaobject: *const DynamicMetaObjectData) -> *mut QAbstractItemModelProxyCpp;

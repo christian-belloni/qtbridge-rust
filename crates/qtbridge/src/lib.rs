@@ -595,5 +595,3 @@ pub use qtbridge_interfaces::{QTableModel, QTableModelBase};
 
 #[doc(hidden)]
 pub use qtbridge_interfaces::{QAbstractItemModel, QAbstractItemModelBase};
-#[doc(hidden)]
-pub use qtbridge_interfaces::{QAbstractListModel, QAbstractListModelBase};
