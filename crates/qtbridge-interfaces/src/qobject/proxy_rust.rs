@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use super::proxy_cpp_bridge::{QObjectProxyCpp, ffi};
-use crate::{RustObjAccess, call_rust_trait_impl, call_cpp_impl};
+use crate::RustObjAccess2;
+use crate::{call_rust_trait_impl2, call_cpp_impl2};
 use qtbridge_runtime::qproxies::{QRustProxy, QCppProxy, ConstructionMode};
 use qtbridge_runtime::{DispatchMetaCall, QObjectHolder, DynamicMetaObjectData};
 use qtbridge_type_lib::QVariant;
@@ -19,12 +20,11 @@ where T: QObjectHolder<ProxyRust = QObjectProxyRust> {}
 
 pub struct QObjectProxyRust {
     cpp_proxy: *mut QObjectProxyCpp,
-    rust_obj: RustObjAccess<dyn QObjectAdapter>,
+    rust_obj: RustObjAccess2<dyn QObjectAdapter>,
     on_drop: Box<dyn FnOnce()>,
 }
 
 impl QRustProxy for QObjectProxyRust {
-
     type ProxyCppType = QObjectProxyCpp;
     type AdapterType = dyn QObjectAdapter;
 
@@ -32,8 +32,8 @@ impl QRustProxy for QObjectProxyRust {
         let boxed_self = Box::new(Self {
             cpp_proxy: std::ptr::null_mut(),
             rust_obj: match construct {
-                ConstructionMode::Strong | ConstructionMode::AtAddress(_) => RustObjAccess::new_strong(rust_obj.clone()),
-                ConstructionMode::Weak => RustObjAccess::new_weak(Rc::downgrade(rust_obj)),
+                ConstructionMode::Strong | ConstructionMode::AtAddress(_) => RustObjAccess2::new_strong(rust_obj.clone()),
+                ConstructionMode::Weak => RustObjAccess2::new_weak(Rc::downgrade(rust_obj)),
             },
             on_drop,
         });
@@ -55,11 +55,11 @@ impl QRustProxy for QObjectProxyRust {
     fn get_cpp_proxy_mut(&self) -> *mut QObjectProxyCpp {
         self.cpp_proxy
     }
-    fn emit_signal(&self, _reference: &Self::AdapterType, signal_name: &str, argv: &[*const u8]) {
-        call_cpp_impl!(self, emit_signal(signal_name, argv))
+    fn emit_signal(&self, reference: &Self::AdapterType, signal_name: &str, argv: &[*const u8]) {
+        call_cpp_impl2!(self, reference, emit_signal(signal_name, argv))
     }
-    fn emit_signal_mut(&self, _mut_ref: &mut Self::AdapterType, signal_name: &str, argv: &[*const u8]) {
-        call_cpp_impl!(mut self, emit_signal_mut(signal_name, argv))
+    fn emit_signal_mut(&self, mut_ref: &mut Self::AdapterType, signal_name: &str, argv: &[*const u8]) {
+        call_cpp_impl2!(mut self, mut_ref, emit_signal_mut(signal_name, argv))
     }
 }
 
@@ -68,18 +68,17 @@ impl QObjectProxyRust {
         let boxed_self = unsafe { Box::from_raw(self_ptr) };
         (boxed_self.on_drop)();
     }
-
     pub fn invoke_slot(&self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]) {
-        call_rust_trait_impl!(self, invoke_slot(slot_id, inputs, outputs))
+        call_rust_trait_impl2!(self, invoke_slot(slot_id, inputs, outputs))
     }
     pub fn invoke_slot_mut(&mut self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]) {
-        call_rust_trait_impl!(mut self, invoke_slot_mut(slot_id, inputs, outputs))
+        call_rust_trait_impl2!(mut self, invoke_slot_mut(slot_id, inputs, outputs))
     }
     pub fn read_property(&self, prop_id: u32) -> QVariant {
-        call_rust_trait_impl!(self, read_property(prop_id))
+        call_rust_trait_impl2!(self, read_property(prop_id))
     }
     pub fn write_property(&mut self, prop_id: u32, value: &QVariant) {
-        call_rust_trait_impl!(mut self, write_property(prop_id, value))
+        call_rust_trait_impl2!(mut self, write_property(prop_id, value))
     }
     pub fn get_rust_object_rc_ptr(&self) -> *const u8 {
         self.rust_obj.get_rc()
