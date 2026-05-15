@@ -125,7 +125,7 @@ pub use qtbridge_build_common;
 ///
 /// ## Example
 ///
-/// ```
+/// ```rust
 /// use qtbridge::{QApp, qobject_impl};
 ///
 /// #[derive(Default)]
@@ -211,7 +211,7 @@ pub use qtbridge_gen::qobject_impl;
 ///
 /// ## Example
 ///
-/// ```
+/// ```rust
 /// use qtbridge::{QApp, qobject};
 ///
 /// #[qobject(Singleton)]
@@ -293,7 +293,7 @@ pub use qtbridge_gen::qobject;
 /// [supported types][crate::type_support].
 /// - The function must not have a body (end with semicolon or have an empty curly braces).
 ///
-/// ```
+/// ```rust
 /// # use qtbridge::qobject_impl;
 /// # #[derive(Default)]
 /// # pub struct Backend {
@@ -351,7 +351,7 @@ pub use qtbridge_gen::qsignal;
 /// - All other types and the return type must be in the list of [supported types][crate::type_support].
 ///
 /// ### Example
-/// ```
+/// ```rust
 /// # use qtbridge::qobject_impl;
 /// # #[derive(Default)]
 /// # pub struct Backend {
@@ -398,7 +398,7 @@ pub use qtbridge_gen::qslot;
 /// ### Accessor based property
 ///
 /// A pure accessor-based property can be declared together with a range of functions:
-/// ```
+/// ```rust
 /// # use qtbridge::qobject_impl;
 /// # #[derive(Default)]
 /// # pub struct Backend {
@@ -428,7 +428,7 @@ pub use qtbridge_gen::qslot;
 /// member is changed.
 ///
 /// A `struct` containing a member-based property may look like:
-/// ```
+/// ```rust
 /// # use qtbridge::qobject_impl;
 /// #[derive(Default)]
 /// struct Text {
@@ -508,7 +508,7 @@ pub use qtbridge_runtime::QObjectHolder;
 /// [`QmlRegister`] knows two ways of registering a type. The ordinary way
 /// is to register as an element that can be instantiated in QML:
 ///
-/// ```
+/// ```rust
 /// # use qtbridge::qobject_impl;
 /// # #[derive(Default)]
 /// # pub struct Backend {
@@ -547,7 +547,7 @@ pub use qtbridge_runtime::QObjectHolder;
 /// one instance can be created. It can be accessed with the
 /// [`ELEMENT_NAME`](QmlRegister::ELEMENT_NAME):
 ///
-/// ```
+/// ```rust
 /// # use qtbridge::qobject_impl;
 /// # #[derive(Default)]
 /// # pub struct Backend {

@@ -101,6 +101,7 @@ pub use test_object::TestObject;
 // Tests that verify that signals are emitted and detected by QSignalSpy when invoked from the Rust side.
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_without_arguments() {
     let obj = TestObject::default_with_attached_qobject();
     let spy = QSignalSpy::new(obj.borrow().get_qobject(), "signalNoArgs");
@@ -122,6 +123,7 @@ where
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_bool_arg() {
     test_signal_with_arg_value("Bool",
         |obj| obj.signal_bool(true),
@@ -132,6 +134,7 @@ fn signal_is_emitted_when_called_with_bool_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_i8_arg() {
     test_signal_with_arg_value("I8",
         |obj| obj.signal_i8(42),
@@ -142,6 +145,7 @@ fn signal_is_emitted_when_called_with_i8_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_u8_arg() {
     test_signal_with_arg_value("U8",
         |obj| obj.signal_u8(43),
@@ -152,6 +156,7 @@ fn signal_is_emitted_when_called_with_u8_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_i16_arg() {
     test_signal_with_arg_value("I16",
         |obj| obj.signal_i16(-44),
@@ -162,6 +167,7 @@ fn signal_is_emitted_when_called_with_i16_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_u16_arg() {
     test_signal_with_arg_value("U16",
         |obj| obj.signal_u16(45),
@@ -172,6 +178,7 @@ fn signal_is_emitted_when_called_with_u16_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_i32_arg() {
     test_signal_with_arg_value("I32",
         |obj| obj.signal_i32(46),
@@ -182,6 +189,7 @@ fn signal_is_emitted_when_called_with_i32_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_u32_arg() {
     test_signal_with_arg_value("U32",
         |obj| obj.signal_u32(47),
@@ -193,6 +201,7 @@ fn signal_is_emitted_when_called_with_u32_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_i64_arg() {
     test_signal_with_arg_value("I64",
         |obj| obj.signal_i64(48),
@@ -203,6 +212,7 @@ fn signal_is_emitted_when_called_with_i64_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_u64_arg() {
     test_signal_with_arg_value("U64",
         |obj| obj.signal_u64(49),
@@ -213,6 +223,7 @@ fn signal_is_emitted_when_called_with_u64_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_isize_arg() {
     test_signal_with_arg_value("Isize",
         |obj| obj.signal_isize(-50),
@@ -223,6 +234,7 @@ fn signal_is_emitted_when_called_with_isize_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_usize_arg() {
     test_signal_with_arg_value("Usize",
         |obj| obj.signal_usize(51),
@@ -234,6 +246,7 @@ fn signal_is_emitted_when_called_with_usize_arg() {
 
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_f32_arg() {
     test_signal_with_arg_value("F32",
         |obj| obj.signal_f32(0.5),
@@ -244,6 +257,7 @@ fn signal_is_emitted_when_called_with_f32_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_f64_arg() {
     test_signal_with_arg_value("F64",
         |obj| obj.signal_f64(0.25),
@@ -254,6 +268,7 @@ fn signal_is_emitted_when_called_with_f64_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_str_arg() {
     test_signal_with_arg_value("Str",
         |obj| obj.signal_str("XYZ"),
@@ -264,6 +279,7 @@ fn signal_is_emitted_when_called_with_str_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_string_arg() {
     test_signal_with_arg_value("String",
         |obj| obj.signal_string("ABC".to_owned()),
@@ -274,6 +290,7 @@ fn signal_is_emitted_when_called_with_string_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_string_ref_arg() {
     let obj = TestObject::default_with_attached_qobject();
     let mut spy = QSignalSpy::new(obj.borrow().get_qobject(), "signalStringRef");
@@ -285,6 +302,7 @@ fn signal_is_emitted_when_called_with_string_ref_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_bool_ref_arg() {
     test_signal_with_arg_value("BoolRef",
         |obj| obj.signal_bool_ref(&true),
@@ -295,6 +313,7 @@ fn signal_is_emitted_when_called_with_bool_ref_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_i8_ref_arg() {
     test_signal_with_arg_value("I8Ref",
         |obj| obj.signal_i8_ref(&i8::MIN),
@@ -305,6 +324,7 @@ fn signal_is_emitted_when_called_with_i8_ref_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_u8_ref_arg() {
     test_signal_with_arg_value("U8Ref",
         |obj| obj.signal_u8_ref(&u8::MAX),
@@ -315,6 +335,7 @@ fn signal_is_emitted_when_called_with_u8_ref_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_i16_ref_arg() {
     test_signal_with_arg_value("I16Ref",
         |obj| obj.signal_i16_ref(&i16::MIN),
@@ -325,6 +346,7 @@ fn signal_is_emitted_when_called_with_i16_ref_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_u16_ref_arg() {
     test_signal_with_arg_value("U16Ref",
         |obj| obj.signal_u16_ref(&u16::MIN),
@@ -335,6 +357,7 @@ fn signal_is_emitted_when_called_with_u16_ref_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_i32_ref_arg() {
     test_signal_with_arg_value("I32Ref",
         |obj| obj.signal_i32_ref(&i32::MIN),
@@ -345,6 +368,7 @@ fn signal_is_emitted_when_called_with_i32_ref_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_u32_ref_arg() {
     test_signal_with_arg_value("U32Ref",
         |obj| obj.signal_u32_ref(&u32::MAX),
@@ -355,6 +379,7 @@ fn signal_is_emitted_when_called_with_u32_ref_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_i64_ref_arg() {
     test_signal_with_arg_value("I64Ref",
         |obj| obj.signal_i64_ref(&MIN_SAFE_INTEGER),
@@ -365,6 +390,7 @@ fn signal_is_emitted_when_called_with_i64_ref_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_u64_ref_arg() {
     test_signal_with_arg_value("U64Ref",
         |obj| obj.signal_u64_ref(&MAX_SAFE_INTEGER),
@@ -375,6 +401,7 @@ fn signal_is_emitted_when_called_with_u64_ref_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_isize_ref_arg() {
     test_signal_with_arg_value("IsizeRef",
         |obj| obj.signal_isize_ref(&(MIN_SAFE_INTEGER as isize)),
@@ -385,6 +412,7 @@ fn signal_is_emitted_when_called_with_isize_ref_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_usize_ref_arg() {
     test_signal_with_arg_value("UsizeRef",
         |obj| obj.signal_usize_ref(&(MAX_SAFE_INTEGER as usize)),
@@ -395,6 +423,7 @@ fn signal_is_emitted_when_called_with_usize_ref_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_f32_ref_arg() {
     test_signal_with_arg_value("F32Ref",
         |obj| obj.signal_f32_ref(&0.5),
@@ -405,6 +434,7 @@ fn signal_is_emitted_when_called_with_f32_ref_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_f64_ref_arg() {
     test_signal_with_arg_value("F64Ref",
         |obj| obj.signal_f64_ref(&0.25),
@@ -415,6 +445,7 @@ fn signal_is_emitted_when_called_with_f64_ref_arg() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_a_few_arguments_ref_arg() {
     let obj = TestObject::default_with_attached_qobject();
     let mut spy = QSignalSpy::new(obj.borrow().get_qobject(), "signalManyArgs");

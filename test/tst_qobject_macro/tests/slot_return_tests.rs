@@ -176,6 +176,9 @@ fn test_slot_return_str(expected: String) {
 }
 
 fn main() {
+    if cfg!(miri) {
+        return;
+    }
     test_slot_return::<bool>(true);
     test_slot_return::<i8>(i8::MIN);
     test_slot_return::<u8>(u8::MAX);

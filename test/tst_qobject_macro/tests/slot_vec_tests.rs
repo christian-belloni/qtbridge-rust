@@ -205,6 +205,9 @@ fn test_slot_types_vec_references() {
 }
 
 fn main() {
+    if cfg!(miri) {
+        return;
+    }
     test_slot_types_vec_values();
     test_slot_types_vec_references();
 }

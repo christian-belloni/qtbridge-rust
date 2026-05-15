@@ -150,7 +150,6 @@ pub mod backend {
 pub use node::Node;
 pub use backend::Backend;
 
-
 fn qml_binary_tree_sum_returns_expected_value() {
     Node::register();
     DROP_COUNTER.store(0, Ordering::Relaxed);
@@ -196,7 +195,10 @@ fn qml_binary_tree_bindings() {
 }
 
 fn main() {
+    #[cfg(not(miri))]
     qml_binary_tree_sum_returns_expected_value();
+    #[cfg(not(miri))]
     qml_binary_tree_can_be_traversed();
+    #[cfg(not(miri))]
     qml_binary_tree_bindings();
 }

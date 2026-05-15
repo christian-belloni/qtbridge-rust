@@ -28,6 +28,7 @@ mod trivial2 {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn test_structs_have_unique_metatype() {
     use qtbridge::qtbridge_type_lib::QMetaTypeGet;
     let a = <trivial1::Backend1 as QMetaTypeGet>::get_qmetatype();
@@ -36,6 +37,7 @@ fn test_structs_have_unique_metatype() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn test_generics_have_unique_metatype() {
     use qtbridge::qtbridge_type_lib::QMetaTypeGet;
     let a = <generic_trivial::Backend<i32> as QMetaTypeGet>::get_qmetatype();
@@ -44,6 +46,7 @@ fn test_generics_have_unique_metatype() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn test_structs_have_same_meta_object() {
     use qtbridge::qtbridge_runtime::QMetaInfo;
     use qtbridge::qtbridge_runtime::qproxies::QCppProxy;
@@ -53,6 +56,7 @@ fn test_structs_have_same_meta_object() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn test_structs_have_unique_dynamic_meta_object() {
     use qtbridge::qtbridge_runtime::QMetaInfo;
     let a = <trivial1::Backend1 as QMetaInfo>::get_shared_dynamic_meta_object_data();

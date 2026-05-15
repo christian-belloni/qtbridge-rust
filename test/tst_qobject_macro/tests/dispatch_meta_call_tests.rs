@@ -26,6 +26,7 @@ pub mod test_object {
 use test_object::TestObject;
 
 #[test]
+#[cfg(not(miri))]
 #[should_panic]
 fn invoke_slot_panics_on_invalid_slot_id() {
     let obj = TestObject::default_with_attached_qobject();
@@ -33,6 +34,7 @@ fn invoke_slot_panics_on_invalid_slot_id() {
 }
 
 #[test]
+#[cfg(not(miri))]
 #[should_panic]
 fn read_property_panics_on_invalid_property_id() {
     let obj = TestObject::default_with_attached_qobject();
@@ -40,6 +42,7 @@ fn read_property_panics_on_invalid_property_id() {
 }
 
 #[test]
+#[cfg(not(miri))]
 #[should_panic]
 fn write_property_panics_on_invalid_property_id() {
     let obj = TestObject::default_with_attached_qobject();

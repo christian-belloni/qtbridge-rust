@@ -154,6 +154,9 @@ where
 }
 
 fn main() {
+    if cfg!(miri) {
+        return;
+    }
     test_slot_return_impl::<bool>(&[false, true, true, false]);
     test_slot_return_impl::<i8>(&[-1, 0, 1, 2]);
     test_slot_return_impl::<u8>(&[3, 4, 5]);

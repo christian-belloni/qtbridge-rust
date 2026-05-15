@@ -17,7 +17,7 @@ roles. These are [`QListModel`] and [`QTableModel`].
 Exposing a Rust type to QML and starting the declarative UI is as simple as:
 
 Main.rs
-```
+```rust
 use qtbridge::{qobject_impl, QApp};
 
 #[derive(Default)]

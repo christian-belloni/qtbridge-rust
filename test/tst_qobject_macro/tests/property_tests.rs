@@ -559,6 +559,7 @@ where
 }
 
 #[test]
+#[cfg(not(miri))]
 fn qproperty_member_based_can_be_read() {
     test_cases_property_can_be_read::<member_properties::TestObject>()
         .iter()
@@ -566,6 +567,7 @@ fn qproperty_member_based_can_be_read() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn qproperty_accessor_value_based_can_be_read() {
     test_cases_property_can_be_read::<accessor_value_properties::TestObject>()
         .iter()
@@ -573,6 +575,7 @@ fn qproperty_accessor_value_based_can_be_read() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn qproperty_accessor_reference_based_can_be_read() {
     test_cases_property_can_be_read::<accessor_reference_properties::TestObject>()
         .iter()
@@ -581,6 +584,7 @@ fn qproperty_accessor_reference_based_can_be_read() {
 
 
 #[test]
+#[cfg(not(miri))]
 fn qproperty_member_based_can_be_written() {
     test_cases_property_can_be_written::<member_properties::TestObject>()
         .iter()
@@ -588,6 +592,7 @@ fn qproperty_member_based_can_be_written() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn qproperty_accessor_value_based_can_be_written() {
     test_cases_property_can_be_written::<accessor_value_properties::TestObject>()
         .iter()
@@ -595,6 +600,7 @@ fn qproperty_accessor_value_based_can_be_written() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn qproperty_accessor_reference_based_can_be_written() {
     test_cases_property_can_be_written::<accessor_reference_properties::TestObject>()
         .iter()
@@ -622,6 +628,7 @@ mod str_property {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn qproperty_str_can_be_read() {
     use str_property::TestObject;
 
@@ -633,6 +640,7 @@ fn qproperty_str_can_be_read() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn qproperty_str_can_be_written() {
     use str_property::TestObject;
 

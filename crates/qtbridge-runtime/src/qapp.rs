@@ -20,7 +20,7 @@ use crate::qml_register::QmlRegister;
 ///
 /// # Example
 ///
-/// ```
+/// ```rust
 ///# use qtbridge_runtime::run_simple_app;
 /// fn main() {
 ///     run_simple_app!("qml/main.qml");

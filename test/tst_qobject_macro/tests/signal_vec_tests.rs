@@ -178,5 +178,8 @@ fn test_that_signals_work_with_vec_arguments() {
 }
 
 fn main() {
+    if cfg!(miri) {
+        return;
+    }
     test_that_signals_work_with_vec_arguments()
 }

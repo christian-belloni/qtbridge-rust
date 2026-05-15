@@ -225,6 +225,9 @@ fn test_slot_types_references() {
 }
 
 fn main() {
+    if cfg!(miri) {
+        return;
+    }
     test_slot_types_values();
     test_slot_types_references();
 }

@@ -42,36 +42,37 @@ pub mod test_object {
 
 pub use test_object::TestObject;
 
-fn main() {
-    let app = QGuiApplication::new();
-
-    // invoke_method returns true when object is alive
+fn test_invoke_method_alive() {
     let qobject_holder = TestObject::default_with_attached_qobject();
     assert!(qobject_holder.borrow().get_qml_method_invoker().invoke_method("signalNoArgs"));
+}
 
-    // invoke_method returns false after object is destroyed
+fn test_invoke_method_destroyed() {
     let qobject_holder = TestObject::default_with_attached_qobject();
     let qml_method_invoker = qobject_holder.borrow().get_qml_method_invoker();
     qobject_holder.borrow().detach_qobject();
     assert!(!qml_method_invoker.invoke_method("signalNoArgs"));
+}
 
-    // signal is emitted when invoke_method is called
+fn test_signal_emitted(app: &QGuiApplication) {
     let qobject_holder = TestObject::default_with_attached_qobject();
     let spy = QSignalSpy::new(qobject_holder.borrow().get_qobject(), "signalNoArgs");
     qobject_holder.borrow().get_qml_method_invoker().invoke_method("signalNoArgs");
     app.process_events();
     app.process_events();
     assert_eq!(spy.count(), 1);
+}
 
-    // mutable slot is called via invoke_method
+fn test_mutable_slot(app: &QGuiApplication) {
     let qobject_holder = TestObject::default_with_attached_qobject();
     let qml_method_invoker = qobject_holder.borrow().get_qml_method_invoker();
     qml_method_invoker.invoke_method("mutableSlot");
     app.process_events();
     app.process_events();
     assert!(qobject_holder.borrow().mutable_slot_called);
+}
 
-    // immutable slot is called via invoke_method
+fn test_immutable_slot(app: &QGuiApplication) {
     let qobject_holder = TestObject::default_with_attached_qobject();
     let spy = QSignalSpy::new(qobject_holder.borrow().get_qobject(), "signalNoArgs");
     let qml_method_invoker = qobject_holder.borrow().get_qml_method_invoker();
@@ -79,16 +80,18 @@ fn main() {
     app.process_events();
     app.process_events();
     assert_eq!(spy.count(), 1);
+}
 
-    // slot with parameters
+fn test_slot_with_parameters(app: &QGuiApplication) {
     let qobject_holder = TestObject::default_with_attached_qobject();
     let invoker = qobject_holder.borrow().get_qml_method_invoker();
     assert!(invoker.invoke_method_with_args("addInts", &QVariantList::from([15.into(), 17.into()])));
     app.process_events();
     app.process_events();
     assert_eq!(qobject_holder.borrow().int_value, 32);
+}
 
-    // immutable slot is called via macro
+fn test_immutable_slot_via_macro(app: &QGuiApplication) {
     let qobject_holder = TestObject::default_with_attached_qobject();
     let spy = QSignalSpy::new(qobject_holder.borrow().get_qobject(), "signalNoArgs");
     let invoker = qobject_holder.borrow().get_qml_method_invoker();
@@ -96,8 +99,9 @@ fn main() {
     app.process_events();
     app.process_events();
     assert_eq!(spy.count(), 1);
+}
 
-    // slot with parameters via macro
+fn test_slot_with_parameters_via_macro(app: &QGuiApplication) {
     let qobject_holder = TestObject::default_with_attached_qobject();
     let invoker = qobject_holder.borrow().get_qml_method_invoker();
     invoke_method!(invoker, "addInts", 15, 17);
@@ -105,3 +109,19 @@ fn main() {
     app.process_events();
     assert_eq!(qobject_holder.borrow().int_value, 32);
 }
+
+#[cfg(not(miri))]
+fn main() {
+    let app = QGuiApplication::new();
+    test_invoke_method_alive();
+    test_invoke_method_destroyed();
+    test_signal_emitted(&app);
+    test_mutable_slot(&app);
+    test_immutable_slot(&app);
+    test_slot_with_parameters(&app);
+    test_immutable_slot_via_macro(&app);
+    test_slot_with_parameters_via_macro(&app);
+}
+
+#[cfg(miri)]
+fn main() {}
