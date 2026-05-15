@@ -3,6 +3,7 @@
 
 
 use qtbridge_type_lib::{QMetaObject, QMetaType};
+use crate::DispatchMetaCall;
 use crate::DynamicMetaObjectData;
 use std::rc::Rc;
 use std::cell::RefCell;
@@ -78,7 +79,7 @@ pub trait QCppProxy {
 ///
 pub trait QRustProxy {
     type ProxyCppType: QCppProxy<ProxyRustType = Self>;
-    type AdapterType: ?Sized;
+    type AdapterType: DispatchMetaCall + ?Sized;
     fn new(rust_obj: &Rc<RefCell<Self::AdapterType>>, metaobject: &'static DynamicMetaObjectData, construction: ConstructionMode, on_drop: Box<dyn FnOnce() + 'static>) -> *mut Self;
     fn get_cpp_proxy(&self) -> *const Self::ProxyCppType;
     fn get_cpp_proxy_mut(&self) -> *mut Self::ProxyCppType;

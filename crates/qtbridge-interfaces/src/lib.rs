@@ -60,6 +60,8 @@
 //! * **Notes**: Never meant for user implementation or usage. Facilitates dynamic behavior and
 //!   internal bridging without exposing associated types to user code.
 
+pub mod genericrustproxy;
+
 pub mod qobject;
 
 pub mod qlist_model;
