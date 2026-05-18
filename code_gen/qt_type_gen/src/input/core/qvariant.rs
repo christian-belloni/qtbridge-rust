@@ -90,7 +90,7 @@ mod qvariant {
     impl From<&str> for QVariant {
         fn from(value: &str) -> Self {
             let conv_fn = cpp_fn!(|from: &str| -> Self {
-                return QVariant(RustStrToQString(from));
+                return QVariant::fromValue(RustStrToQString(from));
             });
             conv_fn(value)
         }
@@ -110,7 +110,7 @@ mod qvariant {
                 for (const auto& s : from)
                     sl.push_back(RustStrToQString(s));
 
-                return QVariant(std::move(sl));
+                return QVariant::fromValue(std::move(sl));
             });
             conv_fn(value)
         }

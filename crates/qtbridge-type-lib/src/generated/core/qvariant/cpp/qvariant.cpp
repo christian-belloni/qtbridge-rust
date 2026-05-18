@@ -41,7 +41,7 @@ rust::String inlineCppFn_TraitImpl_ToString_for_QVariant_to_string(QVariant cons
 
 QVariant inlineCppFn_TraitImpl_From_string_slice_for_QVariant_from(rust::Str from)
 {
-    return QVariant(RustStrToQString(from));
+    return QVariant::fromValue(RustStrToQString(from));
 }
 
 QVariant
@@ -51,7 +51,7 @@ inlineCppFn_TraitImpl_From_ref_Vec_String_for_QVariant_from(rust::Vec<rust::Stri
     sl.reserve(from.size());
     for (const auto &s : from)
         sl.push_back(RustStrToQString(s));
-    return QVariant(std::move(sl));
+    return QVariant::fromValue(std::move(sl));
 }
 
 bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_String_try_from(QVariant const &from,
