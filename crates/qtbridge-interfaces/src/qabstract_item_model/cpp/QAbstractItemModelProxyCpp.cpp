@@ -6,28 +6,10 @@
 namespace rust::bridge {
 
 QAbstractItemModelProxyCpp::QAbstractItemModelProxyCpp(QAbstractItemModelProxyRust* rustProxy)
-    : m_rustProxy(rustProxy)
+    : QBaseProxy(rustProxy)
 {}
-QAbstractItemModelProxyCpp::~QAbstractItemModelProxyCpp()
-{
-    QAbstractItemModelProxyRust::dropSelf(m_rustProxy);
-}
 
-void QAbstractItemModelProxyCpp::emitSignal(rust::Str signalName, rust::Slice<const uint8_t* const> argv) const {
-    auto* meta = dynamic_cast<DynamicMetaObjectData*>(QObjectPrivate::get(this)->metaObject);
-    if (meta)
-        meta->emitSignal(*const_cast<QAbstractItemModelProxyCpp*>(this), signalName, argv);
-    else
-        qFatal() << "Error while emiting singal from Rust: The QObject does not contain a Rust dynamic meta object";
-}
-
-void QAbstractItemModelProxyCpp::emitSignalMut(rust::Str signalName, rust::Slice<const uint8_t* const> argv) {
-    auto* meta = dynamic_cast<DynamicMetaObjectData*>(QObjectPrivate::get(this)->metaObject);
-    if (meta)
-        meta->emitSignal(*this, signalName, argv);
-    else
-        qFatal() << "Error while emiting singal from Rust: The QObject does not contain a Rust dynamic meta object";
-}
+QAbstractItemModelProxyCpp::~QAbstractItemModelProxyCpp() = default;
 
 // Virtual methods
 QModelIndex QAbstractItemModelProxyCpp::index(int32_t row, int32_t column, const QModelIndex& parent) const
@@ -67,35 +49,6 @@ QModelIndex QAbstractItemModelProxyCpp::sibling(int32_t row, int32_t column, con
     return m_rustProxy->sibling(row, column, idx);
 }
 
-// DispatchMetaCallCpp implementation
-void QAbstractItemModelProxyCpp::invokeSlot(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const
-{
-    m_rustProxy->invokeSlot(slotId, inputs, outputs);
-}
-
-void QAbstractItemModelProxyCpp::invokeSlotMut(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const
-{
-    m_rustProxy->invokeSlotMut(slotId, inputs, outputs);
-}
-
-QVariant QAbstractItemModelProxyCpp::readProperty(uint32_t propId) const
-{
-    return m_rustProxy->readProperty(propId);
-}
-
-void QAbstractItemModelProxyCpp::writeProperty(uint32_t propId, const QVariant& value) const
-{
-    m_rustProxy->writeProperty(propId, value);
-}
-
-
-// RustObjectGetter implementation
-const void* QAbstractItemModelProxyCpp::getRustObjectRcPtr() const
-{
-    return static_cast<const void*>(m_rustProxy->getRustObjectRcPtr());
-}
-
-
 // Access to base implementation of virtual functions
 QHash<int32_t,QByteArray> QAbstractItemModelProxyCpp::base_roleNames() const
 {
@@ -113,7 +66,6 @@ QModelIndex QAbstractItemModelProxyCpp::base_sibling(int32_t row, int32_t column
 {
     return Base::sibling(row, column, idx);
 }
-
 
 // Access to base implementation of non virtual functions
 void QAbstractItemModelProxyCpp::dataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight)
@@ -179,44 +131,6 @@ void QAbstractItemModelProxyCpp::endResetModel()
 QModelIndex QAbstractItemModelProxyCpp::createIndex(int32_t row, int32_t column, size_t ptr) const
 {
     return Base::createIndex(row, column, ptr);
-}
-
-
-
-// Functions for object construction
-
-QAbstractItemModelProxyCpp* create_QAbstractItemModelProxyCpp(QAbstractItemModelProxyRust* rustProxy, const DynamicMetaObjectData* metaObject)
-{
-    auto proxy = new QAbstractItemModelProxyCpp(rustProxy);
-    QObjectPrivate::get(proxy)->metaObject = const_cast<DynamicMetaObjectData*>(metaObject);
-    return proxy;
-}
-
-QAbstractItemModelProxyCpp* create_QAbstractItemModelProxyCpp_At(QAbstractItemModelProxyRust* rustProxy, const DynamicMetaObjectData* metaObject, uint8_t* addr)
-{
-    auto proxy = new (addr) QAbstractItemModelProxyCpp(rustProxy);
-    QObjectPrivate::get(proxy)->metaObject = const_cast<DynamicMetaObjectData*>(metaObject);
-    return proxy;
-}
-
-const QMetaObject& staticQMetaObjectOf_QAbstractItemModelProxyCpp()
-{
-    return QAbstractItemModel::staticMetaObject;
-}
-
-size_t sizeOf_QAbstractItemModelProxyCpp()
-{
-    return sizeof(QAbstractItemModelProxyCpp);
-}
-
-size_t alignOf_QAbstractItemModelProxyCpp()
-{
-    return alignof(QAbstractItemModelProxyCpp);
-}
-
-QMetaType qmetaTypeListOf_QAbstractItemModelProxyCpp()
-{
-    return QMetaType::fromType<QQmlListProperty<QAbstractItemModelProxyCpp>>();
 }
 
 } // namespace rust::bridge

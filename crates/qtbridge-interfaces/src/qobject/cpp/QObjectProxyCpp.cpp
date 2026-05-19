@@ -6,92 +6,9 @@
 namespace rust::bridge {
 
 QObjectProxyCpp::QObjectProxyCpp(QObjectProxyRust* rustProxy)
-    : m_rustProxy(rustProxy)
+    : QBaseProxy(rustProxy)
 {}
-QObjectProxyCpp::~QObjectProxyCpp()
-{
-    QObjectProxyRust::dropSelf(m_rustProxy);
-}
 
-void QObjectProxyCpp::emitSignal(rust::Str signalName, rust::Slice<const uint8_t* const> argv) const {
-    auto* meta = dynamic_cast<DynamicMetaObjectData*>(QObjectPrivate::get(this)->metaObject);
-    if (meta)
-        meta->emitSignal(*const_cast<QObjectProxyCpp*>(this), signalName, argv);
-    else
-        qFatal() << "Error while emiting singal from Rust: The QObject does not contain a Rust dynamic meta object";
-}
-
-void QObjectProxyCpp::emitSignalMut(rust::Str signalName, rust::Slice<const uint8_t* const> argv) {
-    auto* meta = dynamic_cast<DynamicMetaObjectData*>(QObjectPrivate::get(this)->metaObject);
-    if (meta)
-        meta->emitSignal(*this, signalName, argv);
-    else
-        qFatal() << "Error while emiting singal from Rust: The QObject does not contain a Rust dynamic meta object";
-}
-
-// DispatchMetaCallCpp implementation
-void QObjectProxyCpp::invokeSlot(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const
-{
-    m_rustProxy->invokeSlot(slotId, inputs, outputs);
-}
-
-void QObjectProxyCpp::invokeSlotMut(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const
-{
-    m_rustProxy->invokeSlotMut(slotId, inputs, outputs);
-}
-
-QVariant QObjectProxyCpp::readProperty(uint32_t propId) const
-{
-    return m_rustProxy->readProperty(propId);
-}
-
-void QObjectProxyCpp::writeProperty(uint32_t propId, const QVariant& value) const
-{
-    m_rustProxy->writeProperty(propId, value);
-}
-
-
-// RustObjectGetter implementation
-const void* QObjectProxyCpp::getRustObjectRcPtr() const
-{
-    return static_cast<const void*>(m_rustProxy->getRustObjectRcPtr());
-}
-
-
-// Functions for object construction
-
-QObjectProxyCpp* create_QObjectProxyCpp(QObjectProxyRust* rustProxy, const DynamicMetaObjectData* metaObject)
-{
-    auto proxy = new QObjectProxyCpp(rustProxy);
-    QObjectPrivate::get(proxy)->metaObject = const_cast<DynamicMetaObjectData*>(metaObject);
-    return proxy;
-}
-
-QObjectProxyCpp* create_QObjectProxyCpp_At(QObjectProxyRust* rustProxy, const DynamicMetaObjectData* metaObject, uint8_t* addr)
-{
-    auto proxy = new (addr) QObjectProxyCpp(rustProxy);
-    QObjectPrivate::get(proxy)->metaObject = const_cast<DynamicMetaObjectData*>(metaObject);
-    return proxy;
-}
-
-const QMetaObject& staticQMetaObjectOf_QObjectProxyCpp()
-{
-    return QObject::staticMetaObject;
-}
-
-size_t sizeOf_QObjectProxyCpp()
-{
-    return sizeof(QObjectProxyCpp);
-}
-
-size_t alignOf_QObjectProxyCpp()
-{
-    return alignof(QObjectProxyCpp);
-}
-
-QMetaType qmetaTypeListOf_QObjectProxyCpp()
-{
-    return QMetaType::fromType<QQmlListProperty<QObjectProxyCpp>>();
-}
+QObjectProxyCpp::~QObjectProxyCpp() = default;
 
 } // namespace rust::bridge

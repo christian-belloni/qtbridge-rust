@@ -6,28 +6,9 @@
 namespace rust::bridge {
 
 QTableModelProxyCpp::QTableModelProxyCpp(QTableModelProxyRust* rustProxy)
-    : m_rustProxy(rustProxy)
+    : QBaseProxy(rustProxy)
 {}
-QTableModelProxyCpp::~QTableModelProxyCpp()
-{
-    QTableModelProxyRust::dropSelf(m_rustProxy);
-}
-
-void QTableModelProxyCpp::emitSignal(rust::Str signalName, rust::Slice<const uint8_t* const> argv) const {
-    auto* meta = dynamic_cast<DynamicMetaObjectData*>(QObjectPrivate::get(this)->metaObject);
-    if (meta)
-        meta->emitSignal(*const_cast<QTableModelProxyCpp*>(this), signalName, argv);
-    else
-        qFatal() << "Error while emiting singal from Rust: The QObject does not contain a Rust dynamic meta object";
-}
-
-void QTableModelProxyCpp::emitSignalMut(rust::Str signalName, rust::Slice<const uint8_t* const> argv) {
-    auto* meta = dynamic_cast<DynamicMetaObjectData*>(QObjectPrivate::get(this)->metaObject);
-    if (meta)
-        meta->emitSignal(*this, signalName, argv);
-    else
-        qFatal() << "Error while emiting singal from Rust: The QObject does not contain a Rust dynamic meta object";
-}
+QTableModelProxyCpp::~QTableModelProxyCpp() = default;
 
 // Virtual methods
 QModelIndex QTableModelProxyCpp::index(int32_t row, int32_t column, const QModelIndex& parent) const
@@ -71,35 +52,6 @@ QModelIndex QTableModelProxyCpp::sibling(int32_t row, int32_t column, const QMod
     return m_rustProxy->sibling(row, column, idx);
 }
 
-// DispatchMetaCallCpp implementation
-void QTableModelProxyCpp::invokeSlot(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const
-{
-    m_rustProxy->invokeSlot(slotId, inputs, outputs);
-}
-
-void QTableModelProxyCpp::invokeSlotMut(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const
-{
-    m_rustProxy->invokeSlotMut(slotId, inputs, outputs);
-}
-
-QVariant QTableModelProxyCpp::readProperty(uint32_t propId) const
-{
-    return m_rustProxy->readProperty(propId);
-}
-
-void QTableModelProxyCpp::writeProperty(uint32_t propId, const QVariant& value) const
-{
-    m_rustProxy->writeProperty(propId, value);
-}
-
-
-// RustObjectGetter implementation
-const void* QTableModelProxyCpp::getRustObjectRcPtr() const
-{
-    return static_cast<const void*>(m_rustProxy->getRustObjectRcPtr());
-}
-
-
 // Access to base implementation of virtual functions
 QHash<int32_t,QByteArray> QTableModelProxyCpp::base_roleNames() const
 {
@@ -121,7 +73,6 @@ QModelIndex QTableModelProxyCpp::base_sibling(int32_t row, int32_t column, const
 {
     return Base::sibling(row, column, idx);
 }
-
 
 // Access to base implementation of non virtual functions
 void QTableModelProxyCpp::dataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight)
@@ -187,44 +138,6 @@ void QTableModelProxyCpp::endResetModel()
 QModelIndex QTableModelProxyCpp::createIndex(int32_t row, int32_t column, size_t ptr) const
 {
     return Base::createIndex(row, column, ptr);
-}
-
-
-
-// Functions for object construction
-
-QTableModelProxyCpp* create_QTableModelProxyCpp(QTableModelProxyRust* rustProxy, const DynamicMetaObjectData* metaObject)
-{
-    auto proxy = new QTableModelProxyCpp(rustProxy);
-    QObjectPrivate::get(proxy)->metaObject = const_cast<DynamicMetaObjectData*>(metaObject);
-    return proxy;
-}
-
-QTableModelProxyCpp* create_QTableModelProxyCpp_At(QTableModelProxyRust* rustProxy, const DynamicMetaObjectData* metaObject, uint8_t* addr)
-{
-    auto proxy = new (addr) QTableModelProxyCpp(rustProxy);
-    QObjectPrivate::get(proxy)->metaObject = const_cast<DynamicMetaObjectData*>(metaObject);
-    return proxy;
-}
-
-const QMetaObject& staticQMetaObjectOf_QTableModelProxyCpp()
-{
-    return QTableModelProxyCpp::staticMetaObject;
-}
-
-size_t sizeOf_QTableModelProxyCpp()
-{
-    return sizeof(QTableModelProxyCpp);
-}
-
-size_t alignOf_QTableModelProxyCpp()
-{
-    return alignof(QTableModelProxyCpp);
-}
-
-QMetaType qmetaTypeListOf_QTableModelProxyCpp()
-{
-    return QMetaType::fromType<QQmlListProperty<QTableModelProxyCpp>>();
 }
 
 } // namespace rust::bridge

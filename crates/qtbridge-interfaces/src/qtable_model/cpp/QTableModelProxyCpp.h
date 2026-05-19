@@ -7,9 +7,7 @@
 #include <QMetaObject>
 #include <QQmlListProperty>
 #include <cstdint>
-#include "qtbridge-runtime/src/cpp/dispatchmetacallcpp.h"
-#include "qtbridge-runtime/src/cpp/dynamicmetaobjectdata.h"
-#include "qtbridge-runtime/src/cpp/rustobjectgetter.h"
+#include "qtbridge-interfaces/src/cpp/qbaseproxy.h"
 #include "qtbridge-interfaces/src/qtable_model/proxy_rust_bridge.rs.h"
 #include "qtbridge-type-lib/src/generated/core/qbytearray/cpp/qbytearray.h"
 #include "qtbridge-type-lib/src/generated/core/qhash/cpp/qhash_i32_qbytearray.h"
@@ -19,16 +17,13 @@
 
 namespace rust::bridge {
 
-class QTableModelProxyCpp : public QAbstractItemModel, public DispatchMetaCallCpp, public RustObjectGetter
+class QTableModelProxyCpp : public QAbstractItemModel, public QBaseProxy<QTableModelProxyCpp, QTableModelProxyRust>
 {
     using Base = QAbstractItemModel;
 
 public:
     QTableModelProxyCpp(QTableModelProxyRust* rustProxy);
     ~QTableModelProxyCpp();
-
-    void emitSignal(rust::Str signalName, rust::Slice<const uint8_t* const> argv) const;
-    void emitSignalMut(rust::Str signalName, rust::Slice<const uint8_t* const> argv);
 
     // Virtual methods
     QModelIndex index(int32_t row, int32_t column, const QModelIndex& parent) const override;
@@ -41,15 +36,6 @@ public:
     bool removeColumns(int32_t first, int32_t count, const QModelIndex& parent) override;
     bool removeRows(int32_t first, int32_t count, const QModelIndex& parent) override;
     QModelIndex sibling(int32_t row, int32_t column, const QModelIndex& idx) const override;
-
-    // DispatchMetaCallCpp implementation
-    void invokeSlot(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const override;
-    void invokeSlotMut(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const override;
-    QVariant readProperty(uint32_t propId) const override;
-    void writeProperty(uint32_t propId, const QVariant& value) const override;
-
-    // RustObjectGetter implementation
-    const void* getRustObjectRcPtr() const override;
 
     // Access to base implementation of virtual functions
     QHash<int32_t,QByteArray> base_roleNames() const;
@@ -75,18 +61,9 @@ public:
     void beginResetModel();
     void endResetModel();
     QModelIndex createIndex(int32_t row, int32_t column, size_t ptr) const;
-
-private:
-    QTableModelProxyRust* m_rustProxy;
 };
 
-// Functions for object construction
-QTableModelProxyCpp* create_QTableModelProxyCpp(QTableModelProxyRust* rustProxy, const DynamicMetaObjectData* metaObject);
-QTableModelProxyCpp* create_QTableModelProxyCpp_At(QTableModelProxyRust* rustProxy, const DynamicMetaObjectData* metaObject, uint8_t* addr);
-const QMetaObject& staticQMetaObjectOf_QTableModelProxyCpp();
-size_t sizeOf_QTableModelProxyCpp();
-size_t alignOf_QTableModelProxyCpp();
-QMetaType qmetaTypeListOf_QTableModelProxyCpp();
+QBASEPROXY_STATIC_FUNCTIONS(QTableModelProxyCpp, QTableModelProxyRust)
 
 } // namespace rust::bridge
 

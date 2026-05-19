@@ -6,28 +6,9 @@
 namespace rust::bridge {
 
 QListModelProxyCpp::QListModelProxyCpp(QListModelProxyRust* rustProxy)
-    : m_rustProxy(rustProxy)
+    : QBaseProxy(rustProxy)
 {}
-QListModelProxyCpp::~QListModelProxyCpp()
-{
-    QListModelProxyRust::dropSelf(m_rustProxy);
-}
-
-void QListModelProxyCpp::emitSignal(rust::Str signalName, rust::Slice<const uint8_t* const> argv) const {
-    auto* meta = dynamic_cast<DynamicMetaObjectData*>(QObjectPrivate::get(this)->metaObject);
-    if (meta)
-        meta->emitSignal(*const_cast<QListModelProxyCpp*>(this), signalName, argv);
-    else
-        qFatal() << "Error while emiting singal from Rust: The QObject does not contain a Rust dynamic meta object";
-}
-
-void QListModelProxyCpp::emitSignalMut(rust::Str signalName, rust::Slice<const uint8_t* const> argv) {
-    auto* meta = dynamic_cast<DynamicMetaObjectData*>(QObjectPrivate::get(this)->metaObject);
-    if (meta)
-        meta->emitSignal(*this, signalName, argv);
-    else
-        qFatal() << "Error while emiting singal from Rust: The QObject does not contain a Rust dynamic meta object";
-}
+QListModelProxyCpp::~QListModelProxyCpp() = default;
 
 // Virtual methods
 QModelIndex QListModelProxyCpp::index(int32_t row, int32_t column, const QModelIndex& parent) const
@@ -57,34 +38,6 @@ bool QListModelProxyCpp::removeRows(int32_t first, int32_t count, const QModelIn
 QModelIndex QListModelProxyCpp::sibling(int32_t row, int32_t column, const QModelIndex& idx) const
 {
     return m_rustProxy->sibling(row, column, idx);
-}
-
-// DispatchMetaCallCpp implementation
-void QListModelProxyCpp::invokeSlot(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const
-{
-    m_rustProxy->invokeSlot(slotId, inputs, outputs);
-}
-
-void QListModelProxyCpp::invokeSlotMut(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const
-{
-    m_rustProxy->invokeSlotMut(slotId, inputs, outputs);
-}
-
-QVariant QListModelProxyCpp::readProperty(uint32_t propId) const
-{
-    return m_rustProxy->readProperty(propId);
-}
-
-void QListModelProxyCpp::writeProperty(uint32_t propId, const QVariant& value) const
-{
-    m_rustProxy->writeProperty(propId, value);
-}
-
-
-// RustObjectGetter implementation
-const void* QListModelProxyCpp::getRustObjectRcPtr() const
-{
-    return static_cast<const void*>(m_rustProxy->getRustObjectRcPtr());
 }
 
 // Access to base implementation of virtual functions
@@ -145,42 +98,6 @@ void QListModelProxyCpp::beginResetModel()
 void QListModelProxyCpp::endResetModel()
 {
     Base::endResetModel();
-}
-
-// Functions for object construction
-
-QListModelProxyCpp* create_QListModelProxyCpp(QListModelProxyRust* rustProxy, const DynamicMetaObjectData* metaObject)
-{
-    auto proxy = new QListModelProxyCpp(rustProxy);
-    QObjectPrivate::get(proxy)->metaObject = const_cast<DynamicMetaObjectData*>(metaObject);
-    return proxy;
-}
-
-QListModelProxyCpp* create_QListModelProxyCpp_At(QListModelProxyRust* rustProxy, const DynamicMetaObjectData* metaObject, uint8_t* addr)
-{
-    auto proxy = new (addr) QListModelProxyCpp(rustProxy);
-    QObjectPrivate::get(proxy)->metaObject = const_cast<DynamicMetaObjectData*>(metaObject);
-    return proxy;
-}
-
-const QMetaObject& staticQMetaObjectOf_QListModelProxyCpp()
-{
-    return QListModelProxyCpp::staticMetaObject;
-}
-
-size_t sizeOf_QListModelProxyCpp()
-{
-    return sizeof(QListModelProxyCpp);
-}
-
-size_t alignOf_QListModelProxyCpp()
-{
-    return alignof(QListModelProxyCpp);
-}
-
-QMetaType qmetaTypeListOf_QListModelProxyCpp()
-{
-    return QMetaType::fromType<QQmlListProperty<QListModelProxyCpp>>();
 }
 
 } // namespace rust::bridge

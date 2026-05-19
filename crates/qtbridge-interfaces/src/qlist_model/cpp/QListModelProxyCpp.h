@@ -7,9 +7,7 @@
 #include <QMetaObject>
 #include <QQmlListProperty>
 #include <cstdint>
-#include "qtbridge-runtime/src/cpp/dispatchmetacallcpp.h"
-#include "qtbridge-runtime/src/cpp/dynamicmetaobjectdata.h"
-#include "qtbridge-runtime/src/cpp/rustobjectgetter.h"
+#include "qtbridge-interfaces/src/cpp/qbaseproxy.h"
 #include "qtbridge-interfaces/src/qlist_model/proxy_rust_bridge.rs.h"
 #include "qtbridge-type-lib/src/generated/core/qbytearray/cpp/qbytearray.h"
 #include "qtbridge-type-lib/src/generated/core/qhash/cpp/qhash_i32_qbytearray.h"
@@ -19,15 +17,12 @@
 
 namespace rust::bridge {
 
-class QListModelProxyCpp : public QAbstractListModel, public DispatchMetaCallCpp, public RustObjectGetter
+class QListModelProxyCpp : public QAbstractListModel, public QBaseProxy<QListModelProxyCpp, QListModelProxyRust>
 {
     using Base = QAbstractListModel;
 public:
     QListModelProxyCpp(QListModelProxyRust* rustProxy);
     ~QListModelProxyCpp();
-
-    void emitSignal(rust::Str signalName, rust::Slice<const uint8_t* const> argv) const;
-    void emitSignalMut(rust::Str signalName, rust::Slice<const uint8_t* const> argv);
 
     // Virtual methods
     QModelIndex index(int32_t row, int32_t column, const QModelIndex& parent) const override;
@@ -37,15 +32,6 @@ public:
     bool setData(const QModelIndex& index, const QVariant& value, int32_t role) override;
     bool removeRows(int32_t first, int32_t count, const QModelIndex& parent) override;
     QModelIndex sibling(int32_t row, int32_t column, const QModelIndex& idx) const override;
-
-    // DispatchMetaCallCpp implementation
-    void invokeSlot(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const override;
-    void invokeSlotMut(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const override;
-    QVariant readProperty(uint32_t propId) const override;
-    void writeProperty(uint32_t propId, const QVariant& value) const override;
-
-    // RustObjectGetter implementation
-    const void* getRustObjectRcPtr() const override;
 
     // Access to base implementation of virtual functions
     QModelIndex base_index(int32_t row, int32_t column, const QModelIndex& parent) const;
@@ -64,18 +50,9 @@ public:
     void endRemoveRows();
     void beginResetModel();
     void endResetModel();
-
-private:
-    QListModelProxyRust* m_rustProxy;
 };
 
-// Functions for object construction
-QListModelProxyCpp* create_QListModelProxyCpp(QListModelProxyRust* rustProxy, const DynamicMetaObjectData* metaObject);
-QListModelProxyCpp* create_QListModelProxyCpp_At(QListModelProxyRust* rustProxy, const DynamicMetaObjectData* metaObject, uint8_t* addr);
-const QMetaObject& staticQMetaObjectOf_QListModelProxyCpp();
-size_t sizeOf_QListModelProxyCpp();
-size_t alignOf_QListModelProxyCpp();
-QMetaType qmetaTypeListOf_QListModelProxyCpp();
+QBASEPROXY_STATIC_FUNCTIONS(QListModelProxyCpp, QListModelProxyRust)
 
 } // namespace rust::bridge
 

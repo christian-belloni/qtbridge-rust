@@ -16,6 +16,8 @@ public:
     virtual void invokeSlotMut(uint32_t slotId, rust::Slice<const uint8_t *const> inputs, rust::Slice<uint8_t* const> outputs) const = 0;
     virtual QVariant readProperty(uint32_t propId) const = 0;
     virtual void writeProperty(uint32_t propId, const QVariant& value) const = 0;
+    virtual void emitSignal(rust::Str signalName, rust::Slice<const uint8_t* const> argv) const = 0;
+    virtual void emitSignalMut(rust::Str signalName, rust::Slice<const uint8_t* const> argv) = 0;
 };
 
 #endif // _DISPATCH_META_CALL_CPP_
