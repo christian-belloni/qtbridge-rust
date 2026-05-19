@@ -79,8 +79,7 @@ void DynamicMetaObjectBuilder::registerProperty(rust::Str name, uint32_t propId,
     if (signalIndex)
         builder.setNotifySignal(m_mob->method(*signalIndex));
 
-    const auto index = builder.index();
-    m_data->addProperty(index, nameBa, propId, metaType);
+    m_data->addProperty(propId, metaType);
 }
 
 void DynamicMetaObjectBuilder::registerSignal(rust::Str name, rust::Slice<const QMetaType> argMetaTypes)
@@ -94,8 +93,7 @@ void DynamicMetaObjectBuilder::registerSignal(rust::Str name, rust::Slice<const 
     QByteArray nameBa = RustStrToQByteArray(name);
     QByteArray signature = generateFuncSignature(nameBa, argMetaTypes);
     QMetaMethodBuilder builder = m_mob->addSignal(signature);
-    const int index = builder.index();
-    m_data->addSignal(index, nameBa);
+    m_data->addSignal(nameBa);
 }
 
 void DynamicMetaObjectBuilder::registerSlot(rust::Str name, uint32_t slotId, rust::Slice<const QMetaType> argMetaTypes, const QMetaType& returnMetaType, Mutability mutability)
@@ -113,8 +111,7 @@ void DynamicMetaObjectBuilder::registerSlot(rust::Str name, uint32_t slotId, rus
     QMetaMethodBuilder builder = m_mob->addSlot(signature);
     if (returnMetaType.isValid())
         builder.setReturnType(returnMetaType.name());
-    const int index = builder.index();
-    m_data->addSlot(index, nameBa, slotId, mutability);
+    m_data->addSlot(slotId, mutability);
 }
 
 void DynamicMetaObjectBuilder::endMetaRegistration()

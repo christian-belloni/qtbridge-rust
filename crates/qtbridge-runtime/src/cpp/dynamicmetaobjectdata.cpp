@@ -6,25 +6,19 @@
 #include "rustconv.h"
 #include <QtLogging>
 
-void DynamicMetaObjectData::addProperty(int index, const QByteArray& name, uint32_t userId, const QMetaType& metaType)
+void DynamicMetaObjectData::addProperty(uint32_t userId, const QMetaType& metaType)
 {
-    auto [_, added] = m_properties.emplace(index, PropertyInfo{ userId, metaType, });
-    if (!added)
-        qFatal() << "Failed to register property " << name << ". Given index is already in use.";
+    m_properties.push_back(PropertyInfo{ userId, metaType });
 }
 
-void DynamicMetaObjectData::addSignal(int index, const QByteArray& name)
+void DynamicMetaObjectData::addSignal(const QByteArray& name)
 {
-    auto [_, added] = m_signals.emplace(index, SignalInfo{ name });
-    if (!added)
-        qFatal() << "Failed to register signal " << name << ". Given index is already in use.";
+    m_signals.push_back(SignalInfo{ name });
 }
 
-void DynamicMetaObjectData::addSlot(int index, const QByteArray& name, uint32_t userId, Mutability mutability)
+void DynamicMetaObjectData::addSlot(uint32_t userId, Mutability mutability)
 {
-    auto [_, added] = m_slots.emplace(index, SlotInfo{ userId, mutability });
-    if (!added)
-        qFatal() << "Failed to register slot " << name << ". Given index is already in use.";
+    m_slots.push_back(SlotInfo{ userId, mutability });
 }
 
 void DynamicMetaObjectData::emitSignal(QObject& obj, rust::Str name, rust::Slice<const uint8_t* const> argvSlice) const
@@ -41,9 +35,10 @@ void DynamicMetaObjectData::emitSignal(QObject& obj, rust::Str name, rust::Slice
 
 std::optional<int> DynamicMetaObjectData::getSignalIndex(const QByteArray& name) const
 {
-    for (const auto& [index, signalInfo] : m_signals)
+    const size_t size = static_cast<size_t>(m_signals.size());
+    for (size_t index = 0u; index < size; ++index)
     {
-        if (signalInfo.m_name == name)
+        if (m_signals[index].m_name == name)
             return index;
     }
 
@@ -108,69 +103,61 @@ int DynamicMetaObjectData::metaCall(QObject* o, QMetaObject::Call call, int id, 
 
 bool DynamicMetaObjectData::handleMetaCallInvoke(QObject* o, DispatchMetaCallCpp& dispatch, int id, void** argv)
 {
+    // Handle signals and slots. Currently we don't support any other type of meta methods.
     const int methodId = id - m_metaObject->methodOffset();
     if (methodId < 0 || methodId >= m_metaObject->methodCount())
-        return false;
+        return false; // Must be handled by a base or a derived class.
 
-    QMetaMethod method = m_metaObject->method(id);
-    switch (method.methodType())
+    if (methodId < m_signals.size())
     {
-        case QMetaMethod::Signal:
-        {
-            if (!m_signals.count(methodId))
-                return false;
-
-            QMetaObject::activate(o, id, argv);
-            return true;
-        }
-        break;
-        case QMetaMethod::Slot:
-        {
-            auto slotIt = m_slots.find(methodId);
-            if (slotIt == m_slots.end())
-                return false;
-
-            const int paramCount = method.parameterCount();
-            const QMetaType returnType = method.returnMetaType();
-            if ((paramCount > 0 || returnType.isValid()) && !argv)
-                qFatal() << __func__ << "(): input meta params are null";
-
-            uint8_t* const* u8Argv = reinterpret_cast<uint8_t* const*>(argv);
-            const uint8_t* const* inputsBegin = u8Argv + 1;
-            rust::Slice inputsSlice(inputsBegin, static_cast<size_t>(paramCount));
-            auto outputSlice = returnType.isValid() ?
-                rust::Slice<uint8_t* const>(u8Argv, 1) :
-                rust::Slice<uint8_t* const>();
-            const uint32_t userId = slotIt->second.m_userId;
-            slotIt->second.m_mutability == Mutability::Mutable ?
-                dispatch.invokeSlotMut(userId, inputsSlice, outputSlice) :
-                dispatch.invokeSlot(userId, inputsSlice, outputSlice);
-            return true;
-        }
-        break;
-        default:
-        break;
+        // This is a signal. Signals are added first to QMetaObject.
+        QMetaObject::activate(o, id, argv);
+        return true;
     }
 
-    return false;
+    // This is a slot. Slots are added after signals.
+    const int slotId = methodId - m_signals.size();
+    if (slotId >= m_slots.size())
+        return false;
+    const SlotInfo& slotInfo = m_slots[slotId];
+
+    QMetaMethod method = m_metaObject->method(id);
+    const int paramCount = method.parameterCount();
+    const QMetaType returnType = method.returnMetaType();
+    if ((paramCount > 0 || returnType.isValid()) && !argv)
+        qFatal() << __func__ << "(): input meta params are null";
+
+    // Prepare spans with the callback's input and output data.
+    uint8_t* const* u8Argv = reinterpret_cast<uint8_t* const*>(argv);
+    const uint8_t* const* inputsBegin = u8Argv + 1;
+    rust::Slice inputsSlice(inputsBegin, static_cast<size_t>(paramCount));
+    auto outputSlice = returnType.isValid() ?
+        rust::Slice<uint8_t* const>(u8Argv, 1) :
+        rust::Slice<uint8_t* const>();
+
+    // Invoke the slot callback.
+    const uint32_t userId = slotInfo.m_userId;
+    slotInfo.m_mutability == Mutability::Mutable ?
+        dispatch.invokeSlotMut(userId, inputsSlice, outputSlice) :
+        dispatch.invokeSlot(userId, inputsSlice, outputSlice);
+    return true;
 }
 
 bool DynamicMetaObjectData::handleMetaCallReadProperty(const DispatchMetaCallCpp& dispatch, int id, void** argv)
 {
     const int propId = id - m_metaObject->propertyOffset();
     if (propId < 0 || propId >= m_metaObject->propertyCount())
+        return false; // Must be handled by a base or a derived class.
+    if (propId >= m_properties.size())
         return false;
+    const PropertyInfo& propInfo = m_properties[propId];
 
     void* dstArg = argv[0];
     if (!dstArg)
         return false;
 
-    auto propIt = m_properties.find(propId);
-    if (propIt == m_properties.end())
-        return false;
-
     const QMetaProperty property = m_metaObject->property(id);
-    const QVariant result = dispatch.readProperty(propIt->second.m_userId);
+    const QVariant result = dispatch.readProperty(propInfo.m_userId);
     if (!QMetaType::convert(result.metaType(), result.data(), property.metaType(), dstArg))
         qFatal() << "Property type mismatch";
 
@@ -181,19 +168,18 @@ bool DynamicMetaObjectData::handleMetaCallWriteProperty(DispatchMetaCallCpp& dis
 {
     const int propId = id - m_metaObject->propertyOffset();
     if (propId < 0 || propId >= m_metaObject->propertyCount())
+        return false; // Must be handled by a base or a derived class.
+    if (propId >= m_properties.size())
         return false;
+    const PropertyInfo& propInfo = m_properties[propId];
 
     void* arg = argv[0];
     if (!arg)
         return false;
 
-    auto propIt = m_properties.find(propId);
-    if (propIt == m_properties.end())
-        return false;
-
     const QMetaProperty property = m_metaObject->property(id);
     const QVariant value = QVariant::fromMetaType(property.metaType(), arg);
-    dispatch.writeProperty(propIt->second.m_userId, value);
+    dispatch.writeProperty(propInfo.m_userId, value);
 
     return true;
 }

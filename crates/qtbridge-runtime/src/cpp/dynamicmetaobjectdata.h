@@ -5,11 +5,11 @@
 #define DYNAMICMETAOBJECTDATA_H
 #include <private/qobject_p.h>
 #include <QByteArray>
+#include <QList>
 #include <QMetaObject>
 #include <QMetaType>
 #include <QScopedPointer>
 #include <cstdint>
-#include <map>
 #include <memory>
 #include <optional>
 #include "rust/cxx.h"
@@ -32,9 +32,9 @@ class DynamicMetaObjectData: public QDynamicMetaObjectData
 public:
     DynamicMetaObjectData() = default;
 
-    void addProperty(int index, const QByteArray& name, uint32_t userId, const QMetaType& metaType);
-    void addSignal(int index, const QByteArray& name);
-    void addSlot(int index, const QByteArray& name, uint32_t userId, Mutability mutability);
+    void addProperty(uint32_t userId, const QMetaType& metaType);
+    void addSignal(const QByteArray& name);
+    void addSlot(uint32_t userId, Mutability mutability);
 
     void emitSignal(QObject& obj, rust::Str name, rust::Slice<const uint8_t* const> argvSlice) const;
 
@@ -76,9 +76,9 @@ private:
     };
 
 private:
-    std::map<int, PropertyInfo> m_properties;
-    std::map<int, SignalInfo> m_signals;
-    std::map<int, SlotInfo> m_slots;
+    QList<PropertyInfo> m_properties;
+    QList<SignalInfo> m_signals;
+    QList<SlotInfo> m_slots;
     std::unique_ptr<QMetaObject, QScopedPointerPodDeleter> m_metaObject;
 };
 
