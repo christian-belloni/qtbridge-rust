@@ -59,7 +59,7 @@ fn element_ctor<T: QmlRegister>(addr: *mut u8, _userdata: *mut u8) {
 fn singleton_ctor<T: QmlRegister>() -> *mut QObject {
     let instance = std::rc::Rc::new(std::cell::RefCell::new(T::default()));
     T::register_instance_in_map(instance.clone(), ConstructionMode::Strong);
-    std::ptr::from_mut(T::get_qobject(&instance.borrow()))
+    instance.borrow().get_qobject_ptr()
 }
 
 fn monomorphize_element_ctor<T: QmlRegister>() -> usize {

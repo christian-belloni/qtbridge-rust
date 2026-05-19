@@ -454,7 +454,7 @@ where
     // Read the value of the tested property and compare it to the expected one.
     let type_name = get_type_name::<T>();
     let property_name = format!("property{}", capitalize_first_char(&type_name));
-    let var = obj.borrow().get_qobject().property(&property_name);
+    let var = unsafe { &*obj.borrow().get_qobject_ptr() }.property(&property_name);
     let actual: T = var.try_into().unwrap();
     let property_type = TestObj::property_type();
     assert_eq!(actual, expected, "check failed for type {type_name} of {property_type}");
@@ -634,7 +634,7 @@ fn qproperty_str_can_be_read() {
 
     let obj = TestObject::default_with_attached_qobject();
     obj.borrow_mut().value = "Portez ce vieux whisky".into();
-    let var = obj.borrow().get_qobject().property("strProperty");
+    let var = unsafe { &*obj.borrow().get_qobject_ptr() }.property("strProperty");
     let actual: String = var.try_into().unwrap();
     assert_eq!(actual, "Portez ce vieux whisky");
 }

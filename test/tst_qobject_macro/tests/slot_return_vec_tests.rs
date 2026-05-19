@@ -143,8 +143,8 @@ where
        .load_qml(qml.as_bytes());
 
     // Read the value returned from the slot and stored to the dedicated property.
-    let result_var = obj.borrow()
-        .get_qobject()
+    let result_var = unsafe { &*obj.borrow()
+        .get_qobject_ptr() }
         .property(&format!("slotVec{suffix}Return"));
 
     // Check returned value.

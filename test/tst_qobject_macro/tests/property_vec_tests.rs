@@ -438,7 +438,7 @@ where
     // Read the value of the tested property and compare it to the expected one.
     let type_name = get_type_name::<Vec<T>>();
     let property_name = format!("property{}", capitalize_first_char(&type_name));
-    let var = obj.borrow().get_qobject().property(&property_name);
+    let var = unsafe { &*obj.borrow().get_qobject_ptr() }.property(&property_name);
     let actual: Vec<T> = var.try_into().unwrap();
     let property_type = TestObj::property_type();
     assert_eq!(actual, expected, "check failed for type {type_name} of {property_type}");

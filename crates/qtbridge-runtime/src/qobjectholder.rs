@@ -31,35 +31,8 @@ pub trait QObjectHolder : DispatchMetaCall + QMetaInfo + Default {
         INSTANCES.with_borrow_mut(f)
     }
 
-    /// Return an immutable reference to the Rust proxy linked to the Rust object specified in the argument.
-    #[doc(hidden)]
-    fn get_rust_proxy(&self) -> &Self::ProxyRust
-    {
-        Self::get_rust_proxy_mut(self)
-    }
-
-    /// Return a mutable reference to the Rust proxy linked to the Rust object specified in the argument.
-    #[doc(hidden)]
-    fn get_rust_proxy_mut(&self) -> &mut Self::ProxyRust
-    {
-        Self::try_get_rust_proxy_mut(self)
-            .expect("No proxy registered for given rust object")
-    }
-
-    /// Return a Result wrapping mutable reference to the Rust proxy associated with the specified object.
-    #[doc(hidden)]
-    fn try_get_rust_proxy_mut(&self) -> Option<&mut Self::ProxyRust>
-    {
-        let rust_obj_ptr = std::ptr::from_ref(self).cast::<u8>();
-        let proxy_ptr = Self::try_borrow_mut_proxies_map(|map| {
-            map.get(&rust_obj_ptr).copied().unwrap_or_default()
-        });
-
-        unsafe {
-            (proxy_ptr as *mut Self::ProxyRust).as_mut()
-        }
-    }
-
+    /// Return a pointer to the Rust proxy associated with the specified object,
+    /// or `None` if no proxy is registered.
     #[doc(hidden)]
     fn try_get_rust_proxy_ptr(&self) -> Option<*mut Self::ProxyRust> {
         let rust_obj_ptr = std::ptr::from_ref(self).cast::<u8>();
@@ -71,38 +44,13 @@ pub trait QObjectHolder : DispatchMetaCall + QMetaInfo + Default {
 
     #[doc(hidden)]
     fn get_qobject_ptr(&self) -> *mut QObject {
-        let Some(rust_proxy) = Self::try_get_rust_proxy_mut(&self) else {
+        let Some(proxy_ptr) = Self::try_get_rust_proxy_ptr(self) else {
             return std::ptr::null_mut()
         };
+        let rust_proxy = unsafe { &*proxy_ptr };
         let cpp_proxy = rust_proxy.get_cpp_proxy();
         cpp_proxy as *mut QObject
     }
-
-    /// Try to get the [`QObject`] linked to this Rust `struct`.
-    #[doc(hidden)]
-    fn try_get_qobject(&self) -> Option<&mut QObject> {
-        let ptr = self.get_qobject_ptr();
-        unsafe { ptr.as_mut() }
-    }
-
-    /// Get the [`QObject`] linked to this Rust `struct`. Panics if no
-    /// [`QObject`] is attached.
-    #[doc(hidden)]
-    fn get_qobject(&self) -> &mut QObject
-    {
-        self.try_get_qobject()
-            .expect("QObject is not attached")
-    }
-
-    // TODO: move QObject-related functions below to a dedicated trait:
-    // default_with_attached_qobject()
-    // attach_qobject()
-    // detach_qobject()
-    // get_qobject_ptr()
-    // get_qobject()
-    // try_get_qobject()
-    // rc_ref_cell_to_qobject()
-    // qobject_to_rc_ref_cell()
 
     #[doc(hidden)]
     /// Return `QObject` attached to the specified Rust object.
@@ -222,15 +170,16 @@ pub trait QObjectHolder : DispatchMetaCall + QMetaInfo + Default {
     /// This function is intended to be called during the [`Drop`] implementation
     /// of this type.
     fn detach_qobject(&self) {
-        if let Some(qobj) = Self::try_get_qobject(self) {
-            QObject::delete(std::ptr::from_mut(qobj));
+        let qobj_ptr = self.get_qobject_ptr();
+        if !qobj_ptr.is_null() {
+            QObject::delete(qobj_ptr);
         }
     }
 
     /// Return a [`QVariant`] containing a pointer to this object.
     fn as_qvariant(&self) -> QVariant {
-        let qobj_ref = self.get_qobject();
-        let qobj_ptr = std::ptr::from_mut(qobj_ref);
+        let qobj_ptr = self.get_qobject_ptr();
+        assert!(!qobj_ptr.is_null(), "QObject is not attached");
         qobj_ptr.into()
     }
 

@@ -104,7 +104,7 @@ pub use test_object::TestObject;
 #[cfg(not(miri))]
 fn signal_is_emitted_when_called_without_arguments() {
     let obj = TestObject::default_with_attached_qobject();
-    let spy = QSignalSpy::new(obj.borrow().get_qobject(), "signal_no_args");
+    let spy = QSignalSpy::new(unsafe { &*obj.borrow().get_qobject_ptr() }, "signal_no_args");
     obj.borrow_mut().signal_no_args();
     assert_eq!(spy.count(), 1);
 }
@@ -115,7 +115,7 @@ where
     CheckFn: FnOnce(&QVariant) -> bool
 {
     let obj = TestObject::default_with_attached_qobject();
-    let mut spy = QSignalSpy::new(obj.borrow().get_qobject(), &format!("signal_{type_suffix}"));
+    let mut spy = QSignalSpy::new(unsafe { &*obj.borrow().get_qobject_ptr() }, &format!("signal_{type_suffix}"));
     emit_fn(&mut obj.borrow_mut());
     assert_eq!(spy.count(), 1);
     let args = spy.pin_mut().take_first();
@@ -293,7 +293,7 @@ fn signal_is_emitted_when_called_with_string_arg() {
 #[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_string_ref_arg() {
     let obj = TestObject::default_with_attached_qobject();
-    let mut spy = QSignalSpy::new(obj.borrow().get_qobject(), "signal_string_ref");
+    let mut spy = QSignalSpy::new(unsafe { &*obj.borrow().get_qobject_ptr() }, "signal_string_ref");
     obj.borrow_mut().signal_string_ref(&String::from("DEF"));
     assert_eq!(spy.count(), 1);
     let args = spy.pin_mut().take_first();
@@ -448,7 +448,7 @@ fn signal_is_emitted_when_called_with_f64_ref_arg() {
 #[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_a_few_arguments_ref_arg() {
     let obj = TestObject::default_with_attached_qobject();
-    let mut spy = QSignalSpy::new(obj.borrow().get_qobject(), "signal_many_args");
+    let mut spy = QSignalSpy::new(unsafe { &*obj.borrow().get_qobject_ptr() }, "signal_many_args");
     obj.borrow_mut().signal_many_args("123", 700, 0.75, &0.125, "Café".to_owned(), 65535, false, &true, -100000, -10000000000);
     assert_eq!(spy.count(), 1);
     let arg_list = spy.pin_mut().take_first();

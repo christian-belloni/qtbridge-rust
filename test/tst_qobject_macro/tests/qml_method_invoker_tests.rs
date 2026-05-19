@@ -60,7 +60,7 @@ fn test_invoke_method_destroyed() {
 
 fn test_signal_emitted(app: &QGuiApplication) {
     let qobject_holder = TestObject::default_with_attached_qobject();
-    let spy = QSignalSpy::new(qobject_holder.borrow().get_qobject(), "signal_no_args");
+    let spy = QSignalSpy::new(unsafe { &*qobject_holder.borrow().get_qobject_ptr() }, "signal_no_args");
     qobject_holder.borrow().get_qml_method_invoker().invoke_method("signal_no_args");
     app.process_events();
     app.process_events();
