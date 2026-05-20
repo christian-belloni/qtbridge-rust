@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 #![cfg(test)]
 
+use qtbridge_type_lib::QGuiApplication;
 use qtbridge::{qobject, QObjectHolder};
-use qtbridge::qtbridge_type_lib::{QSignalSpy, QVariantList};
+use qtbridge::qtbridge_type_lib::{QSignalSpy};
 
 #[qobject]
 pub mod test_object {
@@ -31,41 +32,42 @@ pub mod test_object {
 pub use test_object::TestObject;
 
 #[test]
-fn invoke_method_returns_true_when_object_is_alive() {
+fn qml_method_invoker_tests() {
+    let app = QGuiApplication::new();
+
+    // invoke_method returns true when object is alive
     let qobject_holder = TestObject::default_with_attached_qobject();
     assert!(qobject_holder.borrow().get_qml_method_invoker().invoke_method("signalNoArgs"));
-}
 
-#[test]
-fn invoke_method_returns_false_after_object_is_destroyed() {
+    // invoke_method returns false after object is destroyed
     let qobject_holder = TestObject::default_with_attached_qobject();
     let qml_method_invoker = qobject_holder.borrow().get_qml_method_invoker();
     qobject_holder.borrow().detach_qobject();
     assert!(!qml_method_invoker.invoke_method("signalNoArgs"));
-}
 
-#[test]
-fn signal_is_emitted_when_invoke_method_is_called() {
+    // signal is emitted when invoke_method is called
     let qobject_holder = TestObject::default_with_attached_qobject();
     let spy = QSignalSpy::new(qobject_holder.borrow().get_qobject(), "signalNoArgs");
     qobject_holder.borrow().get_qml_method_invoker().invoke_method("signalNoArgs");
+    app.process_events();
+    app.process_events();
     assert_eq!(spy.count(), 1);
-}
 
-#[test]
-fn mutable_slot_is_called_via_invoke_method() {
+    // mutable slot is called via invoke_method
     let qobject_holder = TestObject::default_with_attached_qobject();
     let qml_method_invoker = qobject_holder.borrow().get_qml_method_invoker();
     qml_method_invoker.invoke_method("mutableSlot");
+    app.process_events();
+    app.process_events();
     assert!(qobject_holder.borrow().mutable_slot_called);
-}
 
-#[test]
-fn immutable_slot_is_called_via_invoke_method() {
+    // immutable slot is called via invoke_method
     let qobject_holder = TestObject::default_with_attached_qobject();
     let spy = QSignalSpy::new(qobject_holder.borrow().get_qobject(), "signalNoArgs");
     let qml_method_invoker = qobject_holder.borrow().get_qml_method_invoker();
     qml_method_invoker.invoke_method("immutableSlot");
+    app.process_events();
+    app.process_events();
     assert_eq!(spy.count(), 1);
 }
 

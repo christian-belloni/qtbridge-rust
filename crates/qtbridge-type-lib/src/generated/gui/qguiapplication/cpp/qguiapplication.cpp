@@ -18,6 +18,11 @@ int32_t inlineCppFn_exec()
     return QGuiApplication::exec();
 }
 
+void inlineCppFn_process_events(QGuiApplication const &self)
+{
+    self.processEvents();
+}
+
 void inlineCppFn_set_application_name(rust::Str name)
 {
     QGuiApplication::setApplicationName(RustStrToQString(name));

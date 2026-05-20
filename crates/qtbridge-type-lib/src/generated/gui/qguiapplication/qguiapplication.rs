@@ -37,6 +37,8 @@ mod ffi {
         unsafe fn inlineCppFn_new(argc: &i32, argv: *const usize) -> UniquePtr<QGuiApplication>;
         # [rust_name = inline_cpp_fn_exec]
         fn inlineCppFn_exec() -> i32;
+        # [rust_name = inline_cpp_fn_process_events]
+        fn inlineCppFn_process_events(_obj: &QGuiApplication);
         # [rust_name = inline_cpp_fn_set_application_name]
         fn inlineCppFn_set_application_name(name: &str);
     }
@@ -61,6 +63,10 @@ impl QGuiApplication {
     pub fn exec() -> i32 {
         let cpp = ffi::inline_cpp_fn_exec;
         cpp()
+    }
+    #[allow(dead_code)]
+    pub fn process_events(&self) {
+        ffi::inline_cpp_fn_process_events(self);
     }
     #[allow(dead_code)]
     /// Sets the name of this application.

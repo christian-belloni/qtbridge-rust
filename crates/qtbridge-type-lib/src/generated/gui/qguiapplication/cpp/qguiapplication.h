@@ -18,6 +18,8 @@ std::unique_ptr<QGuiApplication> inlineCppFn_new(int32_t const &argc, size_t con
 
 int32_t inlineCppFn_exec();
 
+void inlineCppFn_process_events(QGuiApplication const &self);
+
 void inlineCppFn_set_application_name(rust::Str name);
 
 } // namespace rust::bridge::qguiapplication

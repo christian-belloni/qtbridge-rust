@@ -58,6 +58,12 @@ mod qguiapplication {
         cpp()
     }
 
+    pub fn process_events(&self) {
+        cpp_fn!(|&self| {
+            self.processEvents();
+        })(self);
+    }
+
     /// Sets the name of this application.
     pub fn set_application_name(name: &str) {
         let cpp = cpp_fn!(|name: &str| {

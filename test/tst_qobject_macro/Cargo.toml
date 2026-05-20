@@ -9,6 +9,7 @@ description = "Tests for objects annotated with the `#[qobject]` macro."
 
 [dependencies]
 qtbridge = { path = "../../crates/qtbridge" }
+qtbridge-type-lib = { path = "../../crates/qtbridge-type-lib" }
 quicktest = { path = "../../quicktest" }
 
 [[test]]
