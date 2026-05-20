@@ -54,9 +54,6 @@ bool inlineCppFn_TraitImpl_PartialEq_array_of_bool_N_for_QList_bool_eq(QList_boo
 
 } // namespace rust::bridge::qlist_bool
 
-#ifndef QLIST_BOOL_IS_RELOCATABLE
-#  define QLIST_BOOL_IS_RELOCATABLE
-
 namespace rust {
 
 template <>
@@ -65,6 +62,5 @@ struct IsRelocatable<::QList_bool> : ::std::true_type
 };
 
 } // namespace rust
-#endif // #ifndef QLIST_BOOL_IS_RELOCATABLE
 
 #endif // _QLIST_BOOL_RUST_BRIDGE_H_

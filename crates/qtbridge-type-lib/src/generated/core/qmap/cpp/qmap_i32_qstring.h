@@ -43,9 +43,6 @@ inlineCppFn_TraitImpl_std_ops_Index_ref_i32_for_QMap_i32_QString_index(QMap_i32_
 
 } // namespace rust::bridge::qmap_i32_qstring
 
-#ifndef QMAP_I32_QSTRING_IS_RELOCATABLE
-#  define QMAP_I32_QSTRING_IS_RELOCATABLE
-
 namespace rust {
 
 template <>
@@ -54,6 +51,5 @@ struct IsRelocatable<::QMap_i32_QString> : ::std::true_type
 };
 
 } // namespace rust
-#endif // #ifndef QMAP_I32_QSTRING_IS_RELOCATABLE
 
 #endif // _QMAP_I32_QSTRING_RUST_BRIDGE_H_

@@ -51,9 +51,6 @@ bool inlineCppFn_TraitImpl_PartialEq_array_of_QByteArray_N_for_QList_QByteArray_
 
 } // namespace rust::bridge::qlist_qbytearray
 
-#ifndef QLIST_QBYTEARRAY_IS_RELOCATABLE
-#  define QLIST_QBYTEARRAY_IS_RELOCATABLE
-
 namespace rust {
 
 template <>
@@ -62,6 +59,5 @@ struct IsRelocatable<::QList_QByteArray> : ::std::true_type
 };
 
 } // namespace rust
-#endif // #ifndef QLIST_QBYTEARRAY_IS_RELOCATABLE
 
 #endif // _QLIST_QBYTEARRAY_RUST_BRIDGE_H_

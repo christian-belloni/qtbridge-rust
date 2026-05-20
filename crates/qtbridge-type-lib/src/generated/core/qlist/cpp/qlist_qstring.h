@@ -51,9 +51,6 @@ bool inlineCppFn_TraitImpl_PartialEq_array_of_QString_N_for_QList_QString_eq(
 
 } // namespace rust::bridge::qlist_qstring
 
-#ifndef QLIST_QSTRING_IS_RELOCATABLE
-#  define QLIST_QSTRING_IS_RELOCATABLE
-
 namespace rust {
 
 template <>
@@ -62,6 +59,5 @@ struct IsRelocatable<::QList_QString> : ::std::true_type
 };
 
 } // namespace rust
-#endif // #ifndef QLIST_QSTRING_IS_RELOCATABLE
 
 #endif // _QLIST_QSTRING_RUST_BRIDGE_H_

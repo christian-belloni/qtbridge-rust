@@ -51,9 +51,6 @@ bool inlineCppFn_TraitImpl_PartialEq_array_of_QVariant_N_for_QList_QVariant_eq(
 
 } // namespace rust::bridge::qlist_qvariant
 
-#ifndef QLIST_QVARIANT_IS_RELOCATABLE
-#  define QLIST_QVARIANT_IS_RELOCATABLE
-
 namespace rust {
 
 template <>
@@ -62,6 +59,5 @@ struct IsRelocatable<::QList_QVariant> : ::std::true_type
 };
 
 } // namespace rust
-#endif // #ifndef QLIST_QVARIANT_IS_RELOCATABLE
 
 #endif // _QLIST_QVARIANT_RUST_BRIDGE_H_

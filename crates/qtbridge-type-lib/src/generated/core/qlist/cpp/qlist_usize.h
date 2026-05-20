@@ -56,17 +56,22 @@ bool inlineCppFn_TraitImpl_PartialEq_array_of_usize_N_for_QList_usize_eq(
 
 } // namespace rust::bridge::qlist_usize
 
-#ifndef QLIST_U64_IS_RELOCATABLE
-#  define QLIST_U64_IS_RELOCATABLE
+namespace rust::bridge::qlist_usize::detail {
+struct IsRelocatableDedupDummyTag
+{
+};
+} // namespace rust::bridge::qlist_usize::detail
 
 namespace rust {
 
 template <>
-struct IsRelocatable<::QList_usize> : ::std::true_type
+struct IsRelocatable<typename ::std::conditional<
+        (::std::is_same<size_t, uint32_t>::value || ::std::is_same<size_t, uint64_t>::value),
+        ::rust::bridge::qlist_usize::detail::IsRelocatableDedupDummyTag, ::QList_usize>::type>
+    : ::std::true_type
 {
 };
 
 } // namespace rust
-#endif // #ifndef QLIST_U64_IS_RELOCATABLE
 
 #endif // _QLIST_USIZE_RUST_BRIDGE_H_

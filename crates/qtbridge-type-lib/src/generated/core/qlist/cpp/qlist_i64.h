@@ -53,9 +53,6 @@ bool inlineCppFn_TraitImpl_PartialEq_array_of_i64_N_for_QList_i64_eq(
 
 } // namespace rust::bridge::qlist_i64
 
-#ifndef QLIST_I64_IS_RELOCATABLE
-#  define QLIST_I64_IS_RELOCATABLE
-
 namespace rust {
 
 template <>
@@ -64,6 +61,5 @@ struct IsRelocatable<::QList_i64> : ::std::true_type
 };
 
 } // namespace rust
-#endif // #ifndef QLIST_I64_IS_RELOCATABLE
 
 #endif // _QLIST_I64_RUST_BRIDGE_H_

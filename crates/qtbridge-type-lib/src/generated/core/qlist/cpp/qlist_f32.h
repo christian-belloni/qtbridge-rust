@@ -53,9 +53,6 @@ bool inlineCppFn_TraitImpl_PartialEq_array_of_f32_N_for_QList_f32_eq(QList_f32 c
 
 } // namespace rust::bridge::qlist_f32
 
-#ifndef QLIST_F32_IS_RELOCATABLE
-#  define QLIST_F32_IS_RELOCATABLE
-
 namespace rust {
 
 template <>
@@ -64,6 +61,5 @@ struct IsRelocatable<::QList_f32> : ::std::true_type
 };
 
 } // namespace rust
-#endif // #ifndef QLIST_F32_IS_RELOCATABLE
 
 #endif // _QLIST_F32_RUST_BRIDGE_H_

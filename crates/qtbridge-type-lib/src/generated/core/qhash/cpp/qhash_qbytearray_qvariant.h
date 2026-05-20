@@ -47,9 +47,6 @@ inlineCppFn_TraitImpl_std_ops_Index_ref_QByteArray_for_QHash_QByteArray_QVariant
 
 } // namespace rust::bridge::qhash_qbytearray_qvariant
 
-#ifndef QHASH_QBYTEARRAY_QVARIANT_IS_RELOCATABLE
-#  define QHASH_QBYTEARRAY_QVARIANT_IS_RELOCATABLE
-
 namespace rust {
 
 template <>
@@ -58,6 +55,5 @@ struct IsRelocatable<::QHash_QByteArray_QVariant> : ::std::true_type
 };
 
 } // namespace rust
-#endif // #ifndef QHASH_QBYTEARRAY_QVARIANT_IS_RELOCATABLE
 
 #endif // _QHASH_QBYTEARRAY_QVARIANT_RUST_BRIDGE_H_

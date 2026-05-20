@@ -648,60 +648,79 @@ namespace {bridge_namespace} {{
         }
 
         let ident = self.struct_ident().unwrap();
-
-        // C++ define used to avoid multiple definitions for the same type
-        // when instantiating types that are distinct in Rust but considered the same in C++,
-        // e.g. QList<uint64_t> and QList<size_t>.
-        let mut maybe_guard_begin = String::new();
-        let mut maybe_guard_end = String::new();
-        let define_needed = self.structure()
-            .is_some_and(|s| s.is_generic());
-        if define_needed {
-            let mut define_ident = ident.to_string()
-                .split('_')
-                .into_iter()
-                .map(|comp| {
-                    #[cfg(target_pointer_width = "64")]
-                    match comp {
-                        "usize" => "u64",
-                        "isize" => "i64",
-                        _ => comp
-                    }
-                    #[cfg(target_pointer_width = "32")]
-                    match comp {
-                        "usize" => "u32",
-                        "isize" => "i32",
-                        _ => comp
-                    }
-                })
-                .collect::<Vec<_>>()
-                .join("_")
-                .to_ascii_uppercase();
-            define_ident.push_str("_IS_RELOCATABLE");
-            maybe_guard_begin = format!(
-r#"
-#ifndef {define_ident}
-#define {define_ident}
-"#);
-            maybe_guard_end = format!("#endif // #ifndef {define_ident}");
-        }
-
+        let ident_str = ident.to_string();
         let maybe_namespace_w_colons = self.structure()
             .and_then(|s| s.namespace())
             .map(|ns| format!("{ns}::"))
             .unwrap_or_default();
-        let code = format!(
+        let qualified = format!("::{maybe_namespace_w_colons}{ident}");
+
+        // Some C++ types are aliases of the same underlying type. This can be
+        // a problem for IsRelocatable specializations because we can't have
+        // multiple IsRelocatable defines for the same type (ODR violation).
+        //
+        // For example size_t might be defined as unsigned long. This depends
+        // also on the current platform; types may be aliases of different
+        // underlying types on macOS ARM and Linux x86_64.
+        //
+        // Therefore we need to deduplicate IsRelocatable specializations when
+        // needed, and only when needed. The deduplication is best deferred to
+        // C++ compilation time so that we don't need to make decisions at
+        // Rust level without knowing what the underlying types are.
+        //
+        // Technically we use std::conditional to guide the C++ compiler
+        let deduplication_conditions: Vec<&str> = ident_str.split('_')
+            .filter_map(|comp| match comp {
+                "isize" => Some(
+                    "(::std::is_same<ptrdiff_t, int32_t>::value || \
+                      ::std::is_same<ptrdiff_t, int64_t>::value)"),
+                "usize" => Some(
+                    "(::std::is_same<size_t, uint32_t>::value || \
+                      ::std::is_same<size_t, uint64_t>::value)"),
+                _ => None,
+            })
+            .collect();
+
+        if deduplication_conditions.is_empty() {
+            // No deduplication needed, emit a plain IsRelocatable<type> specialization.
+            return format!(
 r#"
-{maybe_guard_begin}
 namespace rust {{
 
 template <>
-struct IsRelocatable<::{maybe_namespace_w_colons}{ident}> : ::std::true_type {{}};
+struct IsRelocatable<{qualified}> : ::std::true_type {{}};
 
- }} // namespace rust
-{maybe_guard_end}
+}} // namespace rust
 "#);
-        code
+        }
+
+        // May need to deduplicate. Emit a compile-time condition which steers
+        // the specializations to a dummy tag type in case the types indeed resolve to
+        // same underlying type -> avoid duplicate definition.
+        // In those cases the underlying plain type definitions will be used (see early return
+        // path above). This is fine because, after all, the compiler knows that the alias
+        // type is same as the actual type
+        let bridge_namespace = naming::cpp::namespace::type_bridge(&self.submod_name());
+        let combined_condition = deduplication_conditions.join(" &&\n            ");
+
+        format!(
+r#"
+namespace {bridge_namespace}::detail {{
+struct IsRelocatableDedupDummyTag {{}};
+}} // namespace {bridge_namespace}::detail
+
+namespace rust {{
+
+template <>
+struct IsRelocatable<
+    typename ::std::conditional<
+        {combined_condition},
+        ::{bridge_namespace}::detail::IsRelocatableDedupDummyTag,
+        {qualified}>::type
+> : ::std::true_type {{}};
+
+}} // namespace rust
+"#)
     }
 
     fn get_def_cpp_traits_cpp_code(&self) -> Option<(String, String)> {

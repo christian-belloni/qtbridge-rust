@@ -53,9 +53,6 @@ bool inlineCppFn_TraitImpl_PartialEq_array_of_u16_N_for_QList_u16_eq(
 
 } // namespace rust::bridge::qlist_u16
 
-#ifndef QLIST_U16_IS_RELOCATABLE
-#  define QLIST_U16_IS_RELOCATABLE
-
 namespace rust {
 
 template <>
@@ -64,6 +61,5 @@ struct IsRelocatable<::QList_u16> : ::std::true_type
 };
 
 } // namespace rust
-#endif // #ifndef QLIST_U16_IS_RELOCATABLE
 
 #endif // _QLIST_U16_RUST_BRIDGE_H_

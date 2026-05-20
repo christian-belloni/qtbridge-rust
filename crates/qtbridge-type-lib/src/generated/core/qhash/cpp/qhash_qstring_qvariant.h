@@ -45,9 +45,6 @@ QVariant const *inlineCppFn_TraitImpl_std_ops_Index_ref_QString_for_QHash_QStrin
 
 } // namespace rust::bridge::qhash_qstring_qvariant
 
-#ifndef QHASH_QSTRING_QVARIANT_IS_RELOCATABLE
-#  define QHASH_QSTRING_QVARIANT_IS_RELOCATABLE
-
 namespace rust {
 
 template <>
@@ -56,6 +53,5 @@ struct IsRelocatable<::QHash_QString_QVariant> : ::std::true_type
 };
 
 } // namespace rust
-#endif // #ifndef QHASH_QSTRING_QVARIANT_IS_RELOCATABLE
 
 #endif // _QHASH_QSTRING_QVARIANT_RUST_BRIDGE_H_

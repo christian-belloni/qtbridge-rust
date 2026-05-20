@@ -44,9 +44,6 @@ QByteArray const *inlineCppFn_TraitImpl_std_ops_Index_ref_i32_for_QHash_i32_QByt
 
 } // namespace rust::bridge::qhash_i32_qbytearray
 
-#ifndef QHASH_I32_QBYTEARRAY_IS_RELOCATABLE
-#  define QHASH_I32_QBYTEARRAY_IS_RELOCATABLE
-
 namespace rust {
 
 template <>
@@ -55,6 +52,5 @@ struct IsRelocatable<::QHash_i32_QByteArray> : ::std::true_type
 };
 
 } // namespace rust
-#endif // #ifndef QHASH_I32_QBYTEARRAY_IS_RELOCATABLE
 
 #endif // _QHASH_I32_QBYTEARRAY_RUST_BRIDGE_H_
