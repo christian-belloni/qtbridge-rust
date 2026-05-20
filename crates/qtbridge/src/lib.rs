@@ -17,6 +17,7 @@ pub mod type_support {
 #[doc(hidden)]
 pub use qtbridge_runtime;
 pub use qtbridge_runtime::QModelItem;
+pub use qtbridge_runtime::invoke_method;
 #[doc(hidden)]
 pub use qtbridge_gen;
 #[doc(hidden)]

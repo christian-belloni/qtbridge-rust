@@ -2,15 +2,16 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 #![cfg(test)]
 
-use qtbridge_type_lib::QGuiApplication;
+use qtbridge_type_lib::{QGuiApplication, QVariantList};
 use qtbridge::{qobject, QObjectHolder};
 use qtbridge::qtbridge_type_lib::{QSignalSpy};
-
+use qtbridge::invoke_method;
 #[qobject]
 pub mod test_object {
     #[derive(Default)]
     pub struct TestObject {
         pub mutable_slot_called: bool,
+        pub int_value: i32,
     }
 
     impl TestObject {
@@ -25,6 +26,16 @@ pub mod test_object {
         #[qslot]
         fn immutable_slot(&self) {
             self.signal_no_args();
+        }
+
+        #[qslot]
+        pub fn set_int(&mut self, value: i32) {
+            self.int_value = value;
+        }
+
+        #[qslot]
+        pub fn add_ints(&mut self, a: i32, b: i32) {
+            self.int_value = a + b;
         }
     }
 }
@@ -69,5 +80,29 @@ fn qml_method_invoker_tests() {
     app.process_events();
     app.process_events();
     assert_eq!(spy.count(), 1);
-}
 
+    // slot with parameters
+    let qobject_holder = TestObject::default_with_attached_qobject();
+    let invoker = qobject_holder.borrow().get_qml_method_invoker();
+    assert!(invoker.invoke_method_with_args("addInts", &QVariantList::from([15.into(), 17.into()])));
+    app.process_events();
+    app.process_events();
+    assert_eq!(qobject_holder.borrow().int_value, 32);
+
+    // immutable slot is called via macro
+    let qobject_holder = TestObject::default_with_attached_qobject();
+    let spy = QSignalSpy::new(qobject_holder.borrow().get_qobject(), "signalNoArgs");
+    let invoker = qobject_holder.borrow().get_qml_method_invoker();
+    invoke_method!(invoker, "immutableSlot");
+    app.process_events();
+    app.process_events();
+    assert_eq!(spy.count(), 1);
+
+    // slot with parameters via macro
+    let qobject_holder = TestObject::default_with_attached_qobject();
+    let invoker = qobject_holder.borrow().get_qml_method_invoker();
+    invoke_method!(invoker, "addInts", 15, 17);
+    app.process_events();
+    app.process_events();
+    assert_eq!(qobject_holder.borrow().int_value, 32);
+}
