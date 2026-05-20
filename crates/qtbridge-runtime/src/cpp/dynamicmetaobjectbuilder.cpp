@@ -30,6 +30,34 @@ namespace
         return QMetaObject::normalizedSignature(sign.constData());
     }
 
+    // There are behavior changes in QMetaObjectBuilder between Qt versions 6.11 and 6.12.
+    // After that change, we need to call the newly introduced QMetaObject::signal(),
+    // otherwise, for earlier versions, call QMetaObject::method().
+    // Meta methods in QMetaObject ordered such that signals go first,
+    // so calling method(i) is equivalent to signal(i) when i is within signal count.
+    // TODO: switch to `#if QT_VERSION >= QT_VERSION_CHECK(6, 12, 0)` later.
+    template<typename, typename = void>
+    struct has_signal_method : std::false_type {};
+
+    template<typename T>
+    struct has_signal_method<T, std::void_t<decltype(std::declval<T>().signal(0))>>
+    : std::true_type {};
+
+    template <typename T>
+    QMetaMethodBuilder getSignal(const T& src, int index)
+    {
+        QMetaMethodBuilder result;
+        if constexpr (has_signal_method<T>::value)
+            result = src.signal(index);
+        else
+        {
+            result = src.method(index);
+            if (result.methodType() != QMetaMethod::Signal)
+                qFatal() << "Logic error: " << result.signature() << " expected to be a signal";
+        }
+
+        return result;
+    }
 } // namespace anonymous
 
 
@@ -77,7 +105,7 @@ void DynamicMetaObjectBuilder::registerProperty(rust::Str name, uint32_t propId,
     builder.setConstant(isConstant);
 
     if (signalIndex)
-        builder.setNotifySignal(m_mob->method(*signalIndex));
+        builder.setNotifySignal(getSignal(*m_mob, *signalIndex));
 
     m_data->addProperty(propId, metaType);
 }
