@@ -25,16 +25,16 @@ pub struct QObjectImplOutput {
     pub new_impl: TokenStream,
 
     /// Implementation of Drop for QObjectHolder
-    pub drop_impl: TokenStream,
+    pub drop_impl: syn::ItemImpl,
 
     /// Implementation of QMetaInfo trait
-    pub qmeta_info_impl: TokenStream,
+    pub qmeta_info_impl: syn::ItemImpl,
 
     /// Implementation of DispatchMetaCall trait
-    pub dispatch_meta_call: TokenStream,
+    pub dispatch_meta_call: syn::ItemImpl,
 
     /// Implementation of QMetaTypeInterfaceGet trait
-    pub qmetatype_get_impl: TokenStream,
+    pub qmetatype_get_impl: syn::ItemImpl,
 
     /// Implementation details
     pub impl_details: TokenStream,
@@ -164,14 +164,12 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream) -> syn::Result<QObj
     let qmeta_info_impl = generate_qmetainfo_trait_impl(&ctx)
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaInfo trait.\nError: {}", err)))?;
     let dispatch_meta_call = generate_dispatch_meta_call(&struct_ident, generics, &signals, &slots, &properties)
-        .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of DispatchMetaCall trait.\nError: {}", err)))?
-        .to_token_stream();
+        .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of DispatchMetaCall trait.\nError: {}", err)))?;
     let qmetatype_get_impl = generate_qmeta_type_get(&struct_ident, &generics)
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaTypeGet trait.\nError: {}", err)))?;
 
     let drop_impl = generate_drop(&struct_ident, generics)
-        .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of Drop trait.\nError: {}", err)))?
-        .to_token_stream();
+        .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of Drop trait.\nError: {}", err)))?;
 
     // Prepare altered input token stream
     let new_impl = syn::ItemImpl{ items: items_out, ..orig_impl }

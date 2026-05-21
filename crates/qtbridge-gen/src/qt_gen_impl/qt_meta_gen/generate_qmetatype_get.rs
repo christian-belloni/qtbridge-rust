@@ -1,12 +1,11 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use proc_macro2::TokenStream;
 use quote::quote;
 
 use qtbridge_gen_common::type_qualified_mapping::crate_names;
 
-pub fn generate_qmeta_type_get(struct_ident: &syn::Ident, generics: &syn::Generics) -> syn::Result<TokenStream> {
+pub fn generate_qmeta_type_get(struct_ident: &syn::Ident, generics: &syn::Generics) -> syn::Result<syn::ItemImpl> {
     let (impl_generics, type_generics, where_clause) = generics.split_for_impl();
     let type_library = crate_names::type_module();
     let bridge_library = crate_names::bridge_module();
@@ -31,5 +30,5 @@ pub fn generate_qmeta_type_get(struct_ident: &syn::Ident, generics: &syn::Generi
         }
     };
 
-    Ok(code)
+    syn::parse2(code)
 }

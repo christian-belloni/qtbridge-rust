@@ -6,12 +6,12 @@ use quote::{quote, ToTokens};
 use syn::spanned::Spanned;
 
 /// Generate impl Drop for given struct in which we delete attached qobject.
-pub fn generate_drop(struct_ident: &syn::Ident, struct_generics: &syn::Generics) -> syn::Result<Option<syn::ItemImpl>> {
+pub fn generate_drop(struct_ident: &syn::Ident, struct_generics: &syn::Generics) -> syn::Result<syn::ItemImpl> {
 
     let (impl_generics, type_generics, where_clause) = struct_generics.split_for_impl();
     let bridge_library = crate_names::bridge_module();
 
-    let drop = syn::parse2::<syn::ItemImpl>(quote! {
+    let drop = syn::parse2(quote! {
         /// This is an automatic implementation by qtbridges.
         /// If you see E0119 about Drop, use #[qobject_impl(NoDrop)] or #[qobject(NoDrop)]
         /// Remember to call <Self as qtbridge::QObjectHolder>::detach_qobject(self) to
@@ -24,7 +24,7 @@ pub fn generate_drop(struct_ident: &syn::Ident, struct_generics: &syn::Generics)
             }
         }
     })?;
-    Ok(Some(drop))
+    Ok(drop)
 }
 
 pub fn adjust_drop_impl(input: &syn::ItemImpl) -> syn::Result<syn::ItemImpl> {

@@ -21,7 +21,7 @@ pub struct QMetaInfoContext<'a> {
     pub class_infos: &'a [QClassInfo],
 }
 
-pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext) -> syn::Result<TokenStream> {
+pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext) -> syn::Result<syn::ItemImpl> {
     let generics = &ctx.generics;
     let use_block = generate_meta_reg_use_block(ctx.signals, ctx.slots, ctx.properties);
     let signals_meta_reg = generate_signals_meta_registration(ctx.signals)?;
@@ -59,7 +59,7 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext) -> syn::Result<Toke
         }
     };
 
-    Ok(quote! {
+    let code = quote! {
         impl #impl_generics #bridge_library::QMetaInfo for #struct_ident #type_generics #where_clause {
 
             type CppProxy = #iface_library::#iface_module::#proxy_cpp;
@@ -79,7 +79,8 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext) -> syn::Result<Toke
                 #get_dyn_meta_object_body
             }
         }
-    })
+    };
+    syn::parse2(code)
 }
 
 fn generate_meta_reg_use_block(signals: &[QSignalInfo], slots: &[QSlotInfo], properties: &[QPropertyInfo]) -> TokenStream {

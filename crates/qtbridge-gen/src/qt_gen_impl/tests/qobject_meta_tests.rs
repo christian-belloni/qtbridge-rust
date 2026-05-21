@@ -3,7 +3,7 @@
 
 #![cfg(test)]
 use insta::assert_snapshot;
-use quote::quote;
+use quote::{ToTokens, quote};
 use crate::qt_gen_impl::QObjectModuleBuilder;
 use crate::qt_gen_impl::qobject_impl::qobject_impl;
 use qtbridge_gen_common::format_code::{format_rust_code, strip_docs};
@@ -55,7 +55,7 @@ fn test() {
     let output = qobject_impl(input, quote!{})
         .unwrap()
         .qmeta_info_impl;
-    let formatted = format_rust_code(&strip_docs(output)).unwrap();
+    let formatted = format_rust_code(&strip_docs(output.to_token_stream())).unwrap();
     assert_snapshot!(formatted);
 }
 
@@ -106,7 +106,7 @@ fn test_case_casting() {
     let output = qobject_impl(input, quote!{ConvertToCamelCase})
         .unwrap()
         .qmeta_info_impl;
-    let formatted = format_rust_code(&strip_docs(output)).unwrap();
+    let formatted = format_rust_code(&strip_docs(output.to_token_stream())).unwrap();
     assert_snapshot!(formatted);
 }
 
@@ -143,7 +143,7 @@ fn test_dispatch_meta_call() {
     let output = qobject_impl(input, quote!{})
         .unwrap()
         .dispatch_meta_call;
-    let formatted = format_rust_code(&strip_docs(output)).unwrap();
+    let formatted = format_rust_code(&strip_docs(output.to_token_stream())).unwrap();
     assert_snapshot!(formatted);
 }
 

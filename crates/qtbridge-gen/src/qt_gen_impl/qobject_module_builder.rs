@@ -113,11 +113,11 @@ impl QObjectModuleBuilder {
         };
 
         // Generate traits code.
-        let qmeta_info_impl_tokens = generate_qmetainfo_trait_impl(&ctx)
+        let qmeta_info_impl = generate_qmetainfo_trait_impl(&ctx)
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaInfo trait.\nError: {}", err)))?;
         let dispatch_meta_call = generate_dispatch_meta_call(&self.struct_ident, &self.struct_generics, &self.signals, &self.slots, &self.properties)
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of DispatchMetaCall trait.\nError: {err}")))?;
-        let qmetatype_get_impl_tokens = generate_qmeta_type_get(&self.struct_ident, &self.struct_generics)
+        let qmetatype_get_impl = generate_qmeta_type_get(&self.struct_ident, &self.struct_generics)
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaTypeGet trait.\nError: {}", err)))?;
 
         // Concat additional items to the source items processed
@@ -125,9 +125,9 @@ impl QObjectModuleBuilder {
             output_module_items.push(drop.into());
         }
         // TODO: return items below as high level AST but not TokenStreams
-        output_module_items.push(syn::parse2(qmeta_info_impl_tokens)?);             // impl qtbridge::qtbridge_runtime::QMetaInfo
+        output_module_items.push(qmeta_info_impl.into());                           // impl qtbridge::qtbridge_runtime::QMetaInfo
         output_module_items.push(dispatch_meta_call.into());                        // impl qtbridge::qtbridge_runtime::DispatchMetaCall
-        output_module_items.push(syn::parse2(qmetatype_get_impl_tokens)?);          // impl qtbridge::qtbridge_type_lib::QMetaTypeGet
+        output_module_items.push(qmetatype_get_impl.into());                        // impl qtbridge::qtbridge_type_lib::QMetaTypeGet
 
         if !self.struct_is_generic() {
             let qml_register = generate_qml_register(&self.struct_ident, &self.params)
@@ -341,7 +341,7 @@ impl QObjectModuleBuilder {
             return Ok(None)
         }
 
-        generate_drop(&self.struct_ident, &self.struct_generics)
+        Ok(Some(generate_drop(&self.struct_ident, &self.struct_generics)?))
     }
 
     fn get_meta_attribute(input: &[syn::Attribute]) -> syn::Result<Option<&syn::Attribute>> {
