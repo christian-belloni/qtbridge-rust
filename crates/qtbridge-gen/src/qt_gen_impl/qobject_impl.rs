@@ -8,10 +8,11 @@ use syn::{spanned::Spanned};
 use qtbridge_gen_common::function_with_attributes::FunctionWithAttributes;
 use qtbridge_gen_common::type_utils::get_ident_of_last_path_segment_or_err;
 use crate::qt_gen_impl;
+use crate::qt_gen_impl::qml_element::QmlElementCode;
 use crate::qt_gen_impl::qt_meta_gen::generate_dispatch_meta_call::generate_dispatch_meta_call;
 use qt_gen_impl::qobject_macro_params::QObjectMacroParams;
 use qt_gen_impl::iface_impl::InterfaceImpl;
-use qt_gen_impl::qml_element::qml_element;
+use qt_gen_impl::qml_element::generate_qml_register;
 use qt_gen_impl::drop_impl::generate_drop;
 use qt_gen_impl::qt_meta_gen;
 use qt_meta_gen::generate_meta::{generate_qmetainfo_trait_impl, QMetaInfoContext};
@@ -39,7 +40,7 @@ pub struct QObjectImplOutput {
     pub impl_details: TokenStream,
 
     /// QML_ELEMENT registration
-    pub qml_registration: TokenStream,
+    pub qml_registration: Option<QmlElementCode>,
 }
 
 impl QObjectImplOutput {
@@ -176,7 +177,7 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream) -> syn::Result<QObj
     let new_impl = syn::ItemImpl{ items: items_out, ..orig_impl }
         .to_token_stream();
 
-    let qml_registration = qml_element(&struct_ident, &params)
+    let qml_registration = generate_qml_register(&struct_ident, &params)
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QmlRegister trait.\nError: {}", err)))?;
 
     Ok(QObjectImplOutput {

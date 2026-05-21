@@ -2,18 +2,49 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use proc_macro2::{Span, TokenStream};
-use quote::{format_ident, quote};
+use quote::{ToTokens, format_ident, quote};
 use syn::Ident;
 use crate::qt_gen_impl;
 use qt_gen_impl::qobject_macro_params::QObjectMacroParams;
 
-pub fn qml_element(struct_ident: &Ident, params: &QObjectMacroParams) -> syn::Result<TokenStream> {
+pub struct QmlElementCode {
+    pub register_fn: Option<syn::ItemFn>,
+    pub register_impl: syn::ItemImpl,
+}
+
+impl ToTokens for QmlElementCode {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let Self{ register_fn, register_impl } = self;
+        quote! {
+            #register_fn
+            #register_impl
+        }.to_tokens(tokens);
+    }
+}
+
+
+pub fn generate_qml_register(struct_ident: &Ident, params: &QObjectMacroParams) -> syn::Result<Option<QmlElementCode>> {
 
     if params.no_qml_element {
-        return Ok(TokenStream::new())
+        return Ok(None)
     }
 
     let qml_register_fn_indent = format_ident!("qml_register_{struct_ident}");
+    let register_fn = match params.link_me {
+        true => {
+            let code = quote! {
+                // TODO: make auto registration via 'linkme' dependency an optional cargo feature?
+                #[linkme::distributed_slice(qtbridge::qtbridge_type_lib::QML_REGISTER_CALLBACKS)]
+                #[allow(non_camel_case_types)]
+                fn #qml_register_fn_indent() {
+                    <#struct_ident as qtbridge::qtbridge_runtime::QmlRegister>::qml_register();
+                }
+            };
+            Some(syn::parse2(code)?)
+        },
+        false => None
+    };
+
     let struct_name = struct_ident.to_string();
     let is_singleton = params.singleton;
 
@@ -32,20 +63,8 @@ pub fn qml_element(struct_ident: &Ident, params: &QObjectMacroParams) -> syn::Re
         .parse()
         .expect("Failed to parse CARGO_PKG_VERSION_MAJOR");
 
-    let qmlregister_code = if params.link_me {
-        quote! {
-            // TODO: make auto registration via 'linkme' dependency an optional cargo feature?
-            #[linkme::distributed_slice(qtbridge::qtbridge_type_lib::QML_REGISTER_CALLBACKS)]
-            #[allow(non_camel_case_types)]
-            fn #qml_register_fn_indent() {
-                <#struct_ident as qtbridge::qtbridge_runtime::QmlRegister>::qml_register();
-            }
-        }
-    } else {
-        TokenStream::new()
-    };
 
-    let qml_register_impl_code = quote! {
+    let register_impl = syn::parse2(quote! {
         impl qtbridge::qtbridge_runtime::QmlRegister for #struct_ident {
             const URI: &str = #uri;
             const ELEMENT_NAME: &str = #struct_name;
@@ -53,10 +72,10 @@ pub fn qml_element(struct_ident: &Ident, params: &QObjectMacroParams) -> syn::Re
             const MAJOR_VERSION: u8 = #major_version;
             const IS_SINGLETON: bool = #is_singleton;
         }
-    };
-    let output = quote! {
-        #qmlregister_code
-        #qml_register_impl_code
-    };
-    Ok(output)
+    })?;
+
+    Ok(Some(QmlElementCode {
+        register_fn,
+        register_impl,
+    }))
 }

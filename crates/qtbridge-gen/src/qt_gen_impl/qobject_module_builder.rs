@@ -18,7 +18,7 @@ use qt_meta_gen::{ExpandTokens, QClassInfo, QPropertyInfo, QSignalInfo, QSlotInf
 use crate::qt_gen_impl;
 use qt_gen_impl::qobject_macro_params::QObjectMacroParams;
 use qt_gen_impl::iface_impl::InterfaceImpl;
-use qt_gen_impl::qml_element::qml_element;
+use qt_gen_impl::qml_element::generate_qml_register;
 use qt_gen_impl::drop_impl::{adjust_drop_impl, generate_drop};
 
 pub struct QObjectModuleBuilder {
@@ -130,12 +130,16 @@ impl QObjectModuleBuilder {
         output_module_items.push(syn::parse2(qmetatype_get_impl_tokens)?);          // impl qtbridge::qtbridge_type_lib::QMetaTypeGet
 
         if !self.struct_is_generic() {
-            let qml_registration = qml_element(&self.struct_ident, &self.params)
+            let qml_register = generate_qml_register(&self.struct_ident, &self.params)
                 .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QmlRegister trait.\nError: {}", err)))?;
-            let qml_impl_file: syn::File = syn::parse2(qml_registration)?;
-            output_module_items.extend(qml_impl_file.items);
+            if let Some(qml_reg) = qml_register {
+                if let Some(qml_reg_func) = qml_reg.register_fn {
+                    output_module_items.push(qml_reg_func.into());
+                }
+                output_module_items.push(qml_reg.register_impl.into());
+            }
         } else if self.params.singleton {
-            return Err(syn::Error::new(self.struct_ident.span(), format!("Singleton is not availale for generic structs.")));
+            return Err(syn::Error::new(self.struct_ident.span(), format!("Singleton is not available for generic structs.")));
         }
 
         // TODO: this is not very elegant. We should probably return Vec<Item> from the function generating this code
