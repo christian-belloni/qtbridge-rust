@@ -52,6 +52,23 @@ members = [
     "test/quick/tst_qml_element",
 ]
 
+# only core code and lightweight tests
+default-members = [
+    "crates/qtbridge",
+    "crates/qtbridge-build-common",
+    "crates/qtbridge-gen-common",
+    "crates/qtbridge-gen",
+    "crates/qtbridge-type-lib",
+    "crates/qtbridge-interfaces",
+    "crates/qtbridge-runtime",
+    "crates/qt-artifacts",
+    "crates/qt-version",
+
+    "test/tst_qobject_macro",
+    "test/tst_qt_ifaces",
+    "test/tst_metatype",
+]
+
 [profile.release.build-override]
 # In release mode build script may be running twice (unlike debug)
 # because a package being dependency is built twice with different optimization settings.

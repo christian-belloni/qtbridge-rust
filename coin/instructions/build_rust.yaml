@@ -91,7 +91,7 @@ instructions:
       Failed to change to rust dir
 
   - type: ExecuteCommand
-    command: "cargo build"
+    command: "cargo build --workspace"
     maxTimeInSeconds: 6000
     maxTimeBetweenOutput: 1200
     userMessageOnFailure: >
@@ -106,7 +106,7 @@ instructions:
       equals_value: Linux
 
   - type: ExecuteCommand
-    command: "cargo test"
+    command: "cargo test --workspace"
     maxTimeInSeconds: 6000
     maxTimeBetweenOutput: 1200
     userMessageOnFailure: >
