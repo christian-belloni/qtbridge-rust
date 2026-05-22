@@ -1,3 +1,5 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 #![cfg(test)]
 use qtbridge_gen_common::type_registry::meta_types::get_qmetatype_support_for_type;
 

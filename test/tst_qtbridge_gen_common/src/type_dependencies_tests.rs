@@ -8,7 +8,7 @@ use qtbridge_gen_common::type_dependencies::{qt_types_to_bridge_imports, type_to
 use qtbridge_gen_common::type_tokens::TypeTokens;
 use quote::quote;
 
-use crate::qt_gen_impl::tests::tst_assert::assert_tokens_eq;
+use crate::tst_assert::assert_tokens_eq;
 
 #[test]
 fn require_that_type_tokens_to_cpp_includes_returns_output_that_agrees_with_reference() {
