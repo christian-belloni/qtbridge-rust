@@ -6,3 +6,8 @@ edition.workspace = true
 [dependencies]
 qtbridge = { path = "../../../crates/qtbridge" }
 quicktest = { path = "../../../quicktest" }
+
+[[test]]
+name = "qml_element"
+path = "tests/qml_element.rs"
+harness = false

@@ -44,8 +44,7 @@ impl QmlRegister for SingletonBackend {
     const IS_SINGLETON: bool = true;
 }
 
-#[test]
-fn test_qml_element() {
+pub fn test_qml_element() {
 
     <Backend as QmlRegister>::register();
     <SingletonBackend as QmlRegister>::register();
