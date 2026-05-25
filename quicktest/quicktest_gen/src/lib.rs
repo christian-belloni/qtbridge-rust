@@ -3,7 +3,7 @@
 
 use proc_macro::TokenStream;
 
-use syn::{parse_macro_input, ItemFn, Ident, LitStr};
+use syn::{parse_macro_input, ItemFn, Ident, LitBool, LitStr};
 use quote::quote;
 use qtbridge_gen_common::parse_utils::parse_name_value;
 
@@ -11,12 +11,14 @@ struct QObjectTestData {
     class: Option<syn::Path>,
     name: Option<syn::LitStr>,
     input_folder: Option<syn::LitStr>,
+    harness: Option<syn::LitBool>,
 }
 
 mod qobject_test_data_keywords {
     syn::custom_keyword!(Class);
     syn::custom_keyword!(Name);
     syn::custom_keyword!(Input);
+    syn::custom_keyword!(Harness);
 }
 
 impl syn::parse::Parse for QObjectTestData {
@@ -24,6 +26,7 @@ impl syn::parse::Parse for QObjectTestData {
         let mut class = None;
         let mut name = None;
         let mut input_folder = None;
+        let mut harness = None;
 
         while !input.is_empty() {
             match () {
@@ -35,6 +38,9 @@ impl syn::parse::Parse for QObjectTestData {
                 }
                 _ if input.peek(qobject_test_data_keywords::Input) => {
                     input_folder = Some(parse_name_value::<Ident, LitStr>(input)?.1);
+                }
+                _ if input.peek(qobject_test_data_keywords::Harness) => {
+                    harness = Some(parse_name_value::<Ident, LitBool>(input)?.1);
                 }
                 _ => {
                     return Err(input.error(format!(
@@ -50,7 +56,8 @@ impl syn::parse::Parse for QObjectTestData {
         Ok(QObjectTestData {
             class,
             name,
-            input_folder
+            input_folder,
+            harness,
         })
     }
 }
@@ -61,10 +68,23 @@ pub fn run_quick_test(attr: TokenStream, item: TokenStream) -> TokenStream {
 
     let mut input_fn: ItemFn = parse_macro_input!(item as ItemFn);
 
-    input_fn.attrs.push(syn::parse_quote!(#[test]));
-
     let fn_name = input_fn.sig.ident.to_string();
     let parsed = syn::parse2::<QObjectTestData>(attr.into());
+
+    // When `Harness = false` is requested, emit a plain `pub fn` callable from a
+    // `harness = false` integration test binary instead of a `#[test]` function.
+    // This lets the test run on the process main thread, which macOS (Cocoa)
+    // requires when the test code instantiates `QGuiApplication`.
+    let harness_enabled = parsed.as_ref()
+        .ok()
+        .and_then(|d| d.harness.as_ref())
+        .map(|lb| lb.value)
+        .unwrap_or(true);
+    if harness_enabled {
+        input_fn.attrs.push(syn::parse_quote!(#[test]));
+    } else {
+        input_fn.vis = syn::parse_quote!(pub);
+    }
 
     match parsed {
         Ok(data) => {
