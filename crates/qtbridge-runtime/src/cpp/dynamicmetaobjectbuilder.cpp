@@ -120,7 +120,7 @@ void DynamicMetaObjectBuilder::registerSignal(rust::Str name, rust::Slice<const 
 
     QByteArray nameBa = RustStrToQByteArray(name);
     QByteArray signature = generateFuncSignature(nameBa, argMetaTypes);
-    QMetaMethodBuilder builder = m_mob->addSignal(signature);
+    m_mob->addSignal(signature);
     m_data->addSignal(nameBa);
 }
 
