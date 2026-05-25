@@ -1,4 +1,3 @@
-#![cfg(test)]
 use qtbridge::qobject;
 use quicktest::run_quick_test;
 
@@ -78,5 +77,5 @@ mod test_qobject {
     }
 }
 
-#[run_quick_test(Class = test_qobject::TestQObject, Name = "testObject", Input = "qml")]
+#[run_quick_test(Class = test_qobject::TestQObject, Name = "testObject", Input = "qml", Harness = false)]
 fn test_qobject() {}
