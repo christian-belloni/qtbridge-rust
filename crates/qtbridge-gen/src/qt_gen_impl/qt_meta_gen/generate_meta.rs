@@ -1,8 +1,9 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use qtbridge_gen_common::type_qualified_mapping::CallOrigin;
 use qtbridge_gen_common::naming;
+use qtbridge_gen_common::type_qualified_mapping;
+use type_qualified_mapping::crate_names;
 
 use quote::{ToTokens, format_ident, quote};
 use proc_macro2::TokenStream;
@@ -21,9 +22,9 @@ pub struct QMetaInfoContext<'a> {
     pub class_infos: &'a [QClassInfo],
 }
 
-pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext, origin: &CallOrigin) -> syn::Result<TokenStream> {
+pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext) -> syn::Result<TokenStream> {
     let generics = &ctx.generics;
-    let use_block = generate_meta_reg_use_block(ctx.signals, ctx.slots, ctx.properties, origin);
+    let use_block = generate_meta_reg_use_block(ctx.signals, ctx.slots, ctx.properties);
     let signals_meta_reg = generate_signals_meta_registration(ctx.signals)?;
     let slots_meta_reg = generate_slots_meta_registration(ctx.slots)?;
     let properties_meta_reg = generate_properties_meta_registration(ctx.properties, ctx.signals)?;
@@ -35,8 +36,8 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext, origin: &CallOrigin
     let struct_ident = &ctx.struct_ident;
     let (impl_generics, type_generics, where_clause) = generics.split_for_impl();
 
-    let bridge_library = origin.bridge_module();
-    let iface_library = origin.iface_module();
+    let bridge_library = crate_names::bridge_module();
+    let iface_library = crate_names::iface_module();
 
     let has_generics = !generics.params.is_empty();
     let get_dyn_meta_object_body = if has_generics {
@@ -82,7 +83,7 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext, origin: &CallOrigin
     })
 }
 
-fn generate_meta_reg_use_block(signals: &[QSignalInfo], slots: &[QSlotInfo], properties: &[QPropertyInfo], origin: &CallOrigin) -> TokenStream {
+fn generate_meta_reg_use_block(signals: &[QSignalInfo], slots: &[QSlotInfo], properties: &[QPropertyInfo]) -> TokenStream {
     // generate code like 'use module::submodule;' to reduce amount of boiler plate
     // when accessing functions from other modules
 
@@ -90,8 +91,8 @@ fn generate_meta_reg_use_block(signals: &[QSignalInfo], slots: &[QSlotInfo], pro
         return TokenStream::new();
     }
 
-    let type_library = origin.type_module();
-    let bridge_library = origin.bridge_module();
+    let type_library = crate_names::type_module();
+    let bridge_library = crate_names::bridge_module();
 
     let is_property_with_not_deduced_type =
         properties.iter()

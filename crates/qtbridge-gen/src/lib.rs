@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use proc_macro::TokenStream;
-use qtbridge_gen_common::type_qualified_mapping::CallOrigin;
 
 mod qt_derive;
 mod qt_gen_impl;
@@ -10,18 +9,7 @@ mod qt_resource;
 
 #[proc_macro_attribute]
 pub fn qobject(args: TokenStream, input: TokenStream) -> TokenStream {
-    let mut builder = qt_gen_impl::QObjectModuleBuilder::new(CallOrigin::External);
-    let output = match builder.build_token_stream(input.into(), args.into()) {
-        Ok(tokens) => tokens,
-        Err(err) => err.to_compile_error(),
-    };
-    output.into()
-}
-
-#[doc(hidden)]
-#[proc_macro_attribute]
-pub fn qobject_internal(args: TokenStream, input: TokenStream) -> TokenStream {
-    let mut builder = qt_gen_impl::QObjectModuleBuilder::new(CallOrigin::Internal);
+    let mut builder = qt_gen_impl::QObjectModuleBuilder::new();
     let output = match builder.build_token_stream(input.into(), args.into()) {
         Ok(tokens) => tokens,
         Err(err) => err.to_compile_error(),
@@ -31,17 +19,7 @@ pub fn qobject_internal(args: TokenStream, input: TokenStream) -> TokenStream {
 
 #[proc_macro_attribute]
 pub fn qobject_impl(args: TokenStream, input: TokenStream) -> TokenStream {
-    let output = match qt_gen_impl::qobject_impl(input.into(), args.into(), &CallOrigin::External) {
-        Ok(o) => o.to_token_stream(),
-        Err(err) => err.to_compile_error(),
-    };
-    output.into()
-}
-
-#[doc(hidden)]
-#[proc_macro_attribute]
-pub fn qobject_impl_internal(args: TokenStream, input: TokenStream) -> TokenStream {
-    let output = match qt_gen_impl::qobject_impl(input.into(), args.into(), &CallOrigin::Internal) {
+    let output = match qt_gen_impl::qobject_impl(input.into(), args.into()) {
         Ok(o) => o.to_token_stream(),
         Err(err) => err.to_compile_error(),
     };

@@ -3,7 +3,7 @@
 
 use quote::ToTokens;
 use syn::visit_mut::VisitMut;
-use syn::{Path, parse_quote, PathSegment, Ident};
+use syn::{PathSegment, Ident};
 use crate::type_registry;
 use type_registry::{TypesEnum, type_traits::FindType};
 
@@ -18,35 +18,20 @@ pub enum CallOrigin {
     External,
 }
 
-impl CallOrigin {
-    pub fn type_module(&self) -> Path {
-        match self {
-            CallOrigin::External => parse_quote!(qtbridge::qtbridge_type_lib),
-            CallOrigin::Internal => parse_quote!(qtbridge_type_lib),
-        }
+pub mod crate_names {
+    use syn::{Path, parse_quote};
+
+    pub fn type_module() -> Path {
+        parse_quote!(qtbridge::qtbridge_type_lib)
     }
 
-    pub fn iface_module(&self) -> Path {
-        match self {
-            CallOrigin::External => parse_quote!(qtbridge::qtbridge_interfaces),
-            CallOrigin::Internal => parse_quote!(qtbridge_interfaces),
-        }
+    pub fn iface_module() -> Path {
+        parse_quote!(qtbridge::qtbridge_interfaces)
     }
 
-    pub fn bridge_module(&self) -> Path {
-        match self {
-            CallOrigin::External => parse_quote!(qtbridge::qtbridge_runtime),
-            CallOrigin::Internal => parse_quote!(bridge),
-        }
+    pub fn bridge_module() -> Path {
+        parse_quote!(qtbridge::qtbridge_runtime)
     }
-
-    pub fn trait_module(&self) -> Path {
-        match self {
-            CallOrigin::External => parse_quote!(qtbridge::qt_traits),
-            CallOrigin::Internal => parse_quote!(qt_traits),
-        }
-    }
-
 }
 
 impl TypeQualifiedMapping {

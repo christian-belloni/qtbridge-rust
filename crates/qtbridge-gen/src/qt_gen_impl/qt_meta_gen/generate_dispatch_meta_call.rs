@@ -3,18 +3,18 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::visit_mut::VisitMut;
-
-use qtbridge_gen_common::type_qualified_mapping::{CallOrigin, TypeQualifiedMapping};
+use qtbridge_gen_common::type_qualified_mapping;
+use type_qualified_mapping::{TypeQualifiedMapping, CallOrigin, crate_names};
 
 use super::{QPropertyInfo, QSignalInfo, QSlotInfo};
 use super::traits::find_by_qml_name;
 
 pub fn generate_dispatch_meta_call(struct_ident: &syn::Ident, generics: &syn::Generics,
-    signals: &[QSignalInfo], slots: &[QSlotInfo], properties: &[QPropertyInfo], origin: &CallOrigin) -> syn::Result<syn::ItemImpl> {
+    signals: &[QSignalInfo], slots: &[QSlotInfo], properties: &[QPropertyInfo]) -> syn::Result<syn::ItemImpl> {
 
     let (impl_generics, type_generics, where_clause) = generics.split_for_impl();
-    let type_library = origin.type_module();
-    let bridge_library = origin.bridge_module();
+    let type_library = crate_names::type_module();
+    let bridge_library = crate_names::bridge_module();
 
     let (slots_mut, slots_const): (Vec<_>, Vec<_>) = slots.iter()
         .partition(|s| s.is_mut());
@@ -84,7 +84,7 @@ pub fn generate_dispatch_meta_call(struct_ident: &syn::Ident, generics: &syn::Ge
     };
 
     let mut result = syn::parse2(code)?;
-    let mut map = TypeQualifiedMapping::new(origin.clone());
+    let mut map = TypeQualifiedMapping::new(CallOrigin::External);
     map.visit_item_impl_mut(&mut result);
 
     Ok(result)

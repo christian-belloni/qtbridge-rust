@@ -6,7 +6,6 @@ use insta::assert_snapshot;
 use quote::quote;
 use crate::qt_gen_impl::QObjectModuleBuilder;
 use crate::qt_gen_impl::qobject_impl::qobject_impl;
-use qtbridge_gen_common::type_qualified_mapping::CallOrigin;
 use qtbridge_gen_common::format_code::{format_rust_code, strip_docs};
 
 #[test]
@@ -53,7 +52,7 @@ fn test() {
         }
     };
 
-    let output = qobject_impl(input, quote!{}, &CallOrigin::External)
+    let output = qobject_impl(input, quote!{})
         .unwrap()
         .qmeta_info_impl;
     let formatted = format_rust_code(&strip_docs(output)).unwrap();
@@ -90,7 +89,7 @@ fn test_dispatch_meta_call() {
         }
     };
 
-    let output = qobject_impl(input, quote!{}, &CallOrigin::External)
+    let output = qobject_impl(input, quote!{})
         .unwrap()
         .dispatch_meta_call;
     let formatted = format_rust_code(&strip_docs(output)).unwrap();
@@ -140,7 +139,7 @@ fn test_nested_properties() {
         }
     };
 
-    let mut builder = QObjectModuleBuilder::new(CallOrigin::External);
+    let mut builder = QObjectModuleBuilder::new();
     let output = builder.build_token_stream(input, quote!{})
         .expect("build_token_stream() failed");
     let formatted = format_rust_code(&strip_docs(output)).unwrap();

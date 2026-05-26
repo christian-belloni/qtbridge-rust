@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use proc_macro2::TokenStream;
-use qtbridge_gen_common::type_qualified_mapping::CallOrigin;
 use quote::{ToTokens, format_ident};
 use syn::spanned::Spanned;
 
@@ -24,7 +23,6 @@ use qt_gen_impl::drop_impl::{adjust_drop_impl, generate_drop};
 
 pub struct QObjectModuleBuilder {
     params: QObjectMacroParams,
-    origin: CallOrigin,
     struct_ident: syn::Ident,
     struct_generics: syn::Generics,
     struct_fields: syn::FieldsNamed,
@@ -41,11 +39,10 @@ impl QObjectModuleBuilder {
         !self.struct_generics.params.is_empty()
     }
 
-    pub fn new(origin: CallOrigin) -> Self {
+    pub fn new() -> Self {
         qtbridge_type_lib::init();
         Self {
             params: QObjectMacroParams::default(),
-            origin,
             struct_ident: format_ident!("dummy"),
             struct_generics: syn::Generics::default(),
             signals: Vec::new(),
@@ -94,7 +91,7 @@ impl QObjectModuleBuilder {
         };
 
         // Generate the implementation of the interface.
-        let iface_impl = InterfaceImpl::new(self.struct_ident.clone(), iface_ident.clone(), self.struct_generics.clone(), self.origin.clone())?;
+        let iface_impl = InterfaceImpl::new(self.struct_ident.clone(), iface_ident.clone(), self.struct_generics.clone())?;
 
         // Generate blocks of code that will be added to expanded code.
         let drop_impl = match self.params.no_drop {
@@ -116,11 +113,11 @@ impl QObjectModuleBuilder {
         };
 
         // Generate traits code.
-        let qmeta_info_impl_tokens = generate_qmetainfo_trait_impl(&ctx, &self.origin)
+        let qmeta_info_impl_tokens = generate_qmetainfo_trait_impl(&ctx)
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaInfo trait.\nError: {}", err)))?;
-        let dispatch_meta_call = generate_dispatch_meta_call(&self.struct_ident, &self.struct_generics, &self.signals, &self.slots, &self.properties, &self.origin)
+        let dispatch_meta_call = generate_dispatch_meta_call(&self.struct_ident, &self.struct_generics, &self.signals, &self.slots, &self.properties)
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of DispatchMetaCall trait.\nError: {err}")))?;
-        let qmetatype_get_impl_tokens = generate_qmeta_type_get(&self.struct_ident, &self.struct_generics, &self.origin)
+        let qmetatype_get_impl_tokens = generate_qmeta_type_get(&self.struct_ident, &self.struct_generics)
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaTypeGet trait.\nError: {}", err)))?;
 
         // Concat additional items to the source items processed
@@ -212,7 +209,7 @@ impl QObjectModuleBuilder {
                     is_path_with_segments_str(path, "core::ops::Drop")
                     {
                         self.is_drop_found = true;
-                        return adjust_drop_impl(input, &self.origin)
+                        return adjust_drop_impl(input)
                     }
                 }
             },
@@ -340,7 +337,7 @@ impl QObjectModuleBuilder {
             return Ok(None)
         }
 
-        generate_drop(&self.struct_ident, &self.struct_generics, &self.origin)
+        generate_drop(&self.struct_ident, &self.struct_generics)
     }
 
     fn get_meta_attribute(input: &[syn::Attribute]) -> syn::Result<Option<&syn::Attribute>> {

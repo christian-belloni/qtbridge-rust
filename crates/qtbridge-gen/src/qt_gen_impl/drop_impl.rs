@@ -1,15 +1,15 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use qtbridge_gen_common::type_qualified_mapping::CallOrigin;
+use qtbridge_gen_common::type_qualified_mapping::crate_names;
 use quote::{quote, ToTokens};
 use syn::spanned::Spanned;
 
 /// Generate impl Drop for given struct in which we delete attached qobject.
-pub fn generate_drop(struct_ident: &syn::Ident, struct_generics: &syn::Generics, origin: &CallOrigin) -> syn::Result<Option<syn::ItemImpl>> {
+pub fn generate_drop(struct_ident: &syn::Ident, struct_generics: &syn::Generics) -> syn::Result<Option<syn::ItemImpl>> {
 
     let (impl_generics, type_generics, where_clause) = struct_generics.split_for_impl();
-    let bridge_library = origin.bridge_module();
+    let bridge_library = crate_names::bridge_module();
 
     let drop = syn::parse2::<syn::ItemImpl>(quote! {
         /// This is an automatic implementation by qtbridges.
@@ -27,7 +27,7 @@ pub fn generate_drop(struct_ident: &syn::Ident, struct_generics: &syn::Generics,
     Ok(Some(drop))
 }
 
-pub fn adjust_drop_impl(input: &syn::ItemImpl, origin: &CallOrigin) -> syn::Result<syn::ItemImpl> {
+pub fn adjust_drop_impl(input: &syn::ItemImpl) -> syn::Result<syn::ItemImpl> {
 
     let items = &input.items;
     if items.len() != 1 {
@@ -48,7 +48,7 @@ pub fn adjust_drop_impl(input: &syn::ItemImpl, origin: &CallOrigin) -> syn::Resu
         *semi = Some(Default::default());
     }
 
-    let bridge_library = origin.bridge_module();
+    let bridge_library = crate_names::bridge_module();
 
     let drop_expr: syn::Expr = syn::parse2(quote!{
         <Self as #bridge_library::QObjectHolder>::detach_qobject(self)

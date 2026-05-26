@@ -5,24 +5,22 @@ use proc_macro2::TokenStream;
 use quote::quote;
 
 use qtbridge_gen_common::naming;
-use qtbridge_gen_common::type_qualified_mapping::CallOrigin;
+use qtbridge_gen_common::type_qualified_mapping::crate_names;
 
 // Info extracted by parsing impl block of some structure by procedural macro 'qobject_impl'
 pub struct InterfaceImpl {
     struct_ident: syn::Ident,     // Name of struct that implements given interface
     iface_ident: syn::Ident,      // The name of the Qt-interface the struct is implementing
     impl_generics: syn::Generics, // All the generics added to the implementation and their clauses
-    origin: CallOrigin,           // Used to do the correct imports within qtbridges or externally
 }
 
 impl InterfaceImpl {
-    pub fn new(struct_ident: syn::Ident, iface_ident: syn::Ident, impl_generics: syn::Generics, origin: CallOrigin) -> syn::Result<Self> {
+    pub fn new(struct_ident: syn::Ident, iface_ident: syn::Ident, impl_generics: syn::Generics) -> syn::Result<Self> {
 
         Ok(Self {
             struct_ident,
             iface_ident,
             impl_generics,
-            origin,
         })
     }
 
@@ -37,8 +35,8 @@ impl InterfaceImpl {
 
         let (impl_generics, type_generics, where_clause) = self.impl_generics.split_for_impl();
 
-        let iface_library = self.origin.iface_module();
-        let bridge_library = self.origin.bridge_module();
+        let iface_library = crate_names::iface_module();
+        let bridge_library = crate_names::bridge_module();
 
         let code = quote! {
 

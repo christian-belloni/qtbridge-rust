@@ -6,7 +6,6 @@ use quote::{quote, ToTokens};
 use syn::{spanned::Spanned};
 
 use qtbridge_gen_common::function_with_attributes::FunctionWithAttributes;
-use qtbridge_gen_common::type_qualified_mapping::CallOrigin;
 use qtbridge_gen_common::type_utils::get_ident_of_last_path_segment_or_err;
 use crate::qt_gen_impl;
 use crate::qt_gen_impl::qt_meta_gen::generate_dispatch_meta_call::generate_dispatch_meta_call;
@@ -65,7 +64,7 @@ impl QObjectImplOutput {
 /// Handle annotations of Qt signals, slots, properties.
 /// Make struct behave as if it was 'inherited' from given QObject interface (optionally).
 /// Generate code needed to make it work.
-pub fn qobject_impl(input: TokenStream, params: TokenStream, origin: &CallOrigin) -> syn::Result<QObjectImplOutput> {
+pub fn qobject_impl(input: TokenStream, params: TokenStream) -> syn::Result<QObjectImplOutput> {
     qtbridge_type_lib::init();
 
     // Parsing input parameters of this macro
@@ -145,7 +144,7 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream, origin: &CallOrigin
         syn::parse_str::<syn::Ident>("QObject")?
     };
 
-    let iface_impl = InterfaceImpl::new(struct_ident.clone(), iface_ident.clone(), generics.clone(), origin.clone())?;
+    let iface_impl = InterfaceImpl::new(struct_ident.clone(), iface_ident.clone(), generics.clone())?;
 
     let impl_details = iface_impl.generate_impl_details()
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation details block.\nError:{err}")))?;
@@ -161,15 +160,15 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream, origin: &CallOrigin
     };
 
     // Generate traits code
-    let qmeta_info_impl = generate_qmetainfo_trait_impl(&ctx, &origin)
+    let qmeta_info_impl = generate_qmetainfo_trait_impl(&ctx)
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaInfo trait.\nError: {}", err)))?;
-    let dispatch_meta_call = generate_dispatch_meta_call(&struct_ident, generics, &signals, &slots, &properties, origin)
+    let dispatch_meta_call = generate_dispatch_meta_call(&struct_ident, generics, &signals, &slots, &properties)
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of DispatchMetaCall trait.\nError: {}", err)))?
         .to_token_stream();
-    let qmetatype_get_impl = generate_qmeta_type_get(&struct_ident, &generics, &origin)
+    let qmetatype_get_impl = generate_qmeta_type_get(&struct_ident, &generics)
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaTypeGet trait.\nError: {}", err)))?;
 
-    let drop_impl = generate_drop(&struct_ident, generics, origin)
+    let drop_impl = generate_drop(&struct_ident, generics)
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of Drop trait.\nError: {}", err)))?
         .to_token_stream();
 

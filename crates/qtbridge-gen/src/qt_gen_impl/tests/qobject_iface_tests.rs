@@ -5,7 +5,6 @@
 use insta::assert_snapshot;
 use crate::qt_gen_impl::QObjectModuleBuilder;
 use quote::{ToTokens, quote};
-use qtbridge_gen_common::type_qualified_mapping::CallOrigin;
 use qtbridge_gen_common::format_code::{format_rust_code, strip_docs};
 
 #[test]
@@ -36,7 +35,7 @@ pub fn test() {
         Base = QAbstractListModel
     };
 
-    let mut builder = QObjectModuleBuilder::new(CallOrigin::External);
+    let mut builder = QObjectModuleBuilder::new();
     let output = builder.build(input, input_params).unwrap().to_token_stream();
     let formatted = format_rust_code(&strip_docs(output)).unwrap();
     assert_snapshot!(formatted);
@@ -61,7 +60,7 @@ pub fn test_no_drop() {
         Base = QAbstractListModel, NoDrop
     };
 
-    let mut builder = QObjectModuleBuilder::new(CallOrigin::External);
+    let mut builder = QObjectModuleBuilder::new();
     let output = builder.build(input, input_params).unwrap().to_token_stream();
     let formatted = format_rust_code(&strip_docs(output)).unwrap();
     assert_snapshot!(formatted);
