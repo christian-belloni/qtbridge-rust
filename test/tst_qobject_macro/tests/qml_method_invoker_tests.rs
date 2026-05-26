@@ -48,20 +48,20 @@ pub use test_object::TestObject;
 
 fn test_invoke_method_alive() {
     let qobject_holder = TestObject::default_with_attached_qobject();
-    assert!(qobject_holder.borrow().get_qml_method_invoker().invoke_method("signalNoArgs"));
+    assert!(qobject_holder.borrow().get_qml_method_invoker().invoke_method("signal_no_args"));
 }
 
 fn test_invoke_method_destroyed() {
     let qobject_holder = TestObject::default_with_attached_qobject();
     let qml_method_invoker = qobject_holder.borrow().get_qml_method_invoker();
     qobject_holder.borrow().detach_qobject();
-    assert!(!qml_method_invoker.invoke_method("signalNoArgs"));
+    assert!(!qml_method_invoker.invoke_method("signal_no_args"));
 }
 
 fn test_signal_emitted(app: &QGuiApplication) {
     let qobject_holder = TestObject::default_with_attached_qobject();
-    let spy = QSignalSpy::new(qobject_holder.borrow().get_qobject(), "signalNoArgs");
-    qobject_holder.borrow().get_qml_method_invoker().invoke_method("signalNoArgs");
+    let spy = QSignalSpy::new(qobject_holder.borrow().get_qobject(), "signal_no_args");
+    qobject_holder.borrow().get_qml_method_invoker().invoke_method("signal_no_args");
     app.process_events();
     app.process_events();
     assert_eq!(spy.count(), 1);
@@ -70,7 +70,7 @@ fn test_signal_emitted(app: &QGuiApplication) {
 fn test_mutable_slot(app: &QGuiApplication) {
     let qobject_holder = TestObject::default_with_attached_qobject();
     let qml_method_invoker = qobject_holder.borrow().get_qml_method_invoker();
-    qml_method_invoker.invoke_method("mutableSlot");
+    qml_method_invoker.invoke_method("mutable_slot");
     app.process_events();
     app.process_events();
     assert!(qobject_holder.borrow().mutable_slot_called);
@@ -79,7 +79,7 @@ fn test_mutable_slot(app: &QGuiApplication) {
 fn test_immutable_slot(app: &QGuiApplication) {
     let qobject_holder = TestObject::default_with_attached_qobject();
     let qml_method_invoker = qobject_holder.borrow().get_qml_method_invoker();
-    qml_method_invoker.invoke_method("immutableSlot");
+    qml_method_invoker.invoke_method("immutable_slot");
     app.process_events();
     app.process_events();
     assert!(qobject_holder.borrow().immutable_slot_called.get());
@@ -88,7 +88,7 @@ fn test_immutable_slot(app: &QGuiApplication) {
 fn test_slot_with_parameters(app: &QGuiApplication) {
     let qobject_holder = TestObject::default_with_attached_qobject();
     let invoker = qobject_holder.borrow().get_qml_method_invoker();
-    assert!(invoker.invoke_method_with_args("addInts", &QVariantList::from([15.into(), 17.into()])));
+    assert!(invoker.invoke_method_with_args("add_ints", &QVariantList::from([15.into(), 17.into()])));
     app.process_events();
     app.process_events();
     assert_eq!(qobject_holder.borrow().int_value, 32);
@@ -97,7 +97,7 @@ fn test_slot_with_parameters(app: &QGuiApplication) {
 fn test_immutable_slot_via_macro(app: &QGuiApplication) {
     let qobject_holder = TestObject::default_with_attached_qobject();
     let invoker = qobject_holder.borrow().get_qml_method_invoker();
-    invoke_method!(invoker, "immutableSlot");
+    invoke_method!(invoker, "immutable_slot");
     app.process_events();
     app.process_events();
     assert!(qobject_holder.borrow().immutable_slot_called.get());
@@ -106,7 +106,7 @@ fn test_immutable_slot_via_macro(app: &QGuiApplication) {
 fn test_slot_with_parameters_via_macro(app: &QGuiApplication) {
     let qobject_holder = TestObject::default_with_attached_qobject();
     let invoker = qobject_holder.borrow().get_qml_method_invoker();
-    invoke_method!(invoker, "addInts", 15, 17);
+    invoke_method!(invoker, "add_ints", 15, 17);
     app.process_events();
     app.process_events();
     assert_eq!(qobject_holder.borrow().int_value, 32);

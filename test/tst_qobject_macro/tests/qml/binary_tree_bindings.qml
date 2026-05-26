@@ -17,7 +17,7 @@ Item {
             property var subtree: Backend.myTree.left
         }
         function test_bind_singleton_property_to_var_property() {
-            compare(item1.subtree.subtreeValues(), [2, 4])
+            compare(item1.subtree.subtree_values(), [2, 4])
         }
     }
 
@@ -30,7 +30,7 @@ Item {
             property Node subtree: Backend.myTree.right
         }
         function test_bind_singleton_property_to_typed_property() {
-            compare(item2.subtree.subtreeValues(), [3])
+            compare(item2.subtree.subtree_values(), [3])
         }
     }
 }

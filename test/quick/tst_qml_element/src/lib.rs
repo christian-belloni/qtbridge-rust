@@ -7,7 +7,7 @@ use qtbridge::{QmlRegister, qobject_impl};
 pub struct Backend {
 }
 
-#[qobject_impl(NoQmlElement)]
+#[qobject_impl(NoQmlElement, ConvertToCamelCase)]
 impl Backend {
     #[qslot]
     fn answer_to_everything(&self) -> i32 {
@@ -28,7 +28,7 @@ impl QmlRegister for Backend {
 pub struct SingletonBackend {
 }
 
-#[qobject_impl(NoQmlElement)]
+#[qobject_impl(NoQmlElement, ConvertToCamelCase)]
 impl SingletonBackend {
     #[qslot]
     fn answer_to_everything(&self) -> i32 {

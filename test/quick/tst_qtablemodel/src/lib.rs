@@ -22,7 +22,7 @@ impl Default for MyClass {
         }
     }
 }
-#[qobject(Base = QTableModel)]
+#[qobject(Base = QTableModel, ConvertToCamelCase)]
 mod backend {
     use qtbridge::{QTableModel, QTableModelBase};
 

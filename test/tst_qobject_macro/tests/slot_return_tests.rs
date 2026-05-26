@@ -8,7 +8,7 @@ use qtbridge::{QApp, QObjectHolder, qobject};
 use qtbridge::qtbridge_type_lib::QVariant;
 use common::{MAX_SAFE_INTEGER, MIN_SAFE_INTEGER, capitalize_first_char, get_type_name};
 
-#[qobject]
+#[qobject(ConvertToCamelCase)]
 pub mod test_object {
     use super::{MIN_SAFE_INTEGER, MAX_SAFE_INTEGER};
 

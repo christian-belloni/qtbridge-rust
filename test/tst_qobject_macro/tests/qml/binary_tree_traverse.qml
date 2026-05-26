@@ -41,6 +41,6 @@ TestCase {
     }
 
     function test_node_values() {
-        compare(root.subtreeValues(), [7, 5, 1, 2, 6, 3, 4])
+        compare(root.subtree_values(), [7, 5, 1, 2, 6, 3, 4])
     }
 }

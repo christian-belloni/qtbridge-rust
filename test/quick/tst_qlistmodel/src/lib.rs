@@ -13,7 +13,7 @@ pub struct MyClass {
     display: String,
 }
 
-#[qobject(Base = QListModel)]
+#[qobject(Base = QListModel, ConvertToCamelCase)]
 mod backend {
     use qtbridge::{QListModel, QListModelBase};
 

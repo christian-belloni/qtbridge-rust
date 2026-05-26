@@ -13,6 +13,6 @@ ApplicationWindow {
     Button {
         anchors.centerIn: parent
         text: "Hello World!"
-        onClicked: Backend.sayHello()
+        onClicked: Backend.say_hello()
     }
 }

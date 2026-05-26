@@ -4,7 +4,7 @@
 mod common;
 
 use qtbridge::{QApp, QObjectHolder, qobject};
-use common::capitalize_first_char;
+use common::decapitalize_first_char;
 
 #[qobject]
 pub mod test_object {
@@ -167,7 +167,7 @@ fn get_qml_code_for(slot_type_suffix: &str, arg_value: &str) -> String {
             required property var testObject
 
             Component.onCompleted: {{
-                testObject.slot{slot_type_suffix}({arg_value});
+                testObject.slot_{slot_type_suffix}({arg_value});
             }}
         }}
     "#)
@@ -176,7 +176,7 @@ fn get_qml_code_for(slot_type_suffix: &str, arg_value: &str) -> String {
 fn test_type<F>(arg_type_suffix: &str, arg_value: &str, check_fn: F)
     where F: FnOnce(&TestObject) -> bool
 {
-    let suffix = capitalize_first_char(arg_type_suffix);
+    let suffix = decapitalize_first_char(arg_type_suffix);
 
     // Run QApp with QML code for the given slot.
     let obj = TestObject::default_with_attached_qobject();
@@ -188,7 +188,7 @@ fn test_type<F>(arg_type_suffix: &str, arg_value: &str, check_fn: F)
 }
 
 fn test_slot_types_values() {
-    test_type("NoArgs", "",              |obj| obj.arg_unit.is_some());
+    test_type("no_args", "",              |obj| obj.arg_unit.is_some());
     test_type("bool", "true",            |obj| obj.arg_bool == Some(true));
     test_type("i8", "10",                |obj| obj.arg_i8 == Some(10));
     test_type("u8", "20",                |obj| obj.arg_u8 == Some(20));
@@ -207,21 +207,21 @@ fn test_slot_types_values() {
 }
 
 fn test_slot_types_references() {
-    test_type("boolRef", "true", |obj| obj.arg_bool == Some(true));
-    test_type("i8Ref", "11",     |obj| obj.arg_i8 == Some(11));
-    test_type("u8Ref", "21",     |obj| obj.arg_u8 == Some(21));
-    test_type("i16Ref", "-31",   |obj| obj.arg_i16 == Some(-31));
-    test_type("u16Ref", "41",    |obj| obj.arg_u16 == Some(41));
-    test_type("i32Ref", "-51",   |obj| obj.arg_i32 == Some(-51));
-    test_type("u32Ref", "61",    |obj| obj.arg_u32 == Some(61));
-    test_type("i64Ref", "71",    |obj| obj.arg_i64 == Some(71));
-    test_type("u64Ref", "81",    |obj| obj.arg_u64 == Some(81));
-    test_type("isizeRef", "91",  |obj| obj.arg_isize == Some(91));
-    test_type("usizeRef", "97",  |obj| obj.arg_usize == Some(97));
-    test_type("f32Ref", "0.25",  |obj| obj.arg_f32 == Some(0.25));
-    test_type("f64Ref", "0.75",  |obj| obj.arg_f64 == Some(0.75));
+    test_type("bool_ref", "true", |obj| obj.arg_bool == Some(true));
+    test_type("i8_ref", "11",     |obj| obj.arg_i8 == Some(11));
+    test_type("u8_ref", "21",     |obj| obj.arg_u8 == Some(21));
+    test_type("i16_ref", "-31",   |obj| obj.arg_i16 == Some(-31));
+    test_type("u16_ref", "41",    |obj| obj.arg_u16 == Some(41));
+    test_type("i32_ref", "-51",   |obj| obj.arg_i32 == Some(-51));
+    test_type("u32_ref", "61",    |obj| obj.arg_u32 == Some(61));
+    test_type("i64_ref", "71",    |obj| obj.arg_i64 == Some(71));
+    test_type("u64_ref", "81",    |obj| obj.arg_u64 == Some(81));
+    test_type("isize_ref", "91",  |obj| obj.arg_isize == Some(91));
+    test_type("usize_ref", "97",  |obj| obj.arg_usize == Some(97));
+    test_type("f32_ref", "0.25",  |obj| obj.arg_f32 == Some(0.25));
+    test_type("f64_ref", "0.75",  |obj| obj.arg_f64 == Some(0.75));
 
-    test_type("stringRef", "\"test3\"",  |obj| obj.arg_string == Some("test3".into()));
+    test_type("string_ref", "\"test3\"",  |obj| obj.arg_string == Some("test3".into()));
 }
 
 fn main() {

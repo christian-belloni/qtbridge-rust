@@ -4,7 +4,7 @@
 mod common;
 
 use qtbridge::{QApp, QObjectHolder, qobject};
-use common::{capitalize_first_char, get_type_name};
+use common::{get_type_name, decapitalize_first_char};
 
 #[qobject]
 pub mod test_object {
@@ -56,20 +56,20 @@ pub mod test_object {
         #[qsignal]
         pub fn signal_vec_string(&mut self, arg: Vec<String>);
 
-        qproperty!("signalArgBool", Member = signal_arg_vec_bool);
-        qproperty!("signalArgI8", Member = signal_arg_vec_i8);
-        qproperty!("signalArgU8", Member = signal_arg_vec_u8);
-        qproperty!("signalArgI16", Member = signal_arg_vec_i16);
-        qproperty!("signalArgU16", Member = signal_arg_vec_u16);
-        qproperty!("signalArgI32", Member = signal_arg_vec_i32);
-        qproperty!("signalArgU32", Member = signal_arg_vec_u32);
-        qproperty!("signalArgI64", Member = signal_arg_vec_i64);
-        qproperty!("signalArgU64", Member = signal_arg_vec_u64);
-        qproperty!("signalArgIsize", Member = signal_arg_vec_isize);
-        qproperty!("signalArgUsize", Member = signal_arg_vec_usize);
-        qproperty!("signalArgF32", Member = signal_arg_vec_f32);
-        qproperty!("signalArgF64", Member = signal_arg_vec_f64);
-        qproperty!("signalArgString", Member = signal_arg_vec_string);
+        qproperty!("signal_arg_bool", Member = signal_arg_vec_bool);
+        qproperty!("signal_arg_i8", Member = signal_arg_vec_i8);
+        qproperty!("signal_arg_u8", Member = signal_arg_vec_u8);
+        qproperty!("signal_arg_i16", Member = signal_arg_vec_i16);
+        qproperty!("signal_arg_u16", Member = signal_arg_vec_u16);
+        qproperty!("signal_arg_i32", Member = signal_arg_vec_i32);
+        qproperty!("signal_arg_u32", Member = signal_arg_vec_u32);
+        qproperty!("signal_arg_i64", Member = signal_arg_vec_i64);
+        qproperty!("signal_arg_u64", Member = signal_arg_vec_u64);
+        qproperty!("signal_arg_isize", Member = signal_arg_vec_isize);
+        qproperty!("signal_arg_usize", Member = signal_arg_vec_usize);
+        qproperty!("signal_arg_f32", Member = signal_arg_vec_f32);
+        qproperty!("signal_arg_f64", Member = signal_arg_vec_f64);
+        qproperty!("signal_arg_string", Member = signal_arg_vec_string);
     }
 }
 
@@ -87,14 +87,14 @@ fn get_qml_code_for(type_suffix: &str) -> String {
                 interval: 1
                 property var signalValue
                 onTriggered: {{
-                    testObject.signalArg{type_suffix} = signalValue
+                    testObject.signal_arg_{type_suffix} = signalValue
                     Qt.quit()
                 }}
             }}
 
             Connections {{
                 target: testObject
-                function onSignalVec{type_suffix}(v) {{
+                function onSignal_vec_{type_suffix}(v) {{
                     timer.signalValue = v
                     timer.start()
                 }}
@@ -105,11 +105,11 @@ fn get_qml_code_for(type_suffix: &str) -> String {
 
 fn test_type<T>(emit_fn: fn(&mut TestObject), check_fn: fn(&TestObject) -> bool)
 {
-    let type_str = get_type_name::<T>();
-    let suffix = capitalize_first_char(&type_str);
+    let name = get_type_name::<T>();
+    let type_str = decapitalize_first_char(&name);
 
     // Patch qml code.
-    let qml = get_qml_code_for(&suffix);
+    let qml = get_qml_code_for(&type_str);
 
     // Init QApp with QML code for the given signal.
     let obj = TestObject::default_with_attached_qobject();

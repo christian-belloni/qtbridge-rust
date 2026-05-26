@@ -11,6 +11,7 @@ use qtbridge_gen_common::signature_utils::{get_typed_args, is_self_mut};
 use qtbridge_gen_common::type_registry::meta_types::check_meta_call_signature_types;
 
 use crate::qt_gen_impl::qt_meta_gen;
+use crate::qt_gen_impl::qobject_macro_params::QObjectMacroParams;
 use qt_meta_gen::meta_call_bridge_generator;
 use meta_call_bridge_generator::MetaCallBridgeGenerator;
 use qt_meta_gen::traits::{ExpandTokens, QmlName};
@@ -24,10 +25,11 @@ pub struct QSlotInfo {
     id: u32,                      // Id that will be used to identify a slot in the handler function.
     meta_params: QSlotMetaParams, // Params extracted from qslot attribute
     func: syn::ImplItemFn,        // Slot function
+    global_options: QObjectMacroParams,
 }
 
 impl QSlotInfo {
-    pub fn new(input: FunctionWithAttributes, id: u32) -> syn::Result<Self> {
+    pub fn new(input: FunctionWithAttributes, id: u32, global_options: QObjectMacroParams) -> syn::Result<Self> {
         Self::check_signature(&input.sig)?;
 
         let (attrs, slot_attr) = partition_attr_by(input.attrs.clone(), Self::is_for_me);
@@ -52,6 +54,7 @@ impl QSlotInfo {
             id,
             meta_params,
             func,
+            global_options,
         })
     }
 
@@ -183,9 +186,12 @@ impl QmlName for QSlotInfo {
         if let Some(name) = self.meta_params.name.as_ref() {
             (name.value(), name.span())
         }
-        else {
+        else if self.global_options.convert_to_camel_case {
             let ident = &self.func.sig.ident;
             (case_conv::snake_to_camel(&ident.to_string()), ident.span())
+        }
+        else {
+            (self.func.sig.ident.to_string(), self.func.sig.ident.span())
         }
     }
 }

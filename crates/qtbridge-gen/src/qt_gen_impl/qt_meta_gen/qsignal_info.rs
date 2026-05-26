@@ -13,6 +13,7 @@ use qtbridge_gen_common::signature_utils::{get_typed_args, get_typed_args_types,
 use qtbridge_gen_common::type_utils::remove_refs;
 use qtbridge_gen_common::type_registry::meta_types::{check_meta_call_signature_types, get_qmetatype_support_for_type};
 use crate::qt_gen_impl::qt_meta_gen;
+use crate::qt_gen_impl::qobject_macro_params::QObjectMacroParams;
 use qt_meta_gen::meta_call_bridge_generator::MetaCallBridgeGenerator;
 use qt_meta_gen::traits::{ExpandTokens, QmlName};
 
@@ -26,10 +27,11 @@ pub struct QSignalInfo {
     meta_params: QSignalMetaParams, // Params extracted from qsignal attribute
     vis: syn::Visibility,
     sig: syn::Signature,
+    global_options: QObjectMacroParams,
 }
 
 impl QSignalInfo {
-    pub fn new(input: FunctionWithAttributes) -> syn::Result<Self> {
+    pub fn new(input: FunctionWithAttributes, global_options: QObjectMacroParams) -> syn::Result<Self> {
         Self::check_signature(&input.sig)?;
 
         let (attrs, signal_attr) = partition_attr_by(input.attrs.clone(), Self::is_for_me);
@@ -48,6 +50,7 @@ impl QSignalInfo {
             meta_params,
             vis: input.vis,
             sig: input.sig,
+            global_options,
         })
     }
 
@@ -137,9 +140,12 @@ impl QmlName for QSignalInfo {
         if let Some(name) = self.meta_params.name.as_ref() {
             (name.value(), name.span())
         }
-        else {
+        else if self.global_options.convert_to_camel_case {
             let ident = &self.sig.ident;
             (case_conv::snake_to_camel(&ident.to_string()), ident.span())
+        }
+        else {
+            (self.sig.ident.to_string(), self.sig.ident.span())
         }
     }
 }

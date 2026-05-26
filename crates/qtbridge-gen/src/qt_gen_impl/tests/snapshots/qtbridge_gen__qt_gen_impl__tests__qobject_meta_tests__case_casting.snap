@@ -11,18 +11,18 @@ impl qtbridge::qtbridge_runtime::QMetaInfo for SomeStruct {
         use qtbridge::qtbridge_type_lib;
         use qtbridge_type_lib::{QMetaType, QMetaTypeGet};
         meta_obj.as_mut().register_signal(
-            "thisValueChanged",
+            "this_value_changed",
             &[qtbridge_type_lib::QString::get_qmetatype()],
         );
         meta_obj
             .as_mut()
-            .register_signal("other_value_changed", &[f32::get_qmetatype()]);
+            .register_signal("otherValueChanged", &[f32::get_qmetatype()]);
         meta_obj.as_mut().register_signal(
-            "this_string_value_changed_by_ref",
+            "thisStringValueChangedByRef",
             &[qtbridge_type_lib::QString::get_qmetatype()],
         );
         meta_obj.as_mut().register_signal(
-            "that_string_value_changed_by_value",
+            "thatStringValueChangedByValue",
             &[qtbridge_type_lib::QString::get_qmetatype()],
         );
         meta_obj.as_mut().register_slot(
@@ -37,7 +37,7 @@ impl qtbridge::qtbridge_runtime::QMetaInfo for SomeStruct {
             1u32,
             &(<qtbridge_type_lib::QString>::get_qmetatype()),
             false,
-            "thisValueChanged",
+            "this_value_changed",
         );
         meta_obj
             .as_mut()
@@ -47,7 +47,7 @@ impl qtbridge::qtbridge_runtime::QMetaInfo for SomeStruct {
             2u32,
             &(get_meta_type_of_fn_return_value(|this: &Self| &this.otherValueVar)),
             false,
-            "other_value_changed",
+            "otherValueChanged",
         );
         meta_obj.as_mut().add_class_info("Author", "The Qt Company");
         meta_obj.as_mut().end_meta_registration();

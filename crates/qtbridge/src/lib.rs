@@ -98,6 +98,11 @@ pub use qtbridge_build_common;
 ///
 /// Set the 'base' trait. Requires that the specified trait is implemented for the corresponding `struct`.
 ///
+/// **ConvertToCamelCase**
+///
+/// Rust uses snake_case for function names, while in QML camelCase is more common. Use this option
+/// to convert function names to camelCase when exposed to QML.
+///
 /// **NoQmlElement**
 ///
 /// Do not implement [`QmlRegister`]. [`QmlRegister`] registers the `struct` in the QML type system,
@@ -135,7 +140,7 @@ pub use qtbridge_build_common;
 ///
 /// #[qobject_impl(Singleton)]
 /// impl Counter {
-///     qproperty!("value", Member = value, Notify = "valueChanged");
+///     qproperty!("value", Member = value, Notify = "value_changed");
 ///
 ///     #[qsignal]
 ///     fn value_changed(&mut self);
@@ -222,7 +227,7 @@ pub use qtbridge_gen::qobject_impl;
 ///     }
 ///
 ///     impl Counter {
-///         qproperty!("value", Member = value, Notify = "valueChanged");
+///         qproperty!("value", Member = value, Notify = "value_changed");
 ///
 ///         #[qsignal]
 ///         fn value_changed(&mut self);
@@ -309,7 +314,9 @@ pub use qtbridge_gen::qobject;
 /// ```
 ///
 /// To receive a notification on the QML side, the object definition has to declare a signal handler named
-/// `on<Signal>`, where `<Signal>` is the name of the signal, with the first letter capitalized.
+/// `on<Signal>`, where `<Signal>` is the name of the signal, with the first letter capitalized. Note that
+/// the rest of the function name is not affected and the signal handler for e.g. `value_changed` will be
+/// `onValue_changed`.
 ///
 /// ```qml,ignore
 /// Backend {
@@ -407,7 +414,7 @@ pub use qtbridge_gen::qslot;
 /// #
 /// # #[qobject_impl]
 /// # impl Backend {
-/// qproperty!("myProperty", Read = get_value, Write = set_value, Notify = "myPropertyChanged");
+/// qproperty!("myProperty", Read = get_value, Write = set_value, Notify = "my_property_changed");
 ///
 /// pub fn get_value(&self) -> i32 { self.value }
 /// pub fn set_value(&mut self, value: i32) {
@@ -437,7 +444,7 @@ pub use qtbridge_gen::qslot;
 ///
 /// #[qobject_impl]
 /// impl Text {
-///     qproperty!("message", Member = msg, Notify = "messageChanged");
+///     qproperty!("message", Member = msg, Notify = "message_changed");
 ///
 ///     #[qsignal]
 ///     fn message_changed(&mut self);

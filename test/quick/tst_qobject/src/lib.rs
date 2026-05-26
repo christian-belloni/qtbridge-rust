@@ -1,7 +1,7 @@
 use qtbridge::qobject;
 use quicktest::run_quick_test;
 
-#[qobject]
+#[qobject(ConvertToCamelCase)]
 mod test_qobject {
 
     #[derive(Default)]

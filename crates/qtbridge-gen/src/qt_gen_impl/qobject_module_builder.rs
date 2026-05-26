@@ -269,12 +269,12 @@ impl QObjectModuleBuilder {
 
         let output;
         if QSlotInfo::is_for_me(meta_attr) {
-            let slot = QSlotInfo::new(func, self.get_slot_id())?;
+            let slot = QSlotInfo::new(func, self.get_slot_id(), self.params.clone())?;
             output = slot.expand_tokens()?;
             self.slots.push(slot);
         }
         else if QSignalInfo::is_for_me(meta_attr) {
-            let signal = QSignalInfo::new(func)?;
+            let signal = QSignalInfo::new(func,  self.params.clone())?;
             output = signal.expand_tokens()?;
             self.signals.push(signal);
         }
@@ -322,7 +322,7 @@ impl QObjectModuleBuilder {
         };
 
         if QSignalInfo::is_for_me(meta_attr) {
-            let signal = QSignalInfo::new(func)?;
+            let signal = QSignalInfo::new(func,  self.params.clone())?;
             let output = signal.expand_tokens()?;
             self.signals.push(signal);
             return Ok(Some(output))

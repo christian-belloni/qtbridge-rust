@@ -14,7 +14,7 @@ fn test() {
         impl SomeStruct {
 
             qproperty!("this_value", Read = get_value, Write = set_value, Notify = "thisValueChanged", Default);
-            qproperty!("otherValue", Member = otherValueVar, Notify = "otherValueChanged");
+            qproperty!("otherValue", Member = otherValueVar, Notify = "other_value_changed");
             qclass_info!(Name = "Author", Value = "The Qt Company");
 
             #[qsignal(qml_name = "thisValueChanged")]
@@ -60,10 +60,61 @@ fn test() {
 }
 
 #[test]
+fn test_case_casting() {
+    let input = quote! {
+        impl SomeStruct {
+
+            qproperty!("this_value", Read = get_value, Write = set_value, Notify = "this_value_changed", Default);
+            qproperty!("otherValue", Member = otherValueVar, Notify = "otherValueChanged");
+            qclass_info!(Name = "Author", Value = "The Qt Company");
+
+            #[qsignal(qml_name = "this_value_changed")]
+            fn this_value_changed(&mut self, value: &String);
+
+            #[qsignal]
+            fn other_value_changed(&mut self, value: f32)
+            {}
+
+            #[qsignal]
+            pub fn this_string_value_changed_by_ref(&mut self, value: &String);
+
+            #[qsignal]
+            pub fn that_string_value_changed_by_value(&mut self, value: String);
+
+            #[qslot(qml_name = "onThatValueChanged")]
+            pub fn on_that_value_changed(&mut self, value: &String) {
+            }
+
+            pub fn just_struct_method(&mut self, some_arg: f32) {
+                do_something_important();
+            }
+
+            pub fn just_struct_associated_function(some_arg: u64) {
+                do_something_hacky_here();
+            }
+
+            pub fn get_value(&self) -> String {
+                return self.value;
+            }
+
+            pub fn set_value(&mut self, v: &String) {
+                self.value = v;
+            }
+        }
+    };
+
+    let output = qobject_impl(input, quote!{ConvertToCamelCase})
+        .unwrap()
+        .qmeta_info_impl;
+    let formatted = format_rust_code(&strip_docs(output)).unwrap();
+    assert_snapshot!(formatted);
+}
+
+#[test]
 fn test_dispatch_meta_call() {
     let input = quote! {
         impl SomeStruct {
-            qproperty!("this_value", Member = first_value, Notify = "thisValueChanged");
+            qproperty!("this_value", Member = first_value, Notify = "this_value_changed");
             qproperty!("otherValue", Member = second_value);
             qproperty!("thirdValue", Member = third_value);
 

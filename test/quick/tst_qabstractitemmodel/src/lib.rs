@@ -109,7 +109,7 @@ impl Row {
     }
 }
 
-#[qobject(Base = QAbstractItemModel)]
+#[qobject(Base = QAbstractItemModel, ConvertToCamelCase)]
 mod backend {
 
     use super::Row;

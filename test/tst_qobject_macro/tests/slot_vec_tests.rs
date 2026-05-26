@@ -6,7 +6,7 @@ mod common;
 use qtbridge::{QApp, QObjectHolder, qobject};
 use common::{MAX_SAFE_INTEGER, MIN_SAFE_INTEGER, capitalize_first_char};
 
-#[qobject]
+#[qobject(ConvertToCamelCase)]
 pub mod test_object {
     #[derive(Default)]
     pub struct TestObject {

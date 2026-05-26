@@ -6,7 +6,7 @@ use std::rc::Rc;
 use qtbridge::qobject;
 use qtbridge::QObjectHolder;
 
-#[qobject(Base = QAbstractItemModel)]
+#[qobject(Base = QAbstractItemModel, ConvertToCamelCase)]
 mod backend {
     use qtbridge::qtbridge_type_lib::{QVariant, QModelIndex};
     use qtbridge::{QAbstractItemModel, QAbstractItemModelBase};

@@ -91,7 +91,7 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream) -> syn::Result<QObj
     let mut other_methods = Vec::<syn::Signature>::new(); // Methods that are not signal or slot, but potentially can be property setter/getter
 
     for item in &orig_impl.items {
-        let qmeta_item = extract_qobject_item(&item, slots.len() as u32, properties.len() as u32)
+        let qmeta_item = extract_qobject_item(&item, slots.len() as u32, properties.len() as u32, &params)
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to process item of 'impl' block. Error: {err}")))?;
 
         let mut item_out_tokens = TokenStream::new();
@@ -198,7 +198,7 @@ pub(crate) enum QObjectImplItem {
 }
 
 /// Returns Result with parsed QSignalInfo/QSlotInfo/QProperty/Overridden method (if found)
-fn extract_qobject_item(item_in: &syn::ImplItem, slot_count: u32, prop_count: u32) -> syn::Result<Option<QObjectImplItem>> {
+fn extract_qobject_item(item_in: &syn::ImplItem, slot_count: u32, prop_count: u32, params: &QObjectMacroParams) -> syn::Result<Option<QObjectImplItem>> {
     // TODO: more code validating signal/slot function signature?
 
     match &item_in {
@@ -211,10 +211,10 @@ fn extract_qobject_item(item_in: &syn::ImplItem, slot_count: u32, prop_count: u3
 
                 for (idx, attr) in attrs.iter().enumerate() {
                     if QSlotInfo::is_for_me(attr) {
-                        result = Some(QObjectImplItem::Slot(QSlotInfo::new(func, slot_count + 1)?));
+                        result = Some(QObjectImplItem::Slot(QSlotInfo::new(func, slot_count + 1, params.clone())?));
                     }
                     else if QSignalInfo::is_for_me(attr) {
-                        result = Some(QObjectImplItem::Signal(QSignalInfo::new(func)?))
+                        result = Some(QObjectImplItem::Signal(QSignalInfo::new(func, params.clone())?))
                     } else {
                         continue;
                     }
@@ -249,7 +249,7 @@ fn extract_qobject_item(item_in: &syn::ImplItem, slot_count: u32, prop_count: u3
         syn::ImplItem::Verbatim(verb_tokens) => {
             let func = syn::parse2::<FunctionWithAttributes>(verb_tokens.clone())?;
             if func.attrs.iter().any(QSignalInfo::is_for_me) {
-                return Ok(Some(QObjectImplItem::Signal(QSignalInfo::new(func)?)))
+                return Ok(Some(QObjectImplItem::Signal(QSignalInfo::new(func, params.clone())?)))
             } else {
                 Ok(None)
             }

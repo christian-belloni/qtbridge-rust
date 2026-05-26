@@ -37,7 +37,7 @@ struct TestValues {
     pub string: Vec<String>,
 }
 
-#[qobject]
+#[qobject(ConvertToCamelCase)]
 pub mod member_properties {
     use super::{TestObjHelper, TestValues};
 
@@ -120,7 +120,7 @@ pub mod member_properties {
     }
 }
 
-#[qobject]
+#[qobject(ConvertToCamelCase)]
 mod accessor_value_properties {
     use super::{TestObjHelper, TestValues};
 
@@ -271,7 +271,7 @@ mod accessor_value_properties {
     }
 }
 
-#[qobject]
+#[qobject(ConvertToCamelCase)]
 mod accessor_reference_properties {
     use super::{TestObjHelper, TestValues};
 

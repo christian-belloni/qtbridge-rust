@@ -30,3 +30,8 @@ pub fn capitalize_first_char(str: &str) -> String {
     let mut chars = str.chars();
     format!("{}{}", chars.next().unwrap().to_uppercase(), chars.as_str())
 }
+
+pub fn decapitalize_first_char(str: &str) -> String {
+    let mut chars = str.chars();
+    format!("{}{}", chars.next().unwrap().to_lowercase(), chars.as_str())
+}

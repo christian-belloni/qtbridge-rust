@@ -3,13 +3,14 @@
 
 use qtbridge_gen_common::parse_utils::parse_name_value;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct QObjectMacroParams {
     pub base: Option<syn::Ident>,
     pub no_drop: bool,
     pub no_qml_element: bool,
     pub singleton: bool,
     pub link_me: bool,
+    pub convert_to_camel_case: bool,
 }
 
 impl Default for QObjectMacroParams {
@@ -20,6 +21,7 @@ impl Default for QObjectMacroParams {
             no_qml_element: false,
             singleton: false,
             link_me: false,
+            convert_to_camel_case: false,
         }
     }
 }
@@ -30,6 +32,7 @@ mod keywords {
     syn::custom_keyword!(NoQmlElement);
     syn::custom_keyword!(Singleton);
     syn::custom_keyword!(LinkMe);
+    syn::custom_keyword!(ConvertToCamelCase);
 }
 
 impl syn::parse::Parse for QObjectMacroParams {
@@ -57,6 +60,9 @@ impl syn::parse::Parse for QObjectMacroParams {
             } else if input.peek(keywords::LinkMe) {
                 input.parse::<keywords::LinkMe>()?;
                 params.link_me = true;
+            } else if input.peek(keywords::ConvertToCamelCase) {
+                input.parse::<keywords::ConvertToCamelCase>()?;
+                params.convert_to_camel_case = true;
             } else {
                 return Err(input.error("Unsupported attribute of qobject or qobject_impl macro"))
             }

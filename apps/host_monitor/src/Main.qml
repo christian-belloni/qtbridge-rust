@@ -63,7 +63,7 @@ ApplicationWindow {
                 text: "Check Ping"
                 enabled: !autoCheck.checked
                 onClicked: {
-                    backend.makeRequest();
+                    backend.make_request();
                 }
             }
             CheckBox {
@@ -80,7 +80,7 @@ ApplicationWindow {
         running: autoCheck.checked
         repeat: true
         onTriggered: {
-            backend.makeRequest();
+            backend.make_request();
         }
     }
 }
