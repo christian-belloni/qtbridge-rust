@@ -41,3 +41,8 @@ harness = false
 name = "signal_vec_tests"
 path = "tests/signal_vec_tests.rs"
 harness = false
+
+[[test]]
+name = "qml_method_invoker_tests"
+path = "tests/qml_method_invoker_tests.rs"
+harness = false

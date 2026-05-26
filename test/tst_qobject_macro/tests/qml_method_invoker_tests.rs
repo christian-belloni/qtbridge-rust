@@ -42,8 +42,7 @@ pub mod test_object {
 
 pub use test_object::TestObject;
 
-#[test]
-fn qml_method_invoker_tests() {
+fn main() {
     let app = QGuiApplication::new();
 
     // invoke_method returns true when object is alive
