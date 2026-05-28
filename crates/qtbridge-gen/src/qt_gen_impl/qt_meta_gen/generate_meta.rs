@@ -9,7 +9,6 @@ use quote::{ToTokens, format_ident, quote};
 use proc_macro2::TokenStream;
 
 use crate::qt_gen_impl::qt_meta_gen;
-use qt_meta_gen::traits::find_by_qml_name;
 use qt_meta_gen::{QClassInfo, QPropertyInfo, QSignalInfo, QSlotInfo};
 
 pub struct QMetaInfoContext<'a> {
@@ -181,10 +180,9 @@ fn generate_properties_meta_registration(properties: &[QPropertyInfo], signals: 
     for property in properties {
         let mut signal = None;
         if let Some(notify_signal) = property.get_notify_signal() {
-            let notify_signal_name = notify_signal.value();
-            signal = find_by_qml_name(&notify_signal_name, signals);
+            signal = signals.iter().find(|s| s.get_rust_name() == *notify_signal);
             if signal.is_none() {
-                return Err(syn::Error::new(notify_signal.span(), format!("Failed to find signal with name '{notify_signal_name}'")));
+                return Err(syn::Error::new(notify_signal.span(), format!("Failed to find signal with name '{notify_signal}'")));
             }
         }
         let register_property = property.get_meta_registration_code(signal)?;

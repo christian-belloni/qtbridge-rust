@@ -9,10 +9,6 @@ pub trait QmlName {
     fn get_qml_name_span(&self) -> (String, Span);
 }
 
-pub(crate) fn find_by_qml_name<'a, T: QmlName>(name: &str, list: &'a[T]) -> Option<&'a T> {
-    list.iter().find(|o| o.get_qml_name_span().0 == name)
-}
-
 // TODO: move this function somewhere else
 pub(crate) fn find_duplicate_by<T, U: Ord>(list: &[T], pred: fn (&T)->U) -> Option<&T> {
     if !list.is_empty() {

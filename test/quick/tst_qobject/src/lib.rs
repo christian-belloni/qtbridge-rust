@@ -18,14 +18,14 @@ mod test_qobject {
 
     impl TestQObject {
 
-        qproperty!("boolProp", Member = bool_prop, Notify = "boolPropChanged");
-        qproperty!("intProp64", Member = int_prop64, Notify = "intProp64Changed");
-        qproperty!("intProp32", Member = int_prop32, Notify = "intProp32Changed");
-        qproperty!("intProp8", Member = int_prop8, Notify = "intProp8Changed");
-        qproperty!("intGetterProp", Read = get_int_prop, Write = set_int_prop, Notify = "intGetterPropChanged");
+        qproperty!("boolProp", Member = bool_prop, Notify = bool_prop_changed);
+        qproperty!("intProp64", Member = int_prop64, Notify = int_prop64_changed);
+        qproperty!("intProp32", Member = int_prop32, Notify = int_prop32_changed);
+        qproperty!("intProp8", Member = int_prop8, Notify = int_prop8_changed);
+        qproperty!("intGetterProp", Read = get_int_prop, Write = set_int_prop, Notify = int_getter_prop_changed);
         qproperty!("intConstProp", Member = int_const, Constant);
-        qproperty!("floatProp", Member = float_prop, Notify = "floatPropChanged");
-        qproperty!("stringProp", Member = string_prop, Notify = "stringPropChanged");
+        qproperty!("floatProp", Member = float_prop, Notify = float_prop_changed);
+        qproperty!("stringProp", Member = string_prop, Notify = string_prop_changed);
 
         #[qslot]
         fn trigger(&mut self) {

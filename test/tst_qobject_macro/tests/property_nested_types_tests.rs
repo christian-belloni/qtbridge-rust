@@ -24,9 +24,9 @@ pub mod node {
     }
 
     impl Node {
-        qproperty!("value", Member = value, Write = set_value, Notify = "value_changed");
-        qproperty!("left", Read = get_left, Write = set_left, Notify = "left_changed");
-        qproperty!("right", Read = get_right, Write = set_right, Notify = "right_changed");
+        qproperty!("value", Member = value, Write = set_value, Notify = value_changed);
+        qproperty!("left", Read = get_left, Write = set_left, Notify = left_changed);
+        qproperty!("right", Read = get_right, Write = set_right, Notify = right_changed);
         qproperty!("subtreeSum", Read = get_subtree_sum);
 
         #[qsignal]
@@ -114,7 +114,7 @@ pub mod backend {
     }
 
     impl Backend {
-        qproperty!("myTree", Member = tree, Notify = "my_tree_changed");
+        qproperty!("myTree", Member = tree, Notify = my_tree_changed);
 
         #[qsignal]
         fn my_tree_changed(&mut self);

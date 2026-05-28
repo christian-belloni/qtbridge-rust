@@ -12,7 +12,7 @@ use qtbridge_gen_common::type_utils::{ValuePass, extract_rc_ref_cell_path, get_t
 use crate::qt_gen_impl::qt_meta_gen;
 use qt_meta_gen::qproperty_type_deduction::{deduce_type_from_getter, deduce_type_from_member, deduce_type_from_setter};
 use qt_meta_gen::QSignalInfo;
-use qt_meta_gen::traits::{QmlName, find_by_qml_name};
+use qt_meta_gen::traits::QmlName;
 
 pub struct QPropertyInfo{
     name: syn::LitStr,
@@ -22,7 +22,7 @@ pub struct QPropertyInfo{
     id: u32,
     read_method: Option<syn::Ident>,
     write_method: Option<syn::Ident>,
-    notify_signal: Option<syn::LitStr>,
+    notify_signal: Option<syn::Ident>,
     member: Option<syn::Ident>,
     constant: Option<syn::Ident>,
     default: Option<syn::Ident>,
@@ -60,7 +60,7 @@ impl QPropertyInfo {
         self.get_deduced_type().is_some()
     }
 
-    pub fn get_notify_signal(&self) -> Option<&syn::LitStr> {
+    pub fn get_notify_signal(&self) -> Option<&syn::Ident> {
         self.notify_signal.as_ref()
     }
 
@@ -87,23 +87,20 @@ impl QPropertyInfo {
         }
 
         if let Some(notify_signal) = self.notify_signal.as_ref() {
-            let notify_signal_name = notify_signal.value();
-            if !notify_signal_name.is_empty() {
-                let signal = find_by_qml_name(&notify_signal_name, signals)
-                    .ok_or_else(|| syn::Error::new(notify_signal.span(), format!("Signal '{}' not found", notify_signal_name)))?;
-                match signal.get_typed_arg_count() {
-                    0 => {}
-                    1 => {
-                        if let Some(prop_type) = self.get_deduced_type() {
-                            let prop_type_str = remove_ref_to_string(prop_type)?;
-                            let signal_type_str = remove_ref_to_string(signal.get_arg_type(0)?)?;
-                            if prop_type_str != signal_type_str {
-                                return Err(syn::Error::new(notify_signal.span(), format!("Property/signal types mismatch: '{prop_type_str}' and '{signal_type_str}'")));
-                            }
+            let signal = signals.iter().find(|s| s.get_rust_name() == *notify_signal)
+                .ok_or_else(|| syn::Error::new(notify_signal.span(), format!("Signal '{}' not found", notify_signal)))?;
+            match signal.get_typed_arg_count() {
+                0 => {}
+                1 => {
+                    if let Some(prop_type) = self.get_deduced_type() {
+                        let prop_type_str = remove_ref_to_string(prop_type)?;
+                        let signal_type_str = remove_ref_to_string(signal.get_arg_type(0)?)?;
+                        if prop_type_str != signal_type_str {
+                            return Err(syn::Error::new(notify_signal.span(), format!("Property/signal types mismatch: '{prop_type_str}' and '{signal_type_str}'")));
                         }
                     }
-                    _ => return Err(syn::Error::new(notify_signal.span(), "Notify signal of a property must have either 2 arguments (&self and value) or only 1 (&self)"))
                 }
+                _ => return Err(syn::Error::new(notify_signal.span(), "Notify signal of a property must have either 2 arguments (&self and value) or only 1 (&self)"))
             }
         };
 
@@ -232,11 +229,9 @@ impl QPropertyInfo {
             }
         };
 
-        // TODO: check if signal with given name was declared
-        let signal_name = notify_signal.as_ref()
-            .map_or(String::default(), |i| i.value());
+        let signal_name = signal.map_or(String::default(), |i| i.get_qml_name_span().0);
 
-        if signal_name.is_empty() != signal.is_none() {
+        if signal_name.is_empty() != notify_signal.is_none() {
             return Err(syn::Error::new(*span, "Error in signal handling logic. Signal name mismatch"));
         }
 
@@ -358,7 +353,7 @@ impl QPropertyInfo {
             if let Some(notify_signal) = &self.notify_signal {
                 let signal_info = signal
                     .ok_or_else(|| syn::Error::new(self.notify_signal.span(), "Signal info is not provided"))?;
-                if notify_signal.value() != signal_info.get_qml_name_span().0 {
+                if signal_info.get_rust_name() != *notify_signal {
                     return Err(syn::Error::new(self.span, "Error in signal handling logic. Inconsistent signal name"));
                 }
                 let signal_name_ident = signal_info.get_rust_name();

@@ -140,7 +140,7 @@ pub use qtbridge_build_common;
 ///
 /// #[qobject_impl(Singleton)]
 /// impl Counter {
-///     qproperty!("value", Member = value, Notify = "value_changed");
+///     qproperty!("value", Member = value, Notify = value_changed);
 ///
 ///     #[qsignal]
 ///     fn value_changed(&mut self);
@@ -227,7 +227,7 @@ pub use qtbridge_gen::qobject_impl;
 ///     }
 ///
 ///     impl Counter {
-///         qproperty!("value", Member = value, Notify = "value_changed");
+///         qproperty!("value", Member = value, Notify = value_changed);
 ///
 ///         #[qsignal]
 ///         fn value_changed(&mut self);
@@ -414,7 +414,7 @@ pub use qtbridge_gen::qslot;
 /// #
 /// # #[qobject_impl]
 /// # impl Backend {
-/// qproperty!("myProperty", Read = get_value, Write = set_value, Notify = "my_property_changed");
+/// qproperty!("myProperty", Read = get_value, Write = set_value, Notify = my_property_changed);
 ///
 /// pub fn get_value(&self) -> i32 { self.value }
 /// pub fn set_value(&mut self, value: i32) {
@@ -444,7 +444,7 @@ pub use qtbridge_gen::qslot;
 ///
 /// #[qobject_impl]
 /// impl Text {
-///     qproperty!("message", Member = msg, Notify = "message_changed");
+///     qproperty!("message", Member = msg, Notify = message_changed);
 ///
 ///     #[qsignal]
 ///     fn message_changed(&mut self);
@@ -476,7 +476,7 @@ pub use qtbridge_gen::qslot;
 /// **Notify**
 ///
 /// Specifies the name of the signal that has to be emitted when the property changes.
-/// Expected format: `Notify = "signal_name"`.
+/// Expected format: `Notify = signal_name`.
 ///
 /// **Constant**
 ///

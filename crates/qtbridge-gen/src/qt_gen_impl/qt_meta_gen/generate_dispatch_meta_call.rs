@@ -7,7 +7,6 @@ use qtbridge_gen_common::type_qualified_mapping;
 use type_qualified_mapping::{TypeQualifiedMapping, CallOrigin, crate_names};
 
 use super::{QPropertyInfo, QSignalInfo, QSlotInfo};
-use super::traits::find_by_qml_name;
 
 pub fn generate_dispatch_meta_call(struct_ident: &syn::Ident, generics: &syn::Generics,
     signals: &[QSignalInfo], slots: &[QSlotInfo], properties: &[QPropertyInfo]) -> syn::Result<syn::ItemImpl> {
@@ -41,8 +40,10 @@ pub fn generate_dispatch_meta_call(struct_ident: &syn::Ident, generics: &syn::Ge
     let prop_write_handlers = properties.iter()
         .map(|prop| {
             let id = prop.id();
-            let signal = prop.get_notify_signal()
-                .and_then(|name_lit| find_by_qml_name(&name_lit.value(), signals));
+            let signal = signals.iter().find(|s| {
+                prop.get_notify_signal()
+                    .map_or(false, |notify| s.get_rust_name() == *notify)
+            });
             let code = prop.get_write_code(signal)?;
             Ok(quote! {
                 #id => {

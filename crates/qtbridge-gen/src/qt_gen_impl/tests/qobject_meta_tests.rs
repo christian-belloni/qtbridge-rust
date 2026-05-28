@@ -13,8 +13,8 @@ fn test() {
     let input = quote! {
         impl SomeStruct {
 
-            qproperty!("this_value", Read = get_value, Write = set_value, Notify = "thisValueChanged", Default);
-            qproperty!("otherValue", Member = otherValueVar, Notify = "other_value_changed");
+            qproperty!("this_value", Read = get_value, Write = set_value, Notify = this_value_changed, Default);
+            qproperty!("otherValue", Member = otherValueVar, Notify = other_value_changed);
             qclass_info!(Name = "Author", Value = "The Qt Company");
 
             #[qsignal(qml_name = "thisValueChanged")]
@@ -64,8 +64,8 @@ fn test_case_casting() {
     let input = quote! {
         impl SomeStruct {
 
-            qproperty!("this_value", Read = get_value, Write = set_value, Notify = "this_value_changed", Default);
-            qproperty!("otherValue", Member = otherValueVar, Notify = "otherValueChanged");
+            qproperty!("this_value", Read = get_value, Write = set_value, Notify = this_value_changed, Default);
+            qproperty!("otherValue", Member = otherValueVar, Notify = other_value_changed);
             qclass_info!(Name = "Author", Value = "The Qt Company");
 
             #[qsignal(qml_name = "this_value_changed")]
@@ -114,7 +114,7 @@ fn test_case_casting() {
 fn test_dispatch_meta_call() {
     let input = quote! {
         impl SomeStruct {
-            qproperty!("this_value", Member = first_value, Notify = "this_value_changed");
+            qproperty!("this_value", Member = first_value, Notify = this_value_changed);
             qproperty!("otherValue", Member = second_value);
             qproperty!("thirdValue", Member = third_value);
 

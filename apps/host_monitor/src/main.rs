@@ -34,9 +34,9 @@ impl Default for Backend {
 #[qobject_impl]
 impl Backend {
     // qproperty! exposes a Rust field as a QML property.
-    qproperty!("latency", Member = latency, Write = set_latency, Notify = "latency_changed");
-    qproperty!("status", Member = status, Write = set_status, Notify = "status_changed");
-    qproperty!("hostname", Member = hostname, Write = set_hostname, Notify = "hostname_changed");
+    qproperty!("latency", Member = latency, Write = set_latency, Notify = latency_changed);
+    qproperty!("status", Member = status, Write = set_status, Notify = status_changed);
+    qproperty!("hostname", Member = hostname, Write = set_hostname, Notify = hostname_changed);
 
     fn set_status(&mut self, status: bool) {
         self.status = status;
