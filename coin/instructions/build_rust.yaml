@@ -90,6 +90,14 @@ instructions:
     userMessageOnFailure: >
       Failed to change to rust dir
 
+  - type: PrependToEnvironmentVariable
+    variableName: DYLD_FRAMEWORK_PATH
+    variableValue: "{{.AgentWorkingDir}}/install/lib:"
+    enable_if:
+      condition: property
+      property: host.os
+      equals_value: MacOS
+
   - type: ExecuteCommand
     command: "cargo build --workspace"
     maxTimeInSeconds: 6000
