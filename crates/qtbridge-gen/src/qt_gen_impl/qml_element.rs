@@ -37,7 +37,7 @@ pub fn generate_qml_register(struct_ident: &Ident, params: &QObjectMacroParams) 
                 #[linkme::distributed_slice(qtbridge::qtbridge_type_lib::QML_REGISTER_CALLBACKS)]
                 #[allow(non_camel_case_types)]
                 fn #qml_register_fn_indent() {
-                    <#struct_ident as qtbridge::qtbridge_runtime::QmlRegister>::qml_register();
+                    <#struct_ident as qtbridge::qtbridge_runtime::QmlRegister>::register();
                 }
             };
             Some(syn::parse2(code)?)
@@ -62,7 +62,6 @@ pub fn generate_qml_register(struct_ident: &Ident, params: &QObjectMacroParams) 
         .map_err(|err| syn::Error::new(Span::call_site(), format!("Failed to get CARGO_PKG_VERSION_MAJOR: {err}")))?
         .parse()
         .expect("Failed to parse CARGO_PKG_VERSION_MAJOR");
-
 
     let register_impl = syn::parse2(quote! {
         impl qtbridge::qtbridge_runtime::QmlRegister for #struct_ident {

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use qtbridge::{QmlRegister, qobject_impl};
+use linkme;
 
 #[derive(Default)]
 pub struct Backend {
@@ -23,6 +24,13 @@ impl QmlRegister for Backend {
     const IS_SINGLETON: bool = false;
 }
 
+#[derive(Default)]
+pub struct LinkMeBackend {
+}
+
+#[qobject_impl(LinkMe)]
+impl LinkMeBackend {
+}
 
 #[derive(Default)]
 pub struct SingletonBackend {
@@ -48,6 +56,7 @@ pub fn test_qml_element() {
 
     <Backend as QmlRegister>::register();
     <SingletonBackend as QmlRegister>::register();
+    // Not registering LinkMeBackend to trigger automatic registration
 
     use std::env;
     use std::path::PathBuf;
