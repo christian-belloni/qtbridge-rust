@@ -58,12 +58,8 @@ where
         self.cpp_proxy
     }
 
-    fn emit_signal(&self, reference: &Adapter, signal_name: &str, argv: &[*const u8]) {
-        call_cpp_impl!(self, reference, emit_signal(signal_name, argv))
-    }
-
-    fn emit_signal_mut(&self, mut_ref: &mut Adapter, signal_name: &str, argv: &[*const u8]) {
-        call_cpp_impl!(mut self, mut_ref, emit_signal_mut(signal_name, argv))
+    fn emit_signal(&self, mut_ref: &mut Adapter, signal_name: &str, argv: &[*const u8]) {
+        call_cpp_impl!(mut self, mut_ref, emit_signal(signal_name, argv))
     }
 }
 

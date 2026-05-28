@@ -42,9 +42,7 @@ pub mod ffi {
         # [rust_name = qmetatype_list_of_qlist_model_proxy_cpp]
         fn qmetaTypeListOf_QListModelProxyCpp() -> QMetaType;
         # [rust_name = emit_signal_cpp]
-        fn emitSignal(&self, signal_name: &str, argv: &[*const u8]);
-        # [rust_name = emit_signal_mut_cpp]
-        fn emitSignalMut(self: Pin<&mut Self>, signal_name: &str, argv: &[*const u8]);
+        fn emitSignal(self: Pin<&mut Self>, signal_name: &str, argv: &[*const u8]);
         # [rust_name = base_index]
         fn base_index(&self, row: i32, column: i32, parent: &QModelIndex) -> QModelIndex;
         # [rust_name = base_role_names]
@@ -104,10 +102,7 @@ impl QCppProxy for QListModelProxyCpp {
     unsafe fn create_at(rust_proxy: *mut Self::ProxyRustType, metaobject: &'static DynamicMetaObjectData, addr: *mut u8) -> *mut Self {
         unsafe { ffi::create_qlist_model_proxy_cpp_at(rust_proxy, metaobject, addr) }
     }
-    fn emit_signal(&self, signal_name: &str, argv: &[*const u8]) {
+    fn emit_signal(self: std::pin::Pin<&mut Self>, signal_name: &str, argv: &[*const u8]) {
         self.emit_signal_cpp(signal_name, argv)
-    }
-    fn emit_signal_mut(self: std::pin::Pin<&mut Self>, signal_name: &str, argv: &[*const u8]) {
-        self.emit_signal_mut_cpp(signal_name, argv)
     }
 }

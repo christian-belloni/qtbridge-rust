@@ -84,7 +84,7 @@ macro_rules! invoke_method {
 /// #     pub struct Backend {}
 /// #     impl Backend {
 /// #         #[qsignal]
-/// #         pub fn data_ready(&self);
+/// #         pub fn data_ready(&mut self);
 /// #     }
 /// # }
 /// # use example::Backend;

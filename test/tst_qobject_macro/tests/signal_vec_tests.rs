@@ -28,33 +28,33 @@ pub mod test_object {
 
     impl TestObject {
         #[qsignal]
-        pub fn signal_vec_bool(&self, arg: &Vec<bool>);
+        pub fn signal_vec_bool(&mut self, arg: &Vec<bool>);
         #[qsignal]
-        pub fn signal_vec_i8(&self, arg: Vec<i8>);
+        pub fn signal_vec_i8(&mut self, arg: Vec<i8>);
         #[qsignal]
-        pub fn signal_vec_u8(&self, arg: &Vec<u8>);
+        pub fn signal_vec_u8(&mut self, arg: &Vec<u8>);
         #[qsignal]
-        pub fn signal_vec_i16(&self, arg: &Vec<i16>);
+        pub fn signal_vec_i16(&mut self, arg: &Vec<i16>);
         #[qsignal]
-        pub fn signal_vec_u16(&self, arg: &Vec<u16>);
+        pub fn signal_vec_u16(&mut self, arg: &Vec<u16>);
         #[qsignal]
-        pub fn signal_vec_i32(&self, arg: &Vec<i32>);
+        pub fn signal_vec_i32(&mut self, arg: &Vec<i32>);
         #[qsignal]
-        pub fn signal_vec_u32(&self, arg: Vec<u32>);
+        pub fn signal_vec_u32(&mut self, arg: Vec<u32>);
         #[qsignal]
-        pub fn signal_vec_i64(&self, arg: &Vec<i64>);
+        pub fn signal_vec_i64(&mut self, arg: &Vec<i64>);
         #[qsignal]
-        pub fn signal_vec_u64(&self, arg: &Vec<u64>);
+        pub fn signal_vec_u64(&mut self, arg: &Vec<u64>);
         #[qsignal]
-        pub fn signal_vec_isize(&self, arg: &Vec<isize>);
+        pub fn signal_vec_isize(&mut self, arg: &Vec<isize>);
         #[qsignal]
-        pub fn signal_vec_usize(&self, arg: &Vec<usize>);
+        pub fn signal_vec_usize(&mut self, arg: &Vec<usize>);
         #[qsignal]
-        pub fn signal_vec_f32(&self, arg: &Vec<f32>);
+        pub fn signal_vec_f32(&mut self, arg: &Vec<f32>);
         #[qsignal]
-        pub fn signal_vec_f64(&self, arg: &Vec<f64>);
+        pub fn signal_vec_f64(&mut self, arg: &Vec<f64>);
         #[qsignal]
-        pub fn signal_vec_string(&self, arg: Vec<String>);
+        pub fn signal_vec_string(&mut self, arg: Vec<String>);
 
         qproperty!("signalArgBool", Member = signal_arg_vec_bool);
         qproperty!("signalArgI8", Member = signal_arg_vec_i8);
@@ -103,7 +103,7 @@ fn get_qml_code_for(type_suffix: &str) -> String {
     "#)
 }
 
-fn test_type<T>(emit_fn: fn(&TestObject), check_fn: fn(&TestObject) -> bool)
+fn test_type<T>(emit_fn: fn(&mut TestObject), check_fn: fn(&TestObject) -> bool)
 {
     let type_str = get_type_name::<T>();
     let suffix = capitalize_first_char(&type_str);
@@ -120,7 +120,7 @@ fn test_type<T>(emit_fn: fn(&TestObject), check_fn: fn(&TestObject) -> bool)
        .load_qml(qml.as_bytes());
 
     // Emit the signal.
-    emit_fn(&obj.borrow());
+    emit_fn(&mut obj.borrow_mut());
 
     // Handle delayed signal
     app.run();

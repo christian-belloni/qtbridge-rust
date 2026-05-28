@@ -138,7 +138,7 @@ pub use qtbridge_build_common;
 ///     qproperty!("value", Member = value, Notify = "valueChanged");
 ///
 ///     #[qsignal]
-///     fn value_changed(&self);
+///     fn value_changed(&mut self);
 ///
 ///     #[qslot]
 ///     fn change_value(&mut self, inc: bool) {
@@ -225,7 +225,7 @@ pub use qtbridge_gen::qobject_impl;
 ///         qproperty!("value", Member = value, Notify = "valueChanged");
 ///
 ///         #[qsignal]
-///         fn value_changed(&self);
+///         fn value_changed(&mut self);
 ///
 ///         #[qslot]
 ///         fn change_value(&mut self, inc: bool) {
@@ -288,7 +288,7 @@ pub use qtbridge_gen::qobject;
 ///
 /// - The signal must be defined within a `mod` or `impl` block, annotated with [`qobject`]
 /// or [`qobject_impl`], respectively.
-/// - The first argument of the annotated function must be `&self` or `&mut self`.
+/// - The first argument of the annotated function must be `&mut self`.
 /// - All other parameter types and the return type must be one of the
 /// [supported types][crate::type_support].
 /// - The function must not have a body (end with semicolon or have an empty curly braces).
@@ -302,9 +302,9 @@ pub use qtbridge_gen::qobject;
 /// #[qobject_impl]
 /// impl Backend {
 ///     #[qsignal]
-///     fn value_changed(&self, new_value: i32);
+///     fn value_changed(&mut self, new_value: i32);
 ///     #[qsignal]
-///     fn event_triggered(&self){}
+///     fn event_triggered(&mut self){}
 /// }
 /// ```
 ///
@@ -415,7 +415,7 @@ pub use qtbridge_gen::qslot;
 ///     self.my_property_changed();
 /// }
 /// #[qsignal]
-/// pub fn my_property_changed(&self);
+/// pub fn my_property_changed(&mut self);
 /// # }
 /// ```
 /// The getter method that returns the current value of the property, the setter (if provided) must
@@ -440,7 +440,7 @@ pub use qtbridge_gen::qslot;
 ///     qproperty!("message", Member = msg, Notify = "messageChanged");
 ///
 ///     #[qsignal]
-///     fn message_changed(&self);
+///     fn message_changed(&mut self);
 /// }
 /// ```
 ///

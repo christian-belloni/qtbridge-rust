@@ -16,71 +16,71 @@ pub mod test_object {
     impl TestObject {
         // Pass the signal argument by value.
         #[qsignal]
-        pub fn signal_no_args(&self);
+        pub fn signal_no_args(&mut self);
         #[qsignal]
-        pub fn signal_bool(&self, arg: bool);
+        pub fn signal_bool(&mut self, arg: bool);
         #[qsignal]
-        pub fn signal_i8(&self, arg: i8);
+        pub fn signal_i8(&mut self, arg: i8);
         #[qsignal]
-        pub fn signal_u8(&self, arg: u8);
+        pub fn signal_u8(&mut self, arg: u8);
         #[qsignal]
-        pub fn signal_i16(&self, arg: i16);
+        pub fn signal_i16(&mut self, arg: i16);
         #[qsignal]
-        pub fn signal_u16(&self, arg: u16);
+        pub fn signal_u16(&mut self, arg: u16);
         #[qsignal]
-        pub fn signal_i32(&self, arg: i32);
+        pub fn signal_i32(&mut self, arg: i32);
         #[qsignal]
-        pub fn signal_u32(&self, arg: u32);
+        pub fn signal_u32(&mut self, arg: u32);
         #[qsignal]
-        pub fn signal_i64(&self, arg: i64);
+        pub fn signal_i64(&mut self, arg: i64);
         #[qsignal]
-        pub fn signal_u64(&self, arg: u64);
+        pub fn signal_u64(&mut self, arg: u64);
         #[qsignal]
-        pub fn signal_isize(&self, arg: isize);
+        pub fn signal_isize(&mut self, arg: isize);
         #[qsignal]
-        pub fn signal_usize(&self, arg: usize);
+        pub fn signal_usize(&mut self, arg: usize);
         #[qsignal]
-        pub fn signal_f32(&self, arg: f32);
+        pub fn signal_f32(&mut self, arg: f32);
         #[qsignal]
-        pub fn signal_f64(&self, arg: f64);
+        pub fn signal_f64(&mut self, arg: f64);
         #[qsignal]
-        pub fn signal_str(&self, arg: &str);
+        pub fn signal_str(&mut self, arg: &str);
         #[qsignal]
-        pub fn signal_string(&self, arg: String);
+        pub fn signal_string(&mut self, arg: String);
 
         // Pass the signal argument by reference.
         #[qsignal]
-        pub fn signal_bool_ref(&self, arg: &bool);
+        pub fn signal_bool_ref(&mut self, arg: &bool);
         #[qsignal]
-        pub fn signal_i8_ref(&self, arg: &i8);
+        pub fn signal_i8_ref(&mut self, arg: &i8);
         #[qsignal]
-        pub fn signal_u8_ref(&self, arg: &u8);
+        pub fn signal_u8_ref(&mut self, arg: &u8);
         #[qsignal]
-        pub fn signal_i16_ref(&self, arg: &i16);
+        pub fn signal_i16_ref(&mut self, arg: &i16);
         #[qsignal]
-        pub fn signal_u16_ref(&self, arg: &u16);
+        pub fn signal_u16_ref(&mut self, arg: &u16);
         #[qsignal]
-        pub fn signal_i32_ref(&self, arg: &i32);
+        pub fn signal_i32_ref(&mut self, arg: &i32);
         #[qsignal]
-        pub fn signal_u32_ref(&self, arg: &u32);
+        pub fn signal_u32_ref(&mut self, arg: &u32);
         #[qsignal]
-        pub fn signal_i64_ref(&self, arg: &i64);
+        pub fn signal_i64_ref(&mut self, arg: &i64);
         #[qsignal]
-        pub fn signal_u64_ref(&self, arg: &u64);
+        pub fn signal_u64_ref(&mut self, arg: &u64);
         #[qsignal]
-        pub fn signal_isize_ref(&self, arg: &isize);
+        pub fn signal_isize_ref(&mut self, arg: &isize);
         #[qsignal]
-        pub fn signal_usize_ref(&self, arg: &usize);
+        pub fn signal_usize_ref(&mut self, arg: &usize);
         #[qsignal]
-        pub fn signal_f32_ref(&self, arg: &f32);
+        pub fn signal_f32_ref(&mut self, arg: &f32);
         #[qsignal]
-        pub fn signal_f64_ref(&self, arg: &f64);
+        pub fn signal_f64_ref(&mut self, arg: &f64);
         #[qsignal]
-        pub fn signal_string_ref(&self, arg: &String);
+        pub fn signal_string_ref(&mut self, arg: &String);
 
         // Test with multiple arguments
         #[qsignal]
-        pub fn signal_many_args(&self,
+        pub fn signal_many_args(&mut self,
             arg1: &str,
             arg2: i32,
             arg3: f32,
@@ -105,18 +105,18 @@ pub use test_object::TestObject;
 fn signal_is_emitted_when_called_without_arguments() {
     let obj = TestObject::default_with_attached_qobject();
     let spy = QSignalSpy::new(obj.borrow().get_qobject(), "signalNoArgs");
-    obj.borrow().signal_no_args();
+    obj.borrow_mut().signal_no_args();
     assert_eq!(spy.count(), 1);
 }
 
 fn test_signal_with_arg_value<EmitFn, CheckFn>(type_suffix: &str, emit_fn: EmitFn, check_fn: CheckFn)
 where
-    EmitFn: FnOnce(&TestObject),
+    EmitFn: FnOnce(&mut TestObject),
     CheckFn: FnOnce(&QVariant) -> bool
 {
     let obj = TestObject::default_with_attached_qobject();
     let mut spy = QSignalSpy::new(obj.borrow().get_qobject(), &format!("signal{type_suffix}"));
-    emit_fn(&obj.borrow());
+    emit_fn(&mut obj.borrow_mut());
     assert_eq!(spy.count(), 1);
     let args = spy.pin_mut().take_first();
     assert!(check_fn(args.first()));
@@ -294,7 +294,7 @@ fn signal_is_emitted_when_called_with_string_arg() {
 fn signal_is_emitted_when_called_with_string_ref_arg() {
     let obj = TestObject::default_with_attached_qobject();
     let mut spy = QSignalSpy::new(obj.borrow().get_qobject(), "signalStringRef");
-    obj.borrow().signal_string_ref(&String::from("DEF"));
+    obj.borrow_mut().signal_string_ref(&String::from("DEF"));
     assert_eq!(spy.count(), 1);
     let args = spy.pin_mut().take_first();
     let arg: String = args.first().try_into().unwrap();
@@ -449,7 +449,7 @@ fn signal_is_emitted_when_called_with_f64_ref_arg() {
 fn signal_is_emitted_when_called_with_a_few_arguments_ref_arg() {
     let obj = TestObject::default_with_attached_qobject();
     let mut spy = QSignalSpy::new(obj.borrow().get_qobject(), "signalManyArgs");
-    obj.borrow().signal_many_args("123", 700, 0.75, &0.125, "Café".to_owned(), 65535, false, &true, -100000, -10000000000);
+    obj.borrow_mut().signal_many_args("123", 700, 0.75, &0.125, "Café".to_owned(), 65535, false, &true, -100000, -10000000000);
     assert_eq!(spy.count(), 1);
     let arg_list = spy.pin_mut().take_first();
     assert_eq!(arg_list.len(), 10);

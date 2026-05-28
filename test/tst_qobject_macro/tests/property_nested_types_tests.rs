@@ -30,11 +30,11 @@ pub mod node {
         qproperty!("subtreeSum", Read = get_subtree_sum);
 
         #[qsignal]
-        fn value_changed(&self);
+        fn value_changed(&mut self);
         #[qsignal]
-        fn left_changed(&self);
+        fn left_changed(&mut self);
         #[qsignal]
-        fn right_changed(&self);
+        fn right_changed(&mut self);
 
         pub fn new(value: i32) -> Self {
             Self {
@@ -46,6 +46,7 @@ pub mod node {
 
         pub fn set_value(&mut self, value: i32) {
             self.value = value;
+            self.value_changed();
         }
 
         fn get_left(&self) -> Rc<RefCell<Self>> {
@@ -116,7 +117,7 @@ pub mod backend {
         qproperty!("myTree", Member = tree, Notify = "myTreeChanged");
 
         #[qsignal]
-        fn my_tree_changed(&self);
+        fn my_tree_changed(&mut self);
     }
 
     impl Default for Backend {

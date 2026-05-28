@@ -18,17 +18,17 @@ fn test() {
             qclass_info!(Name = "Author", Value = "The Qt Company");
 
             #[qsignal(qml_name = "thisValueChanged")]
-            fn this_value_changed(&self, value: &String);
+            fn this_value_changed(&mut self, value: &String);
 
             #[qsignal]
-            fn other_value_changed(&self, value: f32)
+            fn other_value_changed(&mut self, value: f32)
             {}
 
             #[qsignal]
-            pub fn this_string_value_changed_by_ref(&self, value: &String);
+            pub fn this_string_value_changed_by_ref(&mut self, value: &String);
 
             #[qsignal]
-            pub fn that_string_value_changed_by_value(&self, value: String);
+            pub fn that_string_value_changed_by_value(&mut self, value: String);
 
             #[qslot(qml_name = "onThatValueChanged")]
             pub fn on_that_value_changed(&mut self, value: &String) {
@@ -84,7 +84,7 @@ fn test_dispatch_meta_call() {
             }
 
             #[qsignal]
-            fn this_value_changed(&self) {
+            fn this_value_changed(&mut self) {
             }
         }
     };

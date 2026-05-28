@@ -54,13 +54,13 @@ impl Backend {
     }
 
     #[qsignal]
-    fn hostname_changed(&self);
+    fn hostname_changed(&mut self);
 
     #[qsignal]
-    fn latency_changed(&self);
+    fn latency_changed(&mut self);
 
     #[qsignal]
-    fn status_changed(&self);
+    fn status_changed(&mut self);
 
     #[qslot]
     fn make_request(&self) {

@@ -30,7 +30,7 @@ pub mod test_object {
     impl TestObject {
         // Unused signal added to ensure slot dispatch works when a struct contains signals.
         #[qsignal]
-        fn dummy_signal(&self);
+        fn dummy_signal(&mut self);
 
         // Slots taking the argument by value
         #[qslot]

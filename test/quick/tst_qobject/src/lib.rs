@@ -49,10 +49,10 @@ mod test_qobject {
         }
 
         #[qsignal]
-        fn triggered(&self);
+        fn triggered(&mut self);
 
         #[qsignal]
-        fn string_signal(&self, value: &str);
+        fn string_signal(&mut self, value: &str);
 
         #[qsignal(qml_name = "boolPropChanged")]
         fn bool_prop_changed(&mut self);

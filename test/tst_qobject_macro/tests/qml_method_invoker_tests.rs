@@ -2,21 +2,25 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 #![cfg(test)]
 
+
 use qtbridge_type_lib::{QGuiApplication, QVariantList};
 use qtbridge::{qobject, QObjectHolder};
 use qtbridge::qtbridge_type_lib::{QSignalSpy};
 use qtbridge::invoke_method;
 #[qobject]
 pub mod test_object {
+    use std::cell::Cell;
+
     #[derive(Default)]
     pub struct TestObject {
         pub mutable_slot_called: bool,
         pub int_value: i32,
+        pub immutable_slot_called: Cell<bool>,
     }
 
     impl TestObject {
         #[qsignal]
-        pub fn signal_no_args(&self);
+        pub fn signal_no_args(&mut self);
 
         #[qslot]
         fn mutable_slot(&mut self) {
@@ -25,7 +29,7 @@ pub mod test_object {
 
         #[qslot]
         fn immutable_slot(&self) {
-            self.signal_no_args();
+            self.immutable_slot_called.set(true);
         }
 
         #[qslot]
@@ -74,12 +78,11 @@ fn test_mutable_slot(app: &QGuiApplication) {
 
 fn test_immutable_slot(app: &QGuiApplication) {
     let qobject_holder = TestObject::default_with_attached_qobject();
-    let spy = QSignalSpy::new(qobject_holder.borrow().get_qobject(), "signalNoArgs");
     let qml_method_invoker = qobject_holder.borrow().get_qml_method_invoker();
     qml_method_invoker.invoke_method("immutableSlot");
     app.process_events();
     app.process_events();
-    assert_eq!(spy.count(), 1);
+    assert!(qobject_holder.borrow().immutable_slot_called.get());
 }
 
 fn test_slot_with_parameters(app: &QGuiApplication) {
@@ -93,12 +96,11 @@ fn test_slot_with_parameters(app: &QGuiApplication) {
 
 fn test_immutable_slot_via_macro(app: &QGuiApplication) {
     let qobject_holder = TestObject::default_with_attached_qobject();
-    let spy = QSignalSpy::new(qobject_holder.borrow().get_qobject(), "signalNoArgs");
     let invoker = qobject_holder.borrow().get_qml_method_invoker();
     invoke_method!(invoker, "immutableSlot");
     app.process_events();
     app.process_events();
-    assert_eq!(spy.count(), 1);
+    assert!(qobject_holder.borrow().immutable_slot_called.get());
 }
 
 fn test_slot_with_parameters_via_macro(app: &QGuiApplication) {

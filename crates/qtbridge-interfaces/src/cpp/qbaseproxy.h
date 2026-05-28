@@ -42,17 +42,7 @@ public:
         m_rustProxy->writeProperty(propId, value);
     }
 
-    void emitSignal(rust::Str signalName, rust::Slice<const uint8_t* const> argv) const override
-    {
-        auto* self = static_cast<const Derived*>(this);
-        auto* meta = dynamic_cast<DynamicMetaObjectData*>(QObjectPrivate::get(self)->metaObject);
-        if (meta)
-            meta->emitSignal(const_cast<Derived&>(*self), signalName, argv);
-        else
-            qFatal() << "Error while emiting singal from Rust: The QObject does not contain a Rust dynamic meta object";
-    }
-
-    void emitSignalMut(rust::Str signalName, rust::Slice<const uint8_t* const> argv) override
+    void emitSignal(rust::Str signalName, rust::Slice<const uint8_t* const> argv) override
     {
         auto* self = static_cast<Derived*>(this);
         auto* meta = static_cast<DynamicMetaObjectData*>(QObjectPrivate::get(self)->metaObject);

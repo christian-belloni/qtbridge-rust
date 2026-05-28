@@ -150,21 +150,18 @@ impl ExpandTokens for QSignalInfo {
         let bridge_generator = MetaCallBridgeGenerator::new(sig)?;
         let qml_name = self.get_qml_name_span().0;
         let argv_setup = bridge_generator.generate_argv_setup_for_signals()?;
-        let is_mut = self.is_mut();
-        let emit_call = if is_mut {
-            quote! { qtbridge::qtbridge_runtime::qproxies::QRustProxy::emit_signal_mut(unsafe { &*proxy }, self, #qml_name, argv.as_slice()) }
-        } else {
-            quote! { qtbridge::qtbridge_runtime::qproxies::QRustProxy::emit_signal(unsafe { &*proxy }, self, #qml_name, argv.as_slice()) }
-        };
+        if !self.is_mut() {
+            return Err(syn::Error::new(self.sig.span(),
+                       "The function signature of a signal has to be mutable."))
+        }
         let code = quote! {
             #(#attrs)*
             #vis
             #sig
             {
                 let proxy = <Self as qtbridge::QObjectHolder>::try_get_rust_proxy_ptr(self).expect("No proxy");
-
                 #argv_setup
-                #emit_call
+                qtbridge::qtbridge_runtime::qproxies::QRustProxy::emit_signal(unsafe { &*proxy }, self, #qml_name, argv.as_slice())
             }
         };
         Ok(code)

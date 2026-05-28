@@ -45,7 +45,7 @@ mod backend {
             }
         }
         #[qsignal]
-        fn duplicate_found(&self, duplicate: &str);
+        fn duplicate_found(&mut self, duplicate: &str);
     }
 }
 
