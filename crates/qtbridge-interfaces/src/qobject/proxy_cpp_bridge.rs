@@ -34,6 +34,7 @@ pub mod ffi {
         fn alignOf_QObjectProxyCpp() -> usize;
         # [rust_name = qmetatype_list_of_qobject_proxy_cpp]
         fn qmetaTypeListOf_QObjectProxyCpp() -> QMetaType;
+        fn parserStatusCastOf_QObjectProxyCpp() -> i32;
         # [rust_name = emit_signal_cpp]
         fn emitSignal(self: Pin<&mut Self>, signal_name: &str, argv: &[*const u8]);
     }
@@ -53,6 +54,9 @@ impl QCppProxy for QObjectProxyCpp {
     }
     fn get_qmetatype_list() -> QMetaType {
         ffi::qmetatype_list_of_qobject_proxy_cpp()
+    }
+    fn parser_status_cast() -> i32 {
+        ffi::parserStatusCastOf_QObjectProxyCpp()
     }
     unsafe fn create(rust_proxy: *mut Self::ProxyRustType, metaobject: &'static DynamicMetaObjectData) -> *mut Self {
         unsafe { ffi::create_qobject_proxy_cpp(rust_proxy, metaobject) }

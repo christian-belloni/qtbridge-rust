@@ -39,6 +39,7 @@ pub trait QmlRegister : QMetaTypeGet + QMetaInfo + QObjectHolder + Default
                 <Self as QMetaTypeGet>::get_qmetatype(),
                 <<Self as QMetaInfo>::CppProxy as QCppProxy>::get_qmetatype_list(),
                 <<Self as QMetaInfo>::CppProxy as QCppProxy>::get_size() as u32,
+                <<Self as QMetaInfo>::CppProxy as QCppProxy>::parser_status_cast(),
                 monomorphize_element_ctor::<Self>(),
                 Self::URI.as_bytes(),
                 Self::MAJOR_VERSION,

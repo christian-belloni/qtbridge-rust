@@ -3,6 +3,9 @@
 #ifndef QBASEPROXY_H
 #define QBASEPROXY_H
 
+#include <QQmlParserStatus>
+#include <qqmlprivate.h>
+
 #include "qtbridge-runtime/src/cpp/dispatchmetacallcpp.h"
 #include "qtbridge-runtime/src/cpp/dynamicmetaobjectdata.h"
 #include "qtbridge-runtime/src/cpp/rustobjectgetter.h"
@@ -87,6 +90,11 @@ public:
         return QMetaType::fromType<QQmlListProperty<Derived>>();
     }
 
+    static int parserStatusCast()
+    {
+        return QQmlPrivate::StaticCastSelector<Derived, QQmlParserStatus>::cast();
+    }
+
 protected:
     RustProxy* m_rustProxy;
 };
@@ -100,6 +108,7 @@ protected:
     { return ProxyCpp::baseStaticMetaObject(); }                                                      \
     inline size_t sizeOf_##ProxyCpp() { return ProxyCpp::sizeOfProxy(); }                             \
     inline size_t alignOf_##ProxyCpp() { return ProxyCpp::alignOfProxy(); }                           \
-    inline QMetaType qmetaTypeListOf_##ProxyCpp() { return ProxyCpp::listMetaType(); }
+    inline QMetaType qmetaTypeListOf_##ProxyCpp() { return ProxyCpp::listMetaType(); }                \
+    inline int parserStatusCastOf_##ProxyCpp() { return ProxyCpp::parserStatusCast(); }
 
 #endif // QBASEPROXY_H

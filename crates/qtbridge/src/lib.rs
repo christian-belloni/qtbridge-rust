@@ -47,6 +47,7 @@ pub use qtbridge_build_common;
 /// Further, it allows the struct to implement traits to fulfill specific QML purposes.
 /// These are called `Base` traits. The available base traits are:
 ///
+/// * [`QParserStatus`] to receive notifications during QML component construction.
 /// * [`QListModel`] to make a `struct` accessible by QML ListView, QML Repeater, or similar.
 /// * [`QTableModel`] to make a `struct` accessible by QML TableView.
 ///
@@ -597,6 +598,7 @@ pub use qtbridge_gen::QModelItem;
 
 pub use qtbridge_gen::include_bytes_qml;
 
+pub use qtbridge_interfaces::QParserStatus;
 pub use qtbridge_interfaces::{QListModel, QListModelBase};
 pub use qtbridge_interfaces::{QTableModel, QTableModelBase};
 

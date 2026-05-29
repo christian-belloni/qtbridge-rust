@@ -25,6 +25,7 @@ pub trait QCppProxy {
     fn get_static_meta_object() -> &'static QMetaObject;
     fn get_size() -> usize;
     fn get_align() -> usize;
+    fn parser_status_cast() -> i32;
     fn get_qmetatype_list() -> QMetaType;
     unsafe fn create(rust_proxy: *mut Self::ProxyRustType, metaobject: &'static DynamicMetaObjectData) -> *mut Self;
     unsafe fn create_at(rust_proxy: *mut Self::ProxyRustType, metaobject: &'static DynamicMetaObjectData, addr: *mut u8) -> *mut Self;

@@ -8,9 +8,9 @@
 namespace rust::bridge::qmlprivate {
 
 void inlineCppFn_qml_register_element(QMetaType type_id, QMetaType list_id, uint32_t object_size,
-                                      size_t create_fn, rust::Slice<const uint8_t> uri,
-                                      uint8_t version_major, uint8_t version_minor,
-                                      rust::Slice<const uint8_t> elm_name,
+                                      int32_t parser_status_cast, size_t create_fn,
+                                      rust::Slice<const uint8_t> uri, uint8_t version_major,
+                                      uint8_t version_minor, rust::Slice<const uint8_t> elm_name,
                                       QMetaObject const &meta_object)
 {
     const QByteArray uriBa = RustByteSliceToQByteArray(uri);
@@ -30,7 +30,7 @@ void inlineCppFn_qml_register_element(QMetaType type_id, QMetaType list_id, uint
     rt.metaObject = &meta_object;
     rt.attachedPropertiesFunction = nullptr;
     rt.attachedPropertiesMetaObject = nullptr;
-    rt.parserStatusCast = -1;
+    rt.parserStatusCast = parser_status_cast;
     rt.valueSourceCast = -1;
     rt.valueInterceptorCast = -1;
     rt.extensionObjectCreate = nullptr;

@@ -26,13 +26,13 @@ mod qmlprivate {
     include_in_cpp!("rustconv.h");
 
     #[doc(hidden)]
-    pub fn qml_register_element(type_id: QMetaType, list_id: QMetaType, object_size: u32, create_fn: usize,
-                        uri: &[u8], version_major: u8, version_minor: u8,
+    pub fn qml_register_element(type_id: QMetaType, list_id: QMetaType, object_size: u32, parser_status_cast: i32,
+                        create_fn: usize, uri: &[u8], version_major: u8, version_minor: u8,
                         elm_name: &[u8], meta_object: &'static QMetaObject) {
 
             let cpp = cpp_fn!(|
-                    type_id: QMetaType, list_id: QMetaType, object_size: u32, create_fn: usize,
-                    uri: &[u8], version_major: u8, version_minor: u8,
+                    type_id: QMetaType, list_id: QMetaType, object_size: u32, parser_status_cast: i32,
+                    create_fn: usize, uri: &[u8], version_major: u8, version_minor: u8,
                     elm_name: &[u8], meta_object: &QMetaObject,
                 |
             {
@@ -54,7 +54,7 @@ mod qmlprivate {
                 rt.metaObject = &meta_object;
                 rt.attachedPropertiesFunction = nullptr;
                 rt.attachedPropertiesMetaObject = nullptr;
-                rt.parserStatusCast = -1;
+                rt.parserStatusCast = parser_status_cast;
                 rt.valueSourceCast = -1;
                 rt.valueInterceptorCast = -1;
                 rt.extensionObjectCreate = nullptr;
@@ -66,7 +66,7 @@ mod qmlprivate {
 
                 QQmlPrivate::qmlregister(QQmlPrivate::TypeRegistration, &rt);
             });
-            cpp(type_id, list_id, object_size, create_fn, uri, version_major, version_minor, elm_name, meta_object)
+            cpp(type_id, list_id, object_size, parser_status_cast, create_fn, uri, version_major, version_minor, elm_name, meta_object)
     }
 
     #[doc(hidden)]

@@ -34,6 +34,7 @@ mod ffi {
             type_id: QMetaType,
             list_id: QMetaType,
             object_size: u32,
+            parser_status_cast: i32,
             create_fn: usize,
             uri: &[u8],
             version_major: u8,
@@ -59,6 +60,7 @@ pub fn qml_register_element(
     type_id: QMetaType,
     list_id: QMetaType,
     object_size: u32,
+    parser_status_cast: i32,
     create_fn: usize,
     uri: &[u8],
     version_major: u8,
@@ -67,7 +69,18 @@ pub fn qml_register_element(
     meta_object: &'static QMetaObject,
 ) {
     let cpp = ffi::inline_cpp_fn_qml_register_element;
-    cpp(type_id, list_id, object_size, create_fn, uri, version_major, version_minor, elm_name, meta_object)
+    cpp(
+        type_id,
+        list_id,
+        object_size,
+        parser_status_cast,
+        create_fn,
+        uri,
+        version_major,
+        version_minor,
+        elm_name,
+        meta_object,
+    )
 }
 #[allow(dead_code)]
 #[doc(hidden)]

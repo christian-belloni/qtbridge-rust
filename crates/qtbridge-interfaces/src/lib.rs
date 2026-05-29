@@ -64,14 +64,17 @@ pub mod genericrustproxy;
 
 pub mod qobject;
 
+pub mod qabstract_item_model;
+pub use qabstract_item_model::{QAbstractItemModel, QAbstractItemModelBase};
+
 pub mod qlist_model;
 pub use qlist_model::{QListModel, QListModelBase};
 
+pub mod qparser_status;
+pub use qparser_status::QParserStatus;
+
 pub mod qtable_model;
 pub use qtable_model::{QTableModel, QTableModelBase};
-
-pub mod qabstract_item_model;
-pub use qabstract_item_model::{QAbstractItemModel, QAbstractItemModelBase};
 
 pub mod object_access;
 pub use object_access::rust_object_access::RustObjAccess;
