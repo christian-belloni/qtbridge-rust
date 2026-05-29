@@ -4,9 +4,11 @@
 use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident};
 use syn::spanned::Spanned;
+use syn::visit_mut::VisitMut;
 
 use qtbridge_gen_common::function_with_attributes::FunctionWithAttributes;
 use qtbridge_gen_common::parse_utils::is_path_with_segments_str;
+use qtbridge_gen_common::type_qualified_mapping::{CallOrigin, TypeQualifiedMapping};
 use qtbridge_gen_common::type_utils::get_ident_of_last_path_segment_or_err;
 use crate::qt_gen_impl::generate_qobject_holder::generate_qobject_holder;
 use crate::qt_gen_impl::qt_meta_gen;
@@ -91,10 +93,6 @@ impl QObjectModuleBuilder {
         };
 
         // Generate blocks of code that will be added to expanded code.
-        let drop_impl = match self.params.no_drop {
-            true => None,
-            false => self.generate_drop_trait_if_missing()?,
-        };
 
         // TODO: pass QObjectModule to generate_qmetainfo_trait_impl() instead
         let ctx = QMetaInfoContext {
@@ -107,25 +105,19 @@ impl QObjectModuleBuilder {
             class_infos: &self.class_infos,
         };
 
-        // Generate traits code.
-        let qmeta_info_impl = generate_qmetainfo_trait_impl(&ctx)
-            .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaInfo trait.\nError: {}", err)))?;
-        let dispatch_meta_call = generate_dispatch_meta_call(&self.struct_ident, &self.struct_generics, &self.signals, &self.slots, &self.properties)
-            .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of DispatchMetaCall trait.\nError: {err}")))?;
-        let qmetatype_get_impl = generate_qmeta_type_get(&self.struct_ident, &self.struct_generics)
-            .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaTypeGet trait.\nError: {}", err)))?;
-        let qobject_holder_impl = generate_qobject_holder(&self.struct_ident, &iface_ident, &self.struct_generics)
-            .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QObjectHolder trait.\nError:{err}")))?;
+        // Generate traits implementations.
+        let mut generated_traits = vec![
+            ("DispatchMetaCall", generate_dispatch_meta_call(&self.struct_ident, &self.struct_generics, &self.signals, &self.slots, &self.properties)),
+            ("QMetaInfo",        generate_qmetainfo_trait_impl(&ctx)),
+            ("QMetaTypeGet",     generate_qmeta_type_get(&self.struct_ident, &self.struct_generics)),
+            ("QObjectHolder",    generate_qobject_holder(&self.struct_ident, &iface_ident, &self.struct_generics)),
+        ];
 
-        // Concat additional items to the source items processed
-        if let Some(drop) = drop_impl {
-            output_module_items.push(drop.into());
+        if !self.params.no_drop &&
+           let Some(drop) = self.generate_drop_trait_if_missing().transpose()
+        {
+            generated_traits.push(("Drop", drop));
         }
-        // TODO: return items below as high level AST but not TokenStreams
-        output_module_items.push(qmeta_info_impl.into());                           // impl qtbridge::qtbridge_runtime::QMetaInfo
-        output_module_items.push(dispatch_meta_call.into());                        // impl qtbridge::qtbridge_runtime::DispatchMetaCall
-        output_module_items.push(qmetatype_get_impl.into());                        // impl qtbridge::qtbridge_type_lib::QMetaTypeGet
-        output_module_items.push(qobject_holder_impl.into());                       // impl qtbridge::qtbridge_type_lib::QObjectHolder
 
         if !self.struct_is_generic() {
             let qml_register = generate_qml_register(&self.struct_ident, &self.params)
@@ -134,14 +126,25 @@ impl QObjectModuleBuilder {
                 if let Some(qml_reg_func) = qml_reg.register_fn {
                     output_module_items.push(qml_reg_func.into());
                 }
-                output_module_items.push(qml_reg.register_impl.into());
+                generated_traits.push(("QmlRegister", Ok(qml_reg.register_impl)));
             }
         } else if self.params.singleton {
             return Err(syn::Error::new(self.struct_ident.span(), format!("Singleton is not available for generic structs.")));
         }
 
+        let mut type_map = TypeQualifiedMapping::new(CallOrigin::External);
+        for (trait_name, trait_impl_result) in generated_traits {
+            let mut trait_impl = trait_impl_result.map_err(|err| syn::Error::new(
+                err.span(),
+                format!("Failed to generate implementation of '{trait_name}' trait.\nError:{err}")))?;
+
+            // Make sure paths are properly qualified in the generated traits.
+            type_map.visit_item_impl_mut(&mut trait_impl);
+            output_module_items.push(trait_impl.into());
+        }
+
         Ok(syn::ItemMod {
-            content: Some((syn::token::Brace::default(), output_module_items)),
+            content: Some((<_>::default(), output_module_items)),
             ..module.clone()
         })
     }

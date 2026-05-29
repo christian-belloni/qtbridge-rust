@@ -14,31 +14,6 @@ mod some_module {
             1
         }
     }
-    impl Drop for SomeStruct {
-        fn drop(&mut self) {
-            <Self as qtbridge::qtbridge_runtime::QObjectHolder>::detach_qobject(self);
-        }
-    }
-    impl qtbridge::qtbridge_runtime::QMetaInfo for SomeStruct {
-        type CppProxy =
-            qtbridge::qtbridge_interfaces::qabstract_list_model::QAbstractListModelProxyCpp;
-        fn build_dynamic_meta_type(
-            mut meta_obj: std::pin::Pin<&mut qtbridge::qtbridge_runtime::DynamicMetaObjectBuilder>,
-        ) {
-            meta_obj.as_mut().end_meta_registration();
-        }
-        fn get_shared_dynamic_meta_object_data(
-        ) -> &'static qtbridge::qtbridge_runtime::DynamicMetaObjectData {
-            use std::sync::OnceLock;
-            thread_local! { static DYNAMIC_META_OBJECT : OnceLock < & 'static qtbridge :: qtbridge_runtime :: DynamicMetaObjectData > = OnceLock :: new () ; }
-            DYNAMIC_META_OBJECT.with(|cell| {
-                *cell.get_or_init(|| {
-                    let ptr = Self::create_dynamic_meta_object_data_for_type();
-                    unsafe { ptr.as_ref() }.unwrap()
-                })
-            })
-        }
-    }
     impl qtbridge::qtbridge_runtime::DispatchMetaCall for SomeStruct {
         fn invoke_slot(&self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]) {
             match slot_id {
@@ -59,6 +34,26 @@ mod some_module {
             match prop_id {
                 _ => panic!("Unhandled property id {prop_id}"),
             }
+        }
+    }
+    impl qtbridge::qtbridge_runtime::QMetaInfo for SomeStruct {
+        type CppProxy =
+            qtbridge::qtbridge_interfaces::qabstract_list_model::QAbstractListModelProxyCpp;
+        fn build_dynamic_meta_type(
+            mut meta_obj: std::pin::Pin<&mut qtbridge::qtbridge_runtime::DynamicMetaObjectBuilder>,
+        ) {
+            meta_obj.as_mut().end_meta_registration();
+        }
+        fn get_shared_dynamic_meta_object_data(
+        ) -> &'static qtbridge::qtbridge_runtime::DynamicMetaObjectData {
+            use std::sync::OnceLock;
+            thread_local! { static DYNAMIC_META_OBJECT : OnceLock < & 'static qtbridge :: qtbridge_runtime :: DynamicMetaObjectData > = OnceLock :: new () ; }
+            DYNAMIC_META_OBJECT.with(|cell| {
+                *cell.get_or_init(|| {
+                    let ptr = Self::create_dynamic_meta_object_data_for_type();
+                    unsafe { ptr.as_ref() }.unwrap()
+                })
+            })
         }
     }
     impl qtbridge::qtbridge_type_lib::QMetaTypeGet for SomeStruct {
@@ -83,6 +78,11 @@ mod some_module {
             >,
         > {
             rust_obj_rc
+        }
+    }
+    impl Drop for SomeStruct {
+        fn drop(&mut self) {
+            <Self as qtbridge::qtbridge_runtime::QObjectHolder>::detach_qobject(self);
         }
     }
     impl qtbridge::qtbridge_runtime::QmlRegister for SomeStruct {
