@@ -170,13 +170,6 @@ pub mod node {
             qtbridge::qtbridge_type_lib::QMetaType::new_with_interface(iface as *const _)
         }
     }
-    impl qtbridge::qtbridge_runtime::QmlRegister for Node {
-        const URI: &str = "qtbridge_gen";
-        const ELEMENT_NAME: &str = "Node";
-        const MINOR_VERSION: u8 = 1u8;
-        const MAJOR_VERSION: u8 = 0u8;
-        const IS_SINGLETON: bool = false;
-    }
     impl qtbridge::qtbridge_runtime::QObjectHolder for Node {
         type ProxyRust = qtbridge::qtbridge_interfaces::qobject::QObjectProxyRust;
         fn as_adaptor_trait(
@@ -188,5 +181,12 @@ pub mod node {
         > {
             rust_obj_rc
         }
+    }
+    impl qtbridge::qtbridge_runtime::QmlRegister for Node {
+        const URI: &str = "qtbridge_gen";
+        const ELEMENT_NAME: &str = "Node";
+        const MINOR_VERSION: u8 = 1u8;
+        const MAJOR_VERSION: u8 = 0u8;
+        const IS_SINGLETON: bool = false;
     }
 }

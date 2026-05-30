@@ -59,13 +59,6 @@ mod some_module {
             qtbridge::qtbridge_type_lib::QMetaType::new_with_interface(iface as *const _)
         }
     }
-    impl qtbridge::qtbridge_runtime::QmlRegister for SomeStruct {
-        const URI: &str = "qtbridge_gen";
-        const ELEMENT_NAME: &str = "SomeStruct";
-        const MINOR_VERSION: u8 = 1u8;
-        const MAJOR_VERSION: u8 = 0u8;
-        const IS_SINGLETON: bool = false;
-    }
     impl qtbridge::qtbridge_runtime::QObjectHolder for SomeStruct {
         type ProxyRust =
             qtbridge::qtbridge_interfaces::qabstract_list_model::QAbstractListModelProxyRust;
@@ -78,5 +71,12 @@ mod some_module {
         > {
             rust_obj_rc
         }
+    }
+    impl qtbridge::qtbridge_runtime::QmlRegister for SomeStruct {
+        const URI: &str = "qtbridge_gen";
+        const ELEMENT_NAME: &str = "SomeStruct";
+        const MINOR_VERSION: u8 = 1u8;
+        const MAJOR_VERSION: u8 = 0u8;
+        const IS_SINGLETON: bool = false;
     }
 }

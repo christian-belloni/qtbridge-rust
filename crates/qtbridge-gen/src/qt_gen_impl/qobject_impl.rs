@@ -8,10 +8,10 @@ use syn::{spanned::Spanned};
 use qtbridge_gen_common::function_with_attributes::FunctionWithAttributes;
 use qtbridge_gen_common::type_utils::get_ident_of_last_path_segment_or_err;
 use crate::qt_gen_impl;
+use crate::qt_gen_impl::generate_qobject_holder::generate_qobject_holder;
 use crate::qt_gen_impl::qml_element::QmlElementCode;
 use crate::qt_gen_impl::qt_meta_gen::generate_dispatch_meta_call::generate_dispatch_meta_call;
 use qt_gen_impl::qobject_macro_params::QObjectMacroParams;
-use qt_gen_impl::iface_impl::InterfaceImpl;
 use qt_gen_impl::qml_element::generate_qml_register;
 use qt_gen_impl::drop_impl::generate_drop;
 use qt_gen_impl::qt_meta_gen;
@@ -36,8 +36,8 @@ pub struct QObjectImplOutput {
     /// Implementation of QMetaTypeInterfaceGet trait
     pub qmetatype_get_impl: syn::ItemImpl,
 
-    /// Implementation details
-    pub impl_details: TokenStream,
+    /// Implementation of QObjectHolder trait
+    pub qobject_holder_impl: syn::ItemImpl,
 
     /// QML_ELEMENT registration
     pub qml_registration: Option<QmlElementCode>,
@@ -47,7 +47,7 @@ impl QObjectImplOutput {
     // Implement as regular function but not as ToTokens trait
     // not to add a 'quote' dependency to qt_gen project
     pub fn to_token_stream(&self) -> TokenStream {
-        let Self{ new_impl, drop_impl, qmeta_info_impl, dispatch_meta_call, qmetatype_get_impl, impl_details , qml_registration} = &self;
+        let Self{ new_impl, drop_impl, qmeta_info_impl, dispatch_meta_call, qmetatype_get_impl, qobject_holder_impl , qml_registration} = &self;
 
         quote!{
             #new_impl
@@ -55,7 +55,7 @@ impl QObjectImplOutput {
             #qmeta_info_impl
             #dispatch_meta_call
             #qmetatype_get_impl
-            #impl_details
+            #qobject_holder_impl
             #qml_registration
         }
     }
@@ -145,11 +145,6 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream) -> syn::Result<QObj
         syn::parse_str::<syn::Ident>("QObject")?
     };
 
-    let iface_impl = InterfaceImpl::new(struct_ident.clone(), iface_ident.clone(), generics.clone())?;
-
-    let impl_details = iface_impl.generate_impl_details()
-        .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation details block.\nError:{err}")))?;
-
     let ctx = QMetaInfoContext {
         struct_ident: &struct_ident,
         iface_ident: &iface_ident,
@@ -167,7 +162,8 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream) -> syn::Result<QObj
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of DispatchMetaCall trait.\nError: {}", err)))?;
     let qmetatype_get_impl = generate_qmeta_type_get(&struct_ident, &generics)
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaTypeGet trait.\nError: {}", err)))?;
-
+    let qobject_holder_impl = generate_qobject_holder(&struct_ident, &iface_ident, &generics)
+        .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QObjectHolder trait.\nError:{err}")))?;
     let drop_impl = generate_drop(&struct_ident, generics)
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of Drop trait.\nError: {}", err)))?;
 
@@ -184,7 +180,7 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream) -> syn::Result<QObj
         qmeta_info_impl,
         dispatch_meta_call,
         qmetatype_get_impl,
-        impl_details,
+        qobject_holder_impl,
         qml_registration,
     })
 }

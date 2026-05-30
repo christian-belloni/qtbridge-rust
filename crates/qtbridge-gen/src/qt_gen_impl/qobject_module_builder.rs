@@ -8,6 +8,7 @@ use syn::spanned::Spanned;
 use qtbridge_gen_common::function_with_attributes::FunctionWithAttributes;
 use qtbridge_gen_common::parse_utils::is_path_with_segments_str;
 use qtbridge_gen_common::type_utils::get_ident_of_last_path_segment_or_err;
+use crate::qt_gen_impl::generate_qobject_holder::generate_qobject_holder;
 use crate::qt_gen_impl::qt_meta_gen;
 use crate::qt_gen_impl::qt_meta_gen::generate_dispatch_meta_call::generate_dispatch_meta_call;
 use qt_meta_gen::generate_meta::{QMetaInfoContext, generate_qmetainfo_trait_impl};
@@ -17,7 +18,6 @@ use qt_meta_gen::{ExpandTokens, QClassInfo, QPropertyInfo, QSignalInfo, QSlotInf
 
 use crate::qt_gen_impl;
 use qt_gen_impl::qobject_macro_params::QObjectMacroParams;
-use qt_gen_impl::iface_impl::InterfaceImpl;
 use qt_gen_impl::qml_element::generate_qml_register;
 use qt_gen_impl::drop_impl::{adjust_drop_impl, generate_drop};
 
@@ -90,16 +90,11 @@ impl QObjectModuleBuilder {
             None => syn::parse_str::<syn::Ident>("QObject")?,
         };
 
-        // Generate the implementation of the interface.
-        let iface_impl = InterfaceImpl::new(self.struct_ident.clone(), iface_ident.clone(), self.struct_generics.clone())?;
-
         // Generate blocks of code that will be added to expanded code.
         let drop_impl = match self.params.no_drop {
             true => None,
             false => self.generate_drop_trait_if_missing()?,
         };
-        let impl_details = iface_impl.generate_impl_details()
-            .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation details block.\nError:{err}")))?;
 
         // TODO: pass QObjectModule to generate_qmetainfo_trait_impl() instead
         let ctx = QMetaInfoContext {
@@ -119,6 +114,8 @@ impl QObjectModuleBuilder {
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of DispatchMetaCall trait.\nError: {err}")))?;
         let qmetatype_get_impl = generate_qmeta_type_get(&self.struct_ident, &self.struct_generics)
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaTypeGet trait.\nError: {}", err)))?;
+        let qobject_holder_impl = generate_qobject_holder(&self.struct_ident, &iface_ident, &self.struct_generics)
+            .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QObjectHolder trait.\nError:{err}")))?;
 
         // Concat additional items to the source items processed
         if let Some(drop) = drop_impl {
@@ -128,6 +125,7 @@ impl QObjectModuleBuilder {
         output_module_items.push(qmeta_info_impl.into());                           // impl qtbridge::qtbridge_runtime::QMetaInfo
         output_module_items.push(dispatch_meta_call.into());                        // impl qtbridge::qtbridge_runtime::DispatchMetaCall
         output_module_items.push(qmetatype_get_impl.into());                        // impl qtbridge::qtbridge_type_lib::QMetaTypeGet
+        output_module_items.push(qobject_holder_impl.into());                       // impl qtbridge::qtbridge_type_lib::QObjectHolder
 
         if !self.struct_is_generic() {
             let qml_register = generate_qml_register(&self.struct_ident, &self.params)
@@ -141,10 +139,6 @@ impl QObjectModuleBuilder {
         } else if self.params.singleton {
             return Err(syn::Error::new(self.struct_ident.span(), format!("Singleton is not available for generic structs.")));
         }
-
-        // TODO: this is not very elegant. We should probably return Vec<Item> from the function generating this code
-        let file: syn::File = syn::parse2(impl_details)?;
-        output_module_items.extend(file.items);                                // Functionality called from implementation internals
 
         Ok(syn::ItemMod {
             content: Some((syn::token::Brace::default(), output_module_items)),
