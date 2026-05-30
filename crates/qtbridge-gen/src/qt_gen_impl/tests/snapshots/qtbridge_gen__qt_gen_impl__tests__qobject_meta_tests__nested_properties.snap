@@ -117,29 +117,15 @@ pub mod node {
         fn build_dynamic_meta_type(
             mut meta_obj: std::pin::Pin<&mut qtbridge::qtbridge_runtime::DynamicMetaObjectBuilder>,
         ) {
-            use qtbridge::qtbridge_type_lib;
-            use qtbridge_type_lib::QMetaTypeGet;
             meta_obj.as_mut().register_property(
                 "value",
                 1u32,
-                &(<i32>::get_qmetatype()),
+                &(<i32 as qtbridge::qtbridge_type_lib::QMetaTypeGet>::get_qmetatype()),
                 false,
                 "",
             );
-            meta_obj.as_mut().register_property(
-                "left",
-                2u32,
-                &(<*mut qtbridge::qtbridge_type_lib::QObject>::get_qmetatype()),
-                false,
-                "",
-            );
-            meta_obj.as_mut().register_property(
-                "right",
-                3u32,
-                &(<*mut qtbridge::qtbridge_type_lib::QObject>::get_qmetatype()),
-                false,
-                "",
-            );
+            meta_obj . as_mut () . register_property ("left" , 2u32 , & (< * mut qtbridge :: qtbridge_type_lib :: QObject as qtbridge :: qtbridge_type_lib :: QMetaTypeGet > :: get_qmetatype ()) , false , "") ;
+            meta_obj . as_mut () . register_property ("right" , 3u32 , & (< * mut qtbridge :: qtbridge_type_lib :: QObject as qtbridge :: qtbridge_type_lib :: QMetaTypeGet > :: get_qmetatype ()) , false , "") ;
             meta_obj.as_mut().end_meta_registration();
         }
         fn get_shared_dynamic_meta_object_data(

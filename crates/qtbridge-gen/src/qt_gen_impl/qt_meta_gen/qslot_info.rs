@@ -7,7 +7,7 @@ use syn::{spanned::Spanned, Ident, LitStr};
 use qtbridge_gen_common::case_conv;
 use qtbridge_gen_common::function_with_attributes::{BlockOrSemi, FunctionWithAttributes};
 use qtbridge_gen_common::parse_utils::{parse_name_value, partition_attr_by};
-use qtbridge_gen_common::signature_utils::{get_typed_args, is_self_mut};
+use qtbridge_gen_common::signature_utils::is_self_mut;
 use qtbridge_gen_common::type_registry::meta_types::check_meta_call_signature_types;
 
 use crate::qt_gen_impl::qt_meta_gen;
@@ -70,15 +70,6 @@ impl QSlotInfo {
         self.id
     }
 
-    /// Get count of arguments after &self
-    pub fn get_typed_arg_count(&self) -> usize {
-        get_typed_args(&self.func.sig).count()
-    }
-
-    pub fn has_return(&self) -> bool {
-        matches!(&self.func.sig.output, syn::ReturnType::Type(_, _))
-    }
-
     /// Generate code for registration of the given slot in `DynamicMetaObjectBuilder`.
     ///
     /// For a slot defined as:
@@ -107,7 +98,7 @@ impl QSlotInfo {
         let output_meta_types = bridge_generator.get_output_metatype();
 
         let result_meta_type = output_meta_types
-            .map(|ty| quote!{ &#ty::get_qmetatype() })
+            .map(|ty| quote!{ &<#ty as qtbridge_type_lib::QMetaTypeGet>::get_qmetatype() })
             .unwrap_or_else(|| quote! { &QMetaType::default()} );
 
         let mutability = match self.is_mut() {
@@ -119,7 +110,7 @@ impl QSlotInfo {
             meta_obj.as_mut().register_slot(
                 #name,
                 #id,
-                &[#(#input_meta_types::get_qmetatype()),*],
+                 &[#(<#input_meta_types as qtbridge_type_lib::QMetaTypeGet>::get_qmetatype()),*],
                 #result_meta_type,
                 qtbridge::qtbridge_runtime::dynamicmetaobjectbuilder::Mutability::#mutability);
         };

@@ -56,10 +56,6 @@ impl QPropertyInfo {
         self.constant.is_some()
     }
 
-    pub fn is_type_deduced(&self) -> bool {
-        self.get_deduced_type().is_some()
-    }
-
     pub fn get_notify_signal(&self) -> Option<&syn::Ident> {
         self.notify_signal.as_ref()
     }
@@ -214,7 +210,7 @@ impl QPropertyInfo {
                     .unwrap_or_else(|| ty.clone());
                 let meta_type_wo_ref = remove_ref(&meta_type);
                 quote! {
-                    <#meta_type_wo_ref>::get_qmetatype()
+                    <#meta_type_wo_ref as qtbridge_type_lib::QMetaTypeGet>::get_qmetatype()
                 }
             },
             // Get an expression that will determine metatype using runtime function
@@ -224,7 +220,7 @@ impl QPropertyInfo {
                 let member_var = member.as_ref()
                     .ok_or_else(||syn::Error::new(*span, "Can't deduce type of qproperty neither from accessor nor from member"))?;
                 quote!{
-                    get_meta_type_of_fn_return_value(|this: &Self| { &this.#member_var } )
+                    qtbridge_runtime::get_meta_type_of_fn_return_value(|this: &Self| { &this.#member_var } )
                 }
             }
         };

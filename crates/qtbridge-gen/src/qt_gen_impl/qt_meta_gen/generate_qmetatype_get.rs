@@ -23,9 +23,9 @@ pub fn generate_qmeta_type_get(struct_ident: &syn::Ident, generics: &syn::Generi
 
     let code = quote! {
         impl #impl_generics #type_library::QMetaTypeGet for #struct_ident #type_generics #where_clause {
-            fn get_qmetatype() -> #type_library::QMetaType {
+            fn get_qmetatype() -> QMetaType {
                 #body
-                #type_library::QMetaType::new_with_interface(iface as *const _)
+                QMetaType::new_with_interface(iface as *const _)
             }
         }
     };

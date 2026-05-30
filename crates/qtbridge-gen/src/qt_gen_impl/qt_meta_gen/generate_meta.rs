@@ -5,7 +5,7 @@ use qtbridge_gen_common::naming;
 use qtbridge_gen_common::type_qualified_mapping;
 use type_qualified_mapping::crate_names;
 
-use quote::{ToTokens, format_ident, quote};
+use quote::{ToTokens, quote};
 use proc_macro2::TokenStream;
 
 use crate::qt_gen_impl::qt_meta_gen;
@@ -23,7 +23,6 @@ pub struct QMetaInfoContext<'a> {
 
 pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext) -> syn::Result<syn::ItemImpl> {
     let generics = &ctx.generics;
-    let use_block = generate_meta_reg_use_block(ctx.signals, ctx.slots, ctx.properties);
     let signals_meta_reg = generate_signals_meta_registration(ctx.signals)?;
     let slots_meta_reg = generate_slots_meta_registration(ctx.slots)?;
     let properties_meta_reg = generate_properties_meta_registration(ctx.properties, ctx.signals)?;
@@ -65,8 +64,6 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext) -> syn::Result<syn:
             type CppProxy = #iface_library::#iface_module::#proxy_cpp;
 
             fn build_dynamic_meta_type(mut meta_obj: std::pin::Pin<&mut #bridge_library::DynamicMetaObjectBuilder>) {
-                #use_block
-
                 #signals_meta_reg
                 #slots_meta_reg
                 #properties_meta_reg
@@ -83,74 +80,6 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext) -> syn::Result<syn:
     syn::parse2(code)
 }
 
-fn generate_meta_reg_use_block(signals: &[QSignalInfo], slots: &[QSlotInfo], properties: &[QPropertyInfo]) -> TokenStream {
-    // generate code like 'use module::submodule;' to reduce amount of boiler plate
-    // when accessing functions from other modules
-
-    if signals.is_empty() && slots.is_empty() && properties.is_empty() {
-        return TokenStream::new();
-    }
-
-    let type_library = crate_names::type_module();
-    let bridge_library = crate_names::bridge_module();
-
-    let is_property_with_not_deduced_type =
-        properties.iter()
-            .any(|p| !p.is_type_deduced());
-    let is_qmeta_type_used =
-        is_property_with_not_deduced_type ||
-        slots.iter()
-            .any(|s| !s.has_return());
-    let is_qmeta_type_get_used =
-        properties.iter()
-            .any(|p| p.is_type_deduced()) ||
-        signals.iter()
-            .any(|s| s.get_typed_arg_count() > 0) ||
-        slots.iter()
-            .any(|s| s.get_typed_arg_count() > 0 || s.has_return());
-
-    let mut type_lib_imports = Vec::new();
-    if is_qmeta_type_used {
-        type_lib_imports.push(format_ident!("QMetaType"));
-    }
-    if is_qmeta_type_get_used {
-        type_lib_imports.push(format_ident!("QMetaTypeGet"));
-    }
-
-    let type_lib_imports = match type_lib_imports.len() {
-        0 => quote!{},
-        1 => {
-            let use_ident = &type_lib_imports[0];
-            quote!{
-                use #type_library;
-                use qtbridge_type_lib::#use_ident;
-            }
-        },
-        _ => {
-            type_lib_imports.sort();
-            quote! {
-                use #type_library;
-                use qtbridge_type_lib::{#(#type_lib_imports),*};
-            }
-        }
-
-    };
-
-    let mut bridge_imports = Vec::new();
-    if is_property_with_not_deduced_type {
-        bridge_imports.push(quote!{ get_meta_type_of_fn_return_value });
-    }
-
-    let bridge_imports = (!bridge_imports.is_empty())
-        .then(|| quote!{
-            #(use #bridge_library::#bridge_imports;)*
-        });
-
-    quote! {
-        #type_lib_imports
-        #bridge_imports
-    }
-}
 
 //TODO: move to generic function and introduce trait for signal, slot, properties (e.g. 'RegisterMeta')
 fn generate_signals_meta_registration(signals: &[QSignalInfo]) -> syn::Result<TokenStream> {

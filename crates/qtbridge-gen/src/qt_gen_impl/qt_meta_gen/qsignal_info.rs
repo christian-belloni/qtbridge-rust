@@ -90,7 +90,9 @@ impl QSignalInfo {
             .collect::<syn::Result<Vec<_>>>()?;
 
         let register_signal = quote!{
-            meta_obj.as_mut().register_signal(#name, &[#(#arg_types_qt::get_qmetatype()),*]);
+            meta_obj.as_mut().register_signal(
+                #name,
+                &[#(<#arg_types_qt as qtbridge_type_lib::QMetaTypeGet>::get_qmetatype()),*]);
         };
         Ok(register_signal)
     }
