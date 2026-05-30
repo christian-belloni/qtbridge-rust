@@ -4,7 +4,6 @@
 use quote::quote;
 
 use qtbridge_gen_common::naming;
-use qtbridge_gen_common::type_qualified_mapping::crate_names;
 
 /// Generate the implementation of the `QObjectHolder` trait.
 pub fn generate_qobject_holder(
@@ -20,17 +19,14 @@ pub fn generate_qobject_holder(
 
     let (impl_generics, type_generics, where_clause) = impl_generics.split_for_impl();
 
-    let iface_library = crate_names::iface_module();
-    let bridge_library = crate_names::bridge_module();
-
     let code = quote! {
-        impl #impl_generics #bridge_library::QObjectHolder for #struct_ident #type_generics #where_clause {
-            type ProxyRust = #iface_library::#iface_module::#proxy_rust;
+        impl #impl_generics qtbridge_runtime::QObjectHolder for #struct_ident #type_generics #where_clause {
+            type ProxyRust = qtbridge_interfaces::#iface_module::#proxy_rust;
 
             fn as_adaptor_trait(
                 rust_obj_rc: std::rc::Rc<std::cell::RefCell<Self>>
             ) -> std::rc::Rc<std::cell::RefCell<
-                <Self::ProxyRust as #bridge_library::qproxies::QRustProxy>::AdapterType>>
+                <Self::ProxyRust as qtbridge_runtime::qproxies::QRustProxy>::AdapterType>>
             {
                 rust_obj_rc
             }

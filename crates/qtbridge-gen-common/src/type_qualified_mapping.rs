@@ -24,22 +24,6 @@ pub enum CallOrigin {
     External,
 }
 
-pub mod crate_names {
-    use syn::{Path, parse_quote};
-
-    pub fn type_module() -> Path {
-        parse_quote!(qtbridge::qtbridge_type_lib)
-    }
-
-    pub fn iface_module() -> Path {
-        parse_quote!(qtbridge::qtbridge_interfaces)
-    }
-
-    pub fn bridge_module() -> Path {
-        parse_quote!(qtbridge::qtbridge_runtime)
-    }
-}
-
 impl TypeQualifiedMapping {
     pub fn new(mapping: CallOrigin) -> Self {
         Self {

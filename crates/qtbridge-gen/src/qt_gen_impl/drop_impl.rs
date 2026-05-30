@@ -1,7 +1,6 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use qtbridge_gen_common::type_qualified_mapping::crate_names;
 use quote::{quote, ToTokens};
 use syn::spanned::Spanned;
 
@@ -9,7 +8,6 @@ use syn::spanned::Spanned;
 pub fn generate_drop(struct_ident: &syn::Ident, struct_generics: &syn::Generics) -> syn::Result<syn::ItemImpl> {
 
     let (impl_generics, type_generics, where_clause) = struct_generics.split_for_impl();
-    let bridge_library = crate_names::bridge_module();
 
     let drop = syn::parse2(quote! {
         /// This is an automatic implementation by qtbridges.
@@ -20,7 +18,7 @@ pub fn generate_drop(struct_ident: &syn::Ident, struct_generics: &syn::Generics)
         #where_clause
         {
             fn drop(&mut self) {
-                <Self as #bridge_library::QObjectHolder>::detach_qobject(self);
+                <Self as qtbridge::qtbridge_runtime::QObjectHolder>::detach_qobject(self);
             }
         }
     })?;
@@ -48,10 +46,8 @@ pub fn adjust_drop_impl(input: &syn::ItemImpl) -> syn::Result<syn::ItemImpl> {
         *semi = Some(Default::default());
     }
 
-    let bridge_library = crate_names::bridge_module();
-
     let drop_expr: syn::Expr = syn::parse2(quote!{
-        <Self as #bridge_library::QObjectHolder>::detach_qobject(self)
+        <Self as qtbridge::qtbridge_runtime::QObjectHolder>::detach_qobject(self)
     })?;
     new_item_fn.block.stmts.push(syn::Stmt::Expr(drop_expr, Some(Default::default())));
 

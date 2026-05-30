@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 use proc_macro2::TokenStream;
 use quote::quote;
-use qtbridge_gen_common::type_qualified_mapping;
-use type_qualified_mapping::crate_names;
 
 use super::{QPropertyInfo, QSignalInfo, QSlotInfo};
 
@@ -11,7 +9,6 @@ pub fn generate_dispatch_meta_call(struct_ident: &syn::Ident, generics: &syn::Ge
     signals: &[QSignalInfo], slots: &[QSlotInfo], properties: &[QPropertyInfo]) -> syn::Result<syn::ItemImpl> {
 
     let (impl_generics, type_generics, where_clause) = generics.split_for_impl();
-    let bridge_library = crate_names::bridge_module();
 
     let (slots_mut, slots_const): (Vec<_>, Vec<_>) = slots.iter()
         .partition(|s| s.is_mut());
@@ -52,7 +49,7 @@ pub fn generate_dispatch_meta_call(struct_ident: &syn::Ident, generics: &syn::Ge
         .collect::<syn::Result<Vec<_>>>()?;
 
     let code = quote! {
-        impl #impl_generics #bridge_library::DispatchMetaCall for #struct_ident #type_generics
+        impl #impl_generics qtbridge_runtime::DispatchMetaCall for #struct_ident #type_generics
         #where_clause
         {
             fn invoke_slot(&self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]) {

@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use qtbridge_gen_common::naming;
-use qtbridge_gen_common::type_qualified_mapping;
-use type_qualified_mapping::crate_names;
 
 use quote::{ToTokens, quote};
 use proc_macro2::TokenStream;
@@ -34,19 +32,16 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext) -> syn::Result<syn:
     let struct_ident = &ctx.struct_ident;
     let (impl_generics, type_generics, where_clause) = generics.split_for_impl();
 
-    let bridge_library = crate_names::bridge_module();
-    let iface_library = crate_names::iface_module();
-
     let has_generics = !generics.params.is_empty();
     let get_dyn_meta_object_body = if has_generics {
         quote! {
-            #bridge_library::qmetainfo::dynamic_meta_object_data_for_generic::<Self>()
+            qtbridge_runtime::qmetainfo::dynamic_meta_object_data_for_generic::<Self>()
         }
     } else {
         quote! {
             use std::sync::OnceLock;
             thread_local! {
-                static DYNAMIC_META_OBJECT: OnceLock<&'static #bridge_library::DynamicMetaObjectData> = OnceLock::new();
+                static DYNAMIC_META_OBJECT: OnceLock<&'static qtbridge_runtime::DynamicMetaObjectData> = OnceLock::new();
             }
 
             DYNAMIC_META_OBJECT.with(|cell| {
@@ -59,11 +54,11 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext) -> syn::Result<syn:
     };
 
     let code = quote! {
-        impl #impl_generics #bridge_library::QMetaInfo for #struct_ident #type_generics #where_clause {
+        impl #impl_generics qtbridge_runtime::QMetaInfo for #struct_ident #type_generics #where_clause {
 
-            type CppProxy = #iface_library::#iface_module::#proxy_cpp;
+            type CppProxy = qtbridge_interfaces::#iface_module::#proxy_cpp;
 
-            fn build_dynamic_meta_type(mut meta_obj: std::pin::Pin<&mut #bridge_library::DynamicMetaObjectBuilder>) {
+            fn build_dynamic_meta_type(mut meta_obj: std::pin::Pin<&mut qtbridge_runtime::DynamicMetaObjectBuilder>) {
                 #signals_meta_reg
                 #slots_meta_reg
                 #properties_meta_reg
@@ -72,7 +67,7 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext) -> syn::Result<syn:
                 meta_obj.as_mut().end_meta_registration();
             }
 
-            fn get_shared_dynamic_meta_object_data() -> &'static #bridge_library::DynamicMetaObjectData {
+            fn get_shared_dynamic_meta_object_data() -> &'static qtbridge_runtime::DynamicMetaObjectData {
                 #get_dyn_meta_object_body
             }
         }
