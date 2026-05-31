@@ -148,7 +148,7 @@ fn test_dispatch_meta_call() {
 }
 
 #[test]
-fn test_nested_properties() {
+fn test_nested_type_in_properties() {
     let input = quote! {
         pub mod node {
             pub struct Node {
@@ -185,6 +185,55 @@ fn test_nested_properties() {
 
                 pub fn set_right(&mut self, value: Rc<RefCell<Self>>) {
                     self.right = Some(value);
+                }
+            }
+        }
+    };
+
+    let mut builder = QObjectModuleBuilder::new();
+    let output = builder.build_token_stream(input, quote!{})
+        .expect("build_token_stream() failed");
+    let formatted = format_rust_code(&strip_docs(output)).unwrap();
+    assert_snapshot!(formatted);
+}
+
+#[test]
+fn test_nested_type_in_signals() {
+    let input = quote! {
+        pub mod node {
+            pub struct Node {
+            }
+            impl Node {
+                #[qsignal]
+                pub fn signal_with_nested_type_in_argument_by_value(&mut self, value: Rc<RefCell<SomeNestedType>>);
+                #[qsignal]
+                pub fn signal_with_nested_type_in_argument_by_reference(&mut self, value: &Rc<RefCell<SomeNestedType>>);
+            }
+        }
+    };
+
+    let mut builder = QObjectModuleBuilder::new();
+    let output = builder.build_token_stream(input, quote!{})
+        .expect("build_token_stream() failed");
+    let formatted = format_rust_code(&strip_docs(output)).unwrap();
+    assert_snapshot!(formatted);
+}
+
+#[test]
+fn test_nested_type_slots() {
+    let input = quote! {
+        pub mod node {
+            pub struct Node {
+                nested: Rc<RefCell<Node>>,
+            }
+            impl Node {
+                #[qslot]
+                pub fn slot_with_nested_type_argument_by_value(&mut self, value: Rc<RefCell<Node>>) {
+                    self.nested = value;
+                }
+                #[qslot]
+                pub fn slot_with_nested_type_argument_by_reference(&mut self, value: &Rc<RefCell<Node>>) {
+                    self.nested = value.clone();
                 }
             }
         }

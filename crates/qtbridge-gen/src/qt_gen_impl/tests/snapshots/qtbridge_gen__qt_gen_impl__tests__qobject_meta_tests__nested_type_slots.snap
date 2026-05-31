@@ -1,0 +1,123 @@
+---
+source: crates/qtbridge-gen/src/qt_gen_impl/tests/qobject_meta_tests.rs
+expression: formatted
+---
+pub mod node {
+    pub struct Node {
+        nested: Rc<RefCell<Node>>,
+    }
+    impl Node {
+        pub fn slot_with_nested_type_argument_by_value(&mut self, value: Rc<RefCell<Node>>) {
+            self.nested = value;
+        }
+        pub fn slot_with_nested_type_argument_by_reference(&mut self, value: &Rc<RefCell<Node>>) {
+            self.nested = value.clone();
+        }
+    }
+    impl qtbridge::qtbridge_runtime::DispatchMetaCall for Node {
+        fn invoke_slot(&self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]) {
+            match slot_id {
+                _ => panic!("Unhandled slot id {slot_id}"),
+            }
+        }
+        fn invoke_slot_mut(&mut self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]) {
+            match slot_id {
+                1u32 => {
+                    let arg_0_ref = unsafe {
+                        inputs[0usize]
+                            .cast::<*mut qtbridge::qtbridge_type_lib::QObject>()
+                            .as_ref()
+                    }
+                    .expect("Argument reference is null");
+                    let arg_0_var = unsafe {
+                        <Node as qtbridge::qtbridge_runtime::QObjectHolder>::qobject_to_rc_ref_cell(
+                            *arg_0_ref,
+                        )
+                    };
+                    self.slot_with_nested_type_argument_by_value(arg_0_var)
+                }
+                2u32 => {
+                    let arg_0_ref = unsafe {
+                        inputs[0usize]
+                            .cast::<*mut qtbridge::qtbridge_type_lib::QObject>()
+                            .as_ref()
+                    }
+                    .expect("Argument reference is null");
+                    let arg_0_var = unsafe {
+                        <Node as qtbridge::qtbridge_runtime::QObjectHolder>::qobject_to_rc_ref_cell(
+                            *arg_0_ref,
+                        )
+                    };
+                    self.slot_with_nested_type_argument_by_reference(&arg_0_var)
+                }
+                _ => panic!("Unhandled slot id {slot_id}"),
+            }
+        }
+        fn read_property(&self, prop_id: u32) -> qtbridge::qtbridge_type_lib::QVariant {
+            match prop_id {
+                _ => panic!("Unhandled property id {prop_id}"),
+            }
+        }
+        fn write_property(&mut self, prop_id: u32, value: &qtbridge::qtbridge_type_lib::QVariant) {
+            match prop_id {
+                _ => panic!("Unhandled property id {prop_id}"),
+            }
+        }
+    }
+    impl qtbridge::qtbridge_runtime::QMetaInfo for Node {
+        type CppProxy = qtbridge::qtbridge_interfaces::qobject::QObjectProxyCpp;
+        fn build_dynamic_meta_type(
+            mut meta_obj: std::pin::Pin<&mut qtbridge::qtbridge_runtime::DynamicMetaObjectBuilder>,
+        ) {
+            meta_obj . as_mut () . register_slot ("slot_with_nested_type_argument_by_value" , 1u32 , & [< * mut qtbridge :: qtbridge_type_lib :: QObject as qtbridge :: qtbridge_type_lib :: QMetaTypeGet > :: get_qmetatype ()] , & qtbridge :: qtbridge_type_lib :: QMetaType :: default () , qtbridge :: qtbridge_runtime :: dynamicmetaobjectbuilder :: Mutability :: Mutable) ;
+            meta_obj . as_mut () . register_slot ("slot_with_nested_type_argument_by_reference" , 2u32 , & [< * mut qtbridge :: qtbridge_type_lib :: QObject as qtbridge :: qtbridge_type_lib :: QMetaTypeGet > :: get_qmetatype ()] , & qtbridge :: qtbridge_type_lib :: QMetaType :: default () , qtbridge :: qtbridge_runtime :: dynamicmetaobjectbuilder :: Mutability :: Mutable) ;
+            meta_obj.as_mut().end_meta_registration();
+        }
+        fn get_shared_dynamic_meta_object_data(
+        ) -> &'static qtbridge::qtbridge_runtime::DynamicMetaObjectData {
+            use std::sync::OnceLock;
+            thread_local! { static DYNAMIC_META_OBJECT : OnceLock < & 'static qtbridge :: qtbridge_runtime :: DynamicMetaObjectData > = OnceLock :: new () ; }
+            DYNAMIC_META_OBJECT.with(|cell| {
+                *cell.get_or_init(|| {
+                    let ptr = Self::create_dynamic_meta_object_data_for_type();
+                    unsafe { ptr.as_ref() }.unwrap()
+                })
+            })
+        }
+    }
+    impl qtbridge::qtbridge_type_lib::QMetaTypeGet for Node {
+        fn get_qmetatype() -> qtbridge::qtbridge_type_lib::QMetaType {
+            use std::sync::OnceLock;
+            static META_TYPE_INTERFACE: OnceLock<qtbridge::qtbridge_type_lib::QMetaTypeInterface> =
+                OnceLock::new();
+            let iface = META_TYPE_INTERFACE.get_or_init(
+                qtbridge::qtbridge_runtime::qmetatypeforqobject::init_interface_for::<Self>,
+            );
+            qtbridge::qtbridge_type_lib::QMetaType::new_with_interface(iface as *const _)
+        }
+    }
+    impl qtbridge::qtbridge_runtime::QObjectHolder for Node {
+        type ProxyRust = qtbridge::qtbridge_interfaces::qobject::QObjectProxyRust;
+        fn as_adaptor_trait(
+            rust_obj_rc: std::rc::Rc<std::cell::RefCell<Self>>,
+        ) -> std::rc::Rc<
+            std::cell::RefCell<
+                <Self::ProxyRust as qtbridge::qtbridge_runtime::qproxies::QRustProxy>::AdapterType,
+            >,
+        > {
+            rust_obj_rc
+        }
+    }
+    impl Drop for Node {
+        fn drop(&mut self) {
+            <Self as qtbridge::qtbridge_runtime::QObjectHolder>::detach_qobject(self);
+        }
+    }
+    impl qtbridge::qtbridge_runtime::QmlRegister for Node {
+        const URI: &str = "qtbridge_gen";
+        const ELEMENT_NAME: &str = "Node";
+        const MINOR_VERSION: u8 = 1u8;
+        const MAJOR_VERSION: u8 = 0u8;
+        const IS_SINGLETON: bool = false;
+    }
+}

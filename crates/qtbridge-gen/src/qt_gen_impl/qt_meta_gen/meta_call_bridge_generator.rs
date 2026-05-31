@@ -5,7 +5,7 @@ use syn::spanned::Spanned;
 
 use qtbridge_gen_common::signature_utils::{get_typed_arg_ident, get_typed_args};
 use qtbridge_gen_common::type_registry::meta_types::get_qmetatype_support_for_type;
-use qtbridge_gen_common::type_utils::{ValuePass, get_type_pass, remove_refs};
+use qtbridge_gen_common::type_utils::{ValuePass, extract_rc_ref_cell_path, get_type_pass, is_ref, path_from_type, remove_ref, remove_refs};
 
 /// Generates code to connect a Rust function to a metacall (e.g. signal or slot).
 pub struct MetaCallBridgeGenerator<'a> {
@@ -72,7 +72,8 @@ impl<'a> MetaCallBridgeGenerator<'a> {
 
         // Intermediate variables converted from input meta types to be passed to the Rust function.
         let input_vars = input_iter
-            .map(|(idx, arg)| arg.generate_store_argv_input_to_variable(idx));
+            .map(|(idx, arg)| arg.generate_store_argv_input_to_variable(idx))
+            .collect::<syn::Result<Vec<_>>>()?;
 
         // Append user provided arguments (if any) with arguments taken from the input signature.
         fn_call.args.extend(input_pass);
@@ -82,7 +83,7 @@ impl<'a> MetaCallBridgeGenerator<'a> {
             Some(output) => {
                 let result_var = format_ident!("result");
                 let result_conv_var = format_ident!("result_conv");
-                let maybe_result_conv = output.generate_store_converted_to_variable(&result_var, &result_conv_var);
+                let maybe_result_conv = output.generate_store_converted_to_variable(&result_var, &result_conv_var)?;
                 let output_ptr = output.generate_pointer_to_output_meta_value(0);
                 let output_var = match maybe_result_conv.is_some() {
                     true => &result_conv_var,
@@ -130,13 +131,25 @@ impl<'a> MetaCallBridgeGenerator<'a> {
                     // An intermediate variable is needed.
                     let var_ident = get_arg_intermediate_var_ident(idx);
 
+                    let user_type_path = path_from_type(remove_ref(&arg.ty.user_type))?;
                     let arg_maybe_borrow = match arg_pass {
                         ValuePass::ByValue => quote! { (&#arg_ident) },
                         _ => quote! { #arg_ident }
                     };
-                    arg_vars.push(quote! {
-                        let #var_ident: qtbridge::#meta_type = #arg_maybe_borrow.into();
-                    });
+                    let arg_var_code = match extract_rc_ref_cell_path(user_type_path)? {
+                        Some(rc_rec_cell_inner) => {
+                            quote! {
+                                let #var_ident = <#rc_rec_cell_inner as qtbridge::qtbridge_runtime::QObjectHolder>::rc_ref_cell_to_qobject(#arg_maybe_borrow);
+                            }
+                        },
+                        None => {
+                            quote! {
+                                let #var_ident: qtbridge::#meta_type = #arg_maybe_borrow.into();
+                            }
+                        }
+                    };
+
+                    arg_vars.push(arg_var_code);
                     argv_arr_init.push(quote! {
                         std::ptr::from_ref(&#var_ident).cast()
                     });
@@ -224,14 +237,26 @@ impl<'a> MetaCallType<'a> {
     }
 
     /// Generates a definition of a variable with a value converted from the input data into the output type.
-    fn generate_store_converted_to_variable(&self, from: &syn::Ident, to: &syn::Ident) -> Option<syn::Stmt> {
+    fn generate_store_converted_to_variable(&self, from: &syn::Ident, to: &syn::Ident) -> syn::Result<Option<syn::Stmt>> {
         if let Some(int_type) = self.intermediate_meta_type() {
-            return Some(parse_quote! {
+            let is_ref_user_type = is_ref(&self.user_type);
+            let user_type_path = path_from_type(remove_ref(&self.user_type))?;
+            if let Some(rc_rec_cell_inner) = extract_rc_ref_cell_path(user_type_path)? {
+                let ref_from = match is_ref_user_type {
+                    true => quote! { #from },
+                    false => quote! {&#from},
+                };
+                return Ok(Some(parse_quote! {
+                    let #to = <#rc_rec_cell_inner as qtbridge_runtime::QObjectHolder>::to_qobject_ptr(#ref_from);
+                }))
+            }
+
+            return Ok(Some(parse_quote! {
                 let #to = <#int_type>::from(#from);
-            })
+            }))
         }
 
-        None // Conversion is not needed
+        Ok(None) // Conversion is not needed
     }
 
     /// Generates a definition of a mutable pointer to the given output parameter.
@@ -252,25 +277,35 @@ impl<'a> MetaCallType<'a> {
     /// The variable is initialized from the input `argv` array (given as `*const *const c_void`).
     /// The variable is needed when a type conversion is required
     /// or when the argument must be passed by value.
-    fn generate_store_argv_input_to_variable(&self, idx: usize) -> Option<syn::Stmt> {
+    fn generate_store_argv_input_to_variable(&self, idx: usize) -> syn::Result<Option<syn::Stmt>> {
         let arg_var_ident = get_arg_intermediate_var_ident(idx);
         let arg_ref_ident = get_input_ref_ident(idx);
+
+        let user_type_path = path_from_type(remove_ref(&self.user_type))?;
+        if let Some(rc_ref_cell_inner) = extract_rc_ref_cell_path(user_type_path)? {
+            return Ok(Some(parse_quote! {
+                let #arg_var_ident = unsafe {
+                    <#rc_ref_cell_inner as qtbridge_runtime::QObjectHolder>::qobject_to_rc_ref_cell(*#arg_ref_ident)
+                };
+            }))
+        }
+
         let arg_type_wo_ref = remove_refs(self.user_type);
 
         // A variable is needed for the type conversion.
         if self.intermediate_meta_type().is_some() {
-            return Some(parse_quote! {
+            return Ok(Some(parse_quote! {
                 let #arg_var_ident: <#arg_type_wo_ref as ToOwned>::Owned = #arg_ref_ident.into();
-            })
+            }))
         }
 
         match get_type_pass(self.user_type) {
             ValuePass::ByValue =>
                 // Variable is needed to hold value that will be passed to the user function.
-                Some(parse_quote! {
+                Ok(Some(parse_quote! {
                     let #arg_var_ident: #arg_type_wo_ref = #arg_ref_ident.clone();
-                }),
-            _ => None // Variable is not needed.
+                })),
+            _ => Ok(None) // Variable is not needed.
         }
     }
 
