@@ -9,7 +9,6 @@ use syn::visit_mut::VisitMut;
 use crate::case_conv;
 use crate::qt_alias_mapping::QtAliasMapping;
 use crate::qt_generic_mapping::QtGenericMapping;
-use crate::type_qualified_mapping::{CallOrigin, TypeQualifiedMapping};
 use crate::type_to_cpp::is_type_mapped_to_cpp;
 use crate::type_to_string::type_to_string_fallback;
 use crate::type_utils::is_ptr;
@@ -231,41 +230,6 @@ fn return_type_to_str(return_ty: &syn::ReturnType) -> String {
         syn::ReturnType::Default => "()".into(),
         syn::ReturnType::Type(_arrow, ty) => ty.to_token_stream().to_string(),
     }
-}
-
-pub fn get_qualified_args<'a>(args: impl Iterator<Item = &'a syn::FnArg>, type_mapping: CallOrigin) -> syn::Result<Vec<syn::FnArg>> {
-    let mut map = TypeQualifiedMapping::new(type_mapping);
-    let result = args
-        .cloned()
-        .map(|mut arg| {
-            map.visit_fn_arg_mut(&mut arg);
-            arg
-        })
-        .collect();
-    map.result().map(|_| result)
-}
-
-pub fn get_qualified_return_type(ret: &syn::ReturnType, type_mapping: CallOrigin) -> syn::Result<syn::ReturnType> {
-    let syn::ReturnType::Type(arrow, ty) = ret else {
-        return Ok(syn::ReturnType::Default)
-    };
-
-    let mut map = TypeQualifiedMapping::new(type_mapping);
-    let mut result = ty.as_ref().clone();
-    map.visit_type_mut(&mut result);
-    map.result().map(|_| syn::ReturnType::Type(*arrow, Box::new(result)))
-}
-
-pub fn get_qualified_types_in_signature(src: &mut syn::Signature, type_mapping: CallOrigin) -> syn::Result<()> {
-    let inputs = get_qualified_args(src.inputs.iter(), type_mapping.clone())?
-        .into_iter()
-        .collect();
-    let output = get_qualified_return_type(&src.output, type_mapping)?;
-
-    src.inputs = inputs;
-    src.output = output;
-
-    Ok(())
 }
 
 pub fn substitute_qt_aliases_in_signature(src: &mut syn::Signature) -> syn::Result<()> {

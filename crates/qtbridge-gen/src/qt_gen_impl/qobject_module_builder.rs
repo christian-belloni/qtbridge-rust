@@ -8,7 +8,7 @@ use syn::visit_mut::VisitMut;
 
 use qtbridge_gen_common::function_with_attributes::FunctionWithAttributes;
 use qtbridge_gen_common::parse_utils::is_path_with_segments_str;
-use qtbridge_gen_common::type_qualified_mapping::{CallOrigin, TypeQualifiedMapping};
+use qtbridge_gen_common::type_qualified_mapping::TypeQualifiedMapping;
 use qtbridge_gen_common::type_utils::get_ident_of_last_path_segment_or_err;
 use crate::qt_gen_impl::generate_qobject_holder::generate_qobject_holder;
 use crate::qt_gen_impl::qt_meta_gen;
@@ -132,7 +132,7 @@ impl QObjectModuleBuilder {
             return Err(syn::Error::new(self.struct_ident.span(), format!("Singleton is not available for generic structs.")));
         }
 
-        let mut type_map = TypeQualifiedMapping::new(CallOrigin::External);
+        let mut type_map = TypeQualifiedMapping::default();
         for (trait_name, trait_impl_result) in generated_traits {
             let mut trait_impl = trait_impl_result.map_err(|err| syn::Error::new(
                 err.span(),

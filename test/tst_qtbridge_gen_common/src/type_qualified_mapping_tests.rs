@@ -7,7 +7,7 @@ use quote::ToTokens;
 use syn::{parse_quote, visit_mut::VisitMut};
 
 use qtbridge_gen_common::format_code::format_rust_code;
-use qtbridge_gen_common::type_qualified_mapping::{CallOrigin, TypeQualifiedMapping};
+use qtbridge_gen_common::type_qualified_mapping::TypeQualifiedMapping;
 
 #[test]
 fn can_be_called_on_nested_path_that_includes_qself() {
@@ -17,7 +17,7 @@ fn can_be_called_on_nested_path_that_includes_qself() {
         >>
     };
 
-    let mut type_map = TypeQualifiedMapping::new(CallOrigin::External);
+    let mut type_map = TypeQualifiedMapping::default();
     type_map.visit_path_mut(&mut path);
     let actual = path.to_token_stream().to_string();
     assert!(type_map.result().is_ok());
@@ -33,7 +33,7 @@ fn can_be_called_on_macro() {
         }
     };
 
-    let mut type_map = TypeQualifiedMapping::new(CallOrigin::External);
+    let mut type_map = TypeQualifiedMapping::default();
     type_map.visit_expr_macro_mut(&mut expr_macro);
     let actual = expr_macro.to_token_stream().to_string();
     assert!(type_map.result().is_ok());
@@ -49,7 +49,7 @@ fn can_be_called_on_macro_with_qtbridge_qualified_path() {
         }
     };
 
-    let mut type_map = TypeQualifiedMapping::new(CallOrigin::External);
+    let mut type_map = TypeQualifiedMapping::default();
     type_map.visit_expr_macro_mut(&mut expr_macro);
     assert!(type_map.result().is_ok());
     let actual = expr_macro.to_token_stream().to_string();
@@ -67,7 +67,7 @@ fn can_be_called_on_panic_macro() {
         )
     };
 
-    let mut type_map = TypeQualifiedMapping::new(CallOrigin::External);
+    let mut type_map = TypeQualifiedMapping::default();
     type_map.visit_expr_macro_mut(&mut expr_macro);
     assert!(type_map.result().is_ok());
     let actual = expr_macro.to_token_stream().to_string();
@@ -89,7 +89,7 @@ fn can_be_called_on_trait_impl() {
         }
     };
 
-    let mut type_map = TypeQualifiedMapping::new(CallOrigin::External);
+    let mut type_map = TypeQualifiedMapping::default();
     type_map.visit_item_impl_mut(&mut trait_impl);
     assert!(type_map.result().is_ok());
     let actual = format_rust_code(&trait_impl.to_token_stream())

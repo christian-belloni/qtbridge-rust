@@ -14,24 +14,10 @@ use type_registry::type_traits::{FindType, TypeName};
 // - Rename to QtBridgeQualifiedMapping.
 // - Split into QtBridgeQualifiedMapping and TypeQualifiedMapping.
 pub struct TypeQualifiedMapping {
-    source: CallOrigin,
     last_error: syn::Result<()>,
 }
 
-#[derive(Clone)]
-pub enum CallOrigin {
-    Internal,
-    External,
-}
-
 impl TypeQualifiedMapping {
-    pub fn new(mapping: CallOrigin) -> Self {
-        Self {
-            source: mapping,
-            last_error: Ok(())
-        }
-    }
-
     pub fn result(&self) -> syn::Result<()> {
         self.last_error.clone()
     }
@@ -80,9 +66,7 @@ impl TypeQualifiedMapping {
             });
             add_qtbridge = true;
         }
-        if add_qtbridge && matches!(self.source, CallOrigin::External) &&
-            first_seg_ident_str != "qtbridge"
-        {
+        if add_qtbridge && first_seg_ident_str != "qtbridge" {
             new.segments.insert(0, syn::PathSegment {
                 ident: format_ident!("qtbridge"),
                 arguments: syn::PathArguments::None
@@ -123,6 +107,14 @@ impl TypeQualifiedMapping {
         Ok(())
     }
 
+}
+
+impl Default for TypeQualifiedMapping {
+    fn default() -> Self {
+        Self {
+            last_error: Ok(())
+        }
+    }
 }
 
 impl VisitMut for TypeQualifiedMapping {

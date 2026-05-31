@@ -7,7 +7,7 @@ use syn::visit_mut::VisitMut;
 use syn::{spanned::Spanned};
 
 use qtbridge_gen_common::function_with_attributes::FunctionWithAttributes;
-use qtbridge_gen_common::type_qualified_mapping::{CallOrigin, TypeQualifiedMapping};
+use qtbridge_gen_common::type_qualified_mapping::TypeQualifiedMapping;
 use qtbridge_gen_common::type_utils::get_ident_of_last_path_segment_or_err;
 use crate::qt_gen_impl;
 use crate::qt_gen_impl::generate_qobject_holder::generate_qobject_holder;
@@ -168,7 +168,7 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream) -> syn::Result<QObj
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QObjectHolder trait.\nError:{err}")))?;
 
     // Make sure paths are properly qualified in the generated traits.
-    let mut type_map = TypeQualifiedMapping::new(CallOrigin::External);
+    let mut type_map = TypeQualifiedMapping::default();
     type_map.visit_item_impl_mut(&mut qmeta_info_impl);
     type_map.visit_item_impl_mut(&mut dispatch_meta_call);
     type_map.visit_item_impl_mut(&mut qmetatype_get_impl);
