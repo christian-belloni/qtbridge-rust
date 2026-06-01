@@ -16,11 +16,15 @@ mod some_module {
     }
     impl qtbridge::qtbridge_runtime::DispatchMetaCall for SomeStruct {
         fn invoke_slot(&self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]) {
+            #[allow(unused_imports)]
+            use qtbridge::qtbridge_type_lib;
             match slot_id {
                 _ => panic!("Unhandled slot id {slot_id}"),
             }
         }
         fn invoke_slot_mut(&mut self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]) {
+            #[allow(unused_imports)]
+            use qtbridge::qtbridge_type_lib;
             match slot_id {
                 _ => panic!("Unhandled slot id {slot_id}"),
             }
@@ -42,6 +46,10 @@ mod some_module {
         fn build_dynamic_meta_type(
             mut meta_obj: std::pin::Pin<&mut qtbridge::qtbridge_runtime::DynamicMetaObjectBuilder>,
         ) {
+            #[allow(unused_imports)]
+            use qtbridge::qtbridge_runtime::get_meta_type_of_fn_return_value;
+            use qtbridge::qtbridge_type_lib;
+            use qtbridge_type_lib::{QMetaType, QMetaTypeGet};
             meta_obj.as_mut().end_meta_registration();
         }
         fn get_shared_dynamic_meta_object_data(

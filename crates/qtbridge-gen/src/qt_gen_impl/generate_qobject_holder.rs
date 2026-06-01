@@ -20,13 +20,13 @@ pub fn generate_qobject_holder(
     let (impl_generics, type_generics, where_clause) = impl_generics.split_for_impl();
 
     let code = quote! {
-        impl #impl_generics qtbridge_runtime::QObjectHolder for #struct_ident #type_generics #where_clause {
-            type ProxyRust = qtbridge_interfaces::#iface_module::#proxy_rust;
+        impl #impl_generics qtbridge::qtbridge_runtime::QObjectHolder for #struct_ident #type_generics #where_clause {
+            type ProxyRust = qtbridge::qtbridge_interfaces::#iface_module::#proxy_rust;
 
             fn as_adaptor_trait(
                 rust_obj_rc: std::rc::Rc<std::cell::RefCell<Self>>
             ) -> std::rc::Rc<std::cell::RefCell<
-                <Self::ProxyRust as qtbridge_runtime::qproxies::QRustProxy>::AdapterType>>
+                <Self::ProxyRust as qtbridge::qtbridge_runtime::qproxies::QRustProxy>::AdapterType>>
             {
                 rust_obj_rc
             }

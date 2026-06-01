@@ -3,11 +3,9 @@
 
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
-use syn::visit_mut::VisitMut;
 use syn::{spanned::Spanned};
 
 use qtbridge_gen_common::function_with_attributes::FunctionWithAttributes;
-use qtbridge_gen_common::type_qualified_mapping::TypeQualifiedMapping;
 use qtbridge_gen_common::type_utils::get_ident_of_last_path_segment_or_err;
 use crate::qt_gen_impl;
 use crate::qt_gen_impl::generate_qobject_holder::generate_qobject_holder;
@@ -158,21 +156,14 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream) -> syn::Result<QObj
     };
 
     // Generate traits code
-    let mut qmeta_info_impl = generate_qmetainfo_trait_impl(&ctx)
+    let qmeta_info_impl = generate_qmetainfo_trait_impl(&ctx)
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaInfo trait.\nError: {}", err)))?;
-    let mut dispatch_meta_call = generate_dispatch_meta_call(&struct_ident, generics, &signals, &slots, &properties)
+    let dispatch_meta_call = generate_dispatch_meta_call(&struct_ident, generics, &signals, &slots, &properties)
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of DispatchMetaCall trait.\nError: {}", err)))?;
-    let mut qmetatype_get_impl = generate_qmeta_type_get(&struct_ident, &generics)
+    let qmetatype_get_impl = generate_qmeta_type_get(&struct_ident, &generics)
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QMetaTypeGet trait.\nError: {}", err)))?;
-    let mut qobject_holder_impl = generate_qobject_holder(&struct_ident, &iface_ident, &generics)
+    let qobject_holder_impl = generate_qobject_holder(&struct_ident, &iface_ident, &generics)
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QObjectHolder trait.\nError:{err}")))?;
-
-    // Make sure paths are properly qualified in the generated traits.
-    let mut type_map = TypeQualifiedMapping::default();
-    type_map.visit_item_impl_mut(&mut qmeta_info_impl);
-    type_map.visit_item_impl_mut(&mut dispatch_meta_call);
-    type_map.visit_item_impl_mut(&mut qmetatype_get_impl);
-    type_map.visit_item_impl_mut(&mut qobject_holder_impl);
 
     let drop_impl = generate_drop(&struct_ident, generics)
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of Drop trait.\nError: {}", err)))?;
@@ -181,11 +172,8 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream) -> syn::Result<QObj
     let new_impl = syn::ItemImpl{ items: items_out, ..orig_impl }
         .to_token_stream();
 
-    let mut qml_registration = generate_qml_register(&struct_ident, &params)
+    let qml_registration = generate_qml_register(&struct_ident, &params)
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QmlRegister trait.\nError: {}", err)))?;
-    if let Some(qml_reg) = qml_registration.as_mut() {
-        type_map.visit_item_impl_mut(&mut qml_reg.register_impl);
-    }
 
     Ok(QObjectImplOutput {
         new_impl,

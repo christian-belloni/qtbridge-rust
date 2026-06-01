@@ -210,7 +210,7 @@ impl QPropertyInfo {
                     .unwrap_or_else(|| ty.clone());
                 let meta_type_wo_ref = remove_ref(&meta_type);
                 quote! {
-                    <#meta_type_wo_ref as qtbridge_type_lib::QMetaTypeGet>::get_qmetatype()
+                    <#meta_type_wo_ref as QMetaTypeGet>::get_qmetatype()
                 }
             },
             // Get an expression that will determine metatype using runtime function
@@ -220,7 +220,7 @@ impl QPropertyInfo {
                 let member_var = member.as_ref()
                     .ok_or_else(||syn::Error::new(*span, "Can't deduce type of qproperty neither from accessor nor from member"))?;
                 quote!{
-                    qtbridge_runtime::get_meta_type_of_fn_return_value(|this: &Self| { &this.#member_var } )
+                    qtbridge::qtbridge_runtime::get_meta_type_of_fn_return_value(|this: &Self| { &this.#member_var } )
                 }
             }
         };

@@ -17,7 +17,6 @@ pub mod signature_utils;
 pub mod type_dependencies;
 pub mod type_mapping;
 pub mod type_mapping_nested;
-pub mod type_qualified_mapping;
 pub mod type_registry;
 pub mod type_to_cpp;
 pub mod type_to_string;

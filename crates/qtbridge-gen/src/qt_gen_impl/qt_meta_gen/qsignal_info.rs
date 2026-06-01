@@ -92,7 +92,7 @@ impl QSignalInfo {
         let register_signal = quote!{
             meta_obj.as_mut().register_signal(
                 #name,
-                &[#(<#arg_types_qt as qtbridge_type_lib::QMetaTypeGet>::get_qmetatype()),*]);
+                &[#(<#arg_types_qt as QMetaTypeGet>::get_qmetatype()),*]);
         };
         Ok(register_signal)
     }

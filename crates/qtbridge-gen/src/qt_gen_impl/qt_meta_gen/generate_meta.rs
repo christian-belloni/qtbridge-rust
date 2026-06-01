@@ -35,13 +35,13 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext) -> syn::Result<syn:
     let has_generics = !generics.params.is_empty();
     let get_dyn_meta_object_body = if has_generics {
         quote! {
-            qtbridge_runtime::qmetainfo::dynamic_meta_object_data_for_generic::<Self>()
+            qtbridge::qtbridge_runtime::qmetainfo::dynamic_meta_object_data_for_generic::<Self>()
         }
     } else {
         quote! {
             use std::sync::OnceLock;
             thread_local! {
-                static DYNAMIC_META_OBJECT: OnceLock<&'static qtbridge_runtime::DynamicMetaObjectData> = OnceLock::new();
+                static DYNAMIC_META_OBJECT: OnceLock<&'static qtbridge::qtbridge_runtime::DynamicMetaObjectData> = OnceLock::new();
             }
 
             DYNAMIC_META_OBJECT.with(|cell| {
@@ -54,11 +54,17 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext) -> syn::Result<syn:
     };
 
     let code = quote! {
-        impl #impl_generics qtbridge_runtime::QMetaInfo for #struct_ident #type_generics #where_clause {
+        impl #impl_generics qtbridge::qtbridge_runtime::QMetaInfo for #struct_ident #type_generics #where_clause {
 
-            type CppProxy = qtbridge_interfaces::#iface_module::#proxy_cpp;
 
-            fn build_dynamic_meta_type(mut meta_obj: std::pin::Pin<&mut qtbridge_runtime::DynamicMetaObjectBuilder>) {
+            type CppProxy = qtbridge::qtbridge_interfaces::#iface_module::#proxy_cpp;
+
+            fn build_dynamic_meta_type(mut meta_obj: std::pin::Pin<&mut qtbridge::qtbridge_runtime::DynamicMetaObjectBuilder>) {
+                #[allow(unused_imports)]
+                use qtbridge::qtbridge_runtime::get_meta_type_of_fn_return_value;
+                use qtbridge::qtbridge_type_lib;
+                use qtbridge_type_lib::{QMetaType, QMetaTypeGet};
+
                 #signals_meta_reg
                 #slots_meta_reg
                 #properties_meta_reg
@@ -67,7 +73,7 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext) -> syn::Result<syn:
                 meta_obj.as_mut().end_meta_registration();
             }
 
-            fn get_shared_dynamic_meta_object_data() -> &'static qtbridge_runtime::DynamicMetaObjectData {
+            fn get_shared_dynamic_meta_object_data() -> &'static qtbridge::qtbridge_runtime::DynamicMetaObjectData {
                 #get_dyn_meta_object_body
             }
         }

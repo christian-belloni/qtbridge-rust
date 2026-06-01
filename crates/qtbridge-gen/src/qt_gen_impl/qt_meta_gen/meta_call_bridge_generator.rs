@@ -226,7 +226,6 @@ impl<'a> MetaCallType<'a> {
     fn generate_reference_to_input_meta_value(&self, idx: usize) -> syn::Stmt {
         let meta_type = self.intermediate_meta_type()
             .unwrap_or_else(|| remove_refs(self.user_type));
-
         let input_ref_ident = get_input_ref_ident(idx);
         let inputs_ident = get_inputs_ident();
         parse_quote! {
@@ -247,7 +246,7 @@ impl<'a> MetaCallType<'a> {
                     false => quote! {&#from},
                 };
                 return Ok(Some(parse_quote! {
-                    let #to = <#rc_rec_cell_inner as qtbridge_runtime::QObjectHolder>::to_qobject_ptr(#ref_from);
+                    let #to = <#rc_rec_cell_inner as qtbridge::qtbridge_runtime::QObjectHolder>::to_qobject_ptr(#ref_from);
                 }))
             }
 
@@ -285,7 +284,7 @@ impl<'a> MetaCallType<'a> {
         if let Some(rc_ref_cell_inner) = extract_rc_ref_cell_path(user_type_path)? {
             return Ok(Some(parse_quote! {
                 let #arg_var_ident = unsafe {
-                    <#rc_ref_cell_inner as qtbridge_runtime::QObjectHolder>::qobject_to_rc_ref_cell(*#arg_ref_ident)
+                    <#rc_ref_cell_inner as qtbridge::qtbridge_runtime::QObjectHolder>::qobject_to_rc_ref_cell(*#arg_ref_ident)
                 };
             }))
         }

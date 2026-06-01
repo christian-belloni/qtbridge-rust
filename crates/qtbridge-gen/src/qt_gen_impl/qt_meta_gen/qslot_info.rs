@@ -98,7 +98,7 @@ impl QSlotInfo {
         let output_meta_types = bridge_generator.get_output_metatype();
 
         let result_meta_type = output_meta_types
-            .map(|ty| quote!{ &<#ty as qtbridge_type_lib::QMetaTypeGet>::get_qmetatype() })
+            .map(|ty| quote!{ &<#ty as QMetaTypeGet>::get_qmetatype() })
             .unwrap_or_else(|| quote! { &QMetaType::default()} );
 
         let mutability = match self.is_mut() {
@@ -110,7 +110,7 @@ impl QSlotInfo {
             meta_obj.as_mut().register_slot(
                 #name,
                 #id,
-                 &[#(<#input_meta_types as qtbridge_type_lib::QMetaTypeGet>::get_qmetatype()),*],
+                 &[#(<#input_meta_types as QMetaTypeGet>::get_qmetatype()),*],
                 #result_meta_type,
                 qtbridge::qtbridge_runtime::dynamicmetaobjectbuilder::Mutability::#mutability);
         };
