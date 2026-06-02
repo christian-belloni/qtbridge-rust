@@ -17,7 +17,7 @@ roles. These are [`QListModel`] and [`QTableModel`].
 Exposing a Rust type to QML and starting the declarative UI is as simple as:
 
 Main.rs
-```
+```rust
 use qtbridge::{qobject_impl, QApp};
 
 #[derive(Default)]
@@ -80,22 +80,44 @@ To use this library, you need:
 ### Qt installation
 
 A Qt installation must be present in the system and `qmake` must be in the
-system PATH. There are no special requirements for the Qt installation. It
-can be built from source or downloaded from <https://download.qt.io/>.
-To ensure qmake is available, add the Qt bin directory to your PATH.
+system `PATH`. It can be built from source, downloaded from <https://download.qt.io/>,
+or installed via your system's package manager.
 
-- On Windows:
+QtBridge currently requires Qt 6.10 or later. The QtBridge 1.0 release is
+expected to require Qt 6.11 or later.
+
+To ensure `qmake` is available, add the Qt bin directory to your PATH.
+
+- On Windows, add the Qt bin directory to PATH. Note that the exact path depends
+  on your installation location, Qt version, and compiler:
+  - Built from source:
 ```sh
-set PATH=%PATH%;D:\dev\qt_build\qtbase\bin\
+    set PATH=%PATH%;D:\dev\qt_build\qtbase\bin\
+```
+  - From the official installer:
+```sh
+    set PATH=%PATH%;C:\Qt\6.10.1\msvc2022_64\bin\
 ```
 
-- On Linux:
+- On Linux when building from source, add the Qt bin directory to `PATH` and the
+  Qt libraries to `LD_LIBRARY_PATH`:
 ```sh
-export PATH=/home/john_doe/dev/qt_build/qtbase/bin:$PATH
-export LD_LIBRARY_PATH="/home/john_doe/dev/qt_build/lib:$LD_LIBRARY_PATH"
+  export PATH=/home/john_doe/dev/qt_build/qtbase/bin:$PATH
+  export LD_LIBRARY_PATH="/home/john_doe/dev/qt_build/lib:$LD_LIBRARY_PATH"
 ```
 
-- On macOS:
+- On Linux when using the system package manager, install the required development
+  packages. You will need `qtbase`, `qtdeclarative`, and `qtquickcontrols2` as a
+  baseline for the provided examples, plus any additional modules you intend to
+  use from QML. You will also need the private API of `qtbase`. On Fedora, e.g.:
+```sh
+  sudo dnf install qt6-qtbase-devel qt6-qtdeclarative-devel qt6-qtquickcontrols2-devel
+  sudo dnf install qt6-qtbase-private-devel
+```
+  Your system installs these to the correct paths, so no additional environment
+  variables are needed.
+
+- On macOS add the following directories to `PATH` and `DYLD_FRAMEWORK_PATH`:
 ```sh
 export PATH=/Users/john_doe/dev/qt_build/qtbase/bin:$PATH
 export DYLD_FRAMEWORK_PATH=/Users/john_doe/dev/qt_build/qtbase/lib:$DYLD_FRAMEWORK_PATH
@@ -106,7 +128,7 @@ export DYLD_FRAMEWORK_PATH=/Users/john_doe/dev/qt_build/qtbase/lib:$DYLD_FRAMEWO
 QtBridge has a single crate with all public APIs:
 ```TOML
 [dependencies]
-qtbridge
+qtbridge { version = "0.1.5" }
 ```
 
 ### Provided Examples
@@ -196,4 +218,3 @@ the Rust Foundation. This project is not affiliated with or endorsed by the Rust
 An application built with Qt Bridge for Rust will include code from other crates.
 The main dependency is CXX, "Safe interop between Rust and C++", licensed under the Apache Version
 2.0 License or MIT license.
-
