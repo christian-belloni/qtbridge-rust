@@ -83,4 +83,6 @@ pub trait QRustProxy {
     fn get_cpp_proxy(&self) -> *const Self::ProxyCppType;
     fn get_cpp_proxy_mut(&self) -> *mut Self::ProxyCppType;
     fn emit_signal(&self, mut_ref: &mut Self::AdapterType, signal_name: &str, argv: &[*const u8]);
+    fn with_rust_ref<R, F: FnOnce(&Self::AdapterType) -> R>(&self, f: F) -> R;
+    fn with_rust_ref_mut<R, F: FnOnce(&mut Self::AdapterType) -> R>(&self, f: F) -> R;
 }

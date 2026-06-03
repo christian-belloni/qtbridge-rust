@@ -12,6 +12,7 @@ pub mod qmetatype;
 pub mod qmetatypeinterface;
 pub mod qmodelindex;
 pub mod qobject;
+pub mod qqmllistproperty;
 pub mod qsignalblocker;
 pub mod qstring;
 pub mod qutf8stringview;

@@ -4,7 +4,7 @@ use syn::parse_quote;
 use syn::spanned::Spanned;
 
 use qtbridge_gen_common::signature_utils::{get_typed_arg_ident, get_typed_args};
-use qtbridge_gen_common::type_registry::meta_types::get_qmetatype_support_for_type;
+use qtbridge_gen_common::type_registry::meta_types::{MetaTypeMapping, get_qmetatype_support_for_type};
 use qtbridge_gen_common::type_utils::{ValuePass, extract_rc_ref_cell_path, get_type_pass, is_ref, path_from_type, remove_ref, remove_refs};
 
 /// Generates code to connect a Rust function to a metacall (e.g. signal or slot).
@@ -205,10 +205,18 @@ impl<'a> TryFrom<&'a syn::Type> for MetaCallType<'a> {
     type Error = syn::Error;
 
     fn try_from(user_type: &'a syn::Type) -> syn::Result<Self> {
-        Ok(Self {
-            user_type,
-            intermediate_meta_type: get_qmetatype_support_for_type(user_type)?,
-        })
+        let intermediate_meta_type = match get_qmetatype_support_for_type(user_type)? {
+            MetaTypeMapping::Direct => None,
+            MetaTypeMapping::Converted(t) => Some(t),
+            MetaTypeMapping::Object(_) => Some(parse_quote! { *mut qtbridge_type_lib::QObject }),
+            MetaTypeMapping::ObjectList(_) => {
+                return Err(syn::Error::new(
+                    user_type.span(),
+                    "Vec<Rc<RefCell<_>>> (object lists) are not supported as metacall argument/return types",
+                ));
+            }
+        };
+        Ok(Self { user_type, intermediate_meta_type })
     }
 }
 

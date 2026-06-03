@@ -12,8 +12,10 @@ public:
     virtual ~RustObjectGetter() = default;
 
     virtual const void* getRustObjectRcPtr() const = 0;
+    virtual const void* getRustProxy() const = 0;
 };
 
 const uint8_t* getRustObjectRcPtr(const QObject& qobj);
+const uint8_t* getRustProxy(const QObject& qobj);
 
 #endif // _RUST_OBJECT_GETTER_

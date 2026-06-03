@@ -13,7 +13,11 @@ pub mod ffi {
 
         #[rust_name = "get_rust_object_rc_ptr"]
         fn getRustObjectRcPtr(qobj: &QObject) -> *const u8;
+
+        #[rust_name = "get_rust_proxy"]
+        fn getRustProxy(qobj: &QObject) -> *const u8;
     }
 }
 
 pub use ffi::get_rust_object_rc_ptr;
+pub use ffi::get_rust_proxy;

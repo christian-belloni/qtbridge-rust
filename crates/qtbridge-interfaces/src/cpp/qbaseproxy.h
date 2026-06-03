@@ -62,6 +62,11 @@ public:
         return static_cast<const void*>(m_rustProxy->getRustObjectRcPtr());
     }
 
+    const void* getRustProxy() const override
+    {
+        return static_cast<const void*>(m_rustProxy);
+    }
+
     // Static factory and query functions
     static Derived* create(RustProxy* rustProxy, const DynamicMetaObjectData* metaObject)
     {

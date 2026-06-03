@@ -61,3 +61,8 @@ harness = false
 name = "qml_method_invoker_tests"
 path = "tests/qml_method_invoker_tests.rs"
 harness = false
+
+[[test]]
+name = "property_nested_lists"
+path = "tests/property_nested_lists.rs"
+harness = false

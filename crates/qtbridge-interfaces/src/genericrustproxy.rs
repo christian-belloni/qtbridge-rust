@@ -61,6 +61,18 @@ where
     fn emit_signal(&self, mut_ref: &mut Adapter, signal_name: &str, argv: &[*const u8]) {
         call_cpp_impl!(mut self, mut_ref, emit_signal(signal_name, argv))
     }
+
+    fn with_rust_ref<R, F: FnOnce(&Adapter) -> R>(&self, f: F) -> R {
+        self.rust_obj
+            .try_call_rust_with_handle(|adapter| f(adapter))
+            .expect("Failed to access Rust object via shared handle")
+    }
+
+    fn with_rust_ref_mut<R, F: FnOnce(&mut Adapter) -> R>(&self, f: F) -> R {
+        self.rust_obj
+            .try_call_rust_with_handle_mut(|adapter| f(adapter))
+            .expect("Failed to access Rust object via mutable handle")
+    }
 }
 
 impl<CppProxy, Adapter> GenericRustProxy<CppProxy, Adapter>

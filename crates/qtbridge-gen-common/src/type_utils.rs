@@ -178,3 +178,19 @@ pub fn extract_rc_ref_cell_path(path: &syn::Path) -> syn::Result<Option<syn::Pat
 
     Ok(None)
 }
+
+/// Return the element type `Ok(Some(T))` extracted from `Vec<Rc<RefCell<T>>>`.
+/// Return `Ok(None)` if the given path does not match that pattern.
+pub fn extract_vec_rc_ref_cell_path(path: &syn::Path) -> syn::Result<Option<syn::Path>> {
+    let Some(vec_ty) = get_type_by_path::<type_registry::StandardContainer>(path)? else {
+        return Ok(None);
+    };
+    if vec_ty.name() != "Vec" {
+        return Ok(None);
+    }
+
+    let inner_ty = vec_ty.generic_arg_syn(0)
+        .ok_or_else(|| syn::Error::new(path.span(), "Generic type is expected inside Vec<>"))?;
+
+    extract_rc_ref_cell_path(path_from_type(&inner_ty)?)
+}

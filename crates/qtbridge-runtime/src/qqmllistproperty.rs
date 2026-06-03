@@ -1,0 +1,122 @@
+// Copyright (C) 2025 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
+
+use std::rc::Rc;
+use std::cell::RefCell;
+
+use crate::QObjectHolder;
+use crate::qproxies::QRustProxy;
+use crate::rustobjectgetter::get_rust_proxy;
+use qtbridge_type_lib::QObject;
+
+/// Plain `#[repr(C)]` view of `QQmlListProperty<QObject>`, used only to read fields out of the
+/// raw pointer QML passes to the callbacks. NOT a cxx type; it never crosses the FFI boundary.
+#[repr(C)]
+pub(crate) struct QQmlListPropertyCpp {
+    pub object: *mut QObject,
+    pub data: *mut u8,
+    pub append: *const (),
+    pub count: *const (),
+    pub at: *const (),
+    pub clear: *const (),
+    pub replace: *const (),
+    pub remove_last: *const (),
+}
+
+unsafe fn get_proxy_ptr<Owner>(
+    qobj: *const QObject,
+) -> *mut <Owner as QObjectHolder>::ProxyRust
+where
+    Owner: QObjectHolder,
+{
+    let qobj_ref = unsafe { qobj.as_ref() }.expect("QObject pointer is null");
+    let ptr = get_rust_proxy(qobj_ref);
+    assert!(!ptr.is_null(), "Rust proxy not registered for QObject");
+    ptr as *mut <Owner as QObjectHolder>::ProxyRust
+}
+
+/// `CountFunction` callback for `QQmlListProperty`. Wraps the operation in
+/// `with_rust_ref` to handle re-entrant borrows via `RustObjAccess`.
+pub(crate) unsafe extern "C" fn list_count<Owner, Elem>(prop: *const u8) -> isize
+where
+    Owner: QObjectHolder,
+{
+    let list_prop = unsafe { &*(prop as *const QQmlListPropertyCpp) };
+    let proxy_ptr = unsafe { get_proxy_ptr::<Owner>(list_prop.object) };
+    let store_offset = list_prop.data as usize;
+    unsafe { &*proxy_ptr }.with_rust_ref(|adapter| {
+        unsafe {
+            let owner = &*(adapter as *const _ as *const Owner);
+            let store = &*((owner as *const Owner).byte_add(store_offset) as *const Vec<Rc<RefCell<Elem>>>);
+            store.len() as isize
+        }
+    })
+}
+
+/// `AtFunction` callback for `QQmlListProperty`. Wraps the operation in
+/// `with_rust_ref` to handle re-entrant borrows via `RustObjAccess`.
+pub(crate) unsafe extern "C" fn list_at<Owner, Elem>(prop: *const u8, idx: isize) -> *mut QObject
+where
+    Owner: QObjectHolder,
+    Elem: QObjectHolder,
+{
+    let list_prop = unsafe { &*(prop as *const QQmlListPropertyCpp) };
+    let proxy_ptr = unsafe { get_proxy_ptr::<Owner>(list_prop.object) };
+    let store_offset = list_prop.data as usize;
+    unsafe { &*proxy_ptr }.with_rust_ref(|adapter| {
+        unsafe {
+            let owner = &*(adapter as *const _ as *const Owner);
+            let store = &*((owner as *const Owner).byte_add(store_offset) as *const Vec<Rc<RefCell<Elem>>>);
+            <Elem as QObjectHolder>::rc_ref_cell_to_qobject(&store[idx as usize]).cast_mut()
+        }
+    })
+}
+
+/// `AppendFunction` callback for `QQmlListProperty`. Wraps the operation in
+/// `with_rust_ref_mut` to handle re-entrant borrows via `RustObjAccess`, then
+/// pushes the new element and emits the `Notify` signal. `Notify` must be a
+/// zero-sized function item (a method of `Owner` with no parameters beyond `&mut self`).
+pub(crate) unsafe extern "C" fn list_append<Owner, Elem, Notify>(prop: *const u8, item: *mut QObject)
+where
+    Owner: QObjectHolder,
+    Elem: QObjectHolder,
+    Notify: Fn(&mut Owner) + 'static,
+{
+    debug_assert_eq!(std::mem::size_of::<Notify>(), 0, "Notify must be a zero-sized type");
+    let list_prop = unsafe { &*(prop as *const QQmlListPropertyCpp) };
+    let proxy_ptr = unsafe { get_proxy_ptr::<Owner>(list_prop.object) };
+    let store_offset = list_prop.data as usize;
+    unsafe { &*proxy_ptr }.with_rust_ref_mut(|adapter| {
+        unsafe {
+            let owner = &mut *(adapter as *mut _ as *mut Owner);
+            let store = &mut *((owner as *mut Owner).byte_add(store_offset) as *mut Vec<Rc<RefCell<Elem>>>);
+            store.push(<Elem as QObjectHolder>::qobject_to_rc_ref_cell(item));
+            let notify = std::mem::zeroed::<Notify>();
+            notify(owner);
+        }
+    });
+}
+
+/// `ClearFunction` callback for `QQmlListProperty`. Wraps the operation in
+/// `with_rust_ref_mut` to handle re-entrant borrows via `RustObjAccess`, then
+/// clears the list and emits the `Notify` signal. `Notify` must be a
+/// zero-sized function item (a method of `Owner` with no parameters beyond `&mut self`).
+pub(crate) unsafe extern "C" fn list_clear<Owner, Elem, Notify>(prop: *const u8)
+where
+    Owner: QObjectHolder,
+    Notify: Fn(&mut Owner) + 'static,
+{
+    debug_assert_eq!(std::mem::size_of::<Notify>(), 0, "Notify must be a zero-sized type");
+    let list_prop = unsafe { &*(prop as *const QQmlListPropertyCpp) };
+    let proxy_ptr = unsafe { get_proxy_ptr::<Owner>(list_prop.object) };
+    let store_offset = list_prop.data as usize;
+    unsafe { &*proxy_ptr }.with_rust_ref_mut(|adapter| {
+        unsafe {
+            let owner = &mut *(adapter as *mut _ as *mut Owner);
+            let store = &mut *((owner as *mut Owner).byte_add(store_offset) as *mut Vec<Rc<RefCell<Elem>>>);
+            store.clear();
+            let notify = std::mem::zeroed::<Notify>();
+            notify(owner);
+        }
+    });
+}

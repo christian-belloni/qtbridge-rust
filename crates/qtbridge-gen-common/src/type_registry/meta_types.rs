@@ -1,5 +1,4 @@
 use quote::ToTokens;
-use syn::parse_quote;
 use syn::spanned::Spanned;
 
 use crate::type_registry;
@@ -8,7 +7,7 @@ use type_registry::qt::generic::{QtGenericArg, QtGenericTypeWithoutArgs};
 use type_registry::type_traits::{FindType, GenericArgs, MetaTypeId, TypeInfo, TypeName};
 use crate::signature_utils::{get_return_type, get_typed_args, is_arg_self_ref};
 use crate::type_to_string::{path_to_string_fallback, type_to_string_fallback};
-use crate::type_utils::{extract_rc_ref_cell_path, is_mut_ref, path_from_type, path_to_type, remove_ref};
+use crate::type_utils::{extract_rc_ref_cell_path, extract_vec_rc_ref_cell_path, is_mut_ref, path_from_type, path_to_type, remove_ref};
 
 /// Checks whether the given signature can participate in meta-calls
 /// (as slot callbacks or property getters/setters).
@@ -66,47 +65,52 @@ pub fn is_type_mapped_to_qmetatype(ty: &syn::Type) -> bool {
     get_qmetatype_support_for_type(ty).is_ok()
 }
 
-/// Checks whether the given type is supported by the `QMetaType` system.
-///
-/// # Returns
-///
-/// * `Ok(None)` if the input type is already supported by `QMetaType`.
-/// * `Ok(Some(_))` if the input type is not directly supported but can be converted
-///   to an intermediate Qt-specific type that *is* supported for use in Qt meta-calls.
-/// * `Err(_)` if the input type is neither supported by `QMetaType` nor convertible.
-///
-pub fn get_qmetatype_support_for_type(mut src: &syn::Type) -> syn::Result<Option<syn::Type>> {
+/// How a Rust property/arg type maps onto a Qt metatype for meta-calls.
+#[derive(Debug, PartialEq)]
+pub enum MetaTypeMapping {
+    /// Supported as is
+    Direct,
+    /// Supported with intermittent type
+    Converted(syn::Type),
+    /// `Rc<RefCell<T>>`, exposed as `QObject*`
+    Object(syn::Path),
+    /// `Vec<Rc<RefCell<T>>>`, exposed as `QQmlListProperty<T>`
+    ObjectList(syn::Path),
+}
+
+/// Classifies how the given type is supported by the `QMetaType` system, or `Err` if it is
+/// neither a supported metatype nor convertible to one.
+pub fn get_qmetatype_support_for_type(mut src: &syn::Type) -> syn::Result<MetaTypeMapping> {
     // Unwrap if reference
     src = remove_ref(src);
     let path = path_from_type(src)?;
 
-    if let Some(rc_ref_cell_inner) = extract_rc_ref_cell_path(path)? {
-        // Assume that it is Rc<RefCell<T>> wrapping a type from which we can obtain
-        // *QObject and pass it to QML engine. At macro expansion time, we currently
-        // can't determine whether the type implements dereferencing QObject <-> Rc<RefCell<Self>>
-        // or no. So here we assume that it does. Otherwise, compilation will fail
-        // further with an error about unimplemented trait anyway.
-        if type_registry::Type::find_by_path(&rc_ref_cell_inner).is_some() {
-            return Err(syn::Error::new(rc_ref_cell_inner.span(), format!("Only user-defined type can be used in Rc<RefCell<_>> in metacall. Found: '{}'", path_to_string_fallback(&rc_ref_cell_inner))))
+    if let Some(inner_type) = extract_rc_ref_cell_path(path)? {
+        // Rc<RefCell<T>>: assume T yields a *QObject for the QML engine. We can't verify the
+        // conversion trait at macro time; a missing impl fails later with a clear trait error.
+        if type_registry::Type::find_by_path(&inner_type).is_some() {
+            return Err(syn::Error::new(inner_type.span(), format!(
+                "Only user-defined types can be used in Rc<RefCell<_>> in metacall. Found: '{}'",
+                path_to_string_fallback(&inner_type))));
         }
+        return Ok(MetaTypeMapping::Object(inner_type));
+    }
 
-        return Ok(Some(parse_quote! {
-            // It must be a mutable QObject pointer but not the const one,
-            // since QMetaType considers them different types.
-            *mut qtbridge_type_lib::QObject
-        }))
+    if let Some(inner_type) = extract_vec_rc_ref_cell_path(path)? {
+        if type_registry::Type::find_by_path(&inner_type).is_some() {
+            return Err(syn::Error::new(inner_type.span(), format!(
+                "Only user-defined types can be used in Vec<Rc<RefCell<_>>> in metacall. Found: '{}'",
+                path_to_string_fallback(&inner_type))));
+        }
+        return Ok(MetaTypeMapping::ObjectList(inner_type));
     }
 
     let ty = type_registry::Type::find_by_path_checked(path)?;
-    let meta_id = ty.metatype_id();
-
-    match meta_id {
-        MetaTypeId::None => { // Conversion to the intermediate type is needed
-            let ty = get_intermediate_type_for_not_metatype(&ty, path)?;
-            Ok(Some(ty))
-        },
-        _ => // Conversion is not needed
-            Ok(None),
+    match ty.metatype_id() {
+        // Conversion to an intermediate type is needed.
+        MetaTypeId::None => Ok(MetaTypeMapping::Converted(get_intermediate_type_for_not_metatype(&ty, path)?)),
+        // Already a metatype.
+        _ => Ok(MetaTypeMapping::Direct),
     }
 }
 
@@ -157,8 +161,16 @@ fn get_intermediate_type_container(src: &StandardContainer, src_path: &syn::Path
         .map(|arg_idx| {
             let src_arg_type = src.generic_arg_syn(arg_idx)
                 .ok_or_else(|| syn::Error::new(src_path.span(), "Failed to get generic argument"))?;
-            let inter_arg_type = get_qmetatype_support_for_type(&src_arg_type)?
-                .unwrap_or_else(|| src_arg_type.clone());
+            let inter_arg_type = match get_qmetatype_support_for_type(&src_arg_type)? {
+                MetaTypeMapping::Direct => src_arg_type.clone(),
+                MetaTypeMapping::Converted(t) => t,
+                MetaTypeMapping::Object(_) | MetaTypeMapping::ObjectList(_) => {
+                    return Err(syn::Error::new(
+                        src_arg_type.span(),
+                        format!("QObject-based elements are not supported inside a {src_name} container"),
+                    ));
+                }
+            };
             let arg_path = path_from_type(&inter_arg_type)
                 .map_err(|err| syn::Error::new(inter_arg_type.span(), format!("Type '{}' is unsupported as argument in {src_name} container. {err}", inter_arg_type.to_token_stream())))?;
             let arg_ty = type_registry::Type::find_by_path_checked(arg_path)?;

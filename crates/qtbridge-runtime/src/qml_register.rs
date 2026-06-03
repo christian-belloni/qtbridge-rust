@@ -1,16 +1,21 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
+use std::rc::Rc;
+use std::cell::RefCell;
+
 use crate::QObjectHolder;
 use crate::QMetaInfo;
+use crate::qqmllistproperty::{list_append, list_count, list_at, list_clear};
 use crate::qproxies::QCppProxy;
 use crate::qproxies::ConstructionMode;
 use qtbridge_type_lib::QObject;
 use qtbridge_type_lib::QMetaType;
 use qtbridge_type_lib::QMetaTypeGet;
 use qtbridge_type_lib::QMetaTypeInterface;
+use qtbridge_type_lib::{QVariant, list_property_to_qvariant};
 
-pub trait QmlRegister : QMetaTypeGet + QMetaInfo + QObjectHolder + Default
+pub trait QmlRegister : QMetaTypeGet + QObjectHolder + Default
 {
     const URI: &str;
     const ELEMENT_NAME: &str;
@@ -18,11 +23,52 @@ pub trait QmlRegister : QMetaTypeGet + QMetaInfo + QObjectHolder + Default
     const MAJOR_VERSION: u8;
     const IS_SINGLETON: bool;
 
-    fn get_list_qmetatype() -> QMetaType where Self: 'static {
-        let iface = Box::leak(Box::new(
-            QMetaTypeInterface::qqml_list_property_for(&<Self as QMetaTypeGet>::get_qmetatype())
-        ));
-        QMetaType::new_with_interface(iface as *const _)
+    fn get_list_qmetatype() -> QMetaType {
+        // TODO: The HashMap can be replaced with OnceCell in a per-type generated implementation
+        // of this function in qtbridge-gen. Might improve performance.
+        use std::collections::HashMap;
+        thread_local!(static LIST_IFACE_MAP: RefCell<HashMap<i32, *const QMetaTypeInterface>>
+            = RefCell::new(HashMap::new()));
+
+        let element = <Self as QMetaTypeGet>::get_qmetatype();
+        let key = element.id();
+
+        let existing = LIST_IFACE_MAP.with_borrow(|m| m.get(&key).copied().unwrap_or_default());
+        let iface = if existing.is_null() {
+            let leaked = std::ptr::from_ref(Box::leak(Box::new(
+                QMetaTypeInterface::qqml_list_property_for(&element)
+            )));
+            LIST_IFACE_MAP.with_borrow_mut(|m| m.insert(key, leaked));
+            leaked
+        } else {
+            existing
+        };
+        QMetaType::new_with_interface(iface)
+    }
+
+    fn list_to_qvariant<Owner, Notify>(owner: &Owner, store: &Vec<Rc<RefCell<Self>>>, _notify: Notify) -> QVariant
+    where
+        Owner: QObjectHolder,
+        Notify: Fn(&mut Owner) + 'static,
+    {
+        debug_assert_eq!(std::mem::size_of::<Notify>(), 0, "Notify must be a zero-sized type");
+        let qobject = owner.get_qobject_ptr();
+        let base = owner as *const Owner as *const u8;
+        let field = store as *const _ as *const u8;
+        // SAFETY: `store` is a field within `owner`, so both pointers are in the same allocation.
+        // The `owner` can be reconstructed safely, even when objects are moved since we store a
+        // shared reference to it. With the known offset we can also reconstruct `store`. The callbacks
+        // in crate::qqmllistproperty expect this exact format.
+        let store_offset = unsafe { field.offset_from(base) } as usize;
+        unsafe { list_property_to_qvariant(
+            &Self::get_list_qmetatype(),
+            qobject,
+            store_offset as *mut u8,
+            (list_append::<Owner, Self, Notify> as *const ()).addr(),
+            (list_count::<Owner, Self> as *const ()).addr(),
+            (list_at::<Owner, Self> as *const ()).addr(),
+            (list_clear::<Owner, Self, Notify> as *const ()).addr(),
+        ) }
     }
 
     fn register() {

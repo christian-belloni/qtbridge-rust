@@ -8,6 +8,7 @@ pub mod qml_method_invoker;
 pub mod qapp;
 pub mod qmetainfo;
 pub mod qml_register;
+pub(crate) mod qqmllistproperty;
 pub mod qresource;
 pub mod qobjectholder;
 pub mod qproxies;

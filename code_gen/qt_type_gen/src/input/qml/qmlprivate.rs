@@ -39,7 +39,7 @@ mod qmlprivate {
                 const QByteArray uriBa = RustByteSliceToQByteArray(uri);
                 const QByteArray elmNameBa = RustByteSliceToQByteArray(elm_name);
 
-                QQmlPrivate::RegisterType rt = {};
+                QQmlPrivate::RegisterType rt = { };
                 rt.structVersion = QQmlPrivate::RegisterType::CurrentVersion;
                 rt.typeId = type_id;
                 rt.listId = list_id;

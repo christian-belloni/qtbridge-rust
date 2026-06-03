@@ -3,7 +3,7 @@
 
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{Ident, LitStr};
+use syn::{Ident, LitStr, parse_quote};
 use syn::spanned::Spanned;
 
 use qtbridge_gen_common::case_conv;
@@ -11,7 +11,7 @@ use qtbridge_gen_common::function_with_attributes::{FunctionWithAttributes, Bloc
 use qtbridge_gen_common::parse_utils::{parse_name_value, partition_attr_by};
 use qtbridge_gen_common::signature_utils::{get_typed_args, get_typed_args_types, is_self_mut};
 use qtbridge_gen_common::type_utils::remove_refs;
-use qtbridge_gen_common::type_registry::meta_types::{check_meta_call_signature_types, get_qmetatype_support_for_type};
+use qtbridge_gen_common::type_registry::meta_types::{MetaTypeMapping, check_meta_call_signature_types, get_qmetatype_support_for_type};
 use crate::qt_gen_impl::qt_meta_gen;
 use crate::qt_gen_impl::qobject_macro_params::QObjectMacroParams;
 use qt_meta_gen::meta_call_bridge_generator::MetaCallBridgeGenerator;
@@ -82,10 +82,14 @@ impl QSignalInfo {
 
         let name = self.get_qml_name_span().0;
         let arg_types_qt = get_typed_args_types(sig)
-            .map(|ty| {
-                let meta_type = get_qmetatype_support_for_type(ty)?
-                    .unwrap_or_else(|| remove_refs(ty).clone());
-                Ok(meta_type)
+            .map(|ty| -> syn::Result<syn::Type> {
+                match get_qmetatype_support_for_type(ty)? {
+                    MetaTypeMapping::Direct => Ok(remove_refs(ty).clone()),
+                    MetaTypeMapping::Converted(t) => Ok(t),
+                    MetaTypeMapping::Object(_) => Ok(parse_quote! { *mut qtbridge_type_lib::QObject }),
+                    MetaTypeMapping::ObjectList(_) => Err(syn::Error::new(ty.span(),
+                        "Vec<Rc<RefCell<_>>> (object lists) are not supported as signal arguments")),
+                }
             })
             .collect::<syn::Result<Vec<_>>>()?;
 

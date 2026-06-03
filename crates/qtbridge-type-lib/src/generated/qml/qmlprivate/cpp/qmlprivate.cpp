@@ -53,7 +53,7 @@ void inlineCppFn_qml_register_singleton(QMetaType type_id, size_t create_fn,
     };
     const QByteArray uriBa = RustByteSliceToQByteArray(uri);
     const QByteArray elmNameBa = RustByteSliceToQByteArray(elm_name);
-    QQmlPrivate::RegisterSingletonType api = { };
+    QQmlPrivate::RegisterSingletonType api = {};
     api.structVersion = 0;
     api.uri = uriBa.data();
     api.version = QTypeRevision::fromVersion(version_major, version_minor);

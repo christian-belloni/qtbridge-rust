@@ -23,7 +23,17 @@ pub fn generate_dispatch_meta_call(struct_ident: &syn::Ident, generics: &syn::Ge
     let prop_read_handlers = properties.iter()
         .map(|prop| {
             let id = prop.id();
-            let code = prop.get_read_code()?;
+            let signal = signals.iter().find(|s| {
+                prop.get_notify_signal()
+                    .is_some_and(|notify| s.get_rust_name() == *notify)
+            });
+
+            // The read_notifying code is required for types that transform into a
+            // writable view like QQmlListProperty
+            let code = match signal {
+                Some(sig) => prop.get_read_notifying_code(sig)?,
+                None => prop.get_read_code()?,
+            };
             Ok(quote! {
                 #id => {
                     #code

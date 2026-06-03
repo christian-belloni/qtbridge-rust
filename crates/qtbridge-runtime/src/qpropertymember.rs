@@ -11,16 +11,33 @@ use qtbridge_type_lib::{
     QList_f32, QList_f64, QList_QString,
 };
 
-use crate::QObjectHolder;
+use crate::{QObjectHolder, QmlRegister};
 
 /// Trait for types that can be used as member-based Qt properties.
 ///
 /// Implemented for primitive numeric types, `bool`, `String`, `Vec` of those types,
-/// and [`Rc<RefCell<T>>`] where `T: QObjectHolder`.
+/// [`Rc<RefCell<T>>`] where `T: QObjectHolder`, and [`Vec<Rc<RefCell<T>>>`] where
+/// `T: QmlRegister`.
 pub trait QPropertyMember: Sized {
     fn qmetatype() -> QMetaType;
 
+    /// `Owner` is the QObject that holds this property; required by the
+    /// `Vec<Rc<RefCell<T>>>` impl which passes it to QQmlListProperty.
     fn to_qvariant<Owner: QObjectHolder>(&self, owner: &Owner) -> QVariant;
+
+    /// This is required for types that transform into a writable view and
+    /// need to emit a notify signal on change. Right now only QQmlListProperty
+    /// takes advantage of this. Other types are just defaulting to to_qvariant,
+    /// returning a value. `Owner` is as above and `Notify` is the signal
+    /// to emitted on change.
+    fn to_qvariant_view<Owner, Notify>(&self, owner: &Owner, notify: Notify) -> QVariant
+    where
+        Owner: QObjectHolder,
+        Notify: Fn(&mut Owner) + 'static,
+    {
+        let _ = notify;
+        self.to_qvariant(owner)
+    }
 
     fn from_qvariant(value: &QVariant) -> Result<Self, ()>;
 
@@ -91,6 +108,33 @@ impl<T: QObjectHolder> QPropertyMember for Rc<RefCell<T>> {
 
     fn property_eq(&self, other: &Self) -> bool {
         Rc::ptr_eq(self, other)
+    }
+}
+
+impl<T: QmlRegister> QPropertyMember for Vec<Rc<RefCell<T>>> {
+    fn qmetatype() -> QMetaType {
+        T::get_list_qmetatype()
+    }
+
+    fn to_qvariant<Owner: QObjectHolder>(&self, owner: &Owner) -> QVariant {
+        T::list_to_qvariant(owner, self, |_: &mut Owner| {})
+    }
+
+    fn to_qvariant_view<Owner, Notify>(&self, owner: &Owner, notify: Notify) -> QVariant
+    where
+        Owner: QObjectHolder,
+        Notify: Fn(&mut Owner) + 'static,
+    {
+        T::list_to_qvariant(owner, self, notify)
+    }
+
+    fn from_qvariant(_value: &QVariant) -> Result<Self, ()> {
+        // Vec<Rc<RefCell<T>>> is exposed as writeable view and no write operation will ever happen
+        Err(())
+    }
+
+    fn property_eq(&self, other: &Self) -> bool {
+        self.len() == other.len() && self.iter().zip(other.iter()).all(|(a, b)| Rc::ptr_eq(a, b))
     }
 }
 

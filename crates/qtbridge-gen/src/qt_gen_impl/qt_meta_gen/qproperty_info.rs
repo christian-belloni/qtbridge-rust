@@ -238,25 +238,34 @@ impl QPropertyInfo {
     }
 
     pub fn get_read_code(&self) -> syn::Result<TokenStream> {
-        let mut value_src_ref;
+        let value_src_ref = self.get_value_src_ref()?;
+        Ok(quote! {
+            (#value_src_ref).to_qvariant(self)
+        })
+    }
+
+    pub fn get_read_notifying_code(&self, signal: &QSignalInfo) -> syn::Result<TokenStream> {
+        let value_src_ref = self.get_value_src_ref()?;
+        let signal_name = signal.get_rust_name();
+        Ok(quote! {
+            (#value_src_ref).to_qvariant_view(self, Self::#signal_name)
+        })
+    }
+
+    fn get_value_src_ref(&self) -> syn::Result<TokenStream> {
         if let Some(getter_fn) = &self.read_method {
-            value_src_ref = quote! { self.#getter_fn() };
+            let mut value_src_ref = quote! { self.#getter_fn() };
             let getter_type = self.getter_type.as_ref()
                 .ok_or_else(|| syn::Error::new(getter_fn.span(), "Property type is not deduced for the getter"))?;
             if !is_ref(getter_type) {
                 value_src_ref = quote! { (&#value_src_ref) };
             }
+            Ok(value_src_ref)
+        } else if let Some(member) = &self.member {
+            Ok(quote! { &self.#member })
+        } else {
+            Err(syn::Error::new(self.span, "Neither 'Read' nor 'Member' is specified for property"))
         }
-        else if let Some(member) = &self.member {
-            value_src_ref = quote! { &self.#member };
-        }
-        else {
-            return Err(syn::Error::new(self.span, "Neither 'Read' nor 'Member' is specified for property"))
-        };
-
-        Ok(quote! {
-            (#value_src_ref).to_qvariant(self)
-        })
     }
 
     pub fn get_write_code(&self, signal: Option<&QSignalInfo>) -> syn::Result<Option<TokenStream>> {
