@@ -16,7 +16,10 @@ pub fn write_to_file_if_changed(path: &Path, content: &str) -> Result<(), String
     let mut need_write = true;
     if path.is_file() {
         let old_content = read_file_content(path)?;
-        if old_content == content {
+        // Compare line by line ignoring line endings.
+        let old_lines = old_content.lines();
+        let new_lines = content.lines();
+        if old_lines.eq(new_lines) {
             need_write = false;
         }
     }
