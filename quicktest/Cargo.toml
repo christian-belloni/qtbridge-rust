@@ -13,5 +13,5 @@ qtbridge-type-lib = { path = "../crates/qtbridge-type-lib" }
 quicktest_gen = { path = "quicktest_gen" }
 
 [build-dependencies]
-qtbridge-build-common = { path = "../crates/qtbridge-build-common" }
+qtbridge-build-utils = { path = "../crates/qtbridge-build-utils" }
 cxx-build.workspace = true

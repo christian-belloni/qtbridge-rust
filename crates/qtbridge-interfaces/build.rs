@@ -3,8 +3,8 @@
 
 use std::path::PathBuf;
 
-use qtbridge_build_common::file_system_utils::find_files;
-use qtbridge_build_common::qt_build::{link_qt_modules, qt_include_dirs, QtBuildConfigure};
+use qtbridge_build_utils::file_system_utils::find_files;
+use qtbridge_build_utils::qt_build::QtInstallation;
 
 const MANIFEST_DIR: &str = env!("CARGO_MANIFEST_DIR");
 
@@ -30,7 +30,6 @@ const FILES_CPP: [&'static str; 5] = [
 ];
 
 fn main() {
-    let mut builder = cxx_build::bridges(&FILES_BRIDGE);
 
     let type_lib_include = std::env::var("DEP_QTBRIDGE_TYPE_LIB_INCLUDE")
     .expect("DEP_QTBRIDGE_TYPE_LIB_INCLUDE not set. This variable should have been set by qtbridge-type-lib");
@@ -38,6 +37,8 @@ fn main() {
     let runtime_include = std::env::var("DEP_QTBRIDGE_RUNTIME_INCLUDE")
     .expect("DEP_QTBRIDGE_TYPE_LIB_INCLUDE not set - This variable should have been set by qtbridge-runtime");
 
+    let qt = QtInstallation::new();
+    let mut builder = cxx_build::bridges(&FILES_BRIDGE);
     builder
         .std("c++17")
         .flag_if_supported("/Zc:__cplusplus")
@@ -45,8 +46,8 @@ fn main() {
         .include("src")
         .include("../")
         .include(type_lib_include)
-        .include(runtime_include)
-        .configure_for_qt();
+        .include(runtime_include);
+    qt.configure_builder(&mut builder);
 
     FILES_CPP.iter()
         .for_each(|file| {
@@ -54,14 +55,13 @@ fn main() {
         });
 
     let qt_modules = ["Core", "Gui", "Qml"];
-    for include_dir in qt_include_dirs(&qt_modules, true) {
+    for include_dir in qt.include_dirs(qt_modules, true) {
         builder.include(include_dir);
     }
 
     builder.compile("qtbridge-interfaces");
 
-    link_qt_modules(&qt_modules);
-
+    qt.link_modules(qt_modules);
     // Trigger a rebuild when C++ files have changed.
     let src_path = PathBuf::from(MANIFEST_DIR).join("src");
     find_files(&src_path, true,

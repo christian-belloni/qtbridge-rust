@@ -3,8 +3,8 @@
 
 use std::path::{Path, PathBuf};
 
-use qtbridge_build_common::file_system_utils::{get_workspace_dir, write_to_file, write_to_file_if_changed};
-use qtbridge_build_common::generate_types::{CodeFile, FileTree, GenerateFiles, RustFileInfo, get_header};
+use qtbridge_build_utils::file_system_utils::{get_workspace_dir, write_to_file, write_to_file_if_changed};
+use qtbridge_build_utils::generate_types::{CodeFile, FileTree, GenerateFiles, RustFileInfo, get_header};
 use qtbridge_gen_common::format_code::{format_rust_code, try_format_cpp_code};
 use qtbridge_gen_common::naming;
 use qtbridge_gen_common::path_utils::relative_input_file_path_to_path_qualified;

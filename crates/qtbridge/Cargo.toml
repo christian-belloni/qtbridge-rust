@@ -11,7 +11,7 @@ repository.workspace = true
 description = "Meta-package for Qt Bridge"
 
 [dependencies]
-qtbridge-build-common = { path = "../qtbridge-build-common", version = "0.1.5" }
+qtbridge-build-utils = { path = "../qtbridge-build-utils", version = "0.1.5" }
 qtbridge-gen = { path = "../qtbridge-gen", version = "0.1.5" }
 qtbridge-type-lib = { path = "../qtbridge-type-lib", version = "0.1.5" }
 qtbridge-runtime = { path = "../qtbridge-runtime", version = "0.1.5" }

@@ -16,7 +16,7 @@ pub use qtbridge_interfaces;
 #[doc(hidden)]
 pub use qtbridge_type_lib;
 #[doc(hidden)]
-pub use qtbridge_build_common;
+pub use qtbridge_build_utils;
 
 pub mod special_traits {
       //! Traits that enable Rust types to fulfill specific QML roles.

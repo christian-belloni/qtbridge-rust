@@ -17,7 +17,7 @@ qtbridge-runtime = { path = "../qtbridge-runtime", version = "0.1.5" }
 
 [build-dependencies]
 cxx-build.workspace = true
-qtbridge-build-common = { path = "../qtbridge-build-common", version = "0.1.5" }
+qtbridge-build-utils = { path = "../qtbridge-build-utils", version = "0.1.5"}
 
 [dev-dependencies]
 qtbridge = { path = "../qtbridge", version = "0.1.5" }

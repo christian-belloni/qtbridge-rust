@@ -17,7 +17,7 @@ proc-macro = true
 proc-macro2.workspace = true
 quote.workspace = true
 syn.workspace = true
-qtbridge-build-common = { path = "../qtbridge-build-common", version = "0.1.5" }
+qtbridge-build-utils = { path = "../qtbridge-build-utils", version = "0.1.5" }
 qtbridge-gen-common = { path = "../qtbridge-gen-common", version = "0.1.5" }
 
 [dev-dependencies]

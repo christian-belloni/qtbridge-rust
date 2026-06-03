@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use std::path::{Path, PathBuf};
-use qtbridge_build_common::qt_build::{link_qt_modules, qt_include_dirs, run_moc, QtBuildConfigure};
+use qtbridge_build_utils::qt_build::QtInstallation;
 
 fn main() {
 
@@ -52,6 +52,7 @@ fn main() {
         cpp_files.push(cpp_file);
     }
 
+    let qt = QtInstallation::new();
     let out_dir = PathBuf::from(std::env::var("OUT_DIR")
         .expect("Failed to get OUT_DIR"));
     for moc_file in &moc_files {
@@ -59,7 +60,7 @@ fn main() {
         let output = out_dir
             .join(input.file_stem().unwrap())
             .with_extension("moc");
-        run_moc(&input, &output);
+        qt.run_moc(&input, &output);
     }
 
     let mut builder = cxx_build::bridges(rust_bridge_files);
@@ -71,10 +72,10 @@ fn main() {
         .include("../crates/")
         .include("src")
         .include("../crates/qtbridge-type-lib/src/")
-        .include(out_dir)
-        .configure_for_qt();
+        .include(out_dir);
+    qt.configure_builder(&mut builder);
 
-    let qt_include_dirs = qt_include_dirs(qt_modules, true);
+    let qt_include_dirs = qt.include_dirs(qt_modules, true);
     for include_dir in qt_include_dirs {
         builder.include(include_dir);
     }
@@ -94,5 +95,5 @@ fn main() {
 
     builder.compile("quicktest");
 
-    link_qt_modules(&qt_modules);
+    qt.link_modules(qt_modules);
 }

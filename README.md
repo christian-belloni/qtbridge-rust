@@ -49,67 +49,92 @@ ApplicationWindow {
 
 ## Getting started
 
-### Prerequisites
-
 To use this library, you need:
 
 - One of the supported platforms:
    - Linux (`x86_64`)
    - Windows (`x64`)
    - macOS (`arm64`) - experimental
-- **Rust** (stable, version >= 1.87)
-   - Visit [rustup.rs](https://rustup.rs) to install
-- **Cargo and rustfmt** (comes with Rust)
-- **C++ toolchain** (compiler, linker, etc)
+- **Rust and Cargo** (stable, version >= 1.87) from [rustup.rs](https://rustup.rs)
+- **C++ toolchain** (see [Qt platform requirements](https://doc.qt.io/qt-6/supported-platforms.html))
 - [**Qt 6**](#qt-installation)
 
 ### Qt installation
 
-A Qt installation must be present in the system and `qmake` must be in the
-system `PATH`. It can be built from source, downloaded from <https://download.qt.io/>,
-or installed via your system's package manager.
+A C++ toolchain and a Qt installation must be present in the system,
+and `qmake` must be in the system `PATH`. QtBridge currently requires Qt 6.10
+or higher.
 
-QtBridge currently requires Qt 6.10 or later. The QtBridge 1.0 release is
-expected to require Qt 6.11 or later.
+Qt can be built from source, downloaded from <https://download.qt.io/> or installed
+via your system's package manager.
 
-To ensure `qmake` is available, add the Qt bin directory to your PATH.
+#### Using the system package manager
 
-- On Windows, add the Qt bin directory to PATH. Note that the exact path depends
-  on your installation location, Qt version, and compiler:
-  - Built from source:
+Most Linux distributions provide a compatible Qt installation through their
+system package manager. You need `qtbase`, `qtbase-private`, and `qtdeclarative`
+as a baseline for the provided examples, plus any additional
+QML modules you intend to use.
+
+On Fedora 43 and 44 the required packages are:
 ```sh
-    set PATH=%PATH%;D:\dev\qt_build\qtbase\bin\
-```
-  - From the official installer:
-```sh
-    set PATH=%PATH%;C:\Qt\6.10.1\msvc2022_64\bin\
-```
-
-- On Linux when building from source, add the Qt bin directory to `PATH` and the
-  Qt libraries to `LD_LIBRARY_PATH`:
-```sh
-  export PATH=/home/john_doe/dev/qt_build/qtbase/bin:$PATH
-  export LD_LIBRARY_PATH="/home/john_doe/dev/qt_build/lib:$LD_LIBRARY_PATH"
+sudo dnf install qt6-qtbase-devel qt6-qtdeclarative-devel
+sudo dnf install qt6-qtbase-private-devel
 ```
 
-- On Linux when using the system package manager, install the required development
-  packages. You will need `qtbase`, `qtdeclarative`, and `qtquickcontrols2` as a
-  baseline for the provided examples, plus any additional modules you intend to
-  use from QML. You will also need the private API of `qtbase`. On Fedora, e.g.:
+On Ubuntu 26.04 and Debian Testing (Forky) the packages are:
 ```sh
-  sudo dnf install qt6-qtbase-devel qt6-qtdeclarative-devel qt6-qtquickcontrols2-devel
-  sudo dnf install qt6-qtbase-private-devel
+sudo apt install -y qt6-base-dev qt6-declarative-dev
+sudo apt install -y qt6-base-private-dev
 ```
-  Your system installs these to the correct paths, so no additional environment
-  variables are needed.
 
-- On macOS add the following directories to `PATH` and `DYLD_FRAMEWORK_PATH`:
+On Ubuntu and Debian, the Qt 6 qmake binary is named `qmake6` and the `QMAKE`
+environment variable must be set correspondingly:
+```sh
+export QMAKE=qmake6
+```
+To make this permanent, add it to your ~/.bashrc:
+```sh
+echo 'export QMAKE=qmake6' >> ~/.bashrc
+source ~/.bashrc
+```
+
+#### Qt build from source or Qt installer
+
+##### Windows
+
+On Windows, you need to add the binary path of the targeted Qt installation to
+`PATH`. For the default installation of 6.10.1 by the Qt installer you have to
+execute the following command. The exact path depends on the targeted installation.
+
+Command Prompt:
+```sh
+set PATH=%PATH%;C:\Qt\6.10.1\msvc2022_64\bin\
+```
+
+PowerShell:
+```sh
+$env:PATH += ";C:\Qt\6.10.1\msvc2022_64\bin\"
+```
+
+##### Linux
+
+On Linux, you need to add the binary path of the targeted Qt installation to
+`PATH` and the library path to `LD_LIBRARY_PATH`:
+```sh
+export PATH=/home/john_doe/dev/qt_build/qtbase/bin:$PATH
+export LD_LIBRARY_PATH="/home/john_doe/dev/qt_build/lib:$LD_LIBRARY_PATH"
+```
+
+##### macOS
+
+On macOS, you need to add the binary path of the targeted Qt installation to
+`PATH` and the library path  `DYLD_FRAMEWORK_PATH`:
 ```sh
 export PATH=/Users/john_doe/dev/qt_build/qtbase/bin:$PATH
 export DYLD_FRAMEWORK_PATH=/Users/john_doe/dev/qt_build/qtbase/lib:$DYLD_FRAMEWORK_PATH
 ```
 
-### Dependency
+## Dependency
 
 QtBridge has a single crate with all public APIs:
 ```TOML
@@ -194,6 +219,7 @@ will help you get the most out of building UIs with Qt Quick.
 * Enable interoperability with [CXX-Qt](https://crates.io/crates/cxx-qt).
 * Extend IDE support in particular for VS Code. Enable the QML language server to understand
   types generated in Rust.
+* Reduce the manual steps for installing and linking to Qt.
 
 ## Terms and Conditions
 
