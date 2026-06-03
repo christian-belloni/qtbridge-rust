@@ -4,7 +4,7 @@
 use std::io::{self, Write};
 use std::process::{Command, Stdio};
 use std::sync::LazyLock;
-use qtbridge_build_common::file_system_utils::{find_file_upwards, get_manifest_dir};
+use qtbridge_build_common::file_system_utils::{find_file_upwards, get_exe_dir, get_manifest_dir};
 use crate::parse_utils::is_not_doc_attribute;
 use proc_macro2::TokenStream;
 use quote::ToTokens;
@@ -114,6 +114,7 @@ fn find_clang_format_style_file() -> Option<String> {
 
     // Start from the package root
     let manifest_dir = get_manifest_dir()
+        .or_else(|_| get_exe_dir())
         .ok()?; // If get_manifest_dir() fails then probably called not from the build script
 
     find_file_upwards(&manifest_dir, ".clang-format", 5)

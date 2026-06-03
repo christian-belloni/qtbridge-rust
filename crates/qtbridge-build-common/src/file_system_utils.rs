@@ -42,6 +42,12 @@ pub fn get_manifest_dir() -> Result<PathBuf, String> {
         .into())
 }
 
+pub fn get_exe_dir() -> Result<PathBuf, String> {
+     let exe_path = env::current_exe()
+        .map_err(|err| format!("Failed to get the path of the current executable.\nError:{err}"))?;
+    parent_dir(&exe_path)
+}
+
 pub fn get_workspace_dir() -> Result<PathBuf, String> {
     let start_dir: PathBuf = match get_manifest_dir() {
         Ok(dir) => dir,
