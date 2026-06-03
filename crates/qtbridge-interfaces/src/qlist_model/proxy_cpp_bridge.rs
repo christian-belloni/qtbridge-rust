@@ -3,7 +3,7 @@
 
 use qtbridge_runtime::qproxies::QCppProxy;
 use qtbridge_runtime::DynamicMetaObjectData;
-use qtbridge_type_lib::{QMetaObject, QMetaType};
+use qtbridge_type_lib::QMetaObject;
 
 use super::proxy_rust::QListModelProxyRust;
 #[cxx::bridge]
@@ -43,9 +43,6 @@ pub mod ffi {
         # [Self = QListModelProxyCpp]
         # [rust_name = align_of]
         fn alignOfProxy() -> usize;
-        # [Self = QListModelProxyCpp]
-        # [rust_name = qmetatype_list]
-        fn listMetaType() -> QMetaType;
         # [Self = QListModelProxyCpp]
         # [rust_name = parser_status_cast]
         fn parserStatusCast() -> i32;
@@ -100,9 +97,6 @@ impl QCppProxy for QListModelProxyCpp {
     }
     fn get_align() -> usize {
         Self::align_of()
-    }
-    fn get_qmetatype_list() -> QMetaType {
-        Self::qmetatype_list()
     }
     fn parser_status_cast() -> i32 {
         Self::parser_status_cast()

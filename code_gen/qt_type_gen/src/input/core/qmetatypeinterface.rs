@@ -2,10 +2,13 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use std::mem::MaybeUninit;
+use crate::QMetaType;
 
 #[qt_gen::bridge]
 mod qmetatypeinterface {
     include_in_cpp!(<QMetaType>);
+    include_in_cpp!(<QObject>);
+    include_in_cpp!(<QtQml/QQmlListProperty>);
 
     #[doc(hidden)]
     #[namespace = "QtPrivate"]
@@ -69,4 +72,39 @@ mod qmetatypeinterface {
             });
         cpp(align as u16, size as u32, flags, name, meta_obj_fn, default_ctr_fn, copy_ctr_fn, dtor_fn)
     }
+
+    /// The list metatype interface for an element type: a clone of `QQmlListProperty<QObject>`
+    /// (layout-identical to any `QQmlListProperty<T>`), named `QQmlListProperty<{element.name}>`
+    /// with the cached typeId reset to 0 so it registers as a fresh, distinct type.
+    ///
+    /// The name is derived from `element`'s own registered name (so the list and element types
+    /// can't drift apart) and leaked in C++.
+    pub fn qqml_list_property_for(element: &QMetaType) -> QMetaTypeInterface {
+        cpp_fn!(|element: &QMetaType| -> QMetaTypeInterface {
+            const QtPrivate::QMetaTypeInterface* base =
+                QMetaType::fromType<QQmlListProperty<QObject>>().iface();
+            auto* name = new QByteArray(
+                QByteArrayLiteral("QQmlListProperty<") + element.name() + '>');
+            return QMetaTypeInterface {
+                base->revision,
+                base->alignment,
+                base->size,
+                base->flags,
+                { 0 },
+                base->metaObjectFn,
+                name->constData(),
+                base->defaultCtr,
+                base->copyCtr,
+                base->moveCtr,
+                base->dtor,
+                base->equals,
+                base->lessThan,
+                base->debugStream,
+                base->dataStreamOut,
+                base->dataStreamIn,
+                base->legacyRegisterOp
+            };
+        })(element)
+    }
+
 }

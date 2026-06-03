@@ -85,11 +85,6 @@ public:
     static size_t sizeOfProxy() { return sizeof(Derived); }
     static size_t alignOfProxy() { return alignof(Derived); }
 
-    static QMetaType listMetaType()
-    {
-        return QMetaType::fromType<QQmlListProperty<Derived>>();
-    }
-
     static int parserStatusCast()
     {
         return QQmlPrivate::StaticCastSelector<Derived, QQmlParserStatus>::cast();

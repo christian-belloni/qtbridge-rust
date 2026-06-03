@@ -7,7 +7,10 @@
 #define _QMETATYPEINTERFACE_RUST_BRIDGE_H_
 
 #include <QMetaType>
+#include <QObject>
+#include <QtQml/QQmlListProperty>
 #include <cstdint>
+#include "qtbridge-type-lib/src/generated/core/qmetatype/cpp/qmetatype.h"
 #include "rust/cxx.h"
 
 namespace rust::bridge::qmetatypeinterface {
@@ -19,6 +22,8 @@ using namespace QtPrivate;
                                                         rust::Slice<const uint8_t> name,
                                                         size_t meta_obj_fn, size_t default_ctr_fn,
                                                         size_t copy_ctr_fn, size_t dtor_fn);
+
+::QtPrivate::QMetaTypeInterface inlineCppFn_qqml_list_property_for(QMetaType const &element);
 
 } // namespace rust::bridge::qmetatypeinterface
 

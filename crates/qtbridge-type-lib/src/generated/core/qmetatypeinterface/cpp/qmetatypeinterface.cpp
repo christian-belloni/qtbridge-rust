@@ -38,4 +38,28 @@ using namespace QtPrivate;
                                nullptr };
 }
 
+::QtPrivate::QMetaTypeInterface inlineCppFn_qqml_list_property_for(QMetaType const &element)
+{
+    const QtPrivate::QMetaTypeInterface *base =
+            QMetaType::fromType<QQmlListProperty<QObject>>().iface();
+    auto *name = new QByteArray(QByteArray("QQmlListProperty<") + element.name() + '>');
+    return QMetaTypeInterface{ base->revision,
+                               base->alignment,
+                               base->size,
+                               base->flags,
+                               { 0 },
+                               base->metaObjectFn,
+                               name->constData(),
+                               base->defaultCtr,
+                               base->copyCtr,
+                               base->moveCtr,
+                               base->dtor,
+                               base->equals,
+                               base->lessThan,
+                               base->debugStream,
+                               base->dataStreamOut,
+                               base->dataStreamIn,
+                               base->legacyRegisterOp };
+}
+
 } // namespace rust::bridge::qmetatypeinterface

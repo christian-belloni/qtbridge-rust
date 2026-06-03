@@ -6,7 +6,10 @@ use crate::QMetaInfo;
 use crate::qproxies::QCppProxy;
 use crate::qproxies::ConstructionMode;
 use qtbridge_type_lib::QObject;
+use qtbridge_type_lib::QMetaType;
 use qtbridge_type_lib::QMetaTypeGet;
+use qtbridge_type_lib::QMetaTypeInterface;
+
 pub trait QmlRegister : QMetaTypeGet + QMetaInfo + QObjectHolder + Default
 {
     const URI: &str;
@@ -14,6 +17,13 @@ pub trait QmlRegister : QMetaTypeGet + QMetaInfo + QObjectHolder + Default
     const MINOR_VERSION: u8;
     const MAJOR_VERSION: u8;
     const IS_SINGLETON: bool;
+
+    fn get_list_qmetatype() -> QMetaType where Self: 'static {
+        let iface = Box::leak(Box::new(
+            QMetaTypeInterface::qqml_list_property_for(&<Self as QMetaTypeGet>::get_qmetatype())
+        ));
+        QMetaType::new_with_interface(iface as *const _)
+    }
 
     fn register() {
         let meta_obj_data = <Self as QMetaInfo>::get_shared_dynamic_meta_object_data();
@@ -35,9 +45,12 @@ pub trait QmlRegister : QMetaTypeGet + QMetaInfo + QObjectHolder + Default
                 meta_obj,
             )
         } else {
+            let list_metatype = Self::get_list_qmetatype();
+            list_metatype.register_type();
+
             qtbridge_type_lib::qml_register_element(
                 <Self as QMetaTypeGet>::get_qmetatype(),
-                <<Self as QMetaInfo>::CppProxy as QCppProxy>::get_qmetatype_list(),
+                list_metatype,
                 <<Self as QMetaInfo>::CppProxy as QCppProxy>::get_size() as u32,
                 <<Self as QMetaInfo>::CppProxy as QCppProxy>::parser_status_cast(),
                 monomorphize_element_ctor::<Self>(),
