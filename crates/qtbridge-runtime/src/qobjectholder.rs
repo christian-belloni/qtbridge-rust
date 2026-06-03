@@ -34,14 +34,21 @@ pub trait QObjectHolder : DispatchMetaCall + QMetaInfo + Default {
     /// Return a pointer to the Rust proxy associated with the specified object,
     /// or `None` if no proxy is registered.
     #[doc(hidden)]
-    fn try_get_rust_proxy_ptr(&self) -> Option<*mut Self::ProxyRust> {
-        let rust_obj_ptr = std::ptr::from_ref(self).cast::<u8>();
+    fn try_get_rust_proxy_ptr_from_ptr(rust_obj_ptr: *const Self) -> Option<*mut Self::ProxyRust> {
         let proxy_ptr = Self::try_borrow_mut_proxies_map(|map| {
-            map.get(&rust_obj_ptr).copied().unwrap_or_default()
+            map.get(&rust_obj_ptr.cast::<u8>()).copied().unwrap_or_default()
         });
         NonNull::new(proxy_ptr as *mut Self::ProxyRust).map(|nn| nn.as_ptr())
     }
 
+    /// Return a pointer to the Rust proxy associated with the specified object,
+    /// or `None` if no proxy is registered.
+    #[doc(hidden)]
+    fn try_get_rust_proxy_ptr(&self) -> Option<*mut Self::ProxyRust> {
+        Self::try_get_rust_proxy_ptr_from_ptr(std::ptr::from_ref(self))
+    }
+
+    /// Return `QObject` attached to the specified Rust object.
     #[doc(hidden)]
     fn get_qobject_ptr(&self) -> *mut QObject {
         let Some(proxy_ptr) = Self::try_get_rust_proxy_ptr(self) else {
@@ -52,18 +59,19 @@ pub trait QObjectHolder : DispatchMetaCall + QMetaInfo + Default {
         cpp_proxy as *mut QObject
     }
 
-    #[doc(hidden)]
     /// Return `QObject` attached to the specified Rust object.
+    #[doc(hidden)]
     fn rc_ref_cell_to_qobject(self_obj: &Rc<RefCell<Self>>) -> *const QObject {
-        // Avoid borrowing here. We don't actually access the Rust object in the function.
-        // We only need its raw pointer to perform the lookup in the instance map.
-        unsafe { self_obj.as_ptr().as_ref() }
-            .unwrap()
-            .get_qobject_ptr()
+        let Some(proxy_ptr) = Self::try_get_rust_proxy_ptr_from_ptr(self_obj.as_ptr()) else {
+            return std::ptr::null_mut()
+        };
+        let rust_proxy = unsafe { &*proxy_ptr };
+        let cpp_proxy = rust_proxy.get_cpp_proxy();
+        cpp_proxy as *mut QObject
     }
 
-    #[doc(hidden)]
     /// Return the Rust object attached to the specified `QObject`.
+    #[doc(hidden)]
     unsafe fn qobject_to_rc_ref_cell(qobj_ptr: *const QObject) -> Rc<RefCell<Self>>
     {
         let qobj_ref = unsafe { qobj_ptr.as_ref() }
