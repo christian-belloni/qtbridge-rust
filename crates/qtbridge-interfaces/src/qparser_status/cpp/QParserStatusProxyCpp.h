@@ -22,8 +22,6 @@ public:
     void componentComplete() override;
 };
 
-QBASEPROXY_STATIC_FUNCTIONS(QParserStatusProxyCpp, QParserStatusProxyRust)
-
 } // namespace rust::bridge
 
 #endif // _QPARSERSTATUSPROXYCPP_RUST_BRIDGE__H_

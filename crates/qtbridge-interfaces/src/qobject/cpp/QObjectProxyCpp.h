@@ -17,8 +17,6 @@ public:
     ~QObjectProxyCpp();
 };
 
-QBASEPROXY_STATIC_FUNCTIONS(QObjectProxyCpp, QObjectProxyRust)
-
 } // namespace rust::bridge
 
 #endif // _QOBJECTPROXYCPP_RUST_BRIDGE__H_

@@ -28,20 +28,28 @@ pub mod ffi {
     unsafe extern "C++" {
         include!("qtbridge-interfaces/src/qabstract_item_model/cpp/QAbstractItemModelProxyCpp.h");
         type QAbstractItemModelProxyCpp;
-        # [rust_name = create_qabstract_item_model_proxy_cpp]
-        unsafe fn create_QAbstractItemModelProxyCpp(rust_proxy: *mut QAbstractItemModelProxyRust, metaobject: *const DynamicMetaObjectData) -> *mut QAbstractItemModelProxyCpp;
-        # [rust_name = create_qabstract_item_model_proxy_cpp_at]
-        unsafe fn create_QAbstractItemModelProxyCpp_At(rust_proxy: *mut QAbstractItemModelProxyRust, metaobject: *const DynamicMetaObjectData, addr: *mut u8)
+        # [Self = QAbstractItemModelProxyCpp]
+        # [rust_name = create]
+        unsafe fn create(rust_proxy: *mut QAbstractItemModelProxyRust, metaobject: *const DynamicMetaObjectData) -> *mut QAbstractItemModelProxyCpp;
+        # [Self = QAbstractItemModelProxyCpp]
+        # [rust_name = create_at]
+        unsafe fn createAt(rust_proxy: *mut QAbstractItemModelProxyRust, metaobject: *const DynamicMetaObjectData, addr: *mut u8)
         -> *mut QAbstractItemModelProxyCpp;
-        # [rust_name = static_qmeta_object_of_qabstract_item_model_proxy_cpp]
-        fn staticQMetaObjectOf_QAbstractItemModelProxyCpp() -> &'static QMetaObject;
-        # [rust_name = size_of_qabstract_item_model_proxy_cpp]
-        fn sizeOf_QAbstractItemModelProxyCpp() -> usize;
-        # [rust_name = align_of_qabstract_item_model_proxy_cpp]
-        fn alignOf_QAbstractItemModelProxyCpp() -> usize;
-        # [rust_name = qmetatype_list_of_qabstract_item_model_proxy_cpp]
-        fn qmetaTypeListOf_QAbstractItemModelProxyCpp() -> QMetaType;
-        fn parserStatusCastOf_QAbstractItemModelProxyCpp() -> i32;
+        # [Self = QAbstractItemModelProxyCpp]
+        # [rust_name = static_qmeta_object]
+        fn baseStaticMetaObject() -> &'static QMetaObject;
+        # [Self = QAbstractItemModelProxyCpp]
+        # [rust_name = size_of]
+        fn sizeOfProxy() -> usize;
+        # [Self = QAbstractItemModelProxyCpp]
+        # [rust_name = align_of]
+        fn alignOfProxy() -> usize;
+        # [Self = QAbstractItemModelProxyCpp]
+        # [rust_name = qmetatype_list]
+        fn listMetaType() -> QMetaType;
+        # [Self = QAbstractItemModelProxyCpp]
+        # [rust_name = parser_status_cast]
+        fn parserStatusCast() -> i32;
         # [rust_name = emit_signal_cpp]
         fn emitSignal(self: Pin<&mut Self>, signal_name: &str, argv: &[*const u8]);
         # [rust_name = base_role_names]
@@ -100,30 +108,31 @@ pub mod ffi {
         fn createIndex(&self, row: i32, column: i32, ptr: usize) -> QModelIndex;
     }
 }
+
 pub use ffi::QAbstractItemModelProxyCpp;
 
 impl QCppProxy for QAbstractItemModelProxyCpp {
     type ProxyRustType = QAbstractItemModelProxyRust;
     fn get_static_meta_object() -> &'static QMetaObject {
-        ffi::static_qmeta_object_of_qabstract_item_model_proxy_cpp()
+        Self::static_qmeta_object()
     }
     fn get_size() -> usize {
-        ffi::size_of_qabstract_item_model_proxy_cpp()
+        Self::size_of()
     }
     fn get_align() -> usize {
-        ffi::align_of_qabstract_item_model_proxy_cpp()
+        Self::align_of()
     }
     fn get_qmetatype_list() -> QMetaType {
-        ffi::qmetatype_list_of_qabstract_item_model_proxy_cpp()
+        Self::qmetatype_list()
     }
     fn parser_status_cast() -> i32 {
-        ffi::parserStatusCastOf_QAbstractItemModelProxyCpp()
+        Self::parser_status_cast()
     }
     unsafe fn create(rust_proxy: *mut Self::ProxyRustType, metaobject: &'static DynamicMetaObjectData) -> *mut Self {
-        unsafe { ffi::create_qabstract_item_model_proxy_cpp(rust_proxy, metaobject) }
+        unsafe { Self::create(rust_proxy, metaobject) }
     }
     unsafe fn create_at(rust_proxy: *mut Self::ProxyRustType, metaobject: &'static DynamicMetaObjectData, addr: *mut u8) -> *mut Self {
-        unsafe { ffi::create_qabstract_item_model_proxy_cpp_at(rust_proxy, metaobject, addr) }
+        unsafe { Self::create_at(rust_proxy, metaobject, addr) }
     }
     fn emit_signal(self: std::pin::Pin<&mut Self>, signal_name: &str, argv: &[*const u8]) {
         self.emit_signal_cpp(signal_name, argv)

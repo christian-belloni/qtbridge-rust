@@ -52,8 +52,6 @@ public:
     void endResetModel();
 };
 
-QBASEPROXY_STATIC_FUNCTIONS(QListModelProxyCpp, QListModelProxyRust)
-
 } // namespace rust::bridge
 
 #endif // _QLISTMODELPROXYCPP_RUST_BRIDGE__H_

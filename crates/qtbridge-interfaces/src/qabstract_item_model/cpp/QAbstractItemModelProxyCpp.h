@@ -61,8 +61,6 @@ public:
     QModelIndex createIndex(int32_t row, int32_t column, size_t ptr) const;
 };
 
-QBASEPROXY_STATIC_FUNCTIONS(QAbstractItemModelProxyCpp, QAbstractItemModelProxyRust)
-
 } // namespace rust::bridge
 
 #endif // _QABSTRACTITEMMODELPROXYCPP_RUST_BRIDGE__H_

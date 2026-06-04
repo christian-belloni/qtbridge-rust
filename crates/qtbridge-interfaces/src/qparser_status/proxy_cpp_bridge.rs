@@ -22,19 +22,28 @@ pub mod ffi {
     unsafe extern "C++" {
         include!("qtbridge-interfaces/src/qparser_status/cpp/QParserStatusProxyCpp.h");
         type QParserStatusProxyCpp;
-        # [rust_name = create_qparser_status_proxy_cpp]
-        unsafe fn create_QParserStatusProxyCpp(rust_proxy: *mut QParserStatusProxyRust, metaobject: *const DynamicMetaObjectData) -> *mut QParserStatusProxyCpp;
-        # [rust_name = create_qparser_status_proxy_cpp_at]
-        unsafe fn create_QParserStatusProxyCpp_At(rust_proxy: *mut QParserStatusProxyRust, metaobject: *const DynamicMetaObjectData, addr: *mut u8) -> *mut QParserStatusProxyCpp;
-        # [rust_name = static_qmeta_object_of_qparser_status_proxy_cpp]
-        fn staticQMetaObjectOf_QParserStatusProxyCpp() -> &'static QMetaObject;
-        # [rust_name = size_of_qparser_status_proxy_cpp]
-        fn sizeOf_QParserStatusProxyCpp() -> usize;
-        # [rust_name = align_of_qparser_status_proxy_cpp]
-        fn alignOf_QParserStatusProxyCpp() -> usize;
-        # [rust_name = qmetatype_list_of_qparser_status_proxy_cpp]
-        fn qmetaTypeListOf_QParserStatusProxyCpp() -> QMetaType;
-        fn parserStatusCastOf_QParserStatusProxyCpp() -> i32;
+        # [Self = QParserStatusProxyCpp]
+        # [rust_name = create]
+        unsafe fn create(rust_proxy: *mut QParserStatusProxyRust, metaobject: *const DynamicMetaObjectData) -> *mut QParserStatusProxyCpp;
+        # [Self = QParserStatusProxyCpp]
+        # [rust_name = create_at]
+        unsafe fn createAt(rust_proxy: *mut QParserStatusProxyRust, metaobject: *const DynamicMetaObjectData, addr: *mut u8)
+        -> *mut QParserStatusProxyCpp;
+        # [Self = QParserStatusProxyCpp]
+        # [rust_name = static_qmeta_object]
+        fn baseStaticMetaObject() -> &'static QMetaObject;
+        # [Self = QParserStatusProxyCpp]
+        # [rust_name = size_of]
+        fn sizeOfProxy() -> usize;
+        # [Self = QParserStatusProxyCpp]
+        # [rust_name = align_of]
+        fn alignOfProxy() -> usize;
+        # [Self = QParserStatusProxyCpp]
+        # [rust_name = qmetatype_list]
+        fn listMetaType() -> QMetaType;
+        # [Self = QParserStatusProxyCpp]
+        # [rust_name = parser_status_cast]
+        fn parserStatusCast() -> i32;
         # [rust_name = emit_signal_cpp]
         fn emitSignal(self: Pin<&mut Self>, signal_name: &str, argv: &[*const u8]);
     }
@@ -44,25 +53,25 @@ pub use ffi::QParserStatusProxyCpp;
 impl QCppProxy for QParserStatusProxyCpp {
     type ProxyRustType = QParserStatusProxyRust;
     fn get_static_meta_object() -> &'static QMetaObject {
-        ffi::static_qmeta_object_of_qparser_status_proxy_cpp()
+        Self::static_qmeta_object()
     }
     fn get_size() -> usize {
-        ffi::size_of_qparser_status_proxy_cpp()
+        Self::size_of()
     }
     fn get_align() -> usize {
-        ffi::align_of_qparser_status_proxy_cpp()
+        Self::align_of()
     }
     fn get_qmetatype_list() -> QMetaType {
-        ffi::qmetatype_list_of_qparser_status_proxy_cpp()
+        Self::qmetatype_list()
     }
     fn parser_status_cast() -> i32 {
-        ffi::parserStatusCastOf_QParserStatusProxyCpp()
+        Self::parser_status_cast()
     }
     unsafe fn create(rust_proxy: *mut Self::ProxyRustType, metaobject: &'static DynamicMetaObjectData) -> *mut Self {
-        unsafe { ffi::create_qparser_status_proxy_cpp(rust_proxy, metaobject) }
+        unsafe { Self::create(rust_proxy, metaobject) }
     }
     unsafe fn create_at(rust_proxy: *mut Self::ProxyRustType, metaobject: &'static DynamicMetaObjectData, addr: *mut u8) -> *mut Self {
-        unsafe { ffi::create_qparser_status_proxy_cpp_at(rust_proxy, metaobject, addr) }
+        unsafe { Self::create_at(rust_proxy, metaobject, addr) }
     }
     fn emit_signal(self: std::pin::Pin<&mut Self>, signal_name: &str, argv: &[*const u8]) {
         self.emit_signal_cpp(signal_name, argv)

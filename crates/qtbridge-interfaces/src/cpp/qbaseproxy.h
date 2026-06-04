@@ -99,16 +99,4 @@ protected:
     RustProxy* m_rustProxy;
 };
 
-#define QBASEPROXY_STATIC_FUNCTIONS(ProxyCpp, RustProxy)                                              \
-    inline ProxyCpp* create_##ProxyCpp(RustProxy* r, const DynamicMetaObjectData* m)                  \
-    { return ProxyCpp::create(r, m); }                                                                \
-    inline ProxyCpp* create_##ProxyCpp##_At(RustProxy* r, const DynamicMetaObjectData* m, uint8_t* a) \
-    { return ProxyCpp::createAt(r, m, a); }                                                           \
-    inline const QMetaObject& staticQMetaObjectOf_##ProxyCpp()                                        \
-    { return ProxyCpp::baseStaticMetaObject(); }                                                      \
-    inline size_t sizeOf_##ProxyCpp() { return ProxyCpp::sizeOfProxy(); }                             \
-    inline size_t alignOf_##ProxyCpp() { return ProxyCpp::alignOfProxy(); }                           \
-    inline QMetaType qmetaTypeListOf_##ProxyCpp() { return ProxyCpp::listMetaType(); }                \
-    inline int parserStatusCastOf_##ProxyCpp() { return ProxyCpp::parserStatusCast(); }
-
 #endif // QBASEPROXY_H
