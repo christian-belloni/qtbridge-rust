@@ -4,16 +4,15 @@
 #ifndef _QLISTMODELPROXYCPP_RUST_BRIDGE__H_
 #define _QLISTMODELPROXYCPP_RUST_BRIDGE__H_
 #include <QAbstractListModel>
+#include <QByteArray>
+#include <QHash>
 #include <QMetaObject>
+#include <QModelIndex>
+#include <QVariant>
 #include <QQmlListProperty>
 #include <cstdint>
 #include "qtbridge-interfaces/src/cpp/qbaseproxy.h"
 #include "qtbridge-interfaces/src/qlist_model/proxy_rust_bridge.rs.h"
-#include "qtbridge-type-lib/src/generated/core/qbytearray/cpp/qbytearray.h"
-#include "qtbridge-type-lib/src/generated/core/qhash/cpp/qhash_i32_qbytearray.h"
-#include "qtbridge-type-lib/src/generated/core/qmodelindex/cpp/qmodelindex.h"
-#include "qtbridge-type-lib/src/generated/core/qvariant/cpp/qvariant.h"
-
 
 namespace rust::bridge {
 
