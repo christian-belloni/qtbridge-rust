@@ -14,7 +14,7 @@ use qtbridge_gen_common::cpp_fn_sign::CppFnSign;
 use qtbridge_gen_common::format_code::token_stream_to_code;
 use qtbridge_gen_common::multi_type_mapping::MultiTypeMapping;
 use qtbridge_gen_common::qt_generic_mapping::QtGenericMapping;
-use qtbridge_gen_common::signature_utils::{is_unsafe, ExpectSelfRef};
+use qtbridge_gen_common::signature_utils::is_unsafe;
 use qtbridge_gen_common::type_mapping_nested::TypeMappingNested;
 use qtbridge_gen_common::type_to_cpp::type_to_cpp_allow_unknown;
 
@@ -41,7 +41,7 @@ impl CppFun {
 
     pub fn get_code(&self, cpp_name: &str) -> syn::Result<(String, String)> {
         let rust_sign = self.signature();
-        let cpp_sign = CppFnSign::new_from_rust_sig(rust_sign, Some(cpp_name.to_owned()), ExpectSelfRef::Maybe)?;
+        let cpp_sign = CppFnSign::new_from_rust_sig(rust_sign, Some(cpp_name.to_owned()))?;
         let mut decl = cpp_sign.to_declaration_string(true);
         let def = format!("{decl}\n{{\n{}\n}}\n", token_stream_to_code(&self.cpp_func_code));
         decl.push(';');

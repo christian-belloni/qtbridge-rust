@@ -13,37 +13,8 @@ use crate::type_to_cpp::is_type_mapped_to_cpp;
 use crate::type_to_string::type_to_string_fallback;
 use crate::type_utils::is_ptr;
 
-#[derive(PartialEq)]
-pub enum ExpectSelfRef {
-    Yes,
-    No,
-    Maybe
-}
 
-pub fn check_method_signature(sign: &syn::Signature) -> syn::Result<()> {
-    check_signature(sign, ExpectSelfRef::Yes)
-}
-
-pub fn check_signature(sign: &syn::Signature, expect_self: ExpectSelfRef) -> syn::Result<()> {
-    let inputs = &sign.inputs;
-
-    match expect_self {
-        ExpectSelfRef::Yes => {
-            let first_arg = inputs.first()
-                .ok_or_else(|| syn::Error::new(sign.ident.span(), "Expected to have &self argument"))?;
-            if !is_arg_self_ref(first_arg, None) {
-                return Err(syn::Error::new(first_arg.span(), "First argument must be &self"));
-            }
-        },
-        ExpectSelfRef::No => {
-            if let Some(first_arg) = inputs.first()
-                && is_arg_self_ref(first_arg, None) {
-                    return Err(syn::Error::new(first_arg.span(), "First argument must not be &self"));
-                };
-        },
-        _ => {},
-    }
-
+pub fn check_signature(sign: &syn::Signature) -> syn::Result<()> {
     for typed_arg in get_typed_args(sign) {
         let arg_type = typed_arg.ty.as_ref();
         if !is_type_mapped_to_cpp(arg_type) {
