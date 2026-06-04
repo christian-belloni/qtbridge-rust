@@ -1,7 +1,12 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
+use std::path::PathBuf;
+
+use qtbridge_build_common::file_system_utils::find_files;
 use qtbridge_build_common::qt_build::{link_qt_modules, qt_include_dirs, QtBuildConfigure};
+
+const MANIFEST_DIR: &str = env!("CARGO_MANIFEST_DIR");
 
 const FILES_BRIDGE: [&'static str; 10] = [
     "src/qabstract_item_model/proxy_cpp_bridge.rs",
@@ -56,4 +61,12 @@ fn main() {
     builder.compile("qtbridge-interfaces");
 
     link_qt_modules(&qt_modules);
+
+    // Trigger a rebuild when C++ files have changed.
+    let src_path = PathBuf::from(MANIFEST_DIR).join("src");
+    find_files(&src_path, true,
+        |path| path.extension().is_some_and(|ext| ext == "cpp" || ext == "h"))
+        .expect("Failed to find C++ files")
+        .iter()
+        .for_each(|path| println!("cargo::rerun-if-changed={}", path.display()));
 }
