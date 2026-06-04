@@ -159,7 +159,9 @@ impl ExpandTokens for QSignalInfo {
         let qml_name = self.get_qml_name_span().0;
         let argv_setup = bridge_generator.generate_argv_setup_for_signals()?;
         if !self.is_mut() {
-            return Err(syn::Error::new(self.sig.span(),
+            let err_span = sig.receiver()
+                .map_or_else(|| sig.ident.span(), |r| r.self_token.span());
+            return Err(syn::Error::new(err_span,
                        "The function signature of a signal has to be mutable."))
         }
         let code = quote! {
