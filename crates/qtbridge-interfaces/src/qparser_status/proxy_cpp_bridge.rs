@@ -4,8 +4,9 @@
 use qtbridge_runtime::qproxies::QCppProxy;
 use qtbridge_runtime::DynamicMetaObjectData;
 use qtbridge_type_lib::QMetaObject;
-
 use super::proxy_rust::QParserStatusProxyRust;
+use crate::impl_qcpp_proxy;
+
 #[cxx::bridge]
 pub mod ffi {
     unsafe extern "C++" {
@@ -47,27 +48,4 @@ pub mod ffi {
 }
 pub use ffi::QParserStatusProxyCpp;
 
-impl QCppProxy for QParserStatusProxyCpp {
-    type ProxyRustType = QParserStatusProxyRust;
-    fn get_static_meta_object() -> &'static QMetaObject {
-        Self::static_qmeta_object()
-    }
-    fn get_size() -> usize {
-        Self::size_of()
-    }
-    fn get_align() -> usize {
-        Self::align_of()
-    }
-    fn parser_status_cast() -> i32 {
-        Self::parser_status_cast()
-    }
-    unsafe fn create(rust_proxy: *mut Self::ProxyRustType, metaobject: &'static DynamicMetaObjectData) -> *mut Self {
-        unsafe { Self::create(rust_proxy, metaobject) }
-    }
-    unsafe fn create_at(rust_proxy: *mut Self::ProxyRustType, metaobject: &'static DynamicMetaObjectData, addr: *mut u8) -> *mut Self {
-        unsafe { Self::create_at(rust_proxy, metaobject, addr) }
-    }
-    fn emit_signal(self: std::pin::Pin<&mut Self>, signal_name: &str, argv: &[*const u8]) {
-        self.emit_signal_cpp(signal_name, argv)
-    }
-}
+impl_qcpp_proxy!(QParserStatusProxyCpp, QParserStatusProxyRust);
