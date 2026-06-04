@@ -7,7 +7,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQml.Models
-import minimalapp_rust
+import minimal_app
 
 ApplicationWindow {
     id: root

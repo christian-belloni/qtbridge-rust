@@ -146,7 +146,7 @@ QtBridge application.
 #### [Minimal App](https://github.com/qt/qtbridge-rust/tree/dev/apps/minimal_app)
 
 This example shows the "minimum viable example" with working backend and data
-visualisation in QML.
+visualization in QML.
 
 #### [Host Monitor](https://github.com/qt/qtbridge-rust/tree/dev/apps/host_monitor)
 
