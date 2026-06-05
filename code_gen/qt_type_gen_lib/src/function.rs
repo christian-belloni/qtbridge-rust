@@ -28,8 +28,14 @@ pub struct Function {
 
 impl Function {
     pub fn is_for_me(input: syn::parse::ParseStream) -> bool {
-        input.peek(Token![fn]) ||
-       (input.peek(Token![pub]) && input.peek2(Token![fn]))
+        let fork = input.fork();
+        if let Ok(_maybe_pub) = fork.parse::<Option<Token![pub]>>() &&
+           let Ok(_maybe_unsafe) = fork.parse::<Option<Token![unsafe]>>() &&
+           let Ok(_fn) = fork.parse::<Token![fn]>()
+        {
+            return true
+        }
+        false
     }
 
     /// Replace generic idents with concrete types
