@@ -6,7 +6,7 @@ mod common;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use qtbridge::{QObjectHolder, qobject};
+use qtbridge::{QObjectHolder, qobject, qobject_impl};
 use qtbridge::qtbridge_type_lib::QVariant;
 
 use crate::common::{capitalize_first_char, get_type_name};
@@ -426,6 +426,85 @@ mod accessor_reference_properties {
 }
 
 
+// #[qobject_impl] variant — struct defined outside the macro so the macro cannot see its fields.
+// Member = <field> must resolve via QPropertyMember trait dispatch.
+#[derive(Default)]
+pub struct TestObjectImpl {
+    pub bool: Vec<bool>,
+    pub i8: Vec<i8>,
+    pub u8: Vec<u8>,
+    pub i16: Vec<i16>,
+    pub u16: Vec<u16>,
+    pub i32: Vec<i32>,
+    pub u32: Vec<u32>,
+    pub i64: Vec<i64>,
+    pub u64: Vec<u64>,
+    pub isize: Vec<isize>,
+    pub usize: Vec<usize>,
+    pub f32: Vec<f32>,
+    pub f64: Vec<f64>,
+    pub string: Vec<String>,
+}
+
+#[qobject_impl(ConvertToCamelCase)]
+impl TestObjectImpl {
+    qproperty!("propertyVecBool", Member = bool);
+    qproperty!("propertyVecI8", Member = i8);
+    qproperty!("propertyVecU8", Member = u8);
+    qproperty!("propertyVecI16", Member = i16);
+    qproperty!("propertyVecU16", Member = u16);
+    qproperty!("propertyVecI32", Member = i32);
+    qproperty!("propertyVecU32", Member = u32);
+    qproperty!("propertyVecI64", Member = i64);
+    qproperty!("propertyVecU64", Member = u64);
+    qproperty!("propertyVecIsize", Member = isize);
+    qproperty!("propertyVecUsize", Member = usize);
+    qproperty!("propertyVecF32", Member = f32);
+    qproperty!("propertyVecF64", Member = f64);
+    qproperty!("propertyVecString", Member = string);
+}
+
+impl From<TestValues> for TestObjectImpl {
+    fn from(src: TestValues) -> Self {
+        let TestValues {
+            bool, i8, u8, i16, u16, i32, u32, i64, u64, isize, usize, f32, f64, string
+        } = src;
+        Self { bool, i8, u8, i16, u16, i32, u32, i64, u64, isize, usize, f32, f64, string }
+    }
+}
+
+impl From<&TestObjectImpl> for TestValues {
+    fn from(src: &TestObjectImpl) -> Self {
+        Self {
+            bool: src.bool.clone(),
+            i8: src.i8.clone(),
+            u8: src.u8.clone(),
+            i16: src.i16.clone(),
+            u16: src.u16.clone(),
+            i32: src.i32.clone(),
+            u32: src.u32.clone(),
+            i64: src.i64.clone(),
+            u64: src.u64.clone(),
+            isize: src.isize.clone(),
+            usize: src.usize.clone(),
+            f32: src.f32.clone(),
+            f64: src.f64.clone(),
+            string: src.string.clone(),
+        }
+    }
+}
+
+impl TestObjHelper for TestObjectImpl {
+    fn property_type() -> &'static str {
+        "member based properties (qobject_impl)"
+    }
+    fn create_with_values(values: TestValues) -> Rc<RefCell<Self>> {
+        let obj = Rc::new(RefCell::new(Self::from(values)));
+        <Self as QObjectHolder>::attach_qobject(&obj);
+        obj
+    }
+}
+
 fn test_property_can_be_read<TestObj, T>(values: TestValues, expected: &[T])
 where
     TestObj: TestObjHelper,
@@ -583,6 +662,22 @@ fn qproperty_accessor_value_based_vec_can_be_written() {
 #[cfg(not(miri))]
 fn qproperty_accessor_reference_based_vec_can_be_written() {
     test_cases_property_can_be_written::<accessor_reference_properties::TestObject>()
+        .iter()
+        .for_each(|test| test());
+}
+
+#[test]
+#[cfg(not(miri))]
+fn qproperty_member_impl_based_vec_can_be_read() {
+    test_cases_property_can_be_read::<TestObjectImpl>()
+        .iter()
+        .for_each(|test| test());
+}
+
+#[test]
+#[cfg(not(miri))]
+fn qproperty_member_impl_based_vec_can_be_written() {
+    test_cases_property_can_be_written::<TestObjectImpl>()
         .iter()
         .for_each(|test| test());
 }

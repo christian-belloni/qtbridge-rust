@@ -44,71 +44,34 @@ pub mod node {
             }
         }
         fn read_property(&self, prop_id: u32) -> qtbridge::qtbridge_type_lib::QVariant {
+            #[allow(unused_imports)]
+            use qtbridge::qtbridge_runtime::QPropertyMember;
             match prop_id {
-                1u32 => (&self.value).into(),
-                2u32 => {
-                    <Self as qtbridge::qtbridge_runtime::QObjectHolder>::rc_ref_cell_to_qobject(
-                        (&self.get_left()),
-                    )
-                    .cast_mut()
-                    .into()
-                }
-                3u32 => {
-                    <Self as qtbridge::qtbridge_runtime::QObjectHolder>::rc_ref_cell_to_qobject(
-                        self.get_right(),
-                    )
-                    .cast_mut()
-                    .into()
-                }
+                1u32 => (&self.value).to_qvariant(self),
+                2u32 => (&self.get_left()).to_qvariant(self),
+                3u32 => (self.get_right()).to_qvariant(self),
                 _ => panic!("Unhandled property id {prop_id}"),
             }
         }
         fn write_property(&mut self, prop_id: u32, value: &qtbridge::qtbridge_type_lib::QVariant) {
+            #[allow(unused_imports)]
+            use qtbridge::qtbridge_runtime::QPropertyMember;
             match prop_id {
                 1u32 => {
-                    let Ok(value) = TryInto::<<i32 as ToOwned>::Owned>::try_into(value) else {
-                        panic!(
-                            "Failed to convert value '{}' to type '{}' in qproperty '{}'",
-                            value.to_string(),
-                            "i32",
-                            "value"
-                        );
+                    let Ok(value) = QPropertyMember::from_qvariant(value) else {
+                        panic!("Failed to convert QVariant for qproperty '{}'", "value");
                     };
                     self.set_value(value);
                 }
                 2u32 => {
-                    let Ok(value) =
-                        TryInto::<*mut qtbridge::qtbridge_type_lib::QObject>::try_into(value)
-                    else {
-                        panic!(
-                            "Failed to convert value '{}' to type '{}' in qproperty '{}'",
-                            value.to_string(),
-                            "Rc<RefCell<Self>>",
-                            "left"
-                        );
-                    };
-                    let value = unsafe {
-                        <Self as qtbridge::qtbridge_runtime::QObjectHolder>::qobject_to_rc_ref_cell(
-                            value,
-                        )
+                    let Ok(value) = QPropertyMember::from_qvariant(value) else {
+                        panic!("Failed to convert QVariant for qproperty '{}'", "left");
                     };
                     self.set_left(&value);
                 }
                 3u32 => {
-                    let Ok(value) =
-                        TryInto::<*mut qtbridge::qtbridge_type_lib::QObject>::try_into(value)
-                    else {
-                        panic!(
-                            "Failed to convert value '{}' to type '{}' in qproperty '{}'",
-                            value.to_string(),
-                            "Rc<RefCell<Self>>",
-                            "right"
-                        );
-                    };
-                    let value = unsafe {
-                        <Self as qtbridge::qtbridge_runtime::QObjectHolder>::qobject_to_rc_ref_cell(
-                            value,
-                        )
+                    let Ok(value) = QPropertyMember::from_qvariant(value) else {
+                        panic!("Failed to convert QVariant for qproperty '{}'", "right");
                     };
                     self.set_right(value);
                 }
@@ -121,28 +84,27 @@ pub mod node {
         fn build_dynamic_meta_type(
             mut meta_obj: std::pin::Pin<&mut qtbridge::qtbridge_runtime::DynamicMetaObjectBuilder>,
         ) {
-            #[allow(unused_imports)]
-            use qtbridge::qtbridge_runtime::get_meta_type_of_fn_return_value;
+            use qtbridge::qtbridge_runtime::QPropertyMember;
             use qtbridge::qtbridge_type_lib;
             use qtbridge_type_lib::{QMetaType, QMetaTypeGet};
             meta_obj.as_mut().register_property(
                 "value",
                 1u32,
-                &(<i32 as QMetaTypeGet>::get_qmetatype()),
+                &(<i32 as QPropertyMember>::qmetatype()),
                 false,
                 "",
             );
             meta_obj.as_mut().register_property(
                 "left",
                 2u32,
-                &(<*mut qtbridge_type_lib::QObject as QMetaTypeGet>::get_qmetatype()),
+                &(<Rc<RefCell<Self>> as QPropertyMember>::qmetatype()),
                 false,
                 "",
             );
             meta_obj.as_mut().register_property(
                 "right",
                 3u32,
-                &(<*mut qtbridge_type_lib::QObject as QMetaTypeGet>::get_qmetatype()),
+                &(<Rc<RefCell<Self>> as QPropertyMember>::qmetatype()),
                 false,
                 "",
             );

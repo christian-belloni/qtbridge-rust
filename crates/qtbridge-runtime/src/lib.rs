@@ -12,18 +12,18 @@ pub mod qresource;
 pub mod qobjectholder;
 pub mod qproxies;
 pub mod qmetatypeforqobject;
-pub mod qmetatypeutils;
 pub mod qmodelitem;
+pub mod qpropertymember;
 pub mod rustobjectgetter;
 
 pub use dispatchmetacall::DispatchMetaCall;
 pub use dynamicmetaobjectbuilder::{DynamicMetaObjectBuilder, create_dynamic_meta_object_builder};
 pub use dynamicmetaobjectdata::DynamicMetaObjectData;
-pub use qmetatypeutils::get_meta_type_of_fn_return_value;
 pub use qapp::QApp;
 pub use qmetainfo::QMetaInfo;
 pub use qml_register::QmlRegister;
 pub use qobjectholder::QObjectHolder;
 pub use qml_method_invoker::QmlMethodInvoker;
 pub use qmodelitem::QModelItem;
+pub use qpropertymember::{QPropertyMember, get_meta_type_of_fn_return_value};
 

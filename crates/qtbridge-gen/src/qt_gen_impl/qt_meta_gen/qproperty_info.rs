@@ -6,9 +6,8 @@ use quote::{format_ident, quote};
 use syn::{parse::Parse, spanned::Spanned};
 
 use qtbridge_gen_common::parse_utils::parse_name_value;
-use qtbridge_gen_common::type_registry::meta_types::get_qmetatype_support_for_type;
-use qtbridge_gen_common::type_to_string::{type_to_string, type_to_string_fallback};
-use qtbridge_gen_common::type_utils::{ValuePass, extract_rc_ref_cell_path, get_take_value_code, get_type_pass, is_ref, path_from_type, remove_ref, remove_ref_to_string, remove_refs};
+use qtbridge_gen_common::type_to_string::type_to_string_fallback;
+use qtbridge_gen_common::type_utils::{ValuePass, get_take_value_code, get_type_pass, is_ref, remove_ref, remove_ref_to_string, remove_refs};
 use crate::qt_gen_impl::qt_meta_gen;
 use qt_meta_gen::qproperty_type_deduction::{deduce_type_from_getter, deduce_type_from_member, deduce_type_from_setter};
 use qt_meta_gen::QSignalInfo;
@@ -205,22 +204,14 @@ impl QPropertyInfo {
         let metatype_expr = match self.get_deduced_type() {
             // Type of property is deduced from getter, setter or member (works for #[qobject] but not for #[qobject_impl] macro)
             Some(ty) => {
-                let meta_type = get_qmetatype_support_for_type(ty)
-                    .map_err(|err| syn::Error::new(*span, format!("Type '{}' of qproperty can not be mapped to qt.\nError: {err}", type_to_string_fallback(ty))))?
-                    .unwrap_or_else(|| ty.clone());
-                let meta_type_wo_ref = remove_ref(&meta_type);
-                quote! {
-                    <#meta_type_wo_ref as QMetaTypeGet>::get_qmetatype()
-                }
+                let t = remove_ref(ty);
+                quote! { <#t as QPropertyMember>::qmetatype() }
             },
-            // Get an expression that will determine metatype using runtime function
-            // (but hopefully will be inlined by the compiler).
-            // Will be removed if we switch to #[qobject].
             None => {
                 let member_var = member.as_ref()
                     .ok_or_else(||syn::Error::new(*span, "Can't deduce type of qproperty neither from accessor nor from member"))?;
                 quote!{
-                    qtbridge::qtbridge_runtime::get_meta_type_of_fn_return_value(|this: &Self| { &this.#member_var } )
+                    qtbridge::qtbridge_runtime::get_meta_type_of_fn_return_value(|this: &Self| &this.#member_var)
                 }
             }
         };
@@ -257,25 +248,14 @@ impl QPropertyInfo {
             }
         }
         else if let Some(member) = &self.member {
-            value_src_ref = quote! { (&self.#member) };
+            value_src_ref = quote! { &self.#member };
         }
         else {
             return Err(syn::Error::new(self.span, "Neither 'Read' nor 'Member' is specified for property"))
         };
 
-        if let Some(deduced_type) = &self.get_deduced_type() {
-            let deduced_type_path = path_from_type(remove_ref(deduced_type))?;
-            if let Some(rc_ref_cell_inner) = extract_rc_ref_cell_path(deduced_type_path)? {
-                value_src_ref = quote! {
-                    <#rc_ref_cell_inner as qtbridge::qtbridge_runtime::QObjectHolder>::rc_ref_cell_to_qobject(#value_src_ref)
-                        .cast_mut()
-                };
-            }
-        }
-
         Ok(quote! {
-            // TODO: find a solution for member-based property in #[qobject_impl]
-            #value_src_ref.into()
+            (#value_src_ref).to_qvariant(self)
         })
     }
 
@@ -286,106 +266,52 @@ impl QPropertyInfo {
 
         let name = &self.name;
 
-        let mut input_conv_type = TokenStream::new(); // The type that the input QVariant is converted into.
-        let mut intermediate_conv_code = TokenStream::new();
-        let mut ty_str_expr = quote! { "unknown type" };
-        let mut compare_before_assign = false;
-        if let Some(deduced_type) = self.get_deduced_type() {
-            let deduced_type_path = path_from_type(remove_ref(deduced_type))?;
-            let ty_wo_ref = remove_refs(deduced_type);
-
-            if let Some(rc_ref_cell_inner) = extract_rc_ref_cell_path(deduced_type_path)? {
-                input_conv_type = quote! {
-                    ::<*mut qtbridge::qtbridge_type_lib::QObject>
-                };
-                intermediate_conv_code = quote! {
-                    let value = unsafe {
-                        <#rc_ref_cell_inner as qtbridge::qtbridge_runtime::QObjectHolder>::qobject_to_rc_ref_cell(value)
-                    };
-                }
-            }
-            else {
-                input_conv_type = quote! {
-                    ::<<#ty_wo_ref as ToOwned>::Owned>
-                };
-                compare_before_assign = true;
-            }
-
-            let ty_str = type_to_string(ty_wo_ref)?;
-            ty_str_expr = quote! { #ty_str };
-        }
-        else if let Some(member) = self.member.as_ref() {
-            ty_str_expr = quote! {
-                std::any::type_name_of_val(&self.#member)
-            };
-        };
-
-        // Code with conversion from QVariant to value that will be passed to the setter function (if `Write = ...` is specified)
-        // or assigned to the member variable (if no `Write` but `Member = ...` is in the property declaration).
         let input_conv_code = quote! {
-            let Ok(value) = TryInto #input_conv_type::try_into(value) else {
-                panic!("Failed to convert value '{}' to type '{}' in qproperty '{}'", value.to_string(), #ty_str_expr, #name);
+            let Ok(value) = QPropertyMember::from_qvariant(value) else {
+                panic!("Failed to convert QVariant for qproperty '{}'", #name);
             };
         };
 
-        let write_value_code;
         if let Some(setter_fn) = &self.write_method {
-            // Code that calls the setter method if one is specified.
             let write_value_pass = get_type_pass(self.setter_type.as_ref()
                 .ok_or_else(|| syn::Error::new(setter_fn.span(), "Property setter type is not deduced"))?);
             let pass_arg = get_take_value_code(&format_ident!("value"), write_value_pass);
-            write_value_code = quote! {
+            return Ok(Some(quote! {
+                #input_conv_code
                 self.#setter_fn(#pass_arg);
-            }
-        } else {
-            // Code that assigns the value obtained from the input QVariant to the member variable.
-            // Also emits the `Notify` signal if specified.
-            let Some(member) = self.member.as_ref() else {
-                return Ok(None) // A read-only property
-            };
-
-            // Code that emits the `Notify` signal.
-            let mut emit_signal_code = None;
-            if let Some(notify_signal) = &self.notify_signal {
-                let signal_info = signal
-                    .ok_or_else(|| syn::Error::new(self.notify_signal.span(), "Signal info is not provided"))?;
-                if signal_info.get_rust_name() != *notify_signal {
-                    return Err(syn::Error::new(self.span, "Error in signal handling logic. Inconsistent signal name"));
-                }
-                let signal_name_ident = signal_info.get_rust_name();
-                let signal_arg = signal_info.get_arg_type(0)
-                    .ok()
-                    .map(|arg_type| match get_type_pass(arg_type) {
-                        ValuePass::ByValue => quote! { self.#member.clone() },
-                        ValuePass::ByConstReference => quote! { &self.#member },
-                        ValuePass::ByMutReference => quote! { &mut self.#member },
-                    });
-
-                emit_signal_code = Some(quote! {
-                    self.#signal_name_ident(#signal_arg);
-                });
-            }
-
-            write_value_code = match compare_before_assign {
-                false => quote! {
-                    self.#member = value;
-                    #emit_signal_code
-                },
-                true => quote! {
-                    if self.#member != value {
-                        self.#member = value;
-                        #emit_signal_code
-                    }
-                },
-            }
+            }));
         }
 
-        let result = quote! {
-            #input_conv_code
-            #intermediate_conv_code
-            #write_value_code
+        let Some(member) = self.member.as_ref() else {
+            return Ok(None) // A read-only property
         };
-        Ok(Some(result))
+
+        let emit_signal_code = if let Some(notify_signal) = &self.notify_signal {
+            let signal_info = signal
+                .ok_or_else(|| syn::Error::new(self.notify_signal.span(), "Signal info is not provided"))?;
+            if signal_info.get_rust_name() != *notify_signal {
+                return Err(syn::Error::new(self.span, "Error in signal handling logic. Inconsistent signal name"));
+            }
+            let signal_name_ident = signal_info.get_rust_name();
+            let signal_arg = signal_info.get_arg_type(0)
+                .ok()
+                .map(|arg_type| match get_type_pass(arg_type) {
+                    ValuePass::ByValue => quote! { self.#member.clone() },
+                    ValuePass::ByConstReference => quote! { &self.#member },
+                    ValuePass::ByMutReference => quote! { &mut self.#member },
+                });
+            Some(quote! { self.#signal_name_ident(#signal_arg); })
+        } else {
+            None
+        };
+
+        Ok(Some(quote! {
+            #input_conv_code
+            if !QPropertyMember::property_eq(&self.#member, &value) {
+                self.#member = value;
+                #emit_signal_code
+            }
+        }))
     }
 }
 

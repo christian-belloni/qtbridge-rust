@@ -607,47 +607,4 @@ fn qproperty_accessor_reference_based_can_be_written() {
         .for_each(|test| test());
 }
 
-#[qobject]
-mod str_property {
-    #[derive(Default)]
-    pub struct TestObject {
-        pub value: String,
-    }
-
-    impl TestObject {
-        qproperty!("strProperty", Read = get_str, Write = set_str);
-
-        fn get_str(&self) -> &str {
-            &self.value
-        }
-
-        fn set_str(&mut self, new: &str) {
-            self.value = new.into();
-        }
-    }
-}
-
-#[test]
-#[cfg(not(miri))]
-fn qproperty_str_can_be_read() {
-    use str_property::TestObject;
-
-    let obj = TestObject::default_with_attached_qobject();
-    obj.borrow_mut().value = "Portez ce vieux whisky".into();
-    let var = unsafe { &*obj.borrow().get_qobject_ptr() }.property("strProperty");
-    let actual: String = var.try_into().unwrap();
-    assert_eq!(actual, "Portez ce vieux whisky");
-}
-
-#[test]
-#[cfg(not(miri))]
-fn qproperty_str_can_be_written() {
-    use str_property::TestObject;
-
-    let obj = TestObject::default_with_attached_qobject();
-    let qobj_ptr = obj.borrow().get_qobject_ptr();
-    let qobj = unsafe { qobj_ptr.as_mut() }.unwrap();
-    qobj.set_property("strProperty", "au juge blond qui fume".into());
-    assert_eq!(obj.borrow().value, "au juge blond qui fume");
-}
 

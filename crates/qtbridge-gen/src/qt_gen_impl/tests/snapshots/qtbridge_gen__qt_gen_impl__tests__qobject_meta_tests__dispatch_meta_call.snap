@@ -28,48 +28,52 @@ impl qtbridge::qtbridge_runtime::DispatchMetaCall for SomeStruct {
         }
     }
     fn read_property(&self, prop_id: u32) -> qtbridge::qtbridge_type_lib::QVariant {
+        #[allow(unused_imports)]
+        use qtbridge::qtbridge_runtime::QPropertyMember;
         match prop_id {
-            1u32 => (&self.first_value).into(),
-            2u32 => (&self.second_value).into(),
-            3u32 => (&self.third_value).into(),
+            1u32 => (&self.first_value).to_qvariant(self),
+            2u32 => (&self.second_value).to_qvariant(self),
+            3u32 => (&self.third_value).to_qvariant(self),
             _ => panic!("Unhandled property id {prop_id}"),
         }
     }
     fn write_property(&mut self, prop_id: u32, value: &qtbridge::qtbridge_type_lib::QVariant) {
+        #[allow(unused_imports)]
+        use qtbridge::qtbridge_runtime::QPropertyMember;
         match prop_id {
             1u32 => {
-                let Ok(value) = TryInto::try_into(value) else {
+                let Ok(value) = QPropertyMember::from_qvariant(value) else {
                     panic!(
-                        "Failed to convert value '{}' to type '{}' in qproperty '{}'",
-                        value.to_string(),
-                        std::any::type_name_of_val(&self.first_value),
+                        "Failed to convert QVariant for qproperty '{}'",
                         "this_value"
                     );
                 };
-                self.first_value = value;
-                self.this_value_changed();
+                if !QPropertyMember::property_eq(&self.first_value, &value) {
+                    self.first_value = value;
+                    self.this_value_changed();
+                }
             }
             2u32 => {
-                let Ok(value) = TryInto::try_into(value) else {
+                let Ok(value) = QPropertyMember::from_qvariant(value) else {
                     panic!(
-                        "Failed to convert value '{}' to type '{}' in qproperty '{}'",
-                        value.to_string(),
-                        std::any::type_name_of_val(&self.second_value),
+                        "Failed to convert QVariant for qproperty '{}'",
                         "otherValue"
                     );
                 };
-                self.second_value = value;
+                if !QPropertyMember::property_eq(&self.second_value, &value) {
+                    self.second_value = value;
+                }
             }
             3u32 => {
-                let Ok(value) = TryInto::try_into(value) else {
+                let Ok(value) = QPropertyMember::from_qvariant(value) else {
                     panic!(
-                        "Failed to convert value '{}' to type '{}' in qproperty '{}'",
-                        value.to_string(),
-                        std::any::type_name_of_val(&self.third_value),
+                        "Failed to convert QVariant for qproperty '{}'",
                         "thirdValue"
                     );
                 };
-                self.third_value = value;
+                if !QPropertyMember::property_eq(&self.third_value, &value) {
+                    self.third_value = value;
+                }
             }
             _ => panic!("Unhandled property id {prop_id}"),
         }

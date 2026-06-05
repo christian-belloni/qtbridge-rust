@@ -69,12 +69,16 @@ pub fn generate_dispatch_meta_call(struct_ident: &syn::Ident, generics: &syn::Ge
                 }
             }
             fn read_property(&self, prop_id: u32) -> qtbridge::qtbridge_type_lib::QVariant {
+                #[allow(unused_imports)]
+                use qtbridge::qtbridge_runtime::QPropertyMember;
                 match prop_id {
                     #(#prop_read_handlers),*
                     _ => panic!("Unhandled property id {prop_id}")
                 }
             }
             fn write_property(&mut self, prop_id: u32, value: &qtbridge::qtbridge_type_lib::QVariant) {
+                #[allow(unused_imports)]
+                use qtbridge::qtbridge_runtime::QPropertyMember;
                 match prop_id {
                     #(#prop_write_handlers),*
                     _ => panic!("Unhandled property id {prop_id}")

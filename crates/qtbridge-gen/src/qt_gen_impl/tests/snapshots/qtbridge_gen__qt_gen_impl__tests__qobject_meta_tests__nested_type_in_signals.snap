@@ -54,11 +54,15 @@ pub mod node {
             }
         }
         fn read_property(&self, prop_id: u32) -> qtbridge::qtbridge_type_lib::QVariant {
+            #[allow(unused_imports)]
+            use qtbridge::qtbridge_runtime::QPropertyMember;
             match prop_id {
                 _ => panic!("Unhandled property id {prop_id}"),
             }
         }
         fn write_property(&mut self, prop_id: u32, value: &qtbridge::qtbridge_type_lib::QVariant) {
+            #[allow(unused_imports)]
+            use qtbridge::qtbridge_runtime::QPropertyMember;
             match prop_id {
                 _ => panic!("Unhandled property id {prop_id}"),
             }
@@ -69,8 +73,7 @@ pub mod node {
         fn build_dynamic_meta_type(
             mut meta_obj: std::pin::Pin<&mut qtbridge::qtbridge_runtime::DynamicMetaObjectBuilder>,
         ) {
-            #[allow(unused_imports)]
-            use qtbridge::qtbridge_runtime::get_meta_type_of_fn_return_value;
+            use qtbridge::qtbridge_runtime::QPropertyMember;
             use qtbridge::qtbridge_type_lib;
             use qtbridge_type_lib::{QMetaType, QMetaTypeGet};
             meta_obj.as_mut().register_signal(

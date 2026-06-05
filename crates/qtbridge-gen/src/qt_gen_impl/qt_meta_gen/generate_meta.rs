@@ -60,9 +60,8 @@ pub fn generate_qmetainfo_trait_impl(ctx: &QMetaInfoContext) -> syn::Result<syn:
             type CppProxy = qtbridge::qtbridge_interfaces::#iface_module::#proxy_cpp;
 
             fn build_dynamic_meta_type(mut meta_obj: std::pin::Pin<&mut qtbridge::qtbridge_runtime::DynamicMetaObjectBuilder>) {
-                #[allow(unused_imports)]
-                use qtbridge::qtbridge_runtime::get_meta_type_of_fn_return_value;
                 use qtbridge::qtbridge_type_lib;
+                use qtbridge::qtbridge_runtime::QPropertyMember;
                 use qtbridge_type_lib::{QMetaType, QMetaTypeGet};
 
                 #signals_meta_reg
