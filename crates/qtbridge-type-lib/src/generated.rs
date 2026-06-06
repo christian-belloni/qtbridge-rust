@@ -46,6 +46,7 @@ pub use core::qmetatype::QMetaTypeGet;
 pub use core::qmetatypeinterface::QMetaTypeInterface;
 pub use core::qmodelindex::QModelIndex;
 pub use core::qobject::QObject;
+pub use core::qobjectlist::QObjectList;
 pub use core::qqmllistproperty::list_property_to_qvariant;
 pub use core::qsignalblocker::QSignalBlocker;
 pub use core::qstring::QString;
