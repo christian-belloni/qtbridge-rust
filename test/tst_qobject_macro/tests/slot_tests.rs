@@ -90,10 +90,6 @@ pub mod test_object {
             self.arg_f64 = Some(arg);
         }
         #[qslot]
-        fn slot_str(&mut self, arg: &str) {
-            self.arg_string = Some(arg.into());
-        }
-        #[qslot]
         fn slot_string(&mut self, arg: String) {
             self.arg_string = Some(arg);
         }
@@ -202,7 +198,6 @@ fn test_slot_types_values() {
     test_type("usize", "95",             |obj| obj.arg_usize == Some(95));
     test_type("f32", "0.5",              |obj| obj.arg_f32 == Some(0.5));
     test_type("f64", "0.25",             |obj| obj.arg_f64 == Some(0.25));
-    test_type("str", "\"test\"",         |obj| obj.arg_string == Some("test".into()));
     test_type("string", "\"test2\"",     |obj| obj.arg_string == Some("test2".into()));
 }
 

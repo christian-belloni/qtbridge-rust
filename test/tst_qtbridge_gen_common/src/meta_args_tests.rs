@@ -43,7 +43,6 @@ pub fn tst_qmetatype_support_for_strings()
 {
     qtbridge_type_lib::init();
     let inputs = [
-        ("str",    converted("qtbridge_type_lib::QString")),
         ("String", converted("qtbridge_type_lib::QString")),
     ];
 

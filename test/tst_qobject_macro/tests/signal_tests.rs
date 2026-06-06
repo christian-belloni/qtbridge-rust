@@ -44,8 +44,6 @@ pub mod test_object {
         #[qsignal]
         pub fn signal_f64(&mut self, arg: f64);
         #[qsignal]
-        pub fn signal_str(&mut self, arg: &str);
-        #[qsignal]
         pub fn signal_string(&mut self, arg: String);
 
         // Pass the signal argument by reference.
@@ -81,7 +79,7 @@ pub mod test_object {
         // Test with multiple arguments
         #[qsignal]
         pub fn signal_many_args(&mut self,
-            arg1: &str,
+            arg1: &String,
             arg2: i32,
             arg3: f32,
             arg4: &f64,
@@ -269,17 +267,6 @@ fn signal_is_emitted_when_called_with_f64_arg() {
 
 #[test]
 #[cfg(not(miri))]
-fn signal_is_emitted_when_called_with_str_arg() {
-    test_signal_with_arg_value("str",
-        |obj| obj.signal_str("XYZ"),
-        |var| {
-            let arg: String = var.try_into().unwrap();
-            arg == "XYZ"
-        });
-}
-
-#[test]
-#[cfg(not(miri))]
 fn signal_is_emitted_when_called_with_string_arg() {
     test_signal_with_arg_value("string",
         |obj| obj.signal_string("ABC".to_owned()),
@@ -449,7 +436,7 @@ fn signal_is_emitted_when_called_with_f64_ref_arg() {
 fn signal_is_emitted_when_called_with_a_few_arguments_ref_arg() {
     let obj = TestObject::default_with_attached_qobject();
     let mut spy = QSignalSpy::new(unsafe { &*obj.borrow().get_qobject_ptr() }, "signal_many_args");
-    obj.borrow_mut().signal_many_args("123", 700, 0.75, &0.125, "Café".to_owned(), 65535, false, &true, -100000, -10000000000);
+    obj.borrow_mut().signal_many_args(&"123".to_owned(), 700, 0.75, &0.125, "Café".to_owned(), 65535, false, &true, -100000, -10000000000);
     assert_eq!(spy.count(), 1);
     let arg_list = spy.pin_mut().take_first();
     assert_eq!(arg_list.len(), 10);

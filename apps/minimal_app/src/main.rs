@@ -38,14 +38,14 @@ mod backend {
 
     impl Backend {
         #[qslot(qml_name = "addString")]
-        fn add_string(&mut self, value: &str) {
-            match self.string_list.contains(&value.to_string()) {
-                true => self.duplicate_found(&value),
-                false => self.push(value.to_string()),
+        fn add_string(&mut self, value: &String) {
+            match self.string_list.contains(value) {
+                true => self.duplicate_found(value),
+                false => self.push(value.clone()),
             }
         }
         #[qsignal(qml_name = "duplicateFound")]
-        fn duplicate_found(&mut self, duplicate: &str);
+        fn duplicate_found(&mut self, duplicate: &String);
     }
 }
 

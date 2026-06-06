@@ -87,8 +87,7 @@ impl QSignalInfo {
                     MetaTypeMapping::Direct => Ok(remove_refs(ty).clone()),
                     MetaTypeMapping::Converted(t) => Ok(t),
                     MetaTypeMapping::Object(_) => Ok(parse_quote! { *mut qtbridge_type_lib::QObject }),
-                    MetaTypeMapping::ObjectList(_) => Err(syn::Error::new(ty.span(),
-                        "Vec<Rc<RefCell<_>>> (object lists) are not supported as signal arguments")),
+                    MetaTypeMapping::ObjectList(_) => Ok(parse_quote! { qtbridge_type_lib::QObjectList }),
                 }
             })
             .collect::<syn::Result<Vec<_>>>()?;

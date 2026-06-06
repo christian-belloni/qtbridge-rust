@@ -33,7 +33,7 @@ mod test_qobject {
         }
 
         #[qslot]
-        fn string_slot(&mut self, value: &str) {
+        fn string_slot(&mut self, value: String) {
             self.string_signal(value);
         }
 
@@ -52,7 +52,7 @@ mod test_qobject {
         fn triggered(&mut self);
 
         #[qsignal]
-        fn string_signal(&mut self, value: &str);
+        fn string_signal(&mut self, value: String);
 
         #[qsignal(qml_name = "boolPropChanged")]
         fn bool_prop_changed(&mut self);

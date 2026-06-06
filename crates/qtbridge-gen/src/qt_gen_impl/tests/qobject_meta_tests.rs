@@ -123,7 +123,7 @@ fn test_dispatch_meta_call() {
             }
 
             #[qslot]
-            fn slot_two(&self, arg: &str) {
+            fn slot_two(&self, arg: String) {
             }
 
             #[qslot]

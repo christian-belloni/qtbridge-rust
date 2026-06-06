@@ -140,11 +140,12 @@ fn get_intermediate_type_standard(src: &StandardType, src_path: &syn::Path) -> s
 fn get_intermediate_type_string(src: &StringType, src_path: &syn::Path) -> syn::Result<QtType> {
     let name = src.name();
     match src.name() {
-        "String" | "str" => {
+        "String" => {
             let ty = QtType::find_by_name("QString")
                 .ok_or_else(|| syn::Error::new(src_path.span(), "Failed to find QString"))?;
             Ok(ty)
         },
+        "str" => Err(syn::Error::new(src_path.span(), "Use `String` instead of `str` in meta-calls")),
         _ => Err(syn::Error::new(src_path.span(), format!("Unsupported string type '{name}'")))
     }
 }

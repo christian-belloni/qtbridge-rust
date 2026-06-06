@@ -108,10 +108,6 @@ pub mod test_object {
             "def".to_owned()
         }
 
-        #[qslot]
-        fn slot_str(&self) -> &str {
-            "γειά σου κόσμε"
-        }
     }
 }
 
@@ -171,10 +167,6 @@ where
     test_slot_return_impl::<T, T>(&expected)
 }
 
-fn test_slot_return_str(expected: String) {
-    test_slot_return_impl::<str, String>(&expected)
-}
-
 fn main() {
     if cfg!(miri) {
         return;
@@ -193,5 +185,4 @@ fn main() {
     test_slot_return::<f32>(0.5);
     test_slot_return::<f64>(0.125);
     test_slot_return::<String>("def".into());
-    test_slot_return_str("γειά σου κόσμε".into());
 }

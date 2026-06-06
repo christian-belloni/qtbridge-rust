@@ -12,8 +12,9 @@ impl qtbridge::qtbridge_runtime::DispatchMetaCall for SomeStruct {
                 let arg_0_ref =
                     unsafe { inputs[0usize].cast::<qtbridge_type_lib::QString>().as_ref() }
                         .expect("Argument reference is null");
-                let arg_0_var: <str as ToOwned>::Owned = arg_0_ref.into();
-                self.slot_two(&arg_0_var)
+                let arg_0_var =
+                    <String as qtbridge::qtbridge_runtime::QMetaCallArg>::from_wire(arg_0_ref);
+                self.slot_two(arg_0_var)
             }
             _ => panic!("Unhandled slot id {slot_id}"),
         }

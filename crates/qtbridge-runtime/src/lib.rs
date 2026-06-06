@@ -14,6 +14,7 @@ pub mod qobjectholder;
 pub mod qproxies;
 pub mod qmetatypeforqobject;
 pub mod qmodelitem;
+pub mod qmetacallarg;
 pub mod qpropertymember;
 pub mod rustobjectgetter;
 
@@ -26,5 +27,6 @@ pub use qml_register::QmlRegister;
 pub use qobjectholder::QObjectHolder;
 pub use qml_method_invoker::QmlMethodInvoker;
 pub use qmodelitem::QModelItem;
+pub use qmetacallarg::QMetaCallArg;
 pub use qpropertymember::{QPropertyMember, get_meta_type_of_fn_return_value};
 
