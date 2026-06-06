@@ -4,96 +4,76 @@ use syn::parse_quote;
 use syn::spanned::Spanned;
 
 use qtbridge_gen_common::signature_utils::{get_typed_arg_ident, get_typed_args};
-use qtbridge_gen_common::type_registry::meta_types::{MetaTypeMapping, get_qmetatype_support_for_type};
 use qtbridge_gen_common::type_utils::{ValuePass, get_type_pass, is_ref, remove_ref, remove_refs};
 
 /// Generates code to connect a Rust function to a metacall (e.g. signal or slot).
 pub struct MetaCallBridgeGenerator<'a> {
     inputs: Vec<MetaCallArg<'a>>,
-    output: Option<MetaCallType<'a>>
+    output: Option<&'a syn::Type>,
 }
 
 impl<'a> MetaCallBridgeGenerator<'a> {
     pub fn new(sign: &'a syn::Signature) -> syn::Result<Self> {
         let inputs = get_typed_args(sign)
-            .map(MetaCallArg::try_from)
+            .map(|arg| Ok(MetaCallArg {
+                ident: get_typed_arg_ident(arg)?,
+                user_type: arg.ty.as_ref(),
+            }))
             .collect::<syn::Result<_>>()?;
         let output = match &sign.output {
-            syn::ReturnType::Default =>
-                None,
-            syn::ReturnType::Type(_, ty) =>
-                Some(MetaCallType::try_from(ty.as_ref())?)
+            syn::ReturnType::Default => None,
+            syn::ReturnType::Type(_, ty) => Some(ty.as_ref()),
         };
-
-        Ok(Self {
-            inputs,
-            output,
-        })
+        Ok(Self { inputs, output })
     }
 
-    /// Return an iterator over meta-types corresponding to the input argument types.
+    /// Return an iterator over the user argument types (refs stripped) for meta-type registration.
     pub fn get_input_metatypes(&self) -> impl Iterator<Item = &syn::Type> {
-        self.inputs.iter()
-            .map(|arg| arg.ty.meta_type())
+        self.inputs.iter().map(|arg| remove_refs(arg.user_type))
     }
 
-    /// Return a meta-types corresponding to the function return type.
+    /// Return the user return type (refs stripped) for meta-type registration.
     pub fn get_output_metatype(&self) -> Option<&syn::Type> {
-        self.output.as_ref()
-            .map(|val| val.meta_type())
+        self.output.map(remove_refs)
     }
 
-    /// Generates bridge code for invoking a user defined function from a metacall (e.g., slot invocation),
-    /// handling unpack and conversion of input arguments and return type.
-    /// # Arguments
+    /// Generates bridge code for invoking a user-defined function from a metacall (e.g., slot invocation).
+    /// Handles unpacking and conversion of arguments and return values.
+    /// `fn_call` is the expression representing the call to the user-defined function.
     ///
-    /// * `fn_call` - The expression representing the call to the user-defined function.
-    ///
-    /// # Returns
-    ///
-    /// A `TokenStream`containing code block that:
-    /// - Defines references to the input arguments.
+    /// Returns a code block that:
+    /// - Defines references to the arguments.
     /// - Stores intermediate variables to be passed to the Rust function.
     /// - Invokes the Rust function (`fn_call`).
-    /// - Stores the result in the metacall parameters array if needed.
+    /// - Stores the result in the metacall parameter array if needed.
     pub fn generate_bridge_metacall_to_user_fn(&self, mut fn_call: syn::ExprMethodCall) -> syn::Result<TokenStream> {
-        let input_iter = self.inputs.iter()
-            .map(|arg| &arg.ty)
-            .enumerate();
-
-        // Expressions used as arguments to the Rust function.
-        let input_pass = input_iter.clone()
-            .map(|(idx, arg)| arg.generate_pass_input_expression(idx))
-            .collect::<syn::Result<Vec<_>>>()?;
-
-        // Definitions of references to source parameters cast from input raw pointers.
-        let input_refs = input_iter.clone()
-            .map(|(idx, arg)| arg.generate_reference_to_input_meta_value(idx));
-
-        // Intermediate variables converted from input meta types to be passed to the Rust function.
-        let input_vars = input_iter
-            .map(|(idx, arg)| arg.generate_store_argv_input_to_variable(idx))
-            .collect::<syn::Result<Vec<_>>>()?;
+        // Generate code: Cast arguments to the proper wire type
+        let input_refs: Vec<_> = self.inputs.iter().enumerate()
+            .map(|(idx, arg)| gen_input_ref(arg.user_type, idx))
+            .collect();
+        // Generate code: Convert the wire type to the proper type
+        let input_vars: Vec<_> = self.inputs.iter().enumerate()
+            .map(|(idx, arg)| gen_input_var(arg.user_type, idx))
+            .collect();
+        // Generate code: Make a reference if required
+        let input_pass: Vec<_> = self.inputs.iter().enumerate()
+            .map(|(idx, arg)| gen_pass_expr(arg.user_type, idx))
+            .collect::<syn::Result<_>>()?;
 
         // Append user provided arguments (if any) with arguments taken from the input signature.
         fn_call.args.extend(input_pass);
 
         // Invoke the Rust function. Store its result in argv[0] if the function returns a value.
-        let invoke_and_maybe_write_result = match &self.output {
+        let invoke_and_maybe_write_result = match self.output {
             Some(output) => {
                 let result_var = format_ident!("result");
                 let result_conv_var = format_ident!("result_conv");
-                let maybe_result_conv = output.generate_store_converted_to_variable(&result_var, &result_conv_var)?;
-                let output_ptr = output.generate_pointer_to_output_meta_value(0);
-                let output_var = match maybe_result_conv.is_some() {
-                    true => &result_conv_var,
-                    false => &result_var,
-                };
-                let write_output = output.generate_write_output_ptr_expression(&output_var, 0);
-
+                let result_conv = gen_to_wire(output, &result_var, &result_conv_var);
+                let output_ptr = gen_output_ptr(output);
+                let write_output = gen_write_output(&result_conv_var);
                 quote! {
                     let #result_var = #fn_call;
-                    #maybe_result_conv
+                    #result_conv
                     #output_ptr
                     #write_output
                 }
@@ -101,209 +81,103 @@ impl<'a> MetaCallBridgeGenerator<'a> {
             None => fn_call.to_token_stream(),
         };
 
-        // Putting it all together.
-        let code = quote! {
+        Ok(quote! {
             #(#input_refs)*
             #(#input_vars)*
             #invoke_and_maybe_write_result
-        };
-        Ok(code)
+        })
     }
 
-    /// Generates the argv setup for signals handling packing and conversion of input arguments.
-    ///
-    /// # Returns a `TokenStream` containing the parameter array.
-    pub fn generate_argv_setup_for_signals(&self) -> syn::Result<TokenStream> {
-        let input_size = self.inputs.len();
-        let argv_size = input_size + 1;
-
-        // Iterate over the arguments of the function.
-        // Define intermediate variables for arguments, if necessary.
-        // Provide initializers for the corresponding elements in the metacall parameters array.
+    /// Generates the argv array for signal emission, converting args to their wire types.
+    pub fn generate_argv_setup_for_signals(&self) -> TokenStream {
+        let argv_size = self.inputs.len() + 1;
         let mut arg_vars = Vec::new();
         let mut argv_arr_init = Vec::with_capacity(argv_size);
-        for (idx, arg) in self.inputs.iter().enumerate() {
-            let arg_pass = get_type_pass(arg.ty.user_type);
-            let arg_ident = &arg.ident;
 
-            match arg.ty.intermediate_meta_type() {
-                Some(_) => {
-                    let var_ident = get_arg_intermediate_var_ident(idx);
-                    let user_type_no_ref = remove_ref(arg.ty.user_type);
-                    let arg_maybe_borrow = match arg_pass {
-                        ValuePass::ByValue => quote! { (&#arg_ident) },
-                        _ => quote! { #arg_ident }
-                    };
-                    arg_vars.push(quote! {
-                        let #var_ident = <#user_type_no_ref as qtbridge::qtbridge_runtime::QMetaCallArg>::to_wire(#arg_maybe_borrow);
-                    });
-                    argv_arr_init.push(quote! { std::ptr::from_ref(&#var_ident).cast() });
-                }
-                None => {
-                    let arg_ref = match arg_pass {
-                        ValuePass::ByValue => quote! { &#arg_ident },
-                        _ => quote! { #arg_ident },
-                    };
-                    argv_arr_init.push(quote! { std::ptr::from_ref(#arg_ref).cast() });
-                },
-            }
+        for (idx, arg) in self.inputs.iter().enumerate() {
+            let var_ident = arg_var_ident(idx);
+            let arg_ident = &arg.ident;
+            let user_type_no_ref = remove_refs(arg.user_type);
+            let arg_ref = match get_type_pass(arg.user_type) {
+                ValuePass::ByValue => quote! { &#arg_ident },
+                _ => quote! { #arg_ident },
+            };
+            arg_vars.push(quote! {
+                let #var_ident = <#user_type_no_ref as QMetaCallArg>::to_wire(#arg_ref);
+            });
+            argv_arr_init.push(quote! { std::ptr::from_ref(&#var_ident).cast() });
         }
-        let code = quote! {
+
+        quote! {
             #(#arg_vars)*
             let argv: [*const u8; #argv_size] = [
                 std::ptr::null(),   // No value return.
                 #(#argv_arr_init),*
             ];
-        };
-        Ok(code)
+        }
     }
 }
 
-/// Encapsulates the type and the ident of an argument in a metacall.
 struct MetaCallArg<'a> {
     ident: syn::Ident,
-    ty: MetaCallType<'a>,
-}
-
-impl<'a> TryFrom<&'a syn::PatType> for MetaCallArg<'a> {
-    type Error = syn::Error;
-
-    fn try_from(arg: &'a syn::PatType) -> syn::Result<Self> {
-        Ok(Self {
-            ident: get_typed_arg_ident(arg)?,
-            ty: MetaCallType::try_from(arg.ty.as_ref())?,
-        })
-    }
-}
-
-/// Encapsulates the type of an argument or return value in a metacall.
-struct MetaCallType<'a> {
-    /// The type of the argument in the signature of user-defined function.
     user_type: &'a syn::Type,
-
-    /// The type used internally in metacall to pass the argument (if it is different from `user_type`).
-    intermediate_meta_type: Option<syn::Type>,
 }
 
-impl<'a> TryFrom<&'a syn::Type> for MetaCallType<'a> {
-    type Error = syn::Error;
-
-    fn try_from(user_type: &'a syn::Type) -> syn::Result<Self> {
-        let intermediate_meta_type = match get_qmetatype_support_for_type(user_type)? {
-            MetaTypeMapping::Direct => None,
-            MetaTypeMapping::Converted(t) => Some(t),
-            MetaTypeMapping::Object(_) => Some(parse_quote! { *mut qtbridge_type_lib::QObject }),
-            MetaTypeMapping::ObjectList(_) => Some(parse_quote! { qtbridge::qtbridge_type_lib::QObjectList }),
-        };
-        Ok(Self { user_type, intermediate_meta_type })
+fn gen_input_ref(user_type: &syn::Type, idx: usize) -> syn::Stmt {
+    let user_type_no_ref = remove_refs(user_type);
+    let ref_ident = input_ref_ident(idx);
+    let inputs = get_inputs_ident();
+    parse_quote! {
+        let #ref_ident = unsafe {
+            #inputs[#idx]
+                .cast::<<#user_type_no_ref as QMetaCallArg>::WireType>()
+                .as_ref()
+        }.expect("Argument reference is null");
     }
 }
 
-impl<'a> MetaCallType<'a> {
-    fn intermediate_meta_type(&self) -> Option<&syn::Type> {
-        self.intermediate_meta_type.as_ref()
+fn gen_input_var(user_type: &syn::Type, idx: usize) -> syn::Stmt {
+    let var_ident = arg_var_ident(idx);
+    let ref_ident = input_ref_ident(idx);
+    let user_type_no_ref = remove_refs(user_type);
+    parse_quote! {
+        let #var_ident = <#user_type_no_ref as QMetaCallArg>::from_wire(#ref_ident);
     }
+}
 
-    fn meta_type(&self) -> &syn::Type {
-        self.intermediate_meta_type()
-            .unwrap_or_else(|| remove_refs(self.user_type))
+fn gen_pass_expr(user_type: &syn::Type, idx: usize) -> syn::Result<syn::Expr> {
+    let var_ident = arg_var_ident(idx);
+    match get_type_pass(user_type) {
+        ValuePass::ByValue => Ok(parse_quote! { #var_ident }),
+        ValuePass::ByConstReference => Ok(parse_quote! { &#var_ident }),
+        ValuePass::ByMutReference =>
+            Err(syn::Error::new(user_type.span(),
+                "Arguments passed by mutable references are not supported")),
     }
+}
 
-    /// Generates a definition of a typed immutable reference to the given input parameter.
-    fn generate_reference_to_input_meta_value(&self, idx: usize) -> syn::Stmt {
-        let meta_type = self.intermediate_meta_type()
-            .unwrap_or_else(|| remove_refs(self.user_type));
-        let input_ref_ident = get_input_ref_ident(idx);
-        let inputs_ident = get_inputs_ident();
-        parse_quote! {
-            let #input_ref_ident = unsafe {
-                #inputs_ident[#idx].cast::<#meta_type>().as_ref()
-            }.expect("Argument reference is null");
-        }
+fn gen_to_wire(user_type: &syn::Type, from: &syn::Ident, to: &syn::Ident) -> syn::Stmt {
+    let user_type_no_ref = remove_ref(user_type);
+    let ref_from = match is_ref(user_type) {
+        true => quote! { #from },
+        false => quote! { &#from },
+    };
+    parse_quote! {
+        let #to = <#user_type_no_ref as QMetaCallArg>::to_wire(#ref_from);
     }
+}
 
-    /// Generates a definition of a variable with a value converted from the return value
-    /// into the wire type (for writing back into `argv[0]`).
-    fn generate_store_converted_to_variable(&self, from: &syn::Ident, to: &syn::Ident) -> syn::Result<Option<syn::Stmt>> {
-        if self.intermediate_meta_type().is_some() {
-            let user_type_no_ref = remove_ref(self.user_type);
-            let ref_from = match is_ref(self.user_type) {
-                true => quote! { #from },
-                false => quote! { &#from },
-            };
-            return Ok(Some(parse_quote! {
-                let #to = <#user_type_no_ref as qtbridge::qtbridge_runtime::QMetaCallArg>::to_wire(#ref_from);
-            }))
-        }
-        Ok(None)
+fn gen_output_ptr(user_type: &syn::Type) -> syn::Stmt {
+    let user_type_no_ref = remove_ref(user_type);
+    let outputs = get_outputs_ident();
+    parse_quote! {
+        let output_ptr: *mut <#user_type_no_ref as QMetaCallArg>::WireType = #outputs[0].cast();
     }
+}
 
-    /// Generates a definition of a mutable pointer to the given output parameter.
-    fn generate_pointer_to_output_meta_value(&self, idx: usize) -> syn::Stmt {
-        let meta_type = self.intermediate_meta_type()
-            .unwrap_or_else(|| remove_refs(self.user_type));
-
-        let output_ptr_ident = get_output_ptr_ident(idx);
-        let outputs_ident = get_outputs_ident();
-        parse_quote! {
-            let #output_ptr_ident: *mut #meta_type = #outputs_ident[0].cast();
-        }
-    }
-
-    /// Generates a definition of an intermediate variable containing a value copied/converted
-    /// from a reference to the source data.
-    ///
-    /// The variable is initialized from the input `argv` array (given as `*const *const c_void`).
-    /// The variable is needed when a type conversion is required
-    /// or when the argument must be passed by value.
-    fn generate_store_argv_input_to_variable(&self, idx: usize) -> syn::Result<Option<syn::Stmt>> {
-        let arg_var_ident = get_arg_intermediate_var_ident(idx);
-        let arg_ref_ident = get_input_ref_ident(idx);
-        let arg_type_no_ref = remove_refs(self.user_type);
-
-        let needs_var = self.intermediate_meta_type().is_some()
-            || matches!(get_type_pass(self.user_type), ValuePass::ByValue);
-
-        if needs_var {
-            return Ok(Some(parse_quote! {
-                let #arg_var_ident = <#arg_type_no_ref as qtbridge::qtbridge_runtime::QMetaCallArg>::from_wire(#arg_ref_ident);
-            }))
-        }
-
-        Ok(None) // Direct ByRef: pass the input reference directly.
-    }
-
-    // Produce the code passing an argument to the user function.
-    fn generate_pass_input_expression(&self, idx: usize) -> syn::Result<syn::Expr> {
-        let var_ident = get_arg_intermediate_var_ident(idx);
-        let ref_ident = get_input_ref_ident(idx);
-
-        let expr = match get_type_pass(self.user_type) {
-            ValuePass::ByValue => // Pass the intermediate variable by value.
-                parse_quote!{ #var_ident },
-            ValuePass::ByConstReference => {
-                match self.intermediate_meta_type() {
-                    Some(_) => // Pass the intermediate variable by reference.
-                        parse_quote! { &#var_ident },
-                    None => // Pass the input argument reference as is.
-                        parse_quote! { #ref_ident },
-                }
-            },
-            ValuePass::ByMutReference =>
-                return Err(syn::Error::new(self.user_type.span(),
-                    "Arguments passed by mutable references are not supported"))
-        };
-        Ok(expr)
-    }
-
-    /// Produce the code storing a value in the metacall output.
-    fn generate_write_output_ptr_expression(&self, var_ident: &syn::Ident, idx: usize) -> syn::Expr {
-        let output_ptr_ident = get_output_ptr_ident(idx);
-        parse_quote! {
-            unsafe {
-                std::ptr::write(#output_ptr_ident, #var_ident)
-            }
-        }
+fn gen_write_output(var_ident: &syn::Ident) -> syn::Expr {
+    parse_quote! {
+        unsafe { std::ptr::write(output_ptr, #var_ident) }
     }
 }
 
@@ -315,14 +189,10 @@ pub fn get_outputs_ident() -> syn::Ident {
     format_ident!("outputs")
 }
 
-fn get_input_ref_ident(idx: usize) -> syn::Ident {
+fn input_ref_ident(idx: usize) -> syn::Ident {
     format_ident!("arg_{idx}_ref")
 }
 
-fn get_output_ptr_ident(idx: usize) -> syn::Ident {
-    format_ident!("output_{idx}_ptr")
-}
-
-fn get_arg_intermediate_var_ident(idx: usize) -> syn::Ident {
+fn arg_var_ident(idx: usize) -> syn::Ident {
     format_ident!("arg_{idx}_var")
 }

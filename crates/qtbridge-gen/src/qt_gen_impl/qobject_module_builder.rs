@@ -40,7 +40,6 @@ impl QObjectModuleBuilder {
     }
 
     pub fn new() -> Self {
-        qtbridge_type_lib::init();
         Self {
             params: QObjectMacroParams::default(),
             struct_ident: format_ident!("dummy"),

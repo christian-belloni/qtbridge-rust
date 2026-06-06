@@ -8,7 +8,7 @@ use qtbridge_gen_common::case_conv;
 use qtbridge_gen_common::function_with_attributes::{BlockOrSemi, FunctionWithAttributes};
 use qtbridge_gen_common::parse_utils::{parse_name_value, partition_attr_by};
 use qtbridge_gen_common::signature_utils::is_self_mut;
-use qtbridge_gen_common::type_registry::meta_types::check_meta_call_signature_types;
+use qtbridge_gen_common::type_registry::meta_types::check_meta_call_signature;
 
 use crate::qt_gen_impl::qt_meta_gen;
 use crate::qt_gen_impl::qobject_macro_params::QObjectMacroParams;
@@ -84,8 +84,8 @@ impl QSlotInfo {
     /// ```ignore
     /// meta_obj.as_mut().register_slot(
     ///     "doSomething",
-    ///     &[i32::get_qmetatype(), qtbridge_type_lib::QString::get_qmetatype()],
-    ///     &qtbridge_type_lib::QString::get_qmetatype());
+    ///     &[<i32 as QMetaCallArg>::wire_metatype(), <String as QMetaCallArg>::wire_metatype()],
+    ///     &<String as QMetaCallArg>::wire_metatype());
     /// ```
     pub fn get_meta_registration_code(&self) -> syn::Result<TokenStream> {
         let name = self.get_qml_name_span().0;
@@ -98,8 +98,8 @@ impl QSlotInfo {
         let output_meta_types = bridge_generator.get_output_metatype();
 
         let result_meta_type = output_meta_types
-            .map(|ty| quote!{ &<#ty as QMetaTypeGet>::get_qmetatype() })
-            .unwrap_or_else(|| quote! { &QMetaType::default()} );
+            .map(|ty| quote!{ &<#ty as QMetaCallArg>::wire_metatype() })
+            .unwrap_or_else(|| quote! { &qtbridge::qtbridge_type_lib::QMetaType::default() });
 
         let mutability = match self.is_mut() {
             true => quote! { Mutable },
@@ -110,7 +110,7 @@ impl QSlotInfo {
             meta_obj.as_mut().register_slot(
                 #name,
                 #id,
-                 &[#(<#input_meta_types as QMetaTypeGet>::get_qmetatype()),*],
+                 &[#(<#input_meta_types as QMetaCallArg>::wire_metatype()),*],
                 #result_meta_type,
                 qtbridge::qtbridge_runtime::dynamicmetaobjectbuilder::Mutability::#mutability);
         };
@@ -132,7 +132,7 @@ impl QSlotInfo {
     }
 
     fn check_signature(sign: &syn::Signature) -> syn::Result<()> {
-        check_meta_call_signature_types(sign)
+        check_meta_call_signature(sign)
     }
 }
 

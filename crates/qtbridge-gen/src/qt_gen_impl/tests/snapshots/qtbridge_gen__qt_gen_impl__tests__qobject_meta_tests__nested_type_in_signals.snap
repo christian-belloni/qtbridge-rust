@@ -9,12 +9,10 @@ pub mod node {
             &mut self,
             value: Rc<RefCell<SomeNestedType>>,
         ) {
+            use qtbridge::qtbridge_runtime::QMetaCallArg;
             let proxy =
                 <Self as qtbridge::QObjectHolder>::try_get_rust_proxy_ptr(self).expect("No proxy");
-            let arg_0_var =
-                <Rc<RefCell<SomeNestedType>> as qtbridge::qtbridge_runtime::QMetaCallArg>::to_wire(
-                    (&value),
-                );
+            let arg_0_var = <Rc<RefCell<SomeNestedType>> as QMetaCallArg>::to_wire(&value);
             let argv: [*const u8; 2usize] =
                 [std::ptr::null(), std::ptr::from_ref(&arg_0_var).cast()];
             qtbridge::qtbridge_runtime::qproxies::QRustProxy::emit_signal(
@@ -28,12 +26,10 @@ pub mod node {
             &mut self,
             value: &Rc<RefCell<SomeNestedType>>,
         ) {
+            use qtbridge::qtbridge_runtime::QMetaCallArg;
             let proxy =
                 <Self as qtbridge::QObjectHolder>::try_get_rust_proxy_ptr(self).expect("No proxy");
-            let arg_0_var =
-                <Rc<RefCell<SomeNestedType>> as qtbridge::qtbridge_runtime::QMetaCallArg>::to_wire(
-                    value,
-                );
+            let arg_0_var = <Rc<RefCell<SomeNestedType>> as QMetaCallArg>::to_wire(value);
             let argv: [*const u8; 2usize] =
                 [std::ptr::null(), std::ptr::from_ref(&arg_0_var).cast()];
             qtbridge::qtbridge_runtime::qproxies::QRustProxy::emit_signal(
@@ -46,15 +42,13 @@ pub mod node {
     }
     impl qtbridge::qtbridge_runtime::DispatchMetaCall for Node {
         fn invoke_slot(&self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]) {
-            #[allow(unused_imports)]
-            use qtbridge::qtbridge_type_lib;
+            use qtbridge::qtbridge_runtime::QMetaCallArg;
             match slot_id {
                 _ => panic!("Unhandled slot id {slot_id}"),
             }
         }
         fn invoke_slot_mut(&mut self, slot_id: u32, inputs: &[*const u8], outputs: &[*mut u8]) {
-            #[allow(unused_imports)]
-            use qtbridge::qtbridge_type_lib;
+            use qtbridge::qtbridge_runtime::QMetaCallArg;
             match slot_id {
                 _ => panic!("Unhandled slot id {slot_id}"),
             }
@@ -79,16 +73,17 @@ pub mod node {
         fn build_dynamic_meta_type(
             mut meta_obj: std::pin::Pin<&mut qtbridge::qtbridge_runtime::DynamicMetaObjectBuilder>,
         ) {
+            use qtbridge::qtbridge_runtime::QMetaCallArg;
             use qtbridge::qtbridge_runtime::QPropertyMember;
             use qtbridge::qtbridge_type_lib;
             use qtbridge_type_lib::{QMetaType, QMetaTypeGet};
             meta_obj.as_mut().register_signal(
                 "signal_with_nested_type_in_argument_by_value",
-                &[<*mut qtbridge_type_lib::QObject as QMetaTypeGet>::get_qmetatype()],
+                &[<Rc<RefCell<SomeNestedType>> as QMetaCallArg>::wire_metatype()],
             );
             meta_obj.as_mut().register_signal(
                 "signal_with_nested_type_in_argument_by_reference",
-                &[<*mut qtbridge_type_lib::QObject as QMetaTypeGet>::get_qmetatype()],
+                &[<Rc<RefCell<SomeNestedType>> as QMetaCallArg>::wire_metatype()],
             );
             meta_obj.as_mut().end_meta_registration();
         }

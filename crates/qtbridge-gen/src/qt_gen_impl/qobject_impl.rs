@@ -66,8 +66,6 @@ impl QObjectImplOutput {
 /// Make struct behave as if it was 'inherited' from given QObject interface (optionally).
 /// Generate code needed to make it work.
 pub fn qobject_impl(input: TokenStream, params: TokenStream) -> syn::Result<QObjectImplOutput> {
-    qtbridge_type_lib::init();
-
     // Parsing input parameters of this macro
     let params = syn::parse2::<QObjectMacroParams>(params)
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to parse input params.\nError: {err}")))?;

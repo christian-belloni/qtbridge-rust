@@ -5,4 +5,3 @@ mod tst_assert;
 mod case_conv_tests;
 mod type_dependencies_tests;
 mod type_to_cpp_tests;
-mod meta_args_tests;

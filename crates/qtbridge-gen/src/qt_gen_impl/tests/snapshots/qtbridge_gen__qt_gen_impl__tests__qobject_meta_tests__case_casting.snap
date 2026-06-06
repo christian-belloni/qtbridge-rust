@@ -7,30 +7,31 @@ impl qtbridge::qtbridge_runtime::QMetaInfo for SomeStruct {
     fn build_dynamic_meta_type(
         mut meta_obj: std::pin::Pin<&mut qtbridge::qtbridge_runtime::DynamicMetaObjectBuilder>,
     ) {
+        use qtbridge::qtbridge_runtime::QMetaCallArg;
         use qtbridge::qtbridge_runtime::QPropertyMember;
         use qtbridge::qtbridge_type_lib;
         use qtbridge_type_lib::{QMetaType, QMetaTypeGet};
         meta_obj.as_mut().register_signal(
             "this_value_changed",
-            &[<qtbridge_type_lib::QString as QMetaTypeGet>::get_qmetatype()],
+            &[<String as QMetaCallArg>::wire_metatype()],
         );
         meta_obj.as_mut().register_signal(
             "otherValueChanged",
-            &[<f32 as QMetaTypeGet>::get_qmetatype()],
+            &[<f32 as QMetaCallArg>::wire_metatype()],
         );
         meta_obj.as_mut().register_signal(
             "thisStringValueChangedByRef",
-            &[<qtbridge_type_lib::QString as QMetaTypeGet>::get_qmetatype()],
+            &[<String as QMetaCallArg>::wire_metatype()],
         );
         meta_obj.as_mut().register_signal(
             "thatStringValueChangedByValue",
-            &[<qtbridge_type_lib::QString as QMetaTypeGet>::get_qmetatype()],
+            &[<String as QMetaCallArg>::wire_metatype()],
         );
         meta_obj.as_mut().register_slot(
             "onThatValueChanged",
             1u32,
-            &[<qtbridge_type_lib::QString as QMetaTypeGet>::get_qmetatype()],
-            &QMetaType::default(),
+            &[<String as QMetaCallArg>::wire_metatype()],
+            &qtbridge::qtbridge_type_lib::QMetaType::default(),
             qtbridge::qtbridge_runtime::dynamicmetaobjectbuilder::Mutability::Mutable,
         );
         meta_obj.as_mut().register_property(

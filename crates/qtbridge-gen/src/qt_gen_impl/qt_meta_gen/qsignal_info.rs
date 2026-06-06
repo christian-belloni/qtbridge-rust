@@ -3,7 +3,7 @@
 
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{Ident, LitStr, parse_quote};
+use syn::{Ident, LitStr};
 use syn::spanned::Spanned;
 
 use qtbridge_gen_common::case_conv;
@@ -11,7 +11,7 @@ use qtbridge_gen_common::function_with_attributes::{FunctionWithAttributes, Bloc
 use qtbridge_gen_common::parse_utils::{parse_name_value, partition_attr_by};
 use qtbridge_gen_common::signature_utils::{get_typed_args, get_typed_args_types, is_self_mut};
 use qtbridge_gen_common::type_utils::remove_refs;
-use qtbridge_gen_common::type_registry::meta_types::{MetaTypeMapping, check_meta_call_signature_types, get_qmetatype_support_for_type};
+use qtbridge_gen_common::type_registry::meta_types::check_meta_call_signature;
 use crate::qt_gen_impl::qt_meta_gen;
 use crate::qt_gen_impl::qobject_macro_params::QObjectMacroParams;
 use qt_meta_gen::meta_call_bridge_generator::MetaCallBridgeGenerator;
@@ -81,27 +81,20 @@ impl QSignalInfo {
         let sig = &self.sig;
 
         let name = self.get_qml_name_span().0;
-        let arg_types_qt = get_typed_args_types(sig)
-            .map(|ty| -> syn::Result<syn::Type> {
-                match get_qmetatype_support_for_type(ty)? {
-                    MetaTypeMapping::Direct => Ok(remove_refs(ty).clone()),
-                    MetaTypeMapping::Converted(t) => Ok(t),
-                    MetaTypeMapping::Object(_) => Ok(parse_quote! { *mut qtbridge_type_lib::QObject }),
-                    MetaTypeMapping::ObjectList(_) => Ok(parse_quote! { qtbridge_type_lib::QObjectList }),
-                }
-            })
-            .collect::<syn::Result<Vec<_>>>()?;
+        let arg_types_no_ref: Vec<syn::Type> = get_typed_args_types(sig)
+            .map(|ty| remove_refs(ty).clone())
+            .collect();
 
         let register_signal = quote!{
             meta_obj.as_mut().register_signal(
                 #name,
-                &[#(<#arg_types_qt as QMetaTypeGet>::get_qmetatype()),*]);
+                &[#(<#arg_types_no_ref as QMetaCallArg>::wire_metatype()),*]);
         };
         Ok(register_signal)
     }
 
     fn check_signature(sign: &syn::Signature) -> syn::Result<()> {
-        check_meta_call_signature_types(sign)
+        check_meta_call_signature(sign)
     }
 }
 
@@ -160,7 +153,7 @@ impl ExpandTokens for QSignalInfo {
         let Self { attrs, vis, sig, .. } = self;
         let bridge_generator = MetaCallBridgeGenerator::new(sig)?;
         let qml_name = self.get_qml_name_span().0;
-        let argv_setup = bridge_generator.generate_argv_setup_for_signals()?;
+        let argv_setup = bridge_generator.generate_argv_setup_for_signals();
         if !self.is_mut() {
             let err_span = sig.receiver()
                 .map_or_else(|| sig.ident.span(), |r| r.self_token.span());
@@ -172,6 +165,7 @@ impl ExpandTokens for QSignalInfo {
             #vis
             #sig
             {
+                use qtbridge::qtbridge_runtime::QMetaCallArg;
                 let proxy = <Self as qtbridge::QObjectHolder>::try_get_rust_proxy_ptr(self).expect("No proxy");
                 #argv_setup
                 qtbridge::qtbridge_runtime::qproxies::QRustProxy::emit_signal(unsafe { &*proxy }, self, #qml_name, argv.as_slice())
