@@ -61,9 +61,8 @@ pub fn get_traits_substituted<'a>(src: impl Iterator<Item = &'a TraitImpl>, type
     Ok(result)
 }
 
-pub fn get_functions_substituted(src: &[Function], self_type: &syn::Type, type_map: &TypeMappingNested<MultiTypeMapping>) -> syn::Result<Vec<Function>> {
-    src.iter()
-        .map(|func| func.substitute_types(type_map, self_type))
+pub fn get_functions_substituted<'a>(src: impl Iterator<Item = &'a Function>, self_type: &syn::Type, type_map: &TypeMappingNested<MultiTypeMapping>) -> syn::Result<Vec<Function>> {
+    src.map(|func| func.substitute_types(type_map, self_type))
         .collect::<syn::Result<_>>()
 }
 

@@ -1,7 +1,7 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashSet};
 use std::rc::Rc;
 
 use proc_macro2::TokenStream;
@@ -234,8 +234,13 @@ impl GenericSubmoduleGenerator {
         let impl_ident = self.impl_ident();
         let generics = self.generic_list_tokens_in_angle_brackets();
         let prefix = Function::get_inline_functions_default_prefix();
+        let mut unique = BTreeSet::new();
+
         let mut result = TokenStream::new();
         for function in self.module().functions() {
+            if !unique.insert(&function.signature().ident) {
+                continue // the function was already added.
+            }
             let func_tokens = if !function.cpp_functions().is_empty() {
                 let docs = function.docs();
                 let vis = function.visibility();
@@ -311,8 +316,13 @@ impl GenericSubmoduleGenerator {
     fn get_functions_of_impl_trait(&self) -> impl Iterator<Item = &Function> {
         // If function has inline C++ block - put it to the 'Impl' trait
         // Maybe logic must be more complicate here
+        let mut unique = BTreeSet::new();
         self.module().functions().iter()
-            .filter(|f| !f.cpp_functions().is_empty())
+            .filter(move |f| {
+                !f.cpp_functions().is_empty() && // The function contains C++ function.
+                unique.insert(&f.signature().ident) // The function was not added yet.
+            })
+            .into_iter()
     }
 
     fn collect_type_tokens(&mut self) -> syn::Result<()> {

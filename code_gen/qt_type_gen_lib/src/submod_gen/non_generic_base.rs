@@ -73,14 +73,18 @@ impl NonGenericSubmoduleGeneratorBase {
         };
         let qmetatype_id = qmetatype.map(|q| q.id().unwrap_or_default());
 
-        let funcs_substituted = get_functions_substituted(src_module.functions(), &struct_type, &type_map)?;
-        let traits_substituted = match inst.as_ref() {
-            Some(inst) =>get_traits_substituted(
-                src_module.traits().iter()
-                    .filter(|trait_| trait_.is_included_for_struct_instantiations(inst.types())),
-                &type_map)?,
-            None => get_traits_substituted(src_module.traits().iter(), &type_map)?
-        };
+        let mut funcs: Vec<&Function> = src_module.functions().iter()
+            .collect();
+        let mut traits: Vec<&TraitImpl> = src_module.traits().iter()
+            .collect();
+        if let Some(inst) = inst {
+            let inst_types = inst.types();
+            funcs.retain(|f| f.is_included_for_struct_instantiations(inst_types));
+            traits.retain(|t| t.is_included_for_struct_instantiations(inst_types));
+        }
+
+        let funcs_substituted = get_functions_substituted(funcs.into_iter(), &struct_type, &type_map)?;
+        let traits_substituted = get_traits_substituted(traits.into_iter(), &type_map)?;
 
         Ok(Self {
             src_module,

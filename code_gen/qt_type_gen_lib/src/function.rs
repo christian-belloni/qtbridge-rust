@@ -10,13 +10,14 @@ use qtbridge_gen_common::case_conv;
 use qtbridge_gen_common::function_bridge::CppFunctionBridge;
 use qtbridge_gen_common::multi_type_mapping::MultiTypeMapping;
 use qtbridge_gen_common::naming;
-use qtbridge_gen_common::signature_utils::change_first_arg;
+use qtbridge_gen_common::signature_utils::{change_first_arg, is_unsafe};
 use qtbridge_gen_common::type_mapping_nested::TypeMappingNested;
 use qtbridge_gen_common::type_utils::ident_to_type;
 
 use crate::cpp_fun::CppFun;
 use crate::cpp_fun_processor::CppFunProcessor;
 use crate::function_attributes::FunctionAttributes;
+use crate::generic_instantiation_decl::GenericInstantiationTypes;
 use crate::self_type_mapping::SelfTypeMapping;
 
 #[derive(Clone)]
@@ -90,6 +91,24 @@ impl Function {
             .map(|attr| attr.docs())
             .unwrap_or_default()
     }
+
+    pub fn is_included_for_struct_instantiations(&self, struct_inst: &GenericInstantiationTypes) -> bool {
+        let Some(attr) = self.attrs.as_ref() else {
+            return true;
+        };
+
+        if let Some(incl) = attr.instantiation_inclusions() {
+            return incl.list().iter()
+                .any(|incl_types| incl_types == struct_inst)
+        }
+        else if let Some(excl) = attr.instantiation_exclusions() {
+            return excl.list().iter()
+                .all(|excl_types| excl_types != struct_inst)
+        }
+
+        true
+    }
+
 
     pub fn get_rust_func(&self, name_prefix: &str) -> syn::Result<syn::ItemFn> {
 
@@ -173,6 +192,10 @@ impl Function {
         if let Some(self_type) = self_type {
             let self_type_map = TypeMappingNested::new(SelfTypeMapping::new(self_type.clone()));
             new_sign = self_type_map.map_signature(&new_sign)?;
+        }
+
+        if is_unsafe(&new_sign) {
+            new_sign.unsafety = Some(<_>::default());
         }
 
         Ok(new_sign)
