@@ -112,12 +112,12 @@ impl QApp {
     /// as the property value. The property is stored internally and applied when [`QApp::load_qml`]
     /// is called.
     ///
-    /// ### Arguments
+    /// # Parameters
     ///
     /// * `id` - The name of the property to add to the root QML object.
     /// * `value` - The value of the property.
     ///
-    /// ### Example
+    /// # Example
     ///
     /// ```rust
     ///# use qtbridge_runtime::QApp;
@@ -193,7 +193,7 @@ impl QApp {
     ///
     /// # Parameters
     ///
-    /// * `code` – A byte slice containing the QML source.
+    /// * `code` - A byte slice containing the QML source.
     ///
     /// # Returns
     ///
@@ -203,6 +203,50 @@ impl QApp {
             self.engine.pin_mut().set_initial_properties(&self.initial_properties);
         }
         self.engine.pin_mut().load_data(code);
+        self
+    }
+
+    /// Loads the main QML file by URL.
+    ///
+    /// This is the file-based counterpart to [`QApp::load_qml`]. Use it when
+    /// the entry-point QML file is embedded in a Qt resource (qrc) or
+    /// accessible as a regular file path rather than an in-memory byte slice.
+    ///
+    /// If the QML file imports other modules that are also embedded in
+    /// resources, those modules will only be found if their parent directory
+    /// has been registered with [`QApp::add_import_path`] beforehand.
+    ///
+    /// # Parameters
+    ///
+    /// * `url` - A URL string pointing to the QML file, e.g.
+    ///   `"qrc:/qt/qml/MyApp/Main.qml"` or `"file:///path/to/main.qml"`.
+    ///
+    /// # Returns
+    ///
+    /// A mutable reference to `self`, allowing method chaining.
+    pub fn load_qml_from_file(&mut self, url: &str) -> &mut Self {
+        if !self.initial_properties.is_empty() {
+            self.engine.pin_mut().set_initial_properties(&self.initial_properties);
+        }
+        self.engine.pin_mut().load(url);
+        self
+    }
+
+    /// Adds a directory to the QML engine's module import search path.
+    ///
+    /// Call this before [`QApp::load_qml_from_file`] when the loaded QML file
+    /// imports modules that live in a directory the engine would not otherwise
+    /// search.
+    ///
+    /// # Parameters
+    ///
+    /// * `path` - A URL or file-system path to add to the import search list.
+    ///
+    /// # Returns
+    ///
+    /// A mutable reference to `self`, allowing method chaining.
+    pub fn add_import_path(&mut self, path: &str) -> &mut Self {
+        self.engine.pin_mut().add_import_path(path);
         self
     }
 
@@ -246,7 +290,7 @@ impl QApp {
     ///
     /// # Parameters
     ///
-    /// * `name` – The application name.
+    /// * `name` - The application name.
     ///
     /// # Returns
     ///
