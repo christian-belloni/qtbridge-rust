@@ -71,3 +71,8 @@ harness = false
 name = "signal_slot_nested_lists_tests"
 path = "tests/signal_slot_nested_lists_tests.rs"
 harness = false
+
+[[test]]
+name = "property_nested_lists_getter_setter_tests"
+path = "tests/property_nested_lists_getter_setter_tests.rs"
+harness = false
