@@ -76,3 +76,8 @@ harness = false
 name = "property_nested_lists_getter_setter_tests"
 path = "tests/property_nested_lists_getter_setter_tests.rs"
 harness = false
+
+[[test]]
+name = "property_default_property_tests"
+path = "tests/property_default_property_tests.rs"
+harness = false
