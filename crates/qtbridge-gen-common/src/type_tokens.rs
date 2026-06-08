@@ -169,7 +169,10 @@ impl TypeTokens {
                     // Check if all of arguments are generic type specifier (e.g. QMap<K, V>)
                     let are_all_args_generic_idents = generic_w_args.args().iter()
                         .all(|arg| {
-                            let QtGenericArg::Unclassified(path) = arg else {
+                            let QtGenericArg::Unclassified(ty) = arg else {
+                                return false
+                            };
+                            let Ok(path) = path_from_type(ty) else {
                                 return false
                             };
                             path.get_ident()

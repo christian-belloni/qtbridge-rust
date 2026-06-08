@@ -5,6 +5,7 @@ use std::rc::Rc;
 
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
+use syn::spanned::Spanned;
 
 use qtbridge_gen_common::naming;
 use qtbridge_gen_common::parse_utils::is_doc_attribute;
@@ -83,7 +84,14 @@ impl MonomorphedSubmoduleGenerator {
         let mut types = vec![self.src_struct_ident().clone(), impl_ident];
 
         for (_, gen_type) in self.base.type_map().get_impl().iter() {
-            let gen_path = path_from_type(gen_type)?;
+            let gen_path = match gen_type {
+                syn::Type::Path(_) =>
+                    path_from_type(gen_type),
+                syn::Type::Ptr(ptr) => path_from_type(ptr.elem.as_ref()),
+                _ => Err(syn::Error::new(
+                    gen_type.span(),
+                    format!("Unsupported category of a generic type: '{}'", type_to_string_fallback(gen_type))))
+            }?;
             let ty = type_registry::Type::find_by_path_checked(gen_path)?;
             let qt_type = match ty {
                 type_registry::Type::Qt(qt_type) => qt_type,

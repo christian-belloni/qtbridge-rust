@@ -8,7 +8,7 @@ use crate::type_registry;
 use type_registry::type_traits::{FindType, GenericArgs, TypeName, TypeInfo};
 use type_registry::{PrimitiveType, StandardType, TypeCategory};
 use crate::type_utils::{path_from_type, path_to_type};
-use crate::type_to_string::path_to_string_fallback;
+use crate::type_to_string::{type_to_ident_str, type_to_string_fallback};
 use super::monomorphed::QtMonomorphedType;
 use super::non_generic::QtNonGenericType;
 use super::QtType;
@@ -229,12 +229,13 @@ impl QtGenericTypeWithArgs {
 
         for arg in &self.args {
             let arg_type_str = match arg {
-                QtGenericArg::Primitive(primitive) => primitive.name(),
-                QtGenericArg::Qt(qt_concrete) => qt_concrete.name(),
-                QtGenericArg::Unclassified(_) => return None,
+                QtGenericArg::Primitive(primitive) => primitive.name().to_owned(),
+                QtGenericArg::Qt(qt_concrete) => qt_concrete.name().to_owned(),
+                QtGenericArg::Unclassified(unclassified) => type_to_ident_str(unclassified)
+                    .ok()?
             };
             result.push('_');
-            result.push_str(arg_type_str);
+            result.push_str(&arg_type_str);
         }
 
         Some(result)
@@ -287,8 +288,8 @@ impl GenericArgs for QtGenericTypeWithArgs {
             QtGenericArg::Qt(qt_ty) =>
                 syn::parse_str(&qt_ty.qualified_path_string())
                     .ok(),
-            QtGenericArg::Unclassified(path) =>
-                Some(path_to_type(path.clone())),
+            QtGenericArg::Unclassified(ty) =>
+                Some(ty.clone()),
         }
     }
 }
@@ -312,7 +313,7 @@ impl TypeInfo for QtGenericTypeWithArgs {
 pub enum QtGenericArg {
     Primitive(PrimitiveType),
     Qt(QtNonGenericType),
-    Unclassified(syn::Path),
+    Unclassified(syn::Type),
 }
 
 impl std::fmt::Display for QtGenericArg {
@@ -320,7 +321,7 @@ impl std::fmt::Display for QtGenericArg {
         match self {
             Self::Primitive(primitive) => f.write_str(primitive.name()),
             Self::Qt(qt) => f.write_str(qt.name()),
-            Self::Unclassified(path) => f.write_str(&path_to_string_fallback(path)),
+            Self::Unclassified(path) => f.write_str(&type_to_string_fallback(path)),
         }
     }
 }
@@ -362,24 +363,15 @@ impl TryFrom<&syn::GenericArgument> for QtGenericArg {
             return Err(syn::Error::new(value.span(), format!("Unsupported category '{:?}' of GenericArgument '{}'", std::mem::discriminant(value), value.to_token_stream())))
         };
 
-        let syn::Type::Path(arg_type_path) = arg_type else {
-            return Err(syn::Error::new(value.span(), format!("Unsupported category '{:?}' of GenericArgument type '{}'", std::mem::discriminant(arg_type), arg_type.to_token_stream())))
-        };
-
-        if let Some(qself) = &arg_type_path.qself {
-            return Err(syn::Error::new(qself.span(), "Qualified self is not supported here"))
-        }
-
-        let path = &arg_type_path.path;
-        Self::try_from(path)
+        Self::try_from(arg_type)
     }
 }
 
 impl TryFrom<&syn::Type> for QtGenericArg {
     type Error = syn::Error;
     fn try_from(value: &syn::Type) -> syn::Result<Self> {
-        let path = path_from_type(value)?;
-        Self::try_from(path)
+        path_from_type(value)
+            .map_or_else(|_| Ok(Self::Unclassified(value.clone())), |path| Self::try_from(path))
     }
 }
 
@@ -400,7 +392,7 @@ impl TryFrom<&syn::Path> for QtGenericArg {
             return Err(syn::Error::new(path.span(), format!("Type '{}' is not supported as elements of Qt generic type", ty.qualified_path_string())))
         }
 
-        Ok(Self::Unclassified(path.clone()))
+        Ok(Self::Unclassified(path_to_type(path.clone())))
     }
 }
 
