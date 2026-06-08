@@ -107,13 +107,25 @@ impl CppFunProcessor {
     fn expand_local_init(&mut self, src: &syn::LocalInit) -> syn::Result<Option<syn::LocalInit>>{
         let mut new_init = None;
 
-        if let syn::Expr::Macro(expr_macro) = src.expr.as_ref()
-            && let Some(new_expr) = self.expand_expr_macro(expr_macro)? {
-                new_init = Some(syn::LocalInit{
-                    expr: Box::new(new_expr),
-                    ..src.clone()
-                })
+        match src.expr.as_ref() {
+            syn::Expr::Call(expr_call) => {
+                if let Some(new_expr_call) = self.expand_expr_call(expr_call)? {
+                    new_init = Some(syn::LocalInit {
+                        expr: Box::new(new_expr_call.into()),
+                        ..src.clone()
+                    })
+                }
             }
+            syn::Expr::Macro(expr_macro) => {
+                if let Some(new_expr) = self.expand_expr_macro(expr_macro)? {
+                    new_init = Some(syn::LocalInit {
+                        expr: Box::new(new_expr),
+                        ..src.clone()
+                    })
+                }
+            }
+            _ => {},
+        }
 
         if let Some((else_token, else_expr)) = &src.diverge
             && let syn::Expr::Macro(expr_macro) = else_expr.as_ref()
