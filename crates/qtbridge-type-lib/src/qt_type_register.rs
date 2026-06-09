@@ -1,13 +1,12 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use qtbridge_gen_common::type_registry::type_traits::{FindType, MetaTypeId, TypeName};
+use qtbridge_gen_common::type_registry::type_traits::{FindType, MetaTypeId};
 use qtbridge_gen_common::type_registry::qt;
 use qt::non_generic::QtNonGenericType;
 use qt::generic::{QtGenericTypeWithoutArgs};
 use qt::monomorphed::QtMonomorphedType;
 use qt::monomorphed_alias::QtAliasToMonomorphedType;
-use qtbridge_gen_common::type_registry::PrimitiveType;
 use qtbridge_gen_common::type_registry::qt::QtType;
 use std::sync::Once;
 
@@ -28,7 +27,7 @@ pub fn init() {
                 QtType::add_generic(ty);
             }
 
-            for ty in get_monomorphed_types(&get_generic_types(), &get_non_generic_types()) {
+            for ty in get_monomorphed_types() {
                 QtType::add_monomorphed(ty);
             }
 

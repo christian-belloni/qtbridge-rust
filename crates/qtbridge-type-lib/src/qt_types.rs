@@ -27,251 +27,194 @@ fn get_generic_types() -> [QtGenericTypeWithoutArgs; 3usize] {
         QtGenericTypeWithoutArgs::new_str("QMap", "core::qmap", &["K", "V"]),
     ]
 }
-fn get_monomorphed_types(generics: &[QtGenericTypeWithoutArgs], non_generics: &[QtNonGenericType]) -> [QtMonomorphedType; 21usize] {
+fn get_monomorphed_types() -> [QtMonomorphedType; 21usize] {
     [
         QtMonomorphedType::new_str(
             "QHash_QByteArray_QVariant",
             "core::qhash",
-            generics
-                .iter()
-                .find(|generic| generic.name() == "QHash")
+            QtGenericTypeWithoutArgs::find_by_name("QHash")
                 .unwrap()
-                .set_args(vec![
-                    non_generics.iter().find(|non_gen| non_gen.name() == "QByteArray").unwrap().clone().into(),
-                    non_generics.iter().find(|non_gen| non_gen.name() == "QVariant").unwrap().clone().into(),
-                ])
+                .set_args(vec!["QByteArray".try_into().unwrap(), "QVariant".try_into().unwrap()])
                 .unwrap(),
             MetaTypeId::None,
         ),
         QtMonomorphedType::new_str(
             "QHash_QString_QVariant",
             "core::qhash",
-            generics
-                .iter()
-                .find(|generic| generic.name() == "QHash")
+            QtGenericTypeWithoutArgs::find_by_name("QHash")
                 .unwrap()
-                .set_args(vec![
-                    non_generics.iter().find(|non_gen| non_gen.name() == "QString").unwrap().clone().into(),
-                    non_generics.iter().find(|non_gen| non_gen.name() == "QVariant").unwrap().clone().into(),
-                ])
+                .set_args(vec!["QString".try_into().unwrap(), "QVariant".try_into().unwrap()])
                 .unwrap(),
             MetaTypeId::Constant(28i32),
         ),
         QtMonomorphedType::new_str(
             "QHash_i32_QByteArray",
             "core::qhash",
-            generics
-                .iter()
-                .find(|generic| generic.name() == "QHash")
+            QtGenericTypeWithoutArgs::find_by_name("QHash")
                 .unwrap()
-                .set_args(vec![
-                    PrimitiveType::find_by_name("i32").unwrap().clone().into(),
-                    non_generics.iter().find(|non_gen| non_gen.name() == "QByteArray").unwrap().clone().into(),
-                ])
+                .set_args(vec!["i32".try_into().unwrap(), "QByteArray".try_into().unwrap()])
                 .unwrap(),
             MetaTypeId::None,
         ),
         QtMonomorphedType::new_str(
             "QList_QByteArray",
             "core::qlist",
-            generics
-                .iter()
-                .find(|generic| generic.name() == "QList")
+            QtGenericTypeWithoutArgs::find_by_name("QList")
                 .unwrap()
-                .set_args(vec![non_generics.iter().find(|non_gen| non_gen.name() == "QByteArray").unwrap().clone().into()])
+                .set_args(vec!["QByteArray".try_into().unwrap()])
                 .unwrap(),
             MetaTypeId::Constant(49i32),
         ),
         QtMonomorphedType::new_str(
             "QList_QString",
             "core::qlist",
-            generics
-                .iter()
-                .find(|generic| generic.name() == "QList")
+            QtGenericTypeWithoutArgs::find_by_name("QList")
                 .unwrap()
-                .set_args(vec![non_generics.iter().find(|non_gen| non_gen.name() == "QString").unwrap().clone().into()])
+                .set_args(vec!["QString".try_into().unwrap()])
                 .unwrap(),
             MetaTypeId::Constant(11i32),
         ),
         QtMonomorphedType::new_str(
             "QList_QVariant",
             "core::qlist",
-            generics
-                .iter()
-                .find(|generic| generic.name() == "QList")
+            QtGenericTypeWithoutArgs::find_by_name("QList")
                 .unwrap()
-                .set_args(vec![non_generics.iter().find(|non_gen| non_gen.name() == "QVariant").unwrap().clone().into()])
+                .set_args(vec!["QVariant".try_into().unwrap()])
                 .unwrap(),
             MetaTypeId::Constant(9i32),
         ),
         QtMonomorphedType::new_str(
             "QList_bool",
             "core::qlist",
-            generics
-                .iter()
-                .find(|generic| generic.name() == "QList")
+            QtGenericTypeWithoutArgs::find_by_name("QList")
                 .unwrap()
-                .set_args(vec![PrimitiveType::find_by_name("bool").unwrap().clone().into()])
+                .set_args(vec!["bool".try_into().unwrap()])
                 .unwrap(),
-            MetaTypeId::None,
+            MetaTypeId::Runtime,
         ),
         QtMonomorphedType::new_str(
             "QList_f32",
             "core::qlist",
-            generics
-                .iter()
-                .find(|generic| generic.name() == "QList")
+            QtGenericTypeWithoutArgs::find_by_name("QList")
                 .unwrap()
-                .set_args(vec![PrimitiveType::find_by_name("f32").unwrap().clone().into()])
+                .set_args(vec!["f32".try_into().unwrap()])
                 .unwrap(),
-            MetaTypeId::None,
+            MetaTypeId::Runtime,
         ),
         QtMonomorphedType::new_str(
             "QList_f64",
             "core::qlist",
-            generics
-                .iter()
-                .find(|generic| generic.name() == "QList")
+            QtGenericTypeWithoutArgs::find_by_name("QList")
                 .unwrap()
-                .set_args(vec![PrimitiveType::find_by_name("f64").unwrap().clone().into()])
+                .set_args(vec!["f64".try_into().unwrap()])
                 .unwrap(),
-            MetaTypeId::None,
+            MetaTypeId::Runtime,
         ),
         QtMonomorphedType::new_str(
             "QList_i16",
             "core::qlist",
-            generics
-                .iter()
-                .find(|generic| generic.name() == "QList")
+            QtGenericTypeWithoutArgs::find_by_name("QList")
                 .unwrap()
-                .set_args(vec![PrimitiveType::find_by_name("i16").unwrap().clone().into()])
+                .set_args(vec!["i16".try_into().unwrap()])
                 .unwrap(),
-            MetaTypeId::None,
+            MetaTypeId::Runtime,
         ),
         QtMonomorphedType::new_str(
             "QList_i32",
             "core::qlist",
-            generics
-                .iter()
-                .find(|generic| generic.name() == "QList")
+            QtGenericTypeWithoutArgs::find_by_name("QList")
                 .unwrap()
-                .set_args(vec![PrimitiveType::find_by_name("i32").unwrap().clone().into()])
+                .set_args(vec!["i32".try_into().unwrap()])
                 .unwrap(),
-            MetaTypeId::None,
+            MetaTypeId::Runtime,
         ),
         QtMonomorphedType::new_str(
             "QList_i64",
             "core::qlist",
-            generics
-                .iter()
-                .find(|generic| generic.name() == "QList")
+            QtGenericTypeWithoutArgs::find_by_name("QList")
                 .unwrap()
-                .set_args(vec![PrimitiveType::find_by_name("i64").unwrap().clone().into()])
+                .set_args(vec!["i64".try_into().unwrap()])
                 .unwrap(),
-            MetaTypeId::None,
+            MetaTypeId::Runtime,
         ),
         QtMonomorphedType::new_str(
             "QList_i8",
             "core::qlist",
-            generics
-                .iter()
-                .find(|generic| generic.name() == "QList")
+            QtGenericTypeWithoutArgs::find_by_name("QList")
                 .unwrap()
-                .set_args(vec![PrimitiveType::find_by_name("i8").unwrap().clone().into()])
+                .set_args(vec!["i8".try_into().unwrap()])
                 .unwrap(),
-            MetaTypeId::None,
+            MetaTypeId::Runtime,
         ),
         QtMonomorphedType::new_str(
             "QList_isize",
             "core::qlist",
-            generics
-                .iter()
-                .find(|generic| generic.name() == "QList")
+            QtGenericTypeWithoutArgs::find_by_name("QList")
                 .unwrap()
-                .set_args(vec![PrimitiveType::find_by_name("isize").unwrap().clone().into()])
+                .set_args(vec!["isize".try_into().unwrap()])
                 .unwrap(),
-            MetaTypeId::None,
+            MetaTypeId::Runtime,
         ),
         QtMonomorphedType::new_str(
             "QList_u16",
             "core::qlist",
-            generics
-                .iter()
-                .find(|generic| generic.name() == "QList")
+            QtGenericTypeWithoutArgs::find_by_name("QList")
                 .unwrap()
-                .set_args(vec![PrimitiveType::find_by_name("u16").unwrap().clone().into()])
+                .set_args(vec!["u16".try_into().unwrap()])
                 .unwrap(),
-            MetaTypeId::None,
+            MetaTypeId::Runtime,
         ),
         QtMonomorphedType::new_str(
             "QList_u32",
             "core::qlist",
-            generics
-                .iter()
-                .find(|generic| generic.name() == "QList")
+            QtGenericTypeWithoutArgs::find_by_name("QList")
                 .unwrap()
-                .set_args(vec![PrimitiveType::find_by_name("u32").unwrap().clone().into()])
+                .set_args(vec!["u32".try_into().unwrap()])
                 .unwrap(),
-            MetaTypeId::None,
+            MetaTypeId::Runtime,
         ),
         QtMonomorphedType::new_str(
             "QList_u64",
             "core::qlist",
-            generics
-                .iter()
-                .find(|generic| generic.name() == "QList")
+            QtGenericTypeWithoutArgs::find_by_name("QList")
                 .unwrap()
-                .set_args(vec![PrimitiveType::find_by_name("u64").unwrap().clone().into()])
+                .set_args(vec!["u64".try_into().unwrap()])
                 .unwrap(),
-            MetaTypeId::None,
+            MetaTypeId::Runtime,
         ),
         QtMonomorphedType::new_str(
             "QList_u8",
             "core::qlist",
-            generics
-                .iter()
-                .find(|generic| generic.name() == "QList")
+            QtGenericTypeWithoutArgs::find_by_name("QList")
                 .unwrap()
-                .set_args(vec![PrimitiveType::find_by_name("u8").unwrap().clone().into()])
+                .set_args(vec!["u8".try_into().unwrap()])
                 .unwrap(),
-            MetaTypeId::None,
+            MetaTypeId::Runtime,
         ),
         QtMonomorphedType::new_str(
             "QList_usize",
             "core::qlist",
-            generics
-                .iter()
-                .find(|generic| generic.name() == "QList")
+            QtGenericTypeWithoutArgs::find_by_name("QList")
                 .unwrap()
-                .set_args(vec![PrimitiveType::find_by_name("usize").unwrap().clone().into()])
+                .set_args(vec!["usize".try_into().unwrap()])
                 .unwrap(),
-            MetaTypeId::None,
+            MetaTypeId::Runtime,
         ),
         QtMonomorphedType::new_str(
             "QMap_QString_QVariant",
             "core::qmap",
-            generics
-                .iter()
-                .find(|generic| generic.name() == "QMap")
+            QtGenericTypeWithoutArgs::find_by_name("QMap")
                 .unwrap()
-                .set_args(vec![
-                    non_generics.iter().find(|non_gen| non_gen.name() == "QString").unwrap().clone().into(),
-                    non_generics.iter().find(|non_gen| non_gen.name() == "QVariant").unwrap().clone().into(),
-                ])
+                .set_args(vec!["QString".try_into().unwrap(), "QVariant".try_into().unwrap()])
                 .unwrap(),
             MetaTypeId::Constant(8i32),
         ),
         QtMonomorphedType::new_str(
             "QMap_i32_QString",
             "core::qmap",
-            generics
-                .iter()
-                .find(|generic| generic.name() == "QMap")
+            QtGenericTypeWithoutArgs::find_by_name("QMap")
                 .unwrap()
-                .set_args(vec![
-                    PrimitiveType::find_by_name("i32").unwrap().clone().into(),
-                    non_generics.iter().find(|non_gen| non_gen.name() == "QString").unwrap().clone().into(),
-                ])
+                .set_args(vec!["i32".try_into().unwrap(), "QString".try_into().unwrap()])
                 .unwrap(),
             MetaTypeId::None,
         ),

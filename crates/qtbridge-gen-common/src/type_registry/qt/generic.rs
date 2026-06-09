@@ -404,5 +404,14 @@ impl TryFrom<&syn::Path> for QtGenericArg {
     }
 }
 
+impl TryFrom<&str> for QtGenericArg {
+    type Error = syn::Error;
+
+    fn try_from(src: &str) -> syn::Result<Self> {
+        let ty: syn::Type = syn::parse_str(src)?;
+        Self::try_from(&ty)
+    }
+}
+
 unsafe impl Sync for QtGenericArg {}
 unsafe impl Send for QtGenericArg {}

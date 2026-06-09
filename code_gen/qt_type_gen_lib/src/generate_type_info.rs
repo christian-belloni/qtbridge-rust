@@ -1,5 +1,4 @@
 use proc_macro2::TokenStream;
-use qtbridge_gen_common::type_registry::qt::generic::QtGenericArg;
 use quote::quote;
 
 use qtbridge_gen_common::type_registry;
@@ -33,27 +32,9 @@ pub fn generate_qt_types_getters_code() -> Result<TokenStream, String> {
                 let gen_name = mono.source().gen_name().to_owned();
                 let args = mono.source().args().iter()
                     .map(|arg| {
-                        let name = arg.to_string();
-                        match arg {
-                            QtGenericArg::Primitive(_) => quote! {
-                                PrimitiveType::find_by_name(#name)
-                                    .unwrap()
-                                    .clone()
-                                    .into()
-                            },
-                            // TODO: use binary_search() instead of find()?
-                            QtGenericArg::Qt(_) => quote! {
-                                non_generics.iter().find(|non_gen| non_gen.name() == #name)
-                                    .unwrap()
-                                    .clone()
-                                    .into()
-                            },
-                            QtGenericArg::Unclassified(_) => quote! {
-                                non_generics.iter().find(|non_gen| non_gen.name() == #name)
-                                    .unwrap()
-                                    .clone()
-                                    .into()
-                            }
+                        let ty_str = arg.to_string();
+                        quote! {
+                            #ty_str.try_into().unwrap()
                         }
                     });
 
@@ -61,7 +42,7 @@ pub fn generate_qt_types_getters_code() -> Result<TokenStream, String> {
                     QtMonomorphedType::new_str(
                         #name,
                         #path_in_gen,
-                        generics.iter().find(|generic| generic.name() == #gen_name)
+                        QtGenericTypeWithoutArgs::find_by_name(#gen_name)
                             .unwrap()
                             .set_args(vec![#(#args),*])
                             .unwrap(),
@@ -95,7 +76,7 @@ pub fn generate_qt_types_getters_code() -> Result<TokenStream, String> {
                 #(#generic_vec),*
             ]
         }
-        fn get_monomorphed_types(generics: &[QtGenericTypeWithoutArgs], non_generics: &[QtNonGenericType]) -> [QtMonomorphedType; #monomorphed_count] {
+        fn get_monomorphed_types() -> [QtMonomorphedType; #monomorphed_count] {
             [
                 #(#monomorphed_vec),*
             ]
