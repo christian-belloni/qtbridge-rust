@@ -52,7 +52,7 @@ bool inlineCppFn_TraitImpl_PartialEq_for_QList_isize_eq(QList_isize const &lhs,
                                                         QList_isize const &rhs);
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_isize_N_for_QList_isize_eq(
-        QList_isize const &self, rust::Slice<const ptrdiff_t> rhs);
+        QList_isize const &self, rust::Slice<ptrdiff_t const> rhs);
 
 } // namespace rust::bridge::qlist_isize
 

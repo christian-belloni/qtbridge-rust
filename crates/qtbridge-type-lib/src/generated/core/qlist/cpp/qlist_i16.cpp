@@ -98,7 +98,7 @@ bool inlineCppFn_TraitImpl_PartialEq_for_QList_i16_eq(QList_i16 const &lhs, QLis
 }
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_i16_N_for_QList_i16_eq(QList_i16 const &self,
-                                                                     rust::Slice<const int16_t> rhs)
+                                                                     rust::Slice<int16_t const> rhs)
 {
     for (size_t i = 0; i < rhs.size(); ++i) {
         if (self[i] != rhs[i])

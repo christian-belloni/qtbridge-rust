@@ -49,7 +49,7 @@ int64_t const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_i64_index(QLi
 bool inlineCppFn_TraitImpl_PartialEq_for_QList_i64_eq(QList_i64 const &lhs, QList_i64 const &rhs);
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_i64_N_for_QList_i64_eq(
-        QList_i64 const &self, rust::Slice<const int64_t> rhs);
+        QList_i64 const &self, rust::Slice<int64_t const> rhs);
 
 } // namespace rust::bridge::qlist_i64
 

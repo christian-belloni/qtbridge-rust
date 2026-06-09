@@ -21,7 +21,7 @@ void inlineCppFn_add_import_path(QQmlApplicationEngine &self, rust::Str path);
 
 void inlineCppFn_load(QQmlApplicationEngine &self, rust::Str file_path);
 
-void inlineCppFn_load_data(QQmlApplicationEngine &self, rust::Slice<const uint8_t> data);
+void inlineCppFn_load_data(QQmlApplicationEngine &self, rust::Slice<uint8_t const> data);
 
 void inlineCppFn_load_from_module(QQmlApplicationEngine &self, rust::Str uri, rust::Str type_name);
 

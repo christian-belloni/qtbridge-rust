@@ -47,7 +47,7 @@ bool inlineCppFn_TraitImpl_PartialEq_for_QList_QVariant_eq(QList_QVariant const 
                                                            QList_QVariant const &rhs);
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_QVariant_N_for_QList_QVariant_eq(
-        QList_QVariant const &self, rust::Slice<const QVariant> rhs);
+        QList_QVariant const &self, rust::Slice<QVariant const> rhs);
 
 } // namespace rust::bridge::qlist_qvariant
 

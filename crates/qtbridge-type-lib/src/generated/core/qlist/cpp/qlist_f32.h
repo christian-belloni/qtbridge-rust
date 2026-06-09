@@ -49,7 +49,7 @@ float const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_f32_index(QList
 bool inlineCppFn_TraitImpl_PartialEq_for_QList_f32_eq(QList_f32 const &lhs, QList_f32 const &rhs);
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_f32_N_for_QList_f32_eq(QList_f32 const &self,
-                                                                     rust::Slice<const float> rhs);
+                                                                     rust::Slice<float const> rhs);
 
 } // namespace rust::bridge::qlist_f32
 

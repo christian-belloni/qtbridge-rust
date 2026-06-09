@@ -11,7 +11,7 @@ using namespace QtPrivate;
 
 ::QtPrivate::QMetaTypeInterface inlineCppFn_fill_fields(uint16_t align, uint32_t size,
                                                         uint32_t flags,
-                                                        rust::Slice<const uint8_t> name,
+                                                        rust::Slice<uint8_t const> name,
                                                         size_t meta_obj_fn, size_t default_ctr_fn,
                                                         size_t copy_ctr_fn, size_t dtor_fn)
 {
@@ -42,7 +42,7 @@ using namespace QtPrivate;
 {
     const QtPrivate::QMetaTypeInterface *base =
             QMetaType::fromType<QQmlListProperty<QObject>>().iface();
-    auto *name = new QByteArray(QByteArray("QQmlListProperty<") + element.name() + '>');
+    auto *name = new QByteArray(QByteArrayLiteral("QQmlListProperty<") + element.name() + '>');
     return QMetaTypeInterface{ base->revision,
                                base->alignment,
                                base->size,

@@ -98,7 +98,7 @@ bool inlineCppFn_TraitImpl_PartialEq_for_QList_u8_eq(QList_u8 const &lhs, QList_
 }
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_u8_N_for_QList_u8_eq(QList_u8 const &self,
-                                                                   rust::Slice<const uint8_t> rhs)
+                                                                   rust::Slice<uint8_t const> rhs)
 {
     for (size_t i = 0; i < rhs.size(); ++i) {
         if (self[i] != rhs[i])

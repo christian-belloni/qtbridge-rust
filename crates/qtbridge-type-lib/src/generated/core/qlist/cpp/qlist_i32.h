@@ -49,7 +49,7 @@ int32_t const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_i32_index(QLi
 bool inlineCppFn_TraitImpl_PartialEq_for_QList_i32_eq(QList_i32 const &lhs, QList_i32 const &rhs);
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_i32_N_for_QList_i32_eq(
-        QList_i32 const &self, rust::Slice<const int32_t> rhs);
+        QList_i32 const &self, rust::Slice<int32_t const> rhs);
 
 } // namespace rust::bridge::qlist_i32
 

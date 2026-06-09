@@ -24,7 +24,7 @@ ptrdiff_t inlineCppFn_size(QByteArray const &self);
 QByteArray inlineCppFn_TraitImpl_From_string_slice_for_QByteArray_from(rust::Str value);
 
 QByteArray
-inlineCppFn_TraitImpl_From_ref_slice_of_u8_for_QByteArray_from(rust::Slice<const uint8_t> value);
+inlineCppFn_TraitImpl_From_ref_slice_of_u8_for_QByteArray_from(rust::Slice<uint8_t const> value);
 
 uint8_t const *
 inlineCppFn_TraitImpl_std_ops_Index_usize_for_QByteArray_index(QByteArray const &self,

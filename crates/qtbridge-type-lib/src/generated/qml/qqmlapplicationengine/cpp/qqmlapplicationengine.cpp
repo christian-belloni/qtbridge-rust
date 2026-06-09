@@ -22,7 +22,7 @@ void inlineCppFn_load(QQmlApplicationEngine &self, rust::Str file_path)
     self.load(RustStrToQString(file_path));
 }
 
-void inlineCppFn_load_data(QQmlApplicationEngine &self, rust::Slice<const uint8_t> data)
+void inlineCppFn_load_data(QQmlApplicationEngine &self, rust::Slice<uint8_t const> data)
 {
     self.loadData(RustSliceToQByteArray(data));
 }

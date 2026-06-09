@@ -122,9 +122,9 @@ impl TypeMapToCpp {
         match src.elem.as_ref() {
             syn::Type::Slice(type_slice) => {
                 let maybe_const = src.mutability
-                    .map_or("const ", |_| "");
+                    .map_or(" const", |_| "");
                 let ty = self.type_to_cpp(type_slice.elem.as_ref())?;
-                return Ok(format!("rust::Slice<{maybe_const} {ty}>"))
+                return Ok(format!("rust::Slice<{ty} {maybe_const}>"))
             },
             syn::Type::Path(type_path) => {
                 if type_path.path.is_ident("str") {
@@ -141,7 +141,7 @@ impl TypeMapToCpp {
     fn type_slice_to_cpp(&self, src: &syn::TypeSlice) -> syn::Result<String> {
         // TODO: &mut [T] ?
         let ty = self.type_to_cpp(src.elem.as_ref())?;
-        Ok(format!("rust::Slice<const {ty}>"))
+        Ok(format!("rust::Slice<{ty} const>"))
     }
 
     pub fn path_to_cpp(&self, src: &syn::Path) -> syn::Result<String> {

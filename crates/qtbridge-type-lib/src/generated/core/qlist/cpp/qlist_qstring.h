@@ -47,7 +47,7 @@ bool inlineCppFn_TraitImpl_PartialEq_for_QList_QString_eq(QList_QString const &l
                                                           QList_QString const &rhs);
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_QString_N_for_QList_QString_eq(
-        QList_QString const &self, rust::Slice<const QString> rhs);
+        QList_QString const &self, rust::Slice<QString const> rhs);
 
 } // namespace rust::bridge::qlist_qstring
 

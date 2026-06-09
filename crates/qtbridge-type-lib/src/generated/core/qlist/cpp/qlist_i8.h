@@ -49,7 +49,7 @@ int8_t const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_i8_index(QList
 bool inlineCppFn_TraitImpl_PartialEq_for_QList_i8_eq(QList_i8 const &lhs, QList_i8 const &rhs);
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_i8_N_for_QList_i8_eq(QList_i8 const &self,
-                                                                   rust::Slice<const int8_t> rhs);
+                                                                   rust::Slice<int8_t const> rhs);
 
 } // namespace rust::bridge::qlist_i8
 

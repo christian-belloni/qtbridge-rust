@@ -41,7 +41,7 @@ QByteArray inlineCppFn_TraitImpl_From_string_slice_for_QByteArray_from(rust::Str
 }
 
 QByteArray
-inlineCppFn_TraitImpl_From_ref_slice_of_u8_for_QByteArray_from(rust::Slice<const uint8_t> value)
+inlineCppFn_TraitImpl_From_ref_slice_of_u8_for_QByteArray_from(rust::Slice<uint8_t const> value)
 {
     return RustByteSliceToQByteArray(value);
 }

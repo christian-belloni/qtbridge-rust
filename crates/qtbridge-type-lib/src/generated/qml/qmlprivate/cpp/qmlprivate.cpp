@@ -9,8 +9,8 @@ namespace rust::bridge::qmlprivate {
 
 void inlineCppFn_qml_register_element(QMetaType type_id, QMetaType list_id, uint32_t object_size,
                                       int32_t parser_status_cast, size_t create_fn,
-                                      rust::Slice<const uint8_t> uri, uint8_t version_major,
-                                      uint8_t version_minor, rust::Slice<const uint8_t> elm_name,
+                                      rust::Slice<uint8_t const> uri, uint8_t version_major,
+                                      uint8_t version_minor, rust::Slice<uint8_t const> elm_name,
                                       QMetaObject const &meta_object)
 {
     const QByteArray uriBa = RustByteSliceToQByteArray(uri);
@@ -43,8 +43,8 @@ void inlineCppFn_qml_register_element(QMetaType type_id, QMetaType list_id, uint
 }
 
 void inlineCppFn_qml_register_singleton(QMetaType type_id, size_t create_fn,
-                                        rust::Slice<const uint8_t> uri, uint8_t version_major,
-                                        uint8_t version_minor, rust::Slice<const uint8_t> elm_name,
+                                        rust::Slice<uint8_t const> uri, uint8_t version_major,
+                                        uint8_t version_minor, rust::Slice<uint8_t const> elm_name,
                                         QMetaObject const &meta_object)
 {
     auto createQmlSingletonType = [create_fn](QQmlEngine *, QJSEngine *) -> QObject * {

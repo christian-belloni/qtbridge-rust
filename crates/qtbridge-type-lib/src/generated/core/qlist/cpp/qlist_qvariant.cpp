@@ -88,7 +88,7 @@ bool inlineCppFn_TraitImpl_PartialEq_for_QList_QVariant_eq(QList_QVariant const 
 }
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_QVariant_N_for_QList_QVariant_eq(
-        QList_QVariant const &self, rust::Slice<const QVariant> rhs)
+        QList_QVariant const &self, rust::Slice<QVariant const> rhs)
 {
     for (size_t i = 0; i < rhs.size(); ++i) {
         if (self[i] != rhs[i])

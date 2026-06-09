@@ -49,7 +49,7 @@ uint16_t const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_u16_index(QL
 bool inlineCppFn_TraitImpl_PartialEq_for_QList_u16_eq(QList_u16 const &lhs, QList_u16 const &rhs);
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_u16_N_for_QList_u16_eq(
-        QList_u16 const &self, rust::Slice<const uint16_t> rhs);
+        QList_u16 const &self, rust::Slice<uint16_t const> rhs);
 
 } // namespace rust::bridge::qlist_u16
 

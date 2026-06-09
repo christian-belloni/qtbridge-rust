@@ -47,7 +47,7 @@ bool inlineCppFn_TraitImpl_PartialEq_for_QList_QByteArray_eq(QList_QByteArray co
                                                              QList_QByteArray const &rhs);
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_QByteArray_N_for_QList_QByteArray_eq(
-        QList_QByteArray const &self, rust::Slice<const QByteArray> rhs);
+        QList_QByteArray const &self, rust::Slice<QByteArray const> rhs);
 
 } // namespace rust::bridge::qlist_qbytearray
 

@@ -50,7 +50,7 @@ bool inlineCppFn_TraitImpl_PartialEq_for_QList_bool_eq(QList_bool const &lhs,
                                                        QList_bool const &rhs);
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_bool_N_for_QList_bool_eq(QList_bool const &self,
-                                                                       rust::Slice<const bool> rhs);
+                                                                       rust::Slice<bool const> rhs);
 
 } // namespace rust::bridge::qlist_bool
 

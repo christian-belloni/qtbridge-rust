@@ -22,12 +22,12 @@ QMetaObject const *inlineCppFn_get_qmeta_object(QObject const &self)
     return self.metaObject();
 }
 
-QVariant inlineCppFn_property(QObject const &self, rust::Slice<const uint8_t> name)
+QVariant inlineCppFn_property(QObject const &self, rust::Slice<uint8_t const> name)
 {
     return self.property(reinterpret_cast<const char *>(name.data()));
 }
 
-bool inlineCppFn_set_property(QObject &self, rust::Slice<const uint8_t> name, QVariant value)
+bool inlineCppFn_set_property(QObject &self, rust::Slice<uint8_t const> name, QVariant value)
 {
     return self.setProperty(reinterpret_cast<const char *>(name.data()), value);
 }
