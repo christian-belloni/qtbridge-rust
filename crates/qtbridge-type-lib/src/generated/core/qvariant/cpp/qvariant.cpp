@@ -144,6 +144,11 @@ QVariant inlineCppFn_TraitImpl_From_ref_ptr_mut_QObject_for_QVariant_from(QObjec
     return QVariant::fromValue(value);
 }
 
+QVariant inlineCppFn_TraitImpl_From_ref_QObjectList_for_QVariant_from(QObjectList const &value)
+{
+    return QVariant::fromValue(value);
+}
+
 QVariant inlineCppFn_TraitImpl_From_ref_Vec_bool_for_QVariant_from(rust::Vec<bool> const &value)
 {
     QList<bool> qlist(value.cbegin(), value.cend());
@@ -356,6 +361,15 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_ptr_mut_QObject_try_from(QVa
     if (!from.canConvert<QObject *>())
         return false;
     result = from.value<QObject *>();
+    return true;
+}
+
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_QObjectList_try_from(QVariant const &from,
+                                                                         QObjectList &result)
+{
+    if (!from.canConvert<QObjectList>())
+        return false;
+    result = from.value<QObjectList>();
     return true;
 }
 

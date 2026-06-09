@@ -21,6 +21,7 @@
 /// * [QByteArray][crate::QList_QByteArray] (also known as [QByteArrayList][crate::QByteArrayList])
 /// * [QString][crate::QList_QString] (also known as [QStringList][crate::QStringList])
 /// * [QVariant][crate::QList_QVariant] (also known as [QVariantList][crate::QVariantList])
+/// * [*mut QObject][crate::QObjectList]
 ///
 /// See also [QList documentation](https://doc.qt.io/qt-6/qlist.html).
 #[derive(Debug)]

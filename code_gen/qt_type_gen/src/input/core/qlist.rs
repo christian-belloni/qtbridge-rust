@@ -21,7 +21,8 @@ mod qlist {
         ((usize), qmetatype),
         ((QByteArray), alias = QByteArrayList, qmetatype = 49),
         ((QString), alias = QStringList, qmetatype = 11),
-        ((QVariant), alias = QVariantList, qmetatype = 9)
+        ((QVariant), alias = QVariantList, qmetatype = 9),
+        ((*mut QObject), alias = QObjectList, qmetatype),
         ]]
     #[derive(Debug)]
     #[derive_cpp(Default, Clone, Drop)]
@@ -43,6 +44,7 @@ mod qlist {
     /// * [QByteArray][crate::QList_QByteArray] (also known as [QByteArrayList][crate::QByteArrayList])
     /// * [QString][crate::QList_QString] (also known as [QStringList][crate::QStringList])
     /// * [QVariant][crate::QList_QVariant] (also known as [QVariantList][crate::QVariantList])
+    /// * [*mut QObject][crate::QObjectList]
     ///
     /// See also [QList documentation](https://doc.qt.io/qt-6/qlist.html).
     struct QList<T> {
@@ -63,11 +65,24 @@ mod qlist {
     /// list.append(three);
     /// assert_eq!(list, [1, 2, 3]);
     /// ```
+    #[exclude_if_struct_instantiation[*mut QObject]]
     pub fn append(&mut self, value: T) {
         let cpp = cpp_fn!(|&mut self, value: T| {
             self.append(value);
         });
         cpp(self, value);
+    }
+
+    /// Inserts value at the end of the list.
+    ///
+    /// The object referenced by `value` must outlive the list.
+    /// This function does **not** take ownership of the pointed‑to object.
+    #[include_if_struct_instantiation[*mut QObject]]
+    pub fn append(&mut self, value: T) {
+        let cpp = cpp_fn!(|&mut self, value: T| {
+            self.append(value);
+        });
+        unsafe { cpp(self, value) };
     }
 
     /// Returns the maximum number of items that can be stored in the list without forcing a reallocation.
@@ -140,11 +155,24 @@ mod qlist {
     /// list.push_back(4);
     /// assert_eq!(list, [1, 2, 3, 4]);
     /// ```
+    #[exclude_if_struct_instantiation[*mut QObject]]
     pub fn push_back(&mut self, value: T) {
         let cpp = cpp_fn!(|&mut self, value: T| {
             self.push_back(value);
         });
         cpp(self, value);
+    }
+
+    /// Inserts value at the end of the list.
+    ///
+    /// The object referenced by `value` must outlive the list.
+    /// This function does **not** take ownership of the pointed‑to object.
+    #[include_if_struct_instantiation[*mut QObject]]
+    pub fn push_back(&mut self, value: T) {
+        let cpp = cpp_fn!(|&mut self, value: T| {
+            self.push_back(value);
+        });
+        unsafe { cpp(self, value) };
     }
 
     /// Removes n elements from the list, starting at index position i.
@@ -281,7 +309,7 @@ mod qlist {
         }
     }
 
-    #[exclude_if_struct_instantiation[QByteArray, QString, QVariant]]
+    #[exclude_if_struct_instantiation[QByteArray, QString, *mut QObject, QVariant]]
     impl From<&QList<T>> for Vec<T> {
         fn from(value: &QList<T>) -> Self {
             let cpp = cpp_fn!(|src: &QList<T>| -> Self {
@@ -301,6 +329,17 @@ mod qlist {
             let mut v = Vec::with_capacity(value.len());
             for i in 0..value.len() {
                 v.push(value[i].clone());
+            }
+            v
+        }
+    }
+
+    #[include_if_struct_instantiation[*mut QObject]]
+    impl From<&QList<T>> for Vec<T> {
+        fn from(value: &QList<T>) -> Self {
+            let mut v = Vec::with_capacity(value.len());
+            for i in 0..value.len() {
+                v.push(value[i]);
             }
             v
         }

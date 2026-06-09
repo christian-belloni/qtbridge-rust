@@ -22,6 +22,7 @@
 #include "qtbridge-type-lib/src/generated/core/qlist/cpp/qlist_i64.h"
 #include "qtbridge-type-lib/src/generated/core/qlist/cpp/qlist_i8.h"
 #include "qtbridge-type-lib/src/generated/core/qlist/cpp/qlist_isize.h"
+#include "qtbridge-type-lib/src/generated/core/qlist/cpp/qlist_ptr_mut_qobject.h"
 #include "qtbridge-type-lib/src/generated/core/qlist/cpp/qlist_qbytearray.h"
 #include "qtbridge-type-lib/src/generated/core/qlist/cpp/qlist_qstring.h"
 #include "qtbridge-type-lib/src/generated/core/qlist/cpp/qlist_u16.h"
@@ -85,6 +86,8 @@ QVariant inlineCppFn_TraitImpl_From_ref_f32_for_QVariant_from(float const &value
 QVariant inlineCppFn_TraitImpl_From_ref_f64_for_QVariant_from(double const &value);
 
 QVariant inlineCppFn_TraitImpl_From_ref_ptr_mut_QObject_for_QVariant_from(QObject *const &value);
+
+QVariant inlineCppFn_TraitImpl_From_ref_QObjectList_for_QVariant_from(QObjectList const &value);
 
 QVariant inlineCppFn_TraitImpl_From_ref_Vec_bool_for_QVariant_from(rust::Vec<bool> const &value);
 
@@ -158,6 +161,9 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_f64_try_from(QVariant const 
 
 bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_ptr_mut_QObject_try_from(QVariant const &from,
                                                                              QObject *&result);
+
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_QObjectList_try_from(QVariant const &from,
+                                                                         QObjectList &result);
 
 bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_bool_try_from(QVariant const &from,
                                                                       QList<bool> &result);

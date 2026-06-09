@@ -110,8 +110,8 @@ impl<T: QmlRegister> QMetaCallArg for Vec<Rc<RefCell<T>>> {
     }
 
     fn from_wire(wire: &QObjectList) -> Self {
-        (0..wire.size())
-            .map(|i| unsafe { T::qobject_to_rc_ref_cell(wire.at(i)) })
+        (0..wire.len())
+            .map(|i| unsafe { T::qobject_to_rc_ref_cell(wire[i]) })
             .collect()
     }
 

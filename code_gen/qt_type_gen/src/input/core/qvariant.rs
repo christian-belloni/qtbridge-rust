@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use std::mem::MaybeUninit;
-use crate::{QByteArray, QJsonArray, QJsonObject, QJsonValue, QList, QMetaType, QMetaTypeGet, QObject, QString};
+use crate::{QByteArray, QJsonArray, QJsonObject, QJsonValue, QList, QMetaType, QMetaTypeGet, QObject, QObjectList, QString};
 
 #[qt_gen::bridge]
 mod qvariant {
@@ -170,7 +170,7 @@ mod qvariant {
     }
 
     // TODO: consider reusing QMetaType for conversions instead of this
-    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, isize, usize, f32, f64, *mut QObject]]
+    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, isize, usize, f32, f64, *mut QObject, QObjectList]]
     impl<T> From<&T> for QVariant {
         fn from(value: &T) -> Self {
             cpp_fn!(|value: &T| -> Self {
@@ -179,7 +179,7 @@ mod qvariant {
         }
     }
 
-    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, f32, f64, isize, usize, String, Vec<String>, *mut QObject]]
+    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, f32, f64, isize, usize, String, Vec<String>, *mut QObject, QObjectList]]
     impl<T> From<T> for QVariant {
         fn from(value: T) -> Self {
             QVariant::from(&value)
@@ -213,7 +213,7 @@ mod qvariant {
         }
     }
 
-    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, isize, usize, f32, f64, *mut QObject]]
+    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, isize, usize, f32, f64, *mut QObject, QObjectList]]
     impl<T> TryFrom<&QVariant> for T {
         type Error = ();
 
@@ -256,7 +256,7 @@ mod qvariant {
         }
     }
 
-    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, isize, usize, f32, f64, String, *mut QObject]]
+    #[instantiate_for[bool, i8, u8, i16, u16, i32, u32, i64, u64, isize, usize, f32, f64, String, *mut QObject, QObjectList]]
     impl<T> TryFrom<QVariant> for T {
         type Error = ();
         fn try_from(value: QVariant) -> Result<Self, ()> {
