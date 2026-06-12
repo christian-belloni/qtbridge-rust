@@ -3,21 +3,12 @@
 
 #![doc = include_str!("../README.md")]
 
-pub mod type_support {
-    //! This module lists the types supported in qtbridge.
-    //!
-    //! ## Supported Types
-    //!
-    //! The following types are supported in [`qsignal`](crate::qsignal), [`qslot`](crate::qslot) or [`qproperty`](crate::qproperty):
-    //! - **Scalar types**: [`i8`], [`u8`], [`i16`], [`u16`], [`i32`], [`u32`], [`i64`], [`u64`], [`isize`], [`usize`], [`f32`], [`f64`].
-    //! - **String types**: [`String`] and [`&str`].
-    //! - **Collections**: [`Vec<T>`], where `T` is one of the supported scalar types or [`String`].
-}
-
 #[doc(hidden)]
 pub use qtbridge_runtime;
 pub use qtbridge_runtime::QModelItem;
 pub use qtbridge_runtime::invoke_method;
+pub use qtbridge_runtime::QMetaCallArg;
+pub use qtbridge_runtime::QPropertyMember;
 #[doc(hidden)]
 pub use qtbridge_gen;
 #[doc(hidden)]
@@ -27,11 +18,25 @@ pub use qtbridge_type_lib;
 #[doc(hidden)]
 pub use qtbridge_build_common;
 
+pub mod special_traits {
+      //! Traits that enable Rust types to fulfill specific QML roles.
+      //!
+      //! Implement one of these on your struct and pass it as `Base = ...`
+      //! to [`qobject_impl`](crate::qobject_impl) or [`qobject`](crate::qobject).
+      //!
+      //! Note that only one of these traits can be implemented for the same
+      //! type.
+      //!
+      //! - [`QListModel`](crate::QListModel) exposes a list to QML ListView / Repeater
+      //! - [`QTableModel`](crate::QTableModel) exposes a table to QML TableView
+      //! - [`QParserStatus`](crate::QParserStatus) receives notifications during component construction
+}
+
 /// Annotate an `impl` block to make its struct accessible from QML.
 ///
-/// The macro implements a range of traits that are enable bridging from Rust
+/// The macro implements a range of traits that enable bridging from Rust
 /// to QML. The mechanism is based on the implementation of various traits with
-/// some code generated at macro expandsion time. You should not implement these
+/// some code generated at macro expansion time. You should not implement these
 /// traits yourself. As a user, you should only interact with:
 ///
 /// * [`QObjectHolder`]
@@ -60,7 +65,7 @@ pub use qtbridge_build_common;
 /// all applications of [`qsignal`], [`qslot`] and [`qproperty`] have to be limited to
 /// this block.
 ///
-/// In order to communicate with QML, the macro creates briding objects that are attached
+/// In order to communicate with QML, the macro creates bridging objects that are attached
 /// to the respective structs. Therefore, objects created with [`qobject_impl`] should be
 /// created with [`default_with_attached_qobject`](QObjectHolder::default_with_attached_qobject)
 /// or expanded with [`attach_qobject`](QObjectHolder::attach_qobject). This is not necessary if
@@ -199,7 +204,7 @@ pub use qtbridge_gen::qobject_impl;
 
 /// Annotate a `mod` block to make its struct accessible from QML.
 ///
-/// The mod block must contain a single `struct` and it's  `impl` blocks. The
+/// The mod block must contain a single `struct` and its `impl` blocks. The
 /// impl blocks are treated as if they had the [`qobject_impl`] annotation.
 ///
 /// Similar to [`qobject_impl`], this macro implements the following traits:
@@ -295,9 +300,8 @@ pub use qtbridge_gen::qobject;
 /// - The signal must be defined within a `mod` or `impl` block, annotated with [`qobject`]
 /// or [`qobject_impl`], respectively.
 /// - The first argument of the annotated function must be `&mut self`.
-/// - All other parameter types and the return type must be one of the
-/// [supported types][crate::type_support].
-/// - The function must not have a body (end with semicolon or have an empty curly braces).
+/// - All other parameter types and the return type must implement [`QMetaCallArg`].
+/// - The function must not have a body (end with a semicolon or empty curly braces `{}`).
 ///
 /// ```rust
 /// # use qtbridge::qobject_impl;
@@ -356,7 +360,7 @@ pub use qtbridge_gen::qsignal;
 /// or [`qobject_impl`], respectively.
 /// - The annotated function must have a body.
 /// - The first argument of the annotated function must be `&self` or `&mut self`.
-/// - All other types and the return type must be in the list of [supported types][crate::type_support].
+/// - All other parameter types and the return type must implement [`QMetaCallArg`].
 ///
 /// ### Example
 /// ```rust
@@ -392,12 +396,13 @@ pub use qtbridge_gen::qslot;
 /// or [`qobject_impl`], respectively.
 /// - The first parameter is the property name. It must begin with a lower case letter and
 /// can only contain letters, numbers and underscores.
-/// - The property must be one of the [supported types][crate::type_support].
-/// - The return value of the getter (specified via `Read` parameter) must match the property type
-/// - The value parameter of the setter (specified via `Write` parameter) must match the property type
-/// - The member of the `struct` (specified via `Member` parameter) must match the property type
-/// - A signal indicating any property changes (specified via `Notify` parameter) needs to be
-/// emitted by the changing function
+/// - The property type must implement [`QPropertyMember`].
+/// - The return value of the getter (specified via `Read` parameter) must match the property type.
+/// - The value parameter of the setter (specified via `Write` parameter) must match the property type.
+/// - The member of the `struct` (specified via `Member` parameter) must match the property type.
+/// - A signal indicating any property changes (specified via `Notify` parameter) must be
+/// emitted explicitly by any code that changes the property. The framework does not emit
+/// it automatically.
 /// - Getter and setter methods must be defined within the same `impl` block in which the property
 /// is declared.
 ///
@@ -431,9 +436,10 @@ pub use qtbridge_gen::qslot;
 ///
 /// ### Member based property
 ///
-/// Member based properties do not require setter nor getter and Qml will directly read and write
-/// to the member. A `Notify` signal has to be provided and it has to be triggered whenever the
-/// member is changed.
+/// Member based properties do not require a setter or getter and QML will directly read and write
+/// to the member. A `Notify` signal must be provided. Qt emits it automatically when QML writes
+/// the property, but when Rust code changes the member directly the notify signal must be emitted
+/// explicitly.
 ///
 /// A `struct` containing a member-based property may look like:
 /// ```rust
@@ -459,7 +465,8 @@ pub use qtbridge_gen::qslot;
 /// **Name**
 ///
 /// The first argument is a string literal specifying the name of the Qt property.
-/// This is the name under which the property is exposed to QML and should follow the naming rules from [requirements](#requirements-2).
+/// This is the name under which the property is exposed to QML and should follow the
+/// naming rules from [requirements](#requirements-2).
 ///
 /// **Read**
 ///
@@ -471,8 +478,8 @@ pub use qtbridge_gen::qslot;
 ///
 /// **Member**
 ///
-/// Specifies the struct member variable that will be accessed if no getter or setter are provided.
-/// Expected format: `Member = var_name`.
+/// Specifies the struct member variable that will be accessed if no getter or setter
+/// are provided. Expected format: `Member = var_name`.
 ///
 /// **Notify**
 ///
@@ -481,23 +488,25 @@ pub use qtbridge_gen::qslot;
 ///
 /// **Constant**
 ///
-/// A constant property is not allowed to have `Write` or `Notify` parameter.
-/// Expected as a single keyword without assignment expression.
+/// A constant property is not allowed to have `Write` or `Notify` parameters. If no
+/// `Notify` is provided in combination with member, `Constant` is required.
+/// Expected as a single keyword without an assignment expression.
 ///
 /// **Default**
 ///
-/// QML writes to the default property if a property is defined within a object but not assigned to any property.
-/// For more information see <https://doc.qt.io/qt-6/qtqml-syntax-objectattributes.html>
+/// Marks this as the QML default property. Content placed inside an object literal
+/// without an explicit property assignment is written to it.
+/// Expected as a single keyword without an assignment expression.
 ///
 #[doc(inline)]
 pub use qtbridge_gen::qproperty;
 
-pub use qtbridge_runtime::{QApp, run_simple_app, qresource};
+pub use qtbridge_runtime::{QApp, qresource, QmlMethodInvoker};
 
-/// Enable access to C++ and QML.
+/// Provides access to the underlying QObject for types exposed to QML.
 ///
-/// This trait is automatically implemented by  [`qobject`] and [`qobject_impl`]
-/// and should never be implemented manually.
+/// Automatically implemented by [`qobject`] and [`qobject_impl`].
+/// Do not implement this trait manually.
 ///
 #[doc(inline)]
 pub use qtbridge_runtime::QObjectHolder;

@@ -132,18 +132,18 @@ where
 /// - Mutation methods are provided in an **unnotified** form, meaning
 ///   they modify the underlying data without emitting Qt model signals.
 /// - These methods are used by the automatically implemented [`QTableModelBase`]
-///   trait to create methods that collaborate the UI about changes in collections.
+///   trait to create methods that notify the UI about changes in collections.
 ///
 /// As a minimum you have to implement the methods [`QTableModel::row_count`],
 /// [`QTableModel::column_count`] and [`QTableModel::get`] to create a readable
-/// list model. Further methods can be implemented to make the model fully mutable.
+/// table model. Further methods can be implemented to make the model fully mutable.
 ///
 /// Methods that do not return an [`Option`] or a boolean value must succeed
 /// and perform exactly the operation described in the documentation to avoid
 /// invalidating the synchronization between any views and the underlying data.
 /// No additional structural changes may occur outside the provided functions.
 ///
-/// **Note, that default implementations may `panic!`** if the corresponding method is
+/// **Note that default implementations may `panic!`** if the corresponding method is
 /// not overridden. It is your responsibility to make sure that these functions are
 /// not called from QML.
 ///
@@ -166,7 +166,7 @@ where
 ///             self.string_data.len()
 ///         }
 ///         fn column_count(&self) -> usize {
-///             self.string_data[0].len
+///             self.string_data[0].len()
 ///         }
 ///         fn get(&self, index: (usize, usize)) -> Option<&Self::Item> {
 ///             self.string_list.get(index.0)?.get(index.1)
@@ -347,7 +347,7 @@ pub trait QTableModel {
 /// `dataChanged`, etc.). This allows the UI to react to changes in the
 /// underlying data.
 ///
-/// This trait is automatically implemented by the [`qobject`] macro and
+/// This trait is automatically implemented by the `qobject` macro and
 /// should not be implemented manually.
 ///
 /// ## Usage
@@ -493,7 +493,7 @@ pub trait QTableModelBase : QTableModel + QObjectHolder<ProxyRust = QTableModelP
         values
     }
 
-    /// Resets the entire model and notifies any attached views to resyncronize all data.
+    /// Resets the entire model and notifies any attached views to resynchronize all data.
     ///
     /// This method calls [`QTableModel::reset_unnotified`].
     fn reset(&mut self) {

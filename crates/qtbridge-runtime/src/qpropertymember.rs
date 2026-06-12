@@ -13,23 +13,32 @@ use qtbridge_type_lib::{
 
 use crate::{QObjectHolder, QmlRegister};
 
-/// Trait for types that can be used as member-based Qt properties.
+/// Enables a type to be used as a property.
 ///
-/// Implemented for primitive numeric types, `bool`, `String`, `Vec` of those types,
-/// [`Rc<RefCell<T>>`] where `T: QObjectHolder`, and [`Vec<Rc<RefCell<T>>>`] where
-/// `T: QmlRegister`.
+/// Implemented for:
+/// - Primitive numeric types and `bool`
+/// - [`String`]
+/// - [`Vec<T>`] where `T` is one of the above
+/// - [`Rc<RefCell<T>>`] where `T` implements [`QObjectHolder`]
+/// - [`Vec<Rc<RefCell<T>>>`] where `T` implements [`QmlRegister`]
+///
+/// You will not need to implement this trait yourself; adding support for custom types requires CXX/C++ bindings.
 pub trait QPropertyMember: Sized {
     fn qmetatype() -> QMetaType;
 
-    /// `Owner` is the QObject that holds this property; required by the
-    /// `Vec<Rc<RefCell<T>>>` impl which passes it to QQmlListProperty.
+    /// Returns a `QVariant` representation of `self` for read operations.
+    /// `Owner` is the [`QObjectHolder`] that holds this property; passing it
+    /// allows returning views onto its members and borrowing correctly on
+    /// access. If the member is passed by value, `owner` can be ignored.
     fn to_qvariant<Owner: QObjectHolder>(&self, owner: &Owner) -> QVariant;
 
-    /// This is required for types that transform into a writable view and
-    /// need to emit a notify signal on change. Right now only QQmlListProperty
-    /// takes advantage of this. Other types are just defaulting to to_qvariant,
-    /// returning a value. `Owner` is as above and `Notify` is the signal
-    /// to emitted on change.
+    /// Returns a `QVariant` view of `self` for read operations, with access to
+    /// the property's notify signal. Unlike [`to_qvariant`](QPropertyMember::to_qvariant),
+    /// this variant can return a live view that emits `notify` when the
+    /// underlying data changes.
+    ///
+    /// The default implementation ignores `notify` and falls back to
+    /// [`to_qvariant`](QPropertyMember::to_qvariant).
     fn to_qvariant_view<Owner, Notify>(&self, owner: &Owner, notify: Notify) -> QVariant
     where
         Owner: QObjectHolder,
@@ -39,8 +48,12 @@ pub trait QPropertyMember: Sized {
         self.to_qvariant(owner)
     }
 
+    /// Converts `value` into the concrete type, used for write operations.
     fn from_qvariant(value: &QVariant) -> Result<Self, ()>;
 
+    /// Returns `true` if `self` and `other` are equal.
+    /// Used to decide whether the notify signal should be emitted and the
+    /// stored value replaced on a property write.
     fn property_eq(&self, other: &Self) -> bool;
 }
 

@@ -28,12 +28,11 @@ fn on_qobject_destroyed(flag_ptr: usize) {
     arc.store(false, Ordering::Release);
 }
 
-/// Convenience macro for invoking methods with a [`QmlMethodInvoker`].
-/// The first argument is the invoker, the second is the method name,
-/// and the rest are the arguments to be passed to the method.
+/// Invokes a slot or signal by name on a [`QmlMethodInvoker`].
 ///
-/// The macro will dispatch to the appropriate `invoke_method` or
-/// `invoke_method_with_args` based on the number of arguments provided.
+/// Without extra arguments, delegates to [`QmlMethodInvoker::invoke_method`].
+/// With extra arguments, constructs the argument list and delegates to
+/// [`QmlMethodInvoker::invoke_method_with_args`].
 ///
 /// ```
 /// use qtbridge::invoke_method;
@@ -45,13 +44,16 @@ fn on_qobject_destroyed(flag_ptr: usize) {
 /// #[qobject_impl]
 /// impl MyClass {
 ///     #[qslot]
-///     fn immutable_slot(&self) {
-///     }
+///     fn set_value(&mut self, value: i32) { }
+///
+///     #[qslot]
+///     fn reset(&self) { }
 /// }
 ///
-/// let qobject_holder = MyClass::default_with_attached_qobject();
-/// let invoker = qobject_holder.borrow().get_qml_method_invoker();
-/// invoke_method!(invoker, "immutableSlot");
+/// let obj = MyClass::default_with_attached_qobject();
+/// let invoker = obj.borrow().get_qml_method_invoker();
+/// invoke_method!(invoker, "reset");
+/// invoke_method!(invoker, "setValue", 42);
 /// ```
 ///
 #[macro_export]
@@ -68,12 +70,17 @@ macro_rules! invoke_method {
     }};
 }
 
-/// A thread-safe handle for invoking methods on a [`QObjectHolder`] from any thread.
+/// A thread-safe handle for invoking slots and signals on a [`QObjectHolder`].
 ///
-/// Allows calling `#[qslot]`s and `#[qsignal]`s defined on a [`QObjectHolder`]
-/// enabling interaction with QML from any thread.
+/// Calls are scheduled on the Qt event loop and execute on the Qt thread.
+/// If the target object has been dropped, calls are silently discarded.
+///
+/// When a call executes, Qt borrows the `Rc<RefCell<_>>` held by the QML
+/// engine. If the object is already mutably borrowed on the Qt thread at
+/// that moment, the call will panic.
 ///
 /// Obtain an instance via [`QObjectHolder::get_qml_method_invoker`].
+///
 /// # Example
 ///
 /// ```
@@ -104,6 +111,8 @@ unsafe impl Send for QmlMethodInvoker {}
 impl QmlMethodInvoker {
 
     /// Creates a `QmlMethodInvoker` for `target` and tracks its lifetime.
+    ///
+    /// Prefer [`QObjectHolder::get_qml_method_invoker`] over calling this directly.
     pub fn new<T: QObjectHolder>(target: &T) -> Self {
         let obj = target.get_qobject_ptr();
         let alive = Arc::new(AtomicBool::new(true));
@@ -116,16 +125,11 @@ impl QmlMethodInvoker {
         self.alive.load(Ordering::Acquire)
     }
 
-    /// Invokes the method `name` on the underlying `QObject`.
-    /// The method will be scheduled to run on the Qt event loop on the Qt thread.
-    /// Qt will attempt to borrow a reference from the Rc<RefCell<>> that it holds.
-    /// If it fails to borrow, the program will panic.
-    /// If the `QObject` has been dropped in the meantime, the call will be ignored and `invoke_method` will return false.
+    /// Schedules `name` to run on the Qt thread via the Qt event loop.
     ///
-    /// `name` must be the name of a `#[qslot]` or `#[qsignal]`.
-    ///
-    /// Returns true if the member could be invoked.
-    /// Returns false if there is no such member or it cannot be invoked.
+    /// `name` must be a `qslot` or `qsignal` on the target object.
+    /// Returns `false` if the target has been dropped or `name` is not found;
+    /// returns `true` otherwise.
     pub fn invoke_method(&self, name: &str) -> bool {
         if !self.is_alive() {
             return false;
@@ -133,19 +137,13 @@ impl QmlMethodInvoker {
         QMetaObject::invoke_method(self.obj, name)
     }
 
-    /// Invokes the method `name` on the underlying `QObject` with the parameters
-    /// provided in `args`. If the parameters don't match the method signature,
-    /// the call will be ignored and `invoke_method_with_args` will return false.
-    /// The method will be scheduled to run on the Qt event loop on the Qt thread.
-    /// Qt will attempt to borrow a reference from the Rc<RefCell<>> that it holds.
-    /// If it fails to borrow, the program will panic.
-    /// If the `QObject` has been dropped in the meantime, the call will be ignored
-    /// and `invoke_method` will return false.
+    /// Schedules `name` to run on the Qt thread via the Qt event loop,
+    /// passing `args` to the method.
     ///
-    /// `name` must be the name of a `#[qslot]` or `#[qsignal]`.
-    ///
-    /// Returns true if the member could be invoked.
-    /// Returns false if there is no such member or it cannot be invoked.
+    /// `name` must be a `qslot` or `qsignal` on the target object.
+    /// Returns `false` if the target has been dropped, `name` is not found,
+    /// or the argument types do not match the method signature;
+    /// returns `true` otherwise.
     pub fn invoke_method_with_args(&self, name: &str, args: &QVariantList) -> bool {
         if !self.is_alive() {
             return false;

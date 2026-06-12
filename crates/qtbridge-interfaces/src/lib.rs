@@ -11,10 +11,12 @@
 //! ## The proxy
 //!
 //! Each Qt interface has a corresponding **proxy** in Rust. This proxy has
-//! to implement the [`QRustProxy`] trait and interacts mostly with the [`QObjectHolder`]
-//! trait, that is automatically implemented for all user types by qt_gen.
+//! to implement the [`qtbridge_runtime::qproxies::QRustProxy`] trait and interacts mostly with
+//! the [`qtbridge_runtime::QObjectHolder`] trait, that is automatically implemented for all
+//! user types by the `qobject` and `qobject_impl` macros.
 //!
-//! The demands on proxies are baked into the [`QRustProxy`] trait. For example, there
+//! The demands on proxies are baked into the [`qtbridge_runtime::qproxies::QRustProxy`] trait.
+//! For example, there
 //! is the demand to provide a Qt static meta object, usually from the "base" this proxy
 //! is derived from. Further, the proxy has to provide a marker trait called `AdapterType`
 //! that is at a minimum used to store a reference to the user object as

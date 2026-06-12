@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 
-//! This module contains functions to import of artifacts the
+//! This module contains functions for importing artifacts from the
 //! [Qt Resource System](https://doc.qt.io/qt-6/resources.html).
 //!
 //! All artifacts must be compiled into dynamic resources with the
@@ -31,7 +31,7 @@
 //! }
 //! ```
 //!
-//! We further provide the [`include_bytes_qml`] macro that generates the
+//! We further provide the `include_bytes_qml` macro that generates the
 //! required dynamic resource directly in Rust at compile time.
 #[cxx::bridge]
 mod ffi {
@@ -42,38 +42,18 @@ mod ffi {
     }
 }
 
-/// Registers Qt resource data from an in-memory byte slice.
+/// Registers Qt resource data from an in-memory byte slice, making embedded
+/// resources available at runtime through the `qrc:/` scheme.
 ///
-/// This function registers a dynamic resource generated with `rcc`,
-/// making the embedded resources available at runtime through the `qrc:/` scheme.
-///
-/// # Parameters
-///
-/// * `data` - A byte slice containing the compiled Qt resource data.
-///
-/// # Returns
-///
-/// Returns `true` if the resource was successfully registered, or `false`
-/// if registration failed.
+/// Returns `true` if registration succeeded, `false` otherwise.
 pub fn register_bytes(data: &[u8]) -> bool {
     ffi::register_resource(data, "")
 }
 
-/// Registers Qt resource data from an in-memory byte slice with a prefix.
+/// Registers Qt resource data from an in-memory byte slice under `resource_root`,
+/// making embedded resources available at runtime through the `qrc:/` scheme.
 ///
-/// This function registers a dynamic resource generated with `rcc`,
-/// making the embedded resources available at runtime through the `qrc:/` scheme.
-///
-/// # Parameters
-///
-/// * `data` - A byte slice containing the compiled Qt resource data.
-/// * `resource_root` - A string slice with the prefix under which the resources
-///    are registered
-///
-/// # Returns
-///
-/// Returns `true` if the resource was successfully registered, or `false`
-/// if registration failed.
+/// Returns `true` if registration succeeded, `false` otherwise.
 pub fn register_bytes_with_prefix(data: &[u8], resource_root: &str) -> bool {
     ffi::register_resource(data, resource_root)
 }

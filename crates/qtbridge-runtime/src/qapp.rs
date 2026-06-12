@@ -4,49 +4,11 @@
 use cxx::UniquePtr;
 use qtbridge_type_lib::{QGuiApplication, QQmlApplicationEngine, QString, QVariant, QVariantMap};
 use crate::qml_register::QmlRegister;
-/// Runs a minimal application from an embedded QML file.
-///
-/// This macro is a convenience helper for small applications and examples.
-/// It embeds the given QML file at compile time using [`include_bytes!`],
-/// creates a [`QApp`] instance, loads the QML source, and starts the Qt
-/// event loop.
-///
-/// The macro is intended to be used directly in `main` and requires no
-/// additional setup beyond a valid QML file.
-///
-/// # Parameters
-///
-/// * `$path` – Path to a QML file, relative to the source file.
-///
-/// # Example
-///
-/// ```rust
-///# use qtbridge_runtime::run_simple_app;
-/// fn main() {
-///     run_simple_app!("qml/main.qml");
-/// }
-/// ```
-///
-/// # Notes
-///
-/// * The QML file is embedded into the binary at compile time.
-/// * This macro does not provide access to the [`QApp`] instance and is
-///   therefore best suited for simple applications.
-/// * For more advanced use cases, create and configure a [`QApp`] manually.
-#[macro_export]
-macro_rules! run_simple_app {
-    ($path:expr) => {{
-        let main_qml_bytes = include_bytes!($path);
-        $crate::QApp::new()
-            .load_qml(main_qml_bytes)
-            .run();
-    }};
-}
 
-/// This struct represents a Qt QML application and acts as the entry point for all applications.
+/// Entry point for a Qt QML application.
 ///
-/// QApp allows running QML code and injecting Rust objects into its context. Aside from the
-/// initialization of the backend logic this should be the only code in your main function.
+/// Wraps the Qt application and QML engine. Configure it with the builder
+/// methods and call [`run`](QApp::run) to start the event loop.
 ///
 /// # Example
 ///
@@ -54,8 +16,6 @@ macro_rules! run_simple_app {
 ///
 /// ```rust
 ///# use qtbridge_runtime::QApp;
-/// let prop = 42;
-///
 /// QApp::new()
 ///     .load_qml(br#"
 ///         import QtQuick
@@ -79,10 +39,9 @@ pub struct QApp {
 }
 
 impl QApp {
-    /// Creates a new application instance.
+    /// Creates the Qt application and QML engine.
     ///
-    /// The application object must be created before any QML or GUI-related
-    /// functionality is used.
+    /// Must be called before any QML or GUI functionality is used.
     pub fn new() -> Self {
         let app = QGuiApplication::new();
         let engine = QQmlApplicationEngine::new();
@@ -95,27 +54,17 @@ impl QApp {
 
     /// Enters the Qt main event loop.
     ///
-    /// This function blocks until the application exits and returns
-    /// the exit code provided by Qt. This function does not return a reference to
-    /// self and is usually the last call in a `main` function.
-    ///
-    /// # Returns
-    ///
-    /// The application exit code.
+    /// Blocks until the application exits and returns the exit code.
+    /// Usually the last call in `main`.
     pub fn run(&mut self) -> i32 {
         QGuiApplication::exec()
     }
 
-    /// Add an initial property to the root object of the QML application.
+    /// Queues an initial property to be set on the root QML object.
     ///
-    /// This method takes a string slice for the property name and a reference to a [`QVariant`]
-    /// as the property value. The property is stored internally and applied when [`QApp::load_qml`]
-    /// is called.
-    ///
-    /// # Parameters
-    ///
-    /// * `id` - The name of the property to add to the root QML object.
-    /// * `value` - The value of the property.
+    /// Properties are applied when [`load_qml`](QApp::load_qml) or
+    /// [`load_qml_from_file`](QApp::load_qml_from_file) is called.
+    /// Call multiple times to set several properties.
     ///
     /// # Example
     ///
@@ -144,14 +93,10 @@ impl QApp {
         self
     }
 
-    /// Sets the initial properties of the root object in the QML application.
+    /// Sets multiple initial properties on the root QML object at once.
     ///
-    /// This method passes a list of [`str`]-[`QVariant`] pairs to the engine
-    /// and you can read and write the value in your QML code.
-    ///
-    /// # Returns
-    ///
-    /// A mutable reference to `self`, allowing method chaining.
+    /// Must be called before [`load_qml`](QApp::load_qml) or
+    /// [`load_qml_from_file`](QApp::load_qml_from_file).
     ///
     /// # Example
     ///
@@ -177,27 +122,15 @@ impl QApp {
     ///         }"#)
     ///     .run();
     /// ```
-    /// # Returns
-    ///
-    /// A mutable reference to `self`, allowing method chaining.
     pub fn with_initial_properties(&mut self, properties: &[(&str, QVariant)]) -> &mut Self {
         self.engine.pin_mut().set_initial_properties(&properties.into());
         self
     }
 
-    /// Loads the main QML source code from an in-memory byte slice.
+    /// Loads QML source from an in-memory byte slice.
     ///
-    /// This method loads the given QML source into the application's
-    /// QML engine. It is typically used to initialize the UI before
-    /// entering the Qt event loop.
-    ///
-    /// # Parameters
-    ///
-    /// * `code` - A byte slice containing the QML source.
-    ///
-    /// # Returns
-    ///
-    /// A mutable reference to `self`, allowing method chaining.
+    /// Applies any properties queued with [`add_initial_property`](QApp::add_initial_property)
+    /// before loading.
     pub fn load_qml(&mut self, code: &[u8]) -> &mut Self {
         if !self.initial_properties.is_empty() {
             self.engine.pin_mut().set_initial_properties(&self.initial_properties);
@@ -206,24 +139,15 @@ impl QApp {
         self
     }
 
-    /// Loads the main QML file by URL.
+    /// Loads the entry-point QML file by URL.
     ///
-    /// This is the file-based counterpart to [`QApp::load_qml`]. Use it when
-    /// the entry-point QML file is embedded in a Qt resource (qrc) or
-    /// accessible as a regular file path rather than an in-memory byte slice.
+    /// Use this instead of [`load_qml`](QApp::load_qml) when the QML is
+    /// embedded in a Qt resource (`qrc:`) or accessible as a file path.
+    /// Accepts URLs such as `"qrc:/qt/qml/MyApp/Main.qml"` or
+    /// `"file:///path/to/main.qml"`.
     ///
-    /// If the QML file imports other modules that are also embedded in
-    /// resources, those modules will only be found if their parent directory
-    /// has been registered with [`QApp::add_import_path`] beforehand.
-    ///
-    /// # Parameters
-    ///
-    /// * `url` - A URL string pointing to the QML file, e.g.
-    ///   `"qrc:/qt/qml/MyApp/Main.qml"` or `"file:///path/to/main.qml"`.
-    ///
-    /// # Returns
-    ///
-    /// A mutable reference to `self`, allowing method chaining.
+    /// Import paths for any modules the file uses must be registered with
+    /// [`add_import_path`](QApp::add_import_path) before this call.
     pub fn load_qml_from_file(&mut self, url: &str) -> &mut Self {
         if !self.initial_properties.is_empty() {
             self.engine.pin_mut().set_initial_properties(&self.initial_properties);
@@ -234,26 +158,15 @@ impl QApp {
 
     /// Adds a directory to the QML engine's module import search path.
     ///
-    /// Call this before [`QApp::load_qml_from_file`] when the loaded QML file
-    /// imports modules that live in a directory the engine would not otherwise
-    /// search.
-    ///
-    /// # Parameters
-    ///
-    /// * `path` - A URL or file-system path to add to the import search list.
-    ///
-    /// # Returns
-    ///
-    /// A mutable reference to `self`, allowing method chaining.
+    /// Call before [`load_qml_from_file`](QApp::load_qml_from_file) when the
+    /// loaded QML imports modules from a directory the engine would not
+    /// otherwise find. Accepts both URLs and file-system paths.
     pub fn add_import_path(&mut self, path: &str) -> &mut Self {
         self.engine.pin_mut().add_import_path(path);
         self
     }
 
-    /// Registers a QML type, making it instantiable from QML.
-    ///
-    /// This is a convenience wrapper that calls [`QmlRegister::register`]
-    /// for the given type `T`.
+    /// Registers `T` with the QML type system, making it instantiable from QML.
     ///
     /// ```rust
     ///# use qtbridge::{QApp, qobject_impl};
@@ -286,15 +199,7 @@ impl QApp {
         self
     }
 
-    /// Sets the application name.
-    ///
-    /// # Parameters
-    ///
-    /// * `name` - The application name.
-    ///
-    /// # Returns
-    ///
-    /// A mutable reference to `self`, allowing method chaining.
+    /// Sets the application name reported to the OS.
     pub fn application_name(&mut self, name: &str) -> &mut Self {
         QGuiApplication::set_application_name(name);
         self

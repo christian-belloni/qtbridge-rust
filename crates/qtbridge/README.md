@@ -1,20 +1,8 @@
-This library enables building modern Qt Quick user interfaces with a Rust backend.
-It allows you to run [QML](https://doc.qt.io/qt-6/qmlreference.html) code and use
-Rust types in QML. This combines a declarative UI with Rust-based business logic.
+This library enables building modern Qt Quick user interfaces with a Rust backend,
+without writing any C++ code. It allows you to run [QML](https://doc.qt.io/qt-6/qmlreference.html)
+code and expose Rust types to QML using simple attribute macros.
 
-Running QML code and starting any Qt-based application is generally done through the
-[`QApp`] type.
-
-Rust types that should be used in QML must be annotated with either a [`qobject`] or
-[`qobject_impl`] attribute macro. Within those blocks you can use the [`qproperty`],
-[`qslot`], and [`qsignal`] attribute macros to define how the Rust types appear in QML.
-
-The library provides some special traits that enable Rust types to fulfill specific
-roles. These are [`QListModel`] and [`QTableModel`].
-
-## API Example:
-
-Exposing a Rust type to QML and starting the declarative UI is as simple as:
+## At a glance
 
 Main.rs
 ```rust
@@ -39,8 +27,6 @@ fn main() {
         .run();
 }
 ```
-
-The UI can then be described in a declarative way in QML:
 
 Main.qml
 ```qml, ignore
@@ -128,50 +114,61 @@ export DYLD_FRAMEWORK_PATH=/Users/john_doe/dev/qt_build/qtbase/lib:$DYLD_FRAMEWO
 QtBridge has a single crate with all public APIs:
 ```TOML
 [dependencies]
-qtbridge { version = "0.1.5" }
+qtbridge = "*"
 ```
 
-### Provided Examples
+## API overview
+
+Running QML code and starting any Qt-based application is generally done through the
+[`QApp`] type.
+
+Rust types that should be used in QML must be annotated with either a [`qobject`] or
+[`qobject_impl`] attribute macro. Within those blocks you can use the [`qproperty`],
+[`qslot`], and [`qsignal`] attribute macros to define how the Rust types appear in QML.
+
+The library provides some special traits that enable Rust types to fulfill specific
+roles; see [special_traits].
+
+All QObjects in Rust (implemented with [`qobject_impl`]) are held in
+`Rc<RefCell<_>>`. This allows multiple owners to coexist: your Rust code,
+the QML engine, and any number of QML components can all hold a reference
+to the same object. QML references follow ordinary JavaScript copy semantics.
+
+A Rust object is only borrowed for the duration of a signal, slot or property
+invocation from QML. Outside of those calls the object is not borrowed, so
+Rust code can freely take mutable borrows between QML interactions.
+
+`RefCell` enforces at runtime that only one mutable borrow exists at a time.
+QML requires a mutable borrow to invoke a slot or write a property. When an
+object enters Rust, its borrow is cached and reused for any further calls on
+the same object within that call chain, conforming to a stack-based model.
+A panic occurs only if a second independent borrow of the same object is
+attempted from a different point in the call chain.
+
+## Provided examples
 
 Note: In the preliminary version of this repository, the package dependency is given
 as a relative path. With the final release, the package dependency can be resolved
 with cargo and crates.io. Until then you need to adapt the dependency or check out
 the whole repository.
 
-#### [Hello World!](https://github.com/qt/qtbridge-rust/tree/dev/apps/hello_world)
+### [Hello World!](https://github.com/qt/qtbridge-rust/tree/dev/apps/hello_world)
 
 The classic "Hello World!" example showing the minimal building bricks for a
 QtBridge application.
 
-#### [Minimal App](https://github.com/qt/qtbridge-rust/tree/dev/apps/minimal_app)
+### [Minimal App](https://github.com/qt/qtbridge-rust/tree/dev/apps/minimal_app)
 
-This example shows the "minimum viable example" with working backend and data
-visualization in QML.
+A working backend with data displayed in QML.
 
-#### [Host Monitor](https://github.com/qt/qtbridge-rust/tree/dev/apps/host_monitor)
+### [Host Monitor](https://github.com/qt/qtbridge-rust/tree/dev/apps/host_monitor)
 
 This example shows how to combine a Qt UI with [tokio](https://tokio.rs/) runtime
 in a multithreaded environment using [`QmlMethodInvoker`].
 
-## API Overview
+## Further information
 
-### Borrow checker and rules
-
-QtBridge aims to respect the borrowing rules of Rust. All QObjects in Rust (implemented
-with [`qobject_impl`]) are designed to be held in `Rc<RefCell<_>>` structs. The QML
-engine also holds Rust objects through such references. With this construct, many
-references can be held and borrowed at runtime. Their QML representation can be copied
-following the ordinary JavaScript rules. A Rust object is only borrowed when a slot or
-property defined in Rust is invoked. If QML is unable to borrow the Rust object, it
-will panic. We are currently investigating alternative ways to handle this situation
-more gracefully.
-
-## Further information:
-
-Qt itself is written in C++, and QtBridge builds on [CXX](https://cxx.rs/) to access
-the required Qt interfaces. As a user, you do not need to write any C++ code.
-Instead, Rust structs and data can be exposed to QML using attribute macros provided
-by the library.
+QtBridge builds on [CXX](https://cxx.rs/) to access the required Qt interfaces.
 
 If your project requires mixing Rust and C++ code, using Qt Widgets, or accessing Qt
 modules that only provide a C++ API, consider using
@@ -185,16 +182,12 @@ and the [Model/View architecture](https://doc.qt.io/qt-6/model-view-programming.
 While these are exposed through a Rust-friendly API, familiarity with these Qt concepts
 will help you get the most out of building UIs with Qt Quick.
 
-## Future Plans
+## Future plans
 
-* Enable interoperability with [CXX-Qt](https://crates.io/crates/cxx-qt)
-* Enable interoperability with other libraries such as [tokio](https://tokio.rs/)
-* Enable QObjects as properties (complex properties).
-* Provide Qt dependencies as a crate to enable a streamlined installation through cargo.
-* Remove the dependency on Qt binaries like qmake and maybe a C++ tool chain.
+* Streamline API.
+* Enable interoperability with [CXX-Qt](https://crates.io/crates/cxx-qt).
 * Extend IDE support in particular for VS Code. Enable the QML language server to understand
   types generated in Rust.
-
 
 ## Terms and Conditions
 

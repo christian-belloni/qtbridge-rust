@@ -13,19 +13,16 @@ use qtbridge_type_lib::{
 
 use crate::{QObjectHolder, QmlRegister};
 
-/// Describes how a Rust type is marshalled through Qt's metacall machinery.
+/// Enables a type to be used as a signal or slot argument.
 ///
-/// The associated `WireType` is what actually appears in the `argv` array during
-/// a metacall (signal emission or slot invocation). For types that are already
-/// metacall-compatible (primitives, `bool`) `WireType = Self`. For Rust-specific
-/// types an intermediate representation is used:
+/// Implemented for:
+/// - Primitive numeric types and `bool`
+/// - [`String`]
+/// - [`Vec<T>`] where `T` is one of the above
+/// - [`Rc<RefCell<T>>`] where `T` implements [`QObjectHolder`]
+/// - [`Vec<Rc<RefCell<T>>>`] where `T` implements [`QmlRegister`]
 ///
-/// | Rust type              | Wire type        |
-/// |------------------------|------------------|
-/// | primitives / `bool`    | self             |
-/// | `String`               | `QString`        |
-/// | `Rc<RefCell<T>>`       | `*mut QObject`   |
-/// | `Vec<Rc<RefCell<T>>>`  | `QObjectList`    |
+/// You will not need to implement this trait yourself; adding support for custom types requires CXX/C++ bindings.
 pub trait QMetaCallArg: Sized {
     type WireType: Sized;
 

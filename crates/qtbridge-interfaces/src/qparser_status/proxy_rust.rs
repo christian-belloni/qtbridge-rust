@@ -6,7 +6,7 @@ use crate::call_rust_trait_impl;
 use crate::genericrustproxy::GenericRustProxy;
 use super::proxy_cpp_bridge::QParserStatusProxyCpp;
 
-/// Implement this trait to receive notifications during component construction.
+/// A trait for hooking into QML component construction stages.
 ///
 /// [`QParserStatus::class_begin`] is called first when the
 /// object is created, followed by [`QParserStatus::component_complete`] once

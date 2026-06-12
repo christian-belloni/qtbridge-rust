@@ -68,13 +68,13 @@ pub trait QCppProxy {
 ///
 /// ## `ProxyCppType`
 ///
-/// The concrete C++ proxy type. Has to implement [´QCppProxy´].
+/// The concrete C++ proxy type. Has to implement [`QCppProxy`].
 ///
 /// ## `AdapterType`
 ///
 /// A wrapper trait for the interface trait that QtBridge users implement. This wrapper
 /// is required because not all traits can be used with dyn and are thus incompatible with
-/// [`RustObjAccess`] (See "object safety" or "dyn compatibility").
+/// `RustObjAccess` (See "object safety" or "dyn compatibility").
 ///
 pub trait QRustProxy {
     type ProxyCppType: QCppProxy<ProxyRustType = Self>;

@@ -105,7 +105,7 @@ where
 /// - Mutation methods are provided in an **unnotified** form, meaning
 ///   they modify the underlying data without emitting Qt model signals.
 /// - These methods are used by the automatically implemented [`QListModelBase`]
-///   trait to create methods that collaborate the UI about changes in collections.
+///   trait to create methods that notify the UI about changes in collections.
 ///
 /// As a minimum you have to implement the methods [`QListModel::len`] and
 /// [`QListModel::get`] to create a readable list model. Further methods can be
@@ -116,7 +116,7 @@ where
 /// invalidating the synchronization between any views and the underlying data.
 /// No additional structural changes may occur outside the provided functions.
 ///
-/// **Note, that default implementations may `panic!`** if the corresponding method is
+/// **Note that default implementations may `panic!`** if the corresponding method is
 /// not overridden. It is your responsibility to make sure that these functions are
 /// not called from QML.
 ///
@@ -260,7 +260,7 @@ pub trait QListModel {
 /// `dataChanged`, etc.). This allows the UI to react to changes in the
 /// underlying data.
 ///
-/// This trait is automatically implemented by the [`qobject`] macro and
+/// This trait is automatically implemented by the `qobject` macro and
 /// should not be implemented manually.
 ///
 /// ## Usage
@@ -352,7 +352,7 @@ pub trait QListModelBase : QListModel + QObjectHolder<ProxyRust = QListModelProx
         value
     }
 
-    /// Resets the entire model and notifies any attached views to resyncronize all data.
+    /// Resets the entire model and notifies any attached views to resynchronize all data.
     ///
     /// This method calls [`QListModel::reset_unnotified`].
     fn reset(&mut self) {
