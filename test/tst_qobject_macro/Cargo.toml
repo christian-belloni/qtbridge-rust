@@ -23,6 +23,11 @@ path = "tests/property_nested_types_impl_tests.rs"
 harness = false
 
 [[test]]
+name = "property_item_model_tests"
+path = "tests/property_item_model_tests.rs"
+harness = false
+
+[[test]]
 name = "slot_nested_types_tests"
 path = "tests/slot_nested_types_tests.rs"
 harness = false
