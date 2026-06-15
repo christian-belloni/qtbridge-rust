@@ -166,6 +166,12 @@ A working backend with data displayed in QML.
 This example shows how to combine a Qt UI with [tokio](https://tokio.rs/) runtime
 in a multithreaded environment using [`QmlMethodInvoker`].
 
+### [Color Palette](https://github.com/qt/qtbridge-rust/tree/dev/apps/color_palette)
+
+Port of the C++ Color Palette example to Rust. Shows a moderately complex application
+using tokio, reqwest, and serde_json, as well as many QML constructs, such as complex
+and default properties, including nested property structures.
+
 ## Further information
 
 QtBridge builds on [CXX](https://cxx.rs/) to access the required Qt interfaces.

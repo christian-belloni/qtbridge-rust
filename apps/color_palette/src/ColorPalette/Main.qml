@@ -49,7 +49,7 @@ Window {
             path: "unknown"
         }
 
-        BasicLogin {
+        login: BasicLogin {
             id: colorLogin
             loginPath: "login"
             logoutPath: "logout"

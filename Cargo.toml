@@ -37,6 +37,7 @@ members = [
     "quicktest",
     "quicktest/quicktest_gen",
 
+    "apps/color_palette",
     "apps/hello_world",
     "apps/minimal_app",
     "apps/host_monitor",
