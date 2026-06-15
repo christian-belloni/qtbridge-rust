@@ -120,7 +120,7 @@ pub use qtbridge_build_common;
 /// **NoDrop**
 ///
 /// Do not implement [`Drop`] in the macro. This option has to be set when a custom [`Drop`]
-/// implementation is required. The function [`attach_qobject`](QObjectHolder::attach_qobject)
+/// implementation is required. The function [`detach_qobject`](QObjectHolder::detach_qobject)
 /// has to be called manually to avoid memory leaks.
 ///
 /// **LinkMe**

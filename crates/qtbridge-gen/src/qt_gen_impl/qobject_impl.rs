@@ -25,7 +25,7 @@ pub struct QObjectImplOutput {
     pub new_impl: TokenStream,
 
     /// Implementation of Drop for QObjectHolder
-    pub drop_impl: syn::ItemImpl,
+    pub drop_impl: Option<syn::ItemImpl>,
 
     /// Implementation of QMetaInfo trait
     pub qmeta_info_impl: syn::ItemImpl,
@@ -165,8 +165,14 @@ pub fn qobject_impl(input: TokenStream, params: TokenStream) -> syn::Result<QObj
     let qobject_holder_impl = generate_qobject_holder(&struct_ident, &iface_ident, &generics)
         .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QObjectHolder trait.\nError:{err}")))?;
 
-    let drop_impl = generate_drop(&struct_ident, generics)
-        .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of Drop trait.\nError: {}", err)))?;
+    let drop_impl = match params.no_drop {
+        false => {
+            let impl_ = generate_drop(&struct_ident, generics)
+                .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of Drop trait.\nError: {}", err)))?;
+            Some(impl_)
+        }
+        true => None,
+    };
 
     // Prepare altered input token stream
     let new_impl = syn::ItemImpl{ items: items_out, ..orig_impl }
