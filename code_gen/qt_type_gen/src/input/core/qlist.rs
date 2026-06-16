@@ -349,6 +349,33 @@ mod qlist {
         }
     }
 
+    #[include_if_struct_instantiation[QVariant]]
+    impl From<&QList<T>> for QVariant {
+        fn from(value: &QList<T>) -> Self {
+            cpp_fn!(|value: &QList<T>| -> Self {
+                return QVariant::fromValue(value);
+            })(value)
+        }
+    }
+
+    #[include_if_struct_instantiation[QVariant]]
+    impl TryFrom<&QVariant> for QList<T> {
+        type Error = ();
+        fn try_from(value: &QVariant) -> Result<Self, ()> {
+            let conv_fn = cpp_fn!(|from: &QVariant, result: &mut QList<T>| -> bool {
+                if (!from.canConvert<QVariantList>())
+                    return false;
+                result = from.value<QVariantList>();
+                return true;
+            });
+            let mut result = QList::default();
+            match conv_fn(value, &mut result) {
+                true => Ok(result),
+                false => Err(()),
+            }
+        }
+    }
+
     impl std::ops::Index<usize> for QList<T> {
         type Output = T;
 

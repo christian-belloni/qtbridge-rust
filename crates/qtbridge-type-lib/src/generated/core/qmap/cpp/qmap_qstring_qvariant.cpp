@@ -64,6 +64,21 @@ QVariant inlineCppFn_value(QMap_QString_QVariant const &self, QString const &key
     return self.value(key);
 }
 
+QVariant inlineCppFn_TraitImpl_From_ref_QMap_QString_QVariant_for_QVariant_from(
+        QMap_QString_QVariant const &value)
+{
+    return QVariant::fromValue(value);
+}
+
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_QMap_QString_QVariant_try_from(
+        QVariant const &from, QMap_QString_QVariant &result)
+{
+    if (!from.canConvert<QVariantMap>())
+        return false;
+    result = from.value<QVariantMap>();
+    return true;
+}
+
 QVariant const *inlineCppFn_TraitImpl_std_ops_Index_ref_QString_for_QMap_QString_QVariant_index(
         QMap_QString_QVariant const &self, QString const &key)
 {

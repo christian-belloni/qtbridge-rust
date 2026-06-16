@@ -226,6 +226,33 @@ mod qmap {
         }
     }
 
+    #[include_if_struct_instantiation[(QString, QVariant)]]
+    impl From<&QMap<K, V>> for QVariant {
+        fn from(value: &QMap<K, V>) -> Self {
+            cpp_fn!(|value: &QMap<K, V>| -> Self {
+                return QVariant::fromValue(value);
+            })(value)
+        }
+    }
+
+    #[include_if_struct_instantiation[(QString, QVariant)]]
+    impl TryFrom<&QVariant> for QMap<K, V> {
+        type Error = ();
+        fn try_from(value: &QVariant) -> Result<Self, ()> {
+            let conv_fn = cpp_fn!(|from: &QVariant, result: &mut QMap<K, V>| -> bool {
+                if (!from.canConvert<QVariantMap>())
+                    return false;
+                result = from.value<QVariantMap>();
+                return true;
+            });
+            let mut result = QMap::default();
+            match conv_fn(value, &mut result) {
+                true => Ok(result),
+                false => Err(()),
+            }
+        }
+    }
+
     impl<const N: usize> From<[(K, V); N]> for QMap<K, V> {
         fn from(src: [(K, V); N]) -> Self {
             let mut result = Self::default();

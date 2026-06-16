@@ -49,6 +49,10 @@ mod ffi {
         fn inlineCppFn_values(_obj: &QMap_QString_QVariant) -> QList_QVariant;
         # [rust_name = inline_cpp_fn_value]
         fn inlineCppFn_value(_obj: &QMap_QString_QVariant, key: &QString) -> QVariant;
+        # [rust_name = inline_cpp_fn_trait_impl_from_ref_qmap_qstring_qvariant_for_qvariant_from]
+        fn inlineCppFn_TraitImpl_From_ref_QMap_QString_QVariant_for_QVariant_from(value: &QMap_QString_QVariant) -> QVariant;
+        # [rust_name = inline_cpp_fn_trait_impl_try_from_ref_qvariant_for_qmap_qstring_qvariant_try_from]
+        fn inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_QMap_QString_QVariant_try_from(from: &QVariant, result: &mut QMap_QString_QVariant) -> bool;
         # [rust_name = inline_cpp_fn_trait_impl_std_ops_index_ref_qstring_for_qmap_qstring_qvariant_index]
         unsafe fn inlineCppFn_TraitImpl_std_ops_Index_ref_QString_for_QMap_QString_QVariant_index(_obj: &QMap_QString_QVariant, key: &QString) -> *const QVariant;
     }
@@ -105,6 +109,22 @@ impl<const N: usize> From<[(&str, QVariant); N]> for QMap<QString, QVariant> {
         let mut result = Self::default();
         src.iter().for_each(|(k, v)| result.insert(&QString::from(*k), v));
         result
+    }
+}
+impl From<&QMap<QString, QVariant>> for QVariant {
+    fn from(value: &QMap<QString, QVariant>) -> Self {
+        ffi::inline_cpp_fn_trait_impl_from_ref_qmap_qstring_qvariant_for_qvariant_from(value)
+    }
+}
+impl TryFrom<&QVariant> for QMap<QString, QVariant> {
+    type Error = ();
+    fn try_from(value: &QVariant) -> Result<Self, ()> {
+        let conv_fn = ffi::inline_cpp_fn_trait_impl_try_from_ref_qvariant_for_qmap_qstring_qvariant_try_from;
+        let mut result = QMap::default();
+        match conv_fn(value, &mut result) {
+            true => Ok(result),
+            false => Err(()),
+        }
     }
 }
 impl<const N: usize> From<[(QString, QVariant); N]> for QMap<QString, QVariant> {

@@ -74,6 +74,21 @@ QVariant const &inlineCppFn_last(QList_QVariant const &self)
     return self.constLast();
 }
 
+QVariant
+inlineCppFn_TraitImpl_From_ref_QList_QVariant_for_QVariant_from(QList_QVariant const &value)
+{
+    return QVariant::fromValue(value);
+}
+
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_QList_QVariant_try_from(QVariant const &from,
+                                                                            QList_QVariant &result)
+{
+    if (!from.canConvert<QVariantList>())
+        return false;
+    result = from.value<QVariantList>();
+    return true;
+}
+
 QVariant const *
 inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QVariant_index(QList_QVariant const &self,
                                                                    size_t index)

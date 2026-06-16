@@ -46,6 +46,10 @@ mod ffi {
         fn inlineCppFn_first(_obj: &QList_QVariant) -> &QVariant;
         # [rust_name = inline_cpp_fn_last]
         fn inlineCppFn_last(_obj: &QList_QVariant) -> &QVariant;
+        # [rust_name = inline_cpp_fn_trait_impl_from_ref_qlist_qvariant_for_qvariant_from]
+        fn inlineCppFn_TraitImpl_From_ref_QList_QVariant_for_QVariant_from(value: &QList_QVariant) -> QVariant;
+        # [rust_name = inline_cpp_fn_trait_impl_try_from_ref_qvariant_for_qlist_qvariant_try_from]
+        fn inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_QList_QVariant_try_from(from: &QVariant, result: &mut QList_QVariant) -> bool;
         # [rust_name = inline_cpp_fn_trait_impl_std_ops_index_usize_for_qlist_qvariant_index]
         unsafe fn inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QVariant_index(_obj: &QList_QVariant, index: usize) -> *const QVariant;
         # [rust_name = inline_cpp_fn_trait_impl_partial_eq_for_qlist_qvariant_eq]
@@ -120,6 +124,22 @@ impl From<&QList<QVariant>> for Vec<QVariant> {
 impl From<QList<QVariant>> for Vec<QVariant> {
     fn from(value: QList<QVariant>) -> Self {
         Self::from(&value)
+    }
+}
+impl From<&QList<QVariant>> for QVariant {
+    fn from(value: &QList<QVariant>) -> Self {
+        ffi::inline_cpp_fn_trait_impl_from_ref_qlist_qvariant_for_qvariant_from(value)
+    }
+}
+impl TryFrom<&QVariant> for QList<QVariant> {
+    type Error = ();
+    fn try_from(value: &QVariant) -> Result<Self, ()> {
+        let conv_fn = ffi::inline_cpp_fn_trait_impl_try_from_ref_qvariant_for_qlist_qvariant_try_from;
+        let mut result = QList::default();
+        match conv_fn(value, &mut result) {
+            true => Ok(result),
+            false => Err(()),
+        }
     }
 }
 impl std::ops::Index<usize> for QList<QVariant> {

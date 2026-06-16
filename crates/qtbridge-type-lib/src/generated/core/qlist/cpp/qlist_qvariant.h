@@ -39,6 +39,12 @@ QVariant const &inlineCppFn_first(QList_QVariant const &self);
 
 QVariant const &inlineCppFn_last(QList_QVariant const &self);
 
+QVariant
+inlineCppFn_TraitImpl_From_ref_QList_QVariant_for_QVariant_from(QList_QVariant const &value);
+
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_QList_QVariant_try_from(QVariant const &from,
+                                                                            QList_QVariant &result);
+
 QVariant const *
 inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QVariant_index(QList_QVariant const &self,
                                                                    size_t index);
