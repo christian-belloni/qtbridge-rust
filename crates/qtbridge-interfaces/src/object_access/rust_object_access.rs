@@ -75,16 +75,20 @@ pub struct RustObjAccess<T: ?Sized> {
 }
 
 impl<T: ?Sized> RustObjAccess<T> {
+    /// Create an instance that hold a strong reference to the Rust object.
+    /// This is the case for objects created on the QML Side (QML Element).
     pub fn new_strong(ptr: Rc<RefCell<T>>) -> Self {
         Self {
-            shared_reference: SharedReferenceWithQml::OwnedByRust(ptr),
+            shared_reference: SharedReferenceWithQml::OwnedByQml(ptr),
             borrow: Cell::new(BorrowState::None),
         }
     }
 
+    /// Create an instance that holds a weak (`Weak<RefCell<T>>`) reference to the Rust object.
+    /// This is the case for objects created on the Rust Side.
     pub fn new_weak(ptr: Weak<RefCell<T>>) -> Self {
         Self {
-            shared_reference: SharedReferenceWithQml::OwnedByQml(ptr),
+            shared_reference: SharedReferenceWithQml::OwnedByRust(ptr),
             borrow: Cell::new(BorrowState::None),
         }
     }
@@ -213,16 +217,25 @@ pub enum RustObjAccessError {
     ExpiredWeakPtr,
 }
 
-pub enum SharedReferenceWithQml<T: ?Sized> {
-    OwnedByRust(Rc<RefCell<T>>),
-    OwnedByQml(Weak<RefCell<T>>),
+/// Represents how a Rust object is shared between Rust and QML.
+enum SharedReferenceWithQml<T: ?Sized> {
+    /// Holds a weak reference to the Rust object.
+    /// The object is dropped once there are no remaining strong references
+    /// on the Rust side.
+    OwnedByRust(Weak<RefCell<T>>),
+
+    /// Holds a strong reference to the Rust object.
+    /// Even if Rust no longer keeps any references, the object will remain
+    /// alive as long as it is still referenced from QML
+    /// (until the corresponding QObject is destroyed by the QML engine).
+    OwnedByQml(Rc<RefCell<T>>),
 }
 
 impl<T: ?Sized> SharedReferenceWithQml<T> {
     fn get_rc(&self) -> Option<Rc<RefCell<T>>> {
         match self {
-            SharedReferenceWithQml::OwnedByRust(rc) => Some(rc.clone()),
-            SharedReferenceWithQml::OwnedByQml(weak) => weak.upgrade(),
+            SharedReferenceWithQml::OwnedByRust(weak) => weak.upgrade(),
+            SharedReferenceWithQml::OwnedByQml(rc) => Some(rc.clone()),
         }
     }
 
