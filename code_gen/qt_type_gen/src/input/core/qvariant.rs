@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use std::mem::MaybeUninit;
-use crate::{QByteArray, QList, QMetaType, QObject, QString};
+use crate::{QByteArray, QList, QMetaType, QMetaTypeGet, QObject, QString};
 
 #[qt_gen::bridge]
 mod qvariant {
@@ -269,5 +269,12 @@ mod qvariant {
         fn try_from(value: QVariant) -> Result<Self, ()> {
             Self::try_from(&value)
         }
+    }
+}
+
+/// Returns `true` if the variant currently holds a value of Qt metatype `T`.
+impl QVariant {
+    pub fn is_type<T: QMetaTypeGet>(&self) -> bool {
+        self.meta_type() == T::get_qmetatype()
     }
 }
