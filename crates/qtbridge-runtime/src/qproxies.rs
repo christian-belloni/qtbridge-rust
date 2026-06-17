@@ -64,6 +64,25 @@ pub trait QCppProxy {
 /// - `rust_obj` wraps access to the users rust object.
 /// - `on_drop` cleaning up memory.
 ///
+/// # Lifetime and Ownership
+///
+/// A `QRustProxy` instance is heap-allocated and owned through a raw pointer, because its
+/// lifetime is jointly managed with C++ code and the C++ side requires a stable, non-movable
+/// address.
+///
+/// Destruction is always initiated from the C++ side: the paired `CppProxy` destructor calls
+/// [`GenericRustProxy::drop_self`], which converts the raw pointer back to a `Box`, invokes
+/// the stored `on_drop` callback, and then drops this instance along with its reference to the
+/// Rust object.
+///
+/// The reference held to the user's Rust object is either strong (`Rc`) or weak (`Weak`),
+/// depending on the [`ConstructionMode`] passed to [`QRustProxy::new`]:
+///
+/// - `Strong` / `AtAddress` - proxy holds a strong `Rc`; the proxy pair keeps the Rust object
+///   alive (QML-created / OwnedByQml path).
+/// - `Weak` - proxy holds only a `Weak` reference; the Rust `Rc` controls the struct's lifetime
+///   (Rust-created / OwnedByRust path).
+///
 /// # Associated Types
 ///
 /// ## `ProxyCppType`
@@ -79,6 +98,14 @@ pub trait QCppProxy {
 pub trait QRustProxy {
     type ProxyCppType: QCppProxy<ProxyRustType = Self>;
     type AdapterType: DispatchMetaCall + ?Sized;
+
+    /// Creates a new instance of this struct on the heap and returns a raw pointer to it.
+    ///
+    /// Initializes the proxy pair by:
+    /// - Creating a [`RustObjAccess`] wrapper for `rust_obj`, holding either a strong or weak
+    ///   reference depending on `construction` (see [`ConstructionMode`]).
+    /// - Constructing the paired C++ proxy and binding it to this Rust-side proxy.
+    /// - Storing `on_drop` for invocation when the C++ proxy is eventually destroyed.
     fn new(rust_obj: &Rc<RefCell<Self::AdapterType>>, metaobject: &'static DynamicMetaObjectData, construction: ConstructionMode, on_drop: Box<dyn FnOnce() + 'static>) -> *mut Self;
     fn get_cpp_proxy(&self) -> *const Self::ProxyCppType;
     fn get_cpp_proxy_mut(&self) -> *mut Self::ProxyCppType;

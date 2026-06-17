@@ -80,6 +80,12 @@ where
     CppProxy: QCppProxy<ProxyRustType = Self>,
     Adapter: ?Sized + DispatchMetaCall,
 {
+    /// Drops the instance pointed to by `self_ptr`.
+    ///
+    /// Intended to be called exclusively from the paired C++ destructor.
+    ///
+    /// `self_ptr` must be a pointer previously returned by [`QRustProxy::new`].
+    /// It must not have been dropped already.
     pub fn drop_self(self_ptr: *mut Self) {
         let boxed_self = unsafe { Box::from_raw(self_ptr) };
         (boxed_self.on_drop)();
