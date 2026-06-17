@@ -61,6 +61,57 @@
 //!   erases unknown types while exposing the necessary interface internally.
 //! * **Notes**: Never meant for user implementation or usage. Facilitates dynamic behavior and
 //!   internal bridging without exposing associated types to user code.
+//!
+//! ## Memory Ownership and Lifetimes
+//!
+//! Every instance of a user-defined Rust struct annotated with `#[qobject]` or `#[qobject_impl]`
+//! has two auxiliary parts invisible to the user:
+//!
+//! - **`CppProxy`** - a C++ class derived from`QObject` or `QAbstractItemModel` (or another base
+//!   interface). This is the object the QML engine sees and interacts with. It is allocated with
+//!   a regular `new` for Rust-created objects, or with placement `new` at a QML-engine-supplied
+//!   address for QML-created elements.
+//! - **[`RustProxy`](crate::genericrustproxy::GenericRustProxy)** - the Rust-side bridge,
+//!   heap-allocated via [`Box::into_raw`] in
+//!   [`QRustProxy::new`](qtbridge_runtime::qproxies::QRustProxy::new). It holds a pointer to
+//!   `CppProxy` and a reference the user struct as `Rc<RefCell<UserStruct>>` or
+//!   `Weak<RefCell<UserStruct>>` in [`RustObjAccess`].
+//!
+//! The `CppProxy` C++ destructor is the common teardown point for the proxy pair: it always
+//! calls `GenericRustProxy::drop_self`, which fires the `on_drop` callback and then drops
+//! `RustProxy` along with its `Rc`/`Weak` reference to the user struct.
+//!
+//! ### Who destroys `CppProxy`?
+//!
+//! That depends on who owns the object, determined at construction by `ConstructionMode`.
+//!
+//! #### QML-created objects
+//!
+//! `RustProxy` holds a strong `Rc<RefCell<UserStruct>>` (`SharedReferenceWithQml::OwnedByQml`).
+//!
+//! ```text
+//! JS GC deletes QObject
+//!   → virtual ~CppProxy()
+//!   → GenericRustProxy::drop_self
+//!     → on_drop() fires
+//!     → Rc<RefCell<UserStruct>> strong count −1
+//!       → UserStruct::drop()                     (only if this was the last strong Rc)
+//! ```
+//!
+//! #### Rust-created objects
+//!
+//! `RustProxy` holds only a `Weak<RefCell<UserStruct>>`
+//! (`SharedReferenceWithQml::OwnedByRust`). The Rust `Rc` controls the struct's lifetime.
+//! When the last strong `Rc` is dropped, `QObjectHolder::detach_qobject` deletes `CppProxy`.
+//!
+//! ```text
+//! Last strong Rc<RefCell<UserStruct>> dropped on the Rust side
+//!   → UserStruct::drop()
+//!     → QObjectHolder::detach_qobject()
+//!       → virtual ~CppProxy()
+//!       → GenericRustProxy::drop_self
+//!         → on_drop()
+//! ```
 
 pub mod genericrustproxy;
 

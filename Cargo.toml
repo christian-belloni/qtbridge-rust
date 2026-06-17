@@ -45,6 +45,7 @@ members = [
     "test/tst_qobject_macro",
     "test/tst_qt_ifaces",
     "test/tst_metatype",
+    "test/tst_ownership",
     "test/tst_serde_json",
     "test/tst_qtbridge_gen_common",
     "test/quick/tst_qobject",

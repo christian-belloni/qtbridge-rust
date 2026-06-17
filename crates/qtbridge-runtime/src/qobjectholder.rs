@@ -145,18 +145,20 @@ pub trait QObjectHolder : DispatchMetaCall + QMetaInfo + Default {
     /// Creates a default-initialized instance and attaches the required
     /// [`QObject`], enabling its use in QML.
     ///
-    /// The returned `Rc<RefCell<T>>` owns the object. The attached `QObject` is
-    /// bound to this specific allocation, so the object's identity and lifetime
-    /// must both be preserved. Violating either rule below aborts the process:
+    /// The returned `Rc<RefCell<Self>>` owns the object. The QML side can access it only through
+    /// a weak pointer.
     ///
-    /// 1. Do not move or replace the `T` inside the `Rc<RefCell<T>>`
-    ///    (`Rc::try_unwrap`, `into_inner`, `get_mut`-then-move). The `QObject`
-    ///    keeps referring to the original location; once the `T` lives
-    ///    elsewhere, the next call in either direction can no longer reach it.
-    /// 2. Keep this `Rc` alive for as long as QML can reach the object. If you
-    ///    expose it (e.g. [`as_qvariant`] or a QML property) then drop the
-    ///    `Rc`, the object is freed while QML still holds its `QObject`, and the
-    ///    next call from QML finds nothing behind it.
+    /// The `drop` implementation of `Self` calls `detach_qobject` and thus destroys the associated
+    /// `QObject`, which removes it from the QML side as well. If `Self` has a custom [`Drop`]
+    /// implementation, you need to call [`detach_qobject`] manually.
+    ///
+    /// The attached `QObject` is bound to this specific allocation, so the object's identity and
+    /// lifetime must both be preserved.
+    ///
+    /// **Do not move or replace the `Self` inside the `Rc<RefCell<Self>>`.**
+    /// Operations such as `Rc::try_unwrap`, `into_inner`, or `get_mut`-then-move will break the
+    /// connection between `self` and the associated `QObject`. Once the `Self` lives
+    /// elsewhere, the next call in either direction can no longer reach it.
     fn default_with_attached_qobject() -> std::rc::Rc<std::cell::RefCell<Self>> {
         let instance = Default::default();
         Self::attach_qobject(&instance);
