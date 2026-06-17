@@ -6,10 +6,14 @@
 #ifndef _QVARIANT_RUST_BRIDGE_H_
 #define _QVARIANT_RUST_BRIDGE_H_
 
+#include <QJsonValue>
 #include <QList>
 #include <QVariant>
 #include <cstdint>
 #include "qtbridge-type-lib/src/generated/core/qbytearray/cpp/qbytearray.h"
+#include "qtbridge-type-lib/src/generated/core/qjsonarray/cpp/qjsonarray.h"
+#include "qtbridge-type-lib/src/generated/core/qjsonobject/cpp/qjsonobject.h"
+#include "qtbridge-type-lib/src/generated/core/qjsonvalue/cpp/qjsonvalue.h"
 #include "qtbridge-type-lib/src/generated/core/qlist/cpp/qlist_bool.h"
 #include "qtbridge-type-lib/src/generated/core/qlist/cpp/qlist_f32.h"
 #include "qtbridge-type-lib/src/generated/core/qlist/cpp/qlist_f64.h"
@@ -193,6 +197,21 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_f32_try_from(QVariant co
 
 bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_f64_try_from(QVariant const &from,
                                                                      QList<double> &result);
+
+QVariant inlineCppFn_TraitImpl_From_ref_QJsonArray_for_QVariant_from(QJsonArray const &value);
+
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_QJsonArray_try_from(QVariant const &from,
+                                                                        QJsonArray &result);
+
+QVariant inlineCppFn_TraitImpl_From_ref_QJsonObject_for_QVariant_from(QJsonObject const &value);
+
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_QJsonObject_try_from(QVariant const &from,
+                                                                         QJsonObject &result);
+
+QVariant inlineCppFn_TraitImpl_From_ref_QJsonValue_for_QVariant_from(QJsonValue const &value);
+
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_QJsonValue_try_from(QVariant const &from,
+                                                                        QJsonValue &result);
 
 } // namespace rust::bridge::qvariant
 

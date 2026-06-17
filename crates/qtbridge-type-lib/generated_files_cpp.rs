@@ -1,8 +1,11 @@
-pub const GENERATED_FILES_CPP: [&'static str; 37] = [
+pub const GENERATED_FILES_CPP: [&'static str; 40] = [
     "src/generated/core/qbytearray/cpp/qbytearray.cpp",
     "src/generated/core/qhash/cpp/qhash_i32_qbytearray.cpp",
     "src/generated/core/qhash/cpp/qhash_qbytearray_qvariant.cpp",
     "src/generated/core/qhash/cpp/qhash_qstring_qvariant.cpp",
+    "src/generated/core/qjsonarray/cpp/qjsonarray.cpp",
+    "src/generated/core/qjsonobject/cpp/qjsonobject.cpp",
+    "src/generated/core/qjsonvalue/cpp/qjsonvalue.cpp",
     "src/generated/core/qlist/cpp/qlist_bool.cpp",
     "src/generated/core/qlist/cpp/qlist_f32.cpp",
     "src/generated/core/qlist/cpp/qlist_f64.cpp",

@@ -1,9 +1,12 @@
-pub const GENERATED_FILES_BRIDGE: [&'static str; 38] = [
+pub const GENERATED_FILES_BRIDGE: [&'static str; 41] = [
     "src/generated/core/itemdatarole/itemdatarole.rs",
     "src/generated/core/qbytearray/qbytearray.rs",
     "src/generated/core/qhash/qhash_i32_qbytearray.rs",
     "src/generated/core/qhash/qhash_qbytearray_qvariant.rs",
     "src/generated/core/qhash/qhash_qstring_qvariant.rs",
+    "src/generated/core/qjsonarray/qjsonarray.rs",
+    "src/generated/core/qjsonobject/qjsonobject.rs",
+    "src/generated/core/qjsonvalue/qjsonvalue.rs",
     "src/generated/core/qlist/qlist_bool.rs",
     "src/generated/core/qlist/qlist_f32.rs",
     "src/generated/core/qlist/qlist_f64.rs",

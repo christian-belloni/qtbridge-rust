@@ -5,6 +5,9 @@
 pub mod itemdatarole;
 pub mod qbytearray;
 pub mod qhash;
+pub mod qjsonarray;
+pub mod qjsonobject;
+pub mod qjsonvalue;
 pub mod qlist;
 pub mod qmap;
 pub mod qmetaobject;

@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
 use std::mem::MaybeUninit;
-use crate::{QByteArray, QList, QMetaType, QMetaTypeGet, QObject, QString};
+use crate::{QByteArray, QJsonArray, QJsonObject, QJsonValue, QList, QMetaType, QMetaTypeGet, QObject, QString};
 
 #[qt_gen::bridge]
 mod qvariant {
 
+    include_in_cpp!(<QJsonValue>);
     include_in_cpp!(<QList>);
     include_in_cpp!(<QVariant>);
     include_in_cpp!("rustconv.h");
@@ -268,6 +269,83 @@ mod qvariant {
         type Error = ();
         fn try_from(value: QVariant) -> Result<Self, ()> {
             Self::try_from(&value)
+        }
+    }
+
+    impl From<&QJsonArray> for QVariant {
+        fn from(value: &QJsonArray) -> QVariant {
+            cpp_fn!(|value: &QJsonArray| -> QVariant {
+                return QVariant::fromValue(value);
+            })(value)
+        }
+    }
+
+    impl TryFrom<&QVariant> for QJsonArray {
+        type Error = ();
+        fn try_from(value: &QVariant) -> Result<Self, ()> {
+            let conv_fn = cpp_fn!(|from: &QVariant, result: &mut QJsonArray| -> bool {
+                if (from.metaType() != QMetaType::fromType<QJsonArray>())
+                    return false;
+                result = from.value<QJsonArray>();
+                return true;
+            });
+            let mut result = QJsonArray::default();
+            match conv_fn(value, &mut result) {
+                true => Ok(result),
+                false => Err(()),
+            }
+        }
+    }
+
+    impl From<&QJsonObject> for QVariant {
+        fn from(value: &QJsonObject) -> QVariant {
+            cpp_fn!(|value: &QJsonObject| -> QVariant {
+                return QVariant::fromValue(value);
+            })(value)
+        }
+    }
+
+    impl TryFrom<&QVariant> for QJsonObject {
+        type Error = ();
+        fn try_from(value: &QVariant) -> Result<Self, ()> {
+            let conv_fn = cpp_fn!(|from: &QVariant, result: &mut QJsonObject| -> bool {
+                if (from.metaType() != QMetaType::fromType<QJsonObject>())
+                    return false;
+                result = from.value<QJsonObject>();
+                return true;
+            });
+            let mut result = QJsonObject::default();
+            match conv_fn(value, &mut result) {
+                true => Ok(result),
+                false => Err(()),
+            }
+        }
+    }
+
+    /// Wraps this value in a `QVariant` with metatype `QMetaType::QJsonValue` (id 45).
+    impl From<&QJsonValue> for QVariant {
+        fn from(value: &QJsonValue) -> QVariant {
+            cpp_fn!(|value: &QJsonValue| -> QVariant {
+                return QVariant::fromValue(value);
+            })(value)
+        }
+    }
+
+    /// Extracts a `QJsonValue` from a `QVariant` whose metatype is `QMetaType::QJsonValue`.
+    impl TryFrom<&QVariant> for QJsonValue {
+        type Error = ();
+        fn try_from(value: &QVariant) -> Result<Self, ()> {
+            let conv_fn = cpp_fn!(|from: &QVariant, result: &mut QJsonValue| -> bool {
+                if (from.metaType() != QMetaType::fromType<QJsonValue>())
+                    return false;
+                result = from.value<QJsonValue>();
+                return true;
+            });
+            let mut result = QJsonValue::default();
+            match conv_fn(value, &mut result) {
+                true => Ok(result),
+                false => Err(()),
+            }
         }
     }
 }

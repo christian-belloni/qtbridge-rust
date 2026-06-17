@@ -476,4 +476,46 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_Vec_f64_try_from(QVariant co
     return true;
 }
 
+QVariant inlineCppFn_TraitImpl_From_ref_QJsonArray_for_QVariant_from(QJsonArray const &value)
+{
+    return QVariant::fromValue(value);
+}
+
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_QJsonArray_try_from(QVariant const &from,
+                                                                        QJsonArray &result)
+{
+    if (from.metaType() != QMetaType::fromType<QJsonArray>())
+        return false;
+    result = from.value<QJsonArray>();
+    return true;
+}
+
+QVariant inlineCppFn_TraitImpl_From_ref_QJsonObject_for_QVariant_from(QJsonObject const &value)
+{
+    return QVariant::fromValue(value);
+}
+
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_QJsonObject_try_from(QVariant const &from,
+                                                                         QJsonObject &result)
+{
+    if (from.metaType() != QMetaType::fromType<QJsonObject>())
+        return false;
+    result = from.value<QJsonObject>();
+    return true;
+}
+
+QVariant inlineCppFn_TraitImpl_From_ref_QJsonValue_for_QVariant_from(QJsonValue const &value)
+{
+    return QVariant::fromValue(value);
+}
+
+bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_QJsonValue_try_from(QVariant const &from,
+                                                                        QJsonValue &result)
+{
+    if (from.metaType() != QMetaType::fromType<QJsonValue>())
+        return false;
+    result = from.value<QJsonValue>();
+    return true;
+}
+
 } // namespace rust::bridge::qvariant
