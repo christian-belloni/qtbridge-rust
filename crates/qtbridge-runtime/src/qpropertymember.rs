@@ -11,6 +11,9 @@ use qtbridge_type_lib::{
     QList_f32, QList_f64, QList_QString,
 };
 
+#[cfg(feature = "serde_json")]
+use qtbridge_type_lib::{QJsonArray, QJsonValue};
+
 use crate::{QObjectHolder, QmlRegister};
 
 /// Enables a type to be used as a property.
@@ -149,6 +152,33 @@ impl<T: QmlRegister> QPropertyMember for Vec<Rc<RefCell<T>>> {
     fn property_eq(&self, other: &Self) -> bool {
         self.len() == other.len() && self.iter().zip(other.iter()).all(|(a, b)| Rc::ptr_eq(a, b))
     }
+}
+
+#[cfg(feature = "serde_json")]
+impl QPropertyMember for serde_json::Value {
+    fn qmetatype() -> QMetaType { <QJsonValue as QMetaTypeGet>::get_qmetatype() }
+    fn to_qvariant<Owner: QObjectHolder>(&self, _owner: &Owner) -> QVariant {
+        QVariant::from(&crate::serde_tools::serde_to_qjsonvalue(self))
+    }
+    fn from_qvariant(value: &QVariant) -> Result<Self, ()> {
+        crate::serde_tools::qvariant_to_serde(value)
+    }
+    fn property_eq(&self, other: &Self) -> bool { self == other }
+}
+
+#[cfg(feature = "serde_json")]
+impl QPropertyMember for Vec<serde_json::Value> {
+    fn qmetatype() -> QMetaType { <QJsonArray as QMetaTypeGet>::get_qmetatype() }
+    fn to_qvariant<Owner: QObjectHolder>(&self, _owner: &Owner) -> QVariant {
+        QVariant::from(&crate::serde_tools::serde_to_qjsonarray(self))
+    }
+    fn from_qvariant(value: &QVariant) -> Result<Self, ()> {
+        match crate::serde_tools::qvariant_to_serde(value)? {
+            serde_json::Value::Array(arr) => Ok(arr),
+            _ => Err(()),
+        }
+    }
+    fn property_eq(&self, other: &Self) -> bool { self == other }
 }
 
 /// Returns the [`QMetaType`] of the return value of a `FnOnce`. Given a function

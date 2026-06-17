@@ -11,6 +11,9 @@ use qtbridge_type_lib::{
     QList_f32, QList_f64, QList_QString,
 };
 
+#[cfg(feature = "serde_json")]
+use qtbridge_type_lib::{QJsonArray, QJsonValue};
+
 use crate::{QObjectHolder, QmlRegister};
 
 /// Enables a type to be used as a signal or slot argument.
@@ -115,4 +118,22 @@ impl<T: QmlRegister> QMetaCallArg for Vec<Rc<RefCell<T>>> {
     fn wire_metatype() -> QMetaType {
         QObjectList::get_qmetatype()
     }
+}
+
+#[cfg(feature = "serde_json")]
+impl QMetaCallArg for serde_json::Value {
+    type WireType = QJsonValue;
+    fn to_wire(&self) -> QJsonValue { crate::serde_tools::serde_to_qjsonvalue(self) }
+    fn from_wire(wire: &QJsonValue) -> serde_json::Value { crate::serde_tools::qjsonvalue_to_serde(wire) }
+    fn wire_metatype() -> QMetaType { <QJsonValue as QMetaTypeGet>::get_qmetatype() }
+}
+
+#[cfg(feature = "serde_json")]
+impl QMetaCallArg for Vec<serde_json::Value> {
+    type WireType = QJsonArray;
+    fn to_wire(&self) -> QJsonArray { crate::serde_tools::serde_to_qjsonarray(self) }
+    fn from_wire(wire: &QJsonArray) -> Vec<serde_json::Value> {
+        (0..wire.size()).map(|i| crate::serde_tools::qjsonvalue_to_serde(&wire.at(i))).collect()
+    }
+    fn wire_metatype() -> QMetaType { <QJsonArray as QMetaTypeGet>::get_qmetatype() }
 }

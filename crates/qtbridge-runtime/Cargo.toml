@@ -14,6 +14,7 @@ description = "Qt Bridge: bridging code to be run in applications."
 [dependencies]
 cxx.workspace = true
 qtbridge-type-lib = { path = "../qtbridge-type-lib", version = "0.1.5" }
+serde_json = { workspace = true, optional = true }
 
 [build-dependencies]
 cxx-build.workspace = true
@@ -21,3 +22,6 @@ qtbridge-build-common = { path = "../qtbridge-build-common", version = "0.1.5" }
 
 [dev-dependencies]
 qtbridge = { path = "../qtbridge", version = "0.1.5" }
+
+[features]
+serde_json = ["dep:serde_json"]

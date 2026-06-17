@@ -16,3 +16,7 @@ qtbridge-gen = { path = "../qtbridge-gen", version = "0.1.5" }
 qtbridge-type-lib = { path = "../qtbridge-type-lib", version = "0.1.5" }
 qtbridge-runtime = { path = "../qtbridge-runtime", version = "0.1.5" }
 qtbridge-interfaces = { path = "../qtbridge-interfaces", version = "0.1.5" }
+serde_json = { workspace = true, optional = true }
+
+[features]
+serde_json = ["dep:serde_json", "qtbridge-runtime/serde_json"]

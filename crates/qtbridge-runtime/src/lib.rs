@@ -17,6 +17,7 @@ pub mod qmodelitem;
 pub mod qmetacallarg;
 pub mod qpropertymember;
 pub mod rustobjectgetter;
+pub(crate) mod serde_tools;
 
 pub use dispatchmetacall::DispatchMetaCall;
 pub use dynamicmetaobjectbuilder::{DynamicMetaObjectBuilder, create_dynamic_meta_object_builder};
