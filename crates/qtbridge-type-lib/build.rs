@@ -1,6 +1,7 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
+use std::path::Path;
 use qtbridge_build_common::qt_build::{link_qt_modules, qt_include_dirs, QtBuildConfigure};
 
 mod generated_files_bridge;
@@ -17,6 +18,10 @@ fn main() {
     println!("cargo:include={}", include_path.display());
     println!("cargo::metadata=include={}", include_path.display());
 
+    for file in GENERATED_FILES_BRIDGE {
+        println!("cargo::rerun-if-changed={file}");
+    }
+
     let mut builder = cxx_build::bridges(GENERATED_FILES_BRIDGE);
     builder
         .std("c++17")
@@ -29,6 +34,11 @@ fn main() {
     GENERATED_FILES_CPP.iter()
         .for_each(|file| {
             builder.file(file);
+            println!("cargo::rerun-if-changed={file}");
+            let h_path = Path::new(file).with_extension("").with_extension("h");
+            if h_path.is_file() {
+                println!("cargo::rerun-if-changed={}", h_path.to_str().unwrap());
+            }
         });
 
     let qt_modules = ["Core", "Gui", "Qml", "Test"];
