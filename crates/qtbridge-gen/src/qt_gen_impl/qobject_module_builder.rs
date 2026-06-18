@@ -1,13 +1,13 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use proc_macro2::TokenStream;
-use quote::{ToTokens, format_ident};
+use proc_macro2::{Span, TokenStream};
+use quote::{ToTokens, format_ident, quote};
 use syn::spanned::Spanned;
 
 use qtbridge_gen_common::function_with_attributes::FunctionWithAttributes;
 use qtbridge_gen_common::parse_utils::is_path_with_segments_str;
-use qtbridge_gen_common::type_utils::get_ident_of_last_path_segment_or_err;
+use qtbridge_gen_common::type_utils::{get_ident_of_last_path_segment_or_err, path_from_type};
 use crate::qt_gen_impl::generate_qobject_holder::generate_qobject_holder;
 use crate::qt_gen_impl::qt_meta_gen;
 use crate::qt_gen_impl::qt_meta_gen::generate_dispatch_meta_call::generate_dispatch_meta_call;
@@ -21,11 +21,29 @@ use qt_gen_impl::qobject_macro_params::QObjectMacroParams;
 use qt_gen_impl::qml_element::generate_qml_register;
 use qt_gen_impl::drop_impl::{adjust_drop_impl, generate_drop};
 
+
+/// Output of the `#[qobject]` macro expansion.
+///
+/// The macro produces different output depending on whether it is applied
+/// to a `mod` or to an `impl` block.
+pub enum QObjectOutput {
+    /// The macro is applied to a `mod` block.
+    /// Contains the transformed `syn::ItemMod`, with its items modified or augmented as part of
+    /// the macro expansion.
+    Mod(syn::ItemMod),
+
+    /// The macro is applied to an `impl` block.
+    /// Contains the transformed `impl` item (patched as needed) along with any additional items
+    /// generated during the macro expansion.
+    Impl(Vec<syn::Item>),
+}
+
+
 pub struct QObjectModuleBuilder {
     params: QObjectMacroParams,
     struct_ident: syn::Ident,
     struct_generics: syn::Generics,
-    struct_fields: syn::FieldsNamed,
+    struct_fields: Option<syn::FieldsNamed>,
     signals: Vec<QSignalInfo>,
     slots: Vec<QSlotInfo>,
     properties: Vec<QPropertyInfo>,
@@ -45,7 +63,7 @@ impl QObjectModuleBuilder {
             struct_ident: format_ident!("dummy"),
             struct_generics: syn::Generics::default(),
             signals: Vec::new(),
-            struct_fields: syn::parse_quote!{{}},
+            struct_fields: None,
             slots: Vec::new(),
             properties: Vec::new(),
             class_infos: Vec::new(),
@@ -56,28 +74,41 @@ impl QObjectModuleBuilder {
 
     pub fn build_token_stream(&mut self, input: TokenStream, params: TokenStream) -> syn::Result<TokenStream> {
         self.build(input, params)
-            .map(|item_mod| item_mod.to_token_stream())
+            .map(|output| match output {
+                QObjectOutput::Mod(module) => quote! { #module },
+                QObjectOutput::Impl(items) => quote! { #(#items)* },
+            })
     }
-
-    pub fn build(&mut self, input: TokenStream, params: TokenStream) -> syn::Result<syn::ItemMod> {
+    pub fn build(&mut self, input: TokenStream, params: TokenStream) -> syn::Result<QObjectOutput> {
         // Parse input parameters of this macro,
         self.params = syn::parse2::<QObjectMacroParams>(params)
             .map_err(|err| syn::Error::new(err.span(), format!("Failed to parse input params.\nError: {err}")))?;
 
-        // Parse input token stream as 'mod' item,
-        let module = syn::parse2::<syn::ItemMod>(input)
-            .map_err(|err| syn::Error::new(err.span(), format!("Failed to parse input as mod block.\nError: {err}")))?;
+        // First, try to parse input token stream as 'mod' item.
+        // If that fails, try again as `impl` block.
+        let src_module = syn::parse2::<syn::ItemMod>(input.clone())
+            .ok();
 
-        // Process input module. Generate output module (after expansion of the macro).
-        // Extract signals, slots, properties, class infos, and other relevant parts.
-        let mut output_module_items = self.handle_item_mod(&module)?;
+        let mut output_items = Vec::new();
+        match &src_module {
+            Some(module) => {
+                output_items = self.handle_item_mod(&module)?
+            }
+            None => match syn::parse2(input) {
+                Ok(impl_) => output_items.push(self.handle_item_impl(&impl_)?),
+                Err(_) => return Err(syn::Error::new(Span::call_site(), format!("#[qobject] macro can only be applied to a `mod` or `impl` block."))),
+            }
+        };
+
+        // Process a `mod` or `impl` block and generate the expanded output code.
+        // Extract signals, slots, properties, class infos, and other relevant elements.
 
         self.check_duplicates()?;
         QPropertyInfo::check_single_default_property(&self.properties)?;
 
         // Try to deduce properties type here when we have list of potential getters/setters
         for prop in &mut self.properties {
-            prop.set_type(&self.other_methods, Some(&self.struct_fields))?;
+            prop.set_type(&self.other_methods, self.struct_fields.as_ref())?;
             prop.validate(&self.signals)
                 .map_err(|err| syn::Error::new(err.span(), format!("Wrong property declaration: {err}")))?;
         }
@@ -121,7 +152,7 @@ impl QObjectModuleBuilder {
                 .map_err(|err| syn::Error::new(err.span(), format!("Failed to generate implementation of QmlRegister trait.\nError: {}", err)))?;
             if let Some(qml_reg) = qml_register {
                 if let Some(qml_reg_func) = qml_reg.register_fn {
-                    output_module_items.push(qml_reg_func.into());
+                    output_items.push(qml_reg_func.into());
                 }
                 generated_traits.push(("QmlRegister", Ok(qml_reg.register_impl)));
             }
@@ -133,13 +164,16 @@ impl QObjectModuleBuilder {
             let trait_impl = trait_impl_result.map_err(|err| syn::Error::new(
                 err.span(),
                 format!("Failed to generate implementation of '{trait_name}' trait.\nError:{err}")))?;
-            output_module_items.push(trait_impl.into());
+            output_items.push(trait_impl.into());
         }
 
-        Ok(syn::ItemMod {
-            content: Some((<_>::default(), output_module_items)),
-            ..module.clone()
-        })
+        match src_module {
+            Some(mut module) => {
+                module.content = Some((<_>::default(), output_items));
+                Ok(QObjectOutput::Mod(module))
+            }
+            None => Ok(QObjectOutput::Impl(output_items))
+        }
     }
 
     fn handle_item_mod(&mut self, input: &syn::ItemMod) -> syn::Result<Vec<syn::Item>> {
@@ -162,17 +196,28 @@ impl QObjectModuleBuilder {
         self.struct_ident = struct_.ident.clone();
         self.struct_generics = struct_.generics.clone();
         self.struct_fields = match &struct_.fields {
-            syn::Fields::Named(named) => named.clone(),
+            syn::Fields::Named(named) => Some(named.clone()),
             _ => return Err(syn::Error::new(struct_.fields.span(), "Only named struct fields are supported"))
         };
 
-        // Process input items of module. Expand item to output module
+        // Process the items within a `mod` or `impl` block and expand them.
         let mut output_items = Vec::new();
         for item in mod_items.iter() {
             output_items.push(self.handle_item(item)?);
         }
 
         Ok(output_items)
+    }
+
+    fn handle_item_impl(&mut self, input: &syn::ItemImpl) -> syn::Result<syn::Item> {
+        let self_path = path_from_type(input.self_ty.as_ref())?;
+        self.struct_ident = get_ident_of_last_path_segment_or_err(self_path)?
+            .clone();
+        self.struct_generics = input.generics
+            .clone();
+
+        let new_impl = self.handle_item_impl_struct(input)?;
+        Ok(new_impl.into())
     }
 
     fn handle_item(&mut self, input: &syn::Item) -> syn::Result<syn::Item> {

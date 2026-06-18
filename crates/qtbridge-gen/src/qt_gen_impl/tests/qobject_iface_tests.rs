@@ -4,7 +4,7 @@
 #![cfg(test)]
 use insta::assert_snapshot;
 use crate::qt_gen_impl::QObjectModuleBuilder;
-use quote::{ToTokens, quote};
+use quote::quote;
 use qtbridge_gen_common::format_code::{format_rust_code, strip_docs};
 
 #[test]
@@ -36,7 +36,7 @@ pub fn test() {
     };
 
     let mut builder = QObjectModuleBuilder::new();
-    let output = builder.build(input, input_params).unwrap().to_token_stream();
+    let output = builder.build_token_stream(input, input_params).unwrap();
     let formatted = format_rust_code(&strip_docs(output)).unwrap();
     assert_snapshot!(formatted);
 }
@@ -61,7 +61,7 @@ pub fn test_no_drop() {
     };
 
     let mut builder = QObjectModuleBuilder::new();
-    let output = builder.build(input, input_params).unwrap().to_token_stream();
+    let output = builder.build_token_stream(input, input_params).unwrap();
     let formatted = format_rust_code(&strip_docs(output)).unwrap();
     assert_snapshot!(formatted);
 }
