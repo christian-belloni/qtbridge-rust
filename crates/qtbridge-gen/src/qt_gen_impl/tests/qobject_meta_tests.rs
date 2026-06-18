@@ -4,9 +4,24 @@
 #![cfg(test)]
 use insta::assert_snapshot;
 use quote::{ToTokens, quote};
-use crate::qt_gen_impl::QObjectModuleBuilder;
-use crate::qt_gen_impl::qobject_impl::qobject_impl;
+use crate::qt_gen_impl::{QObjectModuleBuilder, qobject_module_builder::QObjectOutput};
 use qtbridge_gen_common::format_code::{format_rust_code, strip_docs};
+use qtbridge_gen_common::type_utils::get_ident_of_last_path_segment;
+
+fn find_trait_impl<'a>(items: &'a[syn::Item], name: &str) -> &'a syn::ItemImpl {
+    items.iter()
+        .find_map(|item| {
+            if let syn::Item::Impl(item_impl) = item &&
+               let Some((_, path, _)) = &item_impl.trait_ &&
+               let Some(ident) = get_ident_of_last_path_segment(path) &&
+               ident == name
+            {
+                return Some(item_impl)
+            }
+            None
+        })
+    .expect("Trait implementation was not found")
+}
 
 #[test]
 fn test() {
@@ -52,10 +67,14 @@ fn test() {
         }
     };
 
-    let output = qobject_impl(input, quote!{})
-        .unwrap()
-        .qmeta_info_impl;
-    let formatted = format_rust_code(&strip_docs(output.to_token_stream())).unwrap();
+    let mut builder = QObjectModuleBuilder::new();
+    let output_items = match builder.build(input, quote! {}) {
+        Ok(QObjectOutput::Impl(items)) => items,
+        Err(err) => panic!("#[qobject] failed: {err}"),
+        _ => unreachable!(),
+    };
+    let qmeta_info = find_trait_impl(&output_items, "QMetaInfo");
+    let formatted = format_rust_code(&strip_docs(qmeta_info.to_token_stream())).unwrap();
     assert_snapshot!(formatted);
 }
 
@@ -103,10 +122,14 @@ fn test_case_casting() {
         }
     };
 
-    let output = qobject_impl(input, quote!{ConvertToCamelCase})
-        .unwrap()
-        .qmeta_info_impl;
-    let formatted = format_rust_code(&strip_docs(output.to_token_stream())).unwrap();
+    let mut builder = QObjectModuleBuilder::new();
+    let output_items = match builder.build(input, quote! {ConvertToCamelCase}) {
+        Ok(QObjectOutput::Impl(items)) => items,
+        Err(err) => panic!("#[qobject] failed: {err}"),
+        _ => unreachable!(),
+    };
+    let qmeta_info = find_trait_impl(&output_items, "QMetaInfo");
+    let formatted = format_rust_code(&strip_docs(qmeta_info.to_token_stream())).unwrap();
     assert_snapshot!(formatted);
 }
 
@@ -140,10 +163,14 @@ fn test_dispatch_meta_call() {
         }
     };
 
-    let output = qobject_impl(input, quote!{})
-        .unwrap()
-        .dispatch_meta_call;
-    let formatted = format_rust_code(&strip_docs(output.to_token_stream())).unwrap();
+    let mut builder = QObjectModuleBuilder::new();
+    let output_items = match builder.build(input, quote! {}) {
+        Ok(QObjectOutput::Impl(items)) => items,
+        Err(err) => panic!("#[qobject] failed: {err}"),
+        _ => unreachable!(),
+    };
+    let dispatch_meta_call = find_trait_impl(&output_items, "DispatchMetaCall");
+    let formatted = format_rust_code(&strip_docs(dispatch_meta_call.to_token_stream())).unwrap();
     assert_snapshot!(formatted);
 }
 

@@ -23,7 +23,7 @@ pub struct BasicLogin {
     service: Option<Rc<RefCell<Service>>>,
 }
 
-#[qtbridge::qobject_impl]
+#[qtbridge::qobject]
 impl BasicLogin {
     qproperty!("loginPath", Member = login_path, Notify = login_path_changed);
     qproperty!("logoutPath", Member = logout_path, Notify = logout_path_changed);

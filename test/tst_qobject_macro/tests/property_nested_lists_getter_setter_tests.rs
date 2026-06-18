@@ -1,7 +1,7 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use qtbridge::{QApp, QObjectHolder, QmlRegister, qobject_impl};
+use qtbridge::{QApp, QObjectHolder, QmlRegister, qobject};
 use std::rc::Rc;
 use std::cell::RefCell;
 
@@ -9,7 +9,7 @@ use std::cell::RefCell;
 pub struct Cat {
     pub legs: i32,
 }
-#[qobject_impl]
+#[qobject]
 impl Cat {
     qproperty!("legs", Member = legs);
 }
@@ -19,7 +19,7 @@ impl Cat {
 pub struct Reporter {
     pub count: i32,
 }
-#[qobject_impl]
+#[qobject]
 impl Reporter {
     #[qslot]
     fn report(&mut self, n: i32) {
@@ -31,7 +31,7 @@ impl Reporter {
 pub struct Container {
     kittens: Vec<Rc<RefCell<Cat>>>,
 }
-#[qobject_impl]
+#[qobject]
 impl Container {
     qproperty!("kittens", Read = get_kittens, Write = set_kittens);
 

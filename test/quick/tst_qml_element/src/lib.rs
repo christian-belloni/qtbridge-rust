@@ -1,14 +1,14 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use qtbridge::{QmlRegister, qobject_impl};
+use qtbridge::{QmlRegister, qobject};
 use linkme;
 
 #[derive(Default)]
 pub struct Backend {
 }
 
-#[qobject_impl(NoQmlElement, ConvertToCamelCase)]
+#[qobject(NoQmlElement, ConvertToCamelCase)]
 impl Backend {
     #[qslot]
     fn answer_to_everything(&self) -> i32 {
@@ -28,7 +28,7 @@ impl QmlRegister for Backend {
 pub struct LinkMeBackend {
 }
 
-#[qobject_impl(LinkMe)]
+#[qobject(LinkMe)]
 impl LinkMeBackend {
 }
 
@@ -36,7 +36,7 @@ impl LinkMeBackend {
 pub struct SingletonBackend {
 }
 
-#[qobject_impl(NoQmlElement, ConvertToCamelCase)]
+#[qobject(NoQmlElement, ConvertToCamelCase)]
 impl SingletonBackend {
     #[qslot]
     fn answer_to_everything(&self) -> i32 {

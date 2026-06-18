@@ -1,7 +1,7 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
-use qtbridge::{QApp, QObjectHolder, invoke_method, qobject_impl};
+use qtbridge::{QApp, QObjectHolder, invoke_method, qobject};
 use std::time::Instant;
 use tokio::runtime::Builder;
 
@@ -30,8 +30,8 @@ impl Default for Backend {
     }
 }
 
-// #[qobject_impl] exposes the struct to the QML side
-#[qobject_impl]
+// #[qobject] exposes the struct to the QML side
+#[qobject]
 impl Backend {
     // qproperty! exposes a Rust field as a QML property.
     qproperty!("latency", Member = latency, Write = set_latency, Notify = latency_changed);

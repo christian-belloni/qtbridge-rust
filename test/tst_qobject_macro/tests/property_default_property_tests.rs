@@ -4,14 +4,14 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use qtbridge::{QApp, QObjectHolder, QmlRegister, qobject_impl};
+use qtbridge::{QApp, QObjectHolder, QmlRegister, qobject};
 
 #[derive(Default)]
 pub struct Cat {
     pub legs: i32,
 }
 
-#[qobject_impl]
+#[qobject]
 impl Cat {
     qproperty!("legs", Member = legs);
 }
@@ -21,7 +21,7 @@ pub struct Reporter {
     pub count: i32,
 }
 
-#[qobject_impl]
+#[qobject]
 impl Reporter {
     #[qslot]
     fn report(&mut self, n: i32) {
@@ -33,7 +33,7 @@ pub struct SingleHolder {
     kitten: Rc<RefCell<Cat>>,
 }
 
-#[qobject_impl]
+#[qobject]
 impl SingleHolder {
     qproperty!("kitten", Member = kitten, Default);
 }
@@ -50,7 +50,7 @@ pub struct ListHolder {
     kittens: Vec<Rc<RefCell<Cat>>>,
 }
 
-#[qobject_impl]
+#[qobject]
 impl ListHolder {
     qproperty!("kittens", Member = kittens, Default);
 }

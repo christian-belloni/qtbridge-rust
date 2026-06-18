@@ -6,7 +6,7 @@ mod common;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use qtbridge::{QObjectHolder, qobject, qobject_impl};
+use qtbridge::{QObjectHolder, qobject};
 use qtbridge::qtbridge_type_lib::QVariant;
 
 use crate::common::{capitalize_first_char, get_type_name};
@@ -426,7 +426,7 @@ mod accessor_reference_properties {
 }
 
 
-// #[qobject_impl] variant — struct defined outside the macro so the macro cannot see its fields.
+// #[qobject] impl variant — struct defined outside the macro so the macro cannot see its fields.
 // Member = <field> must resolve via QPropertyMember trait dispatch.
 #[derive(Default)]
 pub struct TestObjectImpl {
@@ -446,7 +446,7 @@ pub struct TestObjectImpl {
     pub string: Vec<String>,
 }
 
-#[qobject_impl(ConvertToCamelCase)]
+#[qobject(ConvertToCamelCase)]
 impl TestObjectImpl {
     qproperty!("propertyVecBool", Member = bool);
     qproperty!("propertyVecI8", Member = i8);
@@ -496,7 +496,7 @@ impl From<&TestObjectImpl> for TestValues {
 
 impl TestObjHelper for TestObjectImpl {
     fn property_type() -> &'static str {
-        "member based properties (qobject_impl)"
+        "member based properties (#[qobject] applied to impl block)"
     }
     fn create_with_values(values: TestValues) -> Rc<RefCell<Self>> {
         let obj = Rc::new(RefCell::new(Self::from(values)));

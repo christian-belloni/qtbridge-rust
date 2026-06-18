@@ -33,7 +33,7 @@ impl Default for PaginatedResource {
     }
 }
 
-#[qtbridge::qobject_impl]
+#[qtbridge::qobject]
 impl PaginatedResource {
     qproperty!("path", Member = path);
     qproperty!("data", Member = data, Notify = data_updated);

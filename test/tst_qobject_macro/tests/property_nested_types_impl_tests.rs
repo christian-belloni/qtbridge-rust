@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 //
 // Regression test for QTBRIDGES-40 follow-up: Rc<RefCell<T>> member-based properties
-// must work in both #[qobject] and #[qobject_impl] macros.
+// must work in both positions (`mod` and `impl` blocks) of #[qobject] macro.
 #![cfg(test)]
 
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use qtbridge::{QObjectHolder, QmlRegister, qobject_impl};
+use qtbridge::{QObjectHolder, QmlRegister, qobject};
 use quicktest::quick_test_main;
 
 const MANIFEST_DIR: &str = env!("CARGO_MANIFEST_DIR");
@@ -20,7 +20,7 @@ pub struct Node {
     right: Option<Rc<RefCell<Node>>>,
 }
 
-#[qobject_impl]
+#[qobject]
 impl Node {
     qproperty!("value", Member = value, Write = set_value, Notify = value_changed);
     qproperty!("left", Read = get_left, Write = set_left, Notify = left_changed);
@@ -105,7 +105,7 @@ pub struct Backend {
     tree: Rc<RefCell<Node>>,
 }
 
-#[qobject_impl(Singleton)]
+#[qobject(Singleton)]
 impl Backend {
     qproperty!("myTree", Member = tree, Notify = my_tree_changed);
 
@@ -123,7 +123,7 @@ pub struct BackendImpl {
     tree: Rc<RefCell<Node>>,
 }
 
-#[qobject_impl(Singleton)]
+#[qobject(Singleton)]
 impl BackendImpl {
     qproperty!("myTree", Member = tree, Notify = my_tree_changed);
 
@@ -146,7 +146,7 @@ fn run_qml(test_name: &str) -> i32 {
     quick_test_main(&args, &test_name.into())
 }
 
-fn qml_member_property_with_qobject() {
+fn qml_member_property_with_qobject_mod() {
     Backend::register();
     Node::register();
     assert_eq!(run_qml("member_property_qobject"), 0, "quick test failed");
@@ -160,7 +160,7 @@ fn qml_member_property_with_qobject_impl() {
 
 fn main() {
     #[cfg(not(miri))]
-    qml_member_property_with_qobject();
+    qml_member_property_with_qobject_mod();
     #[cfg(not(miri))]
     qml_member_property_with_qobject_impl();
 }

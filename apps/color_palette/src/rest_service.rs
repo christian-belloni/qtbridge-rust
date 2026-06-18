@@ -124,7 +124,7 @@ impl Default for RestService {
     }
 }
 
-#[qtbridge::qobject_impl(Base = QParserStatus)]
+#[qtbridge::qobject(Base = QParserStatus)]
 impl RestService {
     qproperty!("url", Read = get_url, Write = set_url, Notify = url_changed);
     qproperty!("sslSupported", Read = ssl_supported, Constant);
