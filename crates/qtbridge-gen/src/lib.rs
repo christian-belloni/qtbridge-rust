@@ -16,15 +16,6 @@ pub fn qobject(args: TokenStream, input: TokenStream) -> TokenStream {
 }
 
 #[proc_macro_attribute]
-pub fn qobject_impl(args: TokenStream, input: TokenStream) -> TokenStream {
-    let output = match qt_gen_impl::qobject_impl(input.into(), args.into()) {
-        Ok(o) => o.to_token_stream(),
-        Err(err) => err.to_compile_error(),
-    };
-    output.into()
-}
-
-#[proc_macro_attribute]
 pub fn qsignal(_: TokenStream, _: TokenStream) -> TokenStream {
     // This macro does nothing but offer an entry point for Rust doc
     panic!("#[qsignal] proc macro called outside #[qobject].")
