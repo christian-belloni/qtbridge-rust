@@ -24,6 +24,8 @@ mod ffi {
         fn QList_Default() -> QList_i16;
         # [rust_name = qlist_clone]
         fn QList_Clone(v: &QList_i16) -> QList_i16;
+        # [rust_name = qlist_eq]
+        fn QList_Eq(lhs: &QList_i16, rhs: &QList_i16) -> bool;
         # [rust_name = qlist_qmetatype]
         fn QList_QMetaType() -> QMetaType;
         # [rust_name = inline_cpp_fn_append]
@@ -50,8 +52,6 @@ mod ffi {
         fn inlineCppFn_TraitImpl_From_ref_QList_i16_for_Vec_i16_from(src: &QList_i16) -> Vec<i16>;
         # [rust_name = inline_cpp_fn_trait_impl_std_ops_index_usize_for_qlist_i16_index]
         unsafe fn inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_i16_index(_obj: &QList_i16, index: usize) -> *const i16;
-        # [rust_name = inline_cpp_fn_trait_impl_partial_eq_for_qlist_i16_eq]
-        fn inlineCppFn_TraitImpl_PartialEq_for_QList_i16_eq(lhs: &QList_i16, rhs: &QList_i16) -> bool;
         # [rust_name = inline_cpp_fn_trait_impl_partial_eq_array_of_i16_n_for_qlist_i16_eq]
         fn inlineCppFn_TraitImpl_PartialEq_array_of_i16_N_for_QList_i16_eq(_obj: &QList_i16, rhs: &[i16]) -> bool;
     }
@@ -68,6 +68,11 @@ impl Default for QList_i16 {
 impl Clone for QList_i16 {
     fn clone(&self) -> Self {
         ffi::qlist_clone(self)
+    }
+}
+impl PartialEq for QList_i16 {
+    fn eq(&self, other: &Self) -> bool {
+        ffi::qlist_eq(self, other)
     }
 }
 impl crate::QMetaTypeGet for QList_i16 {
@@ -126,12 +131,6 @@ impl std::ops::Index<usize> for QList<i16> {
     fn index(&self, index: usize) -> &Self::Output {
         let cpp = ffi::inline_cpp_fn_trait_impl_std_ops_index_usize_for_qlist_i16_index;
         unsafe { cpp(self, index).as_ref() }.expect("Out of bounds access to QList")
-    }
-}
-impl PartialEq for QList<i16> {
-    fn eq(&self, other: &Self) -> bool {
-        let cpp = ffi::inline_cpp_fn_trait_impl_partial_eq_for_qlist_i16_eq;
-        cpp(self, other)
     }
 }
 impl<const N: usize> PartialEq<[i16; N]> for QList<i16> {

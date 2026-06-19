@@ -18,6 +18,7 @@ namespace rust::bridge::qlist_qbytearray {
 void QList_Drop(QList_QByteArray &v);
 QList_QByteArray QList_Default();
 QList_QByteArray QList_Clone(const QList_QByteArray &src);
+bool QList_Eq(const QList_QByteArray &lhs, const QList_QByteArray &rhs);
 
 void inlineCppFn_append(QList_QByteArray &self, QByteArray value);
 
@@ -42,9 +43,6 @@ QByteArray const &inlineCppFn_last(QList_QByteArray const &self);
 QByteArray const *
 inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QByteArray_index(QList_QByteArray const &self,
                                                                      size_t index);
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_QByteArray_eq(QList_QByteArray const &lhs,
-                                                             QList_QByteArray const &rhs);
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_QByteArray_N_for_QList_QByteArray_eq(
         QList_QByteArray const &self, rust::Slice<QByteArray const> rhs);

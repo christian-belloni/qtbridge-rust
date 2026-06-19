@@ -16,12 +16,11 @@ namespace rust::bridge::qstring {
 void QString_Drop(QString &v);
 QString QString_Default();
 QString QString_Clone(const QString &src);
+bool QString_Eq(const QString &lhs, const QString &rhs);
 
 QString inlineCppFn_new(rust::Str src);
 
 QByteArray inlineCppFn_to_utf8(QString const &self);
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QString_eq(QString const &lhs, QString const &rhs);
 
 } // namespace rust::bridge::qstring
 

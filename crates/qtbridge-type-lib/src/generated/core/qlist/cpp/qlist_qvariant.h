@@ -18,6 +18,7 @@ namespace rust::bridge::qlist_qvariant {
 void QList_Drop(QList_QVariant &v);
 QList_QVariant QList_Default();
 QList_QVariant QList_Clone(const QList_QVariant &src);
+bool QList_Eq(const QList_QVariant &lhs, const QList_QVariant &rhs);
 
 void inlineCppFn_append(QList_QVariant &self, QVariant value);
 
@@ -48,9 +49,6 @@ bool inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_QList_QVariant_try_from(QVar
 QVariant const *
 inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QVariant_index(QList_QVariant const &self,
                                                                    size_t index);
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_QVariant_eq(QList_QVariant const &lhs,
-                                                           QList_QVariant const &rhs);
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_QVariant_N_for_QList_QVariant_eq(
         QList_QVariant const &self, rust::Slice<QVariant const> rhs);

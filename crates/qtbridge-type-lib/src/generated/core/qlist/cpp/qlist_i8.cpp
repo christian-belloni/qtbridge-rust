@@ -22,6 +22,11 @@ QList_i8 QList_Clone(const QList_i8 &src)
     return { src };
 }
 
+bool QList_Eq(const QList_i8 &lhs, const QList_i8 &rhs)
+{
+    return lhs == rhs;
+}
+
 QMetaType QList_QMetaType()
 {
     return QMetaType::fromType<QList_i8>();
@@ -90,11 +95,6 @@ int8_t const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_i8_index(QList
                                                                            size_t index)
 {
     return index < static_cast<size_t>(self.size()) ? &self[index] : nullptr;
-}
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_i8_eq(QList_i8 const &lhs, QList_i8 const &rhs)
-{
-    return lhs == rhs;
 }
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_i8_N_for_QList_i8_eq(QList_i8 const &self,

@@ -18,6 +18,7 @@ namespace rust::bridge::qlist_i16 {
 void QList_Drop(QList_i16 &v);
 QList_i16 QList_Default();
 QList_i16 QList_Clone(const QList_i16 &src);
+bool QList_Eq(const QList_i16 &lhs, const QList_i16 &rhs);
 
 QMetaType QList_QMetaType();
 
@@ -45,8 +46,6 @@ rust::Vec<int16_t> inlineCppFn_TraitImpl_From_ref_QList_i16_for_Vec_i16_from(QLi
 
 int16_t const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_i16_index(QList_i16 const &self,
                                                                              size_t index);
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_i16_eq(QList_i16 const &lhs, QList_i16 const &rhs);
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_i16_N_for_QList_i16_eq(
         QList_i16 const &self, rust::Slice<int16_t const> rhs);

@@ -25,7 +25,7 @@ mod qlist {
         ((*mut QObject), alias = QObjectList, qmetatype),
         ]]
     #[derive(Debug)]
-    #[derive_cpp(Default, Clone, Drop)]
+    #[derive_cpp(Default, Clone, Drop, PartialEq)]
     /// The QList is a generic struct that provides a dynamic array.
     ///
     /// QList is one of Qt's generic container structs. It stores its items in adjacent memory locations and provides fast index-based access.
@@ -427,15 +427,6 @@ mod qlist {
                 cpp(self, index).as_ref()
             }
             .expect("Out of bounds access to QList")
-        }
-    }
-
-    impl PartialEq for QList<T> {
-        fn eq(&self, other: &Self) -> bool {
-            let cpp = cpp_fn!(|lhs: &Self, rhs: &Self| -> bool {
-                return lhs == rhs;
-            });
-            cpp(self, other)
         }
     }
 

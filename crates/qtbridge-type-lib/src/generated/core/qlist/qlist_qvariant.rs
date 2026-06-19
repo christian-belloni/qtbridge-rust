@@ -26,6 +26,8 @@ mod ffi {
         fn QList_Default() -> QList_QVariant;
         # [rust_name = qlist_clone]
         fn QList_Clone(v: &QList_QVariant) -> QList_QVariant;
+        # [rust_name = qlist_eq]
+        fn QList_Eq(lhs: &QList_QVariant, rhs: &QList_QVariant) -> bool;
         # [rust_name = inline_cpp_fn_append]
         fn inlineCppFn_append(_obj: &mut QList_QVariant, value: QVariant);
         # [rust_name = inline_cpp_fn_capacity]
@@ -52,8 +54,6 @@ mod ffi {
         fn inlineCppFn_TraitImpl_TryFrom_ref_QVariant_for_QList_QVariant_try_from(from: &QVariant, result: &mut QList_QVariant) -> bool;
         # [rust_name = inline_cpp_fn_trait_impl_std_ops_index_usize_for_qlist_qvariant_index]
         unsafe fn inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QVariant_index(_obj: &QList_QVariant, index: usize) -> *const QVariant;
-        # [rust_name = inline_cpp_fn_trait_impl_partial_eq_for_qlist_qvariant_eq]
-        fn inlineCppFn_TraitImpl_PartialEq_for_QList_QVariant_eq(lhs: &QList_QVariant, rhs: &QList_QVariant) -> bool;
         # [rust_name = inline_cpp_fn_trait_impl_partial_eq_array_of_qvariant_n_for_qlist_qvariant_eq]
         fn inlineCppFn_TraitImpl_PartialEq_array_of_QVariant_N_for_QList_QVariant_eq(_obj: &QList_QVariant, rhs: &[QVariant]) -> bool;
     }
@@ -70,6 +70,11 @@ impl Default for QList_QVariant {
 impl Clone for QList_QVariant {
     fn clone(&self) -> Self {
         ffi::qlist_clone(self)
+    }
+}
+impl PartialEq for QList_QVariant {
+    fn eq(&self, other: &Self) -> bool {
+        ffi::qlist_eq(self, other)
     }
 }
 impl crate::QMetaTypeGet for QList_QVariant {
@@ -147,12 +152,6 @@ impl std::ops::Index<usize> for QList<QVariant> {
     fn index(&self, index: usize) -> &Self::Output {
         let cpp = ffi::inline_cpp_fn_trait_impl_std_ops_index_usize_for_qlist_qvariant_index;
         unsafe { cpp(self, index).as_ref() }.expect("Out of bounds access to QList")
-    }
-}
-impl PartialEq for QList<QVariant> {
-    fn eq(&self, other: &Self) -> bool {
-        let cpp = ffi::inline_cpp_fn_trait_impl_partial_eq_for_qlist_qvariant_eq;
-        cpp(self, other)
     }
 }
 impl<const N: usize> PartialEq<[QVariant; N]> for QList<QVariant> {

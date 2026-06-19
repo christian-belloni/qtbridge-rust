@@ -9,7 +9,7 @@ mod qstring {
     include_in_cpp!(<QString>);
     include_in_cpp!("rustconv.h");
 
-    #[derive_cpp(Default, Drop, Clone)]
+    #[derive_cpp(Default, Drop, Clone, PartialEq)]
     #[derive(Debug)]
     #[qmetatype = 10]
     /// The QString struct provides a Unicode character string.
@@ -50,14 +50,6 @@ mod qstring {
         cpp_fn!(|&self| -> QByteArray {
             return self.toUtf8();
         })(self)
-    }
-
-    impl PartialEq for QString {
-        fn eq(&self, other: &Self) -> bool {
-            cpp_fn!(|lhs: &Self, rhs: &Self| -> bool {
-                return lhs == rhs;
-            })(self, other)
-        }
     }
 }
 

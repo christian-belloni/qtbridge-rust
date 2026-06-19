@@ -24,6 +24,8 @@ mod ffi {
         fn QList_Default() -> QList_isize;
         # [rust_name = qlist_clone]
         fn QList_Clone(v: &QList_isize) -> QList_isize;
+        # [rust_name = qlist_eq]
+        fn QList_Eq(lhs: &QList_isize, rhs: &QList_isize) -> bool;
         # [rust_name = qlist_qmetatype]
         fn QList_QMetaType() -> QMetaType;
         # [rust_name = inline_cpp_fn_append]
@@ -50,8 +52,6 @@ mod ffi {
         fn inlineCppFn_TraitImpl_From_ref_QList_isize_for_Vec_isize_from(src: &QList_isize) -> Vec<isize>;
         # [rust_name = inline_cpp_fn_trait_impl_std_ops_index_usize_for_qlist_isize_index]
         unsafe fn inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_isize_index(_obj: &QList_isize, index: usize) -> *const isize;
-        # [rust_name = inline_cpp_fn_trait_impl_partial_eq_for_qlist_isize_eq]
-        fn inlineCppFn_TraitImpl_PartialEq_for_QList_isize_eq(lhs: &QList_isize, rhs: &QList_isize) -> bool;
         # [rust_name = inline_cpp_fn_trait_impl_partial_eq_array_of_isize_n_for_qlist_isize_eq]
         fn inlineCppFn_TraitImpl_PartialEq_array_of_isize_N_for_QList_isize_eq(_obj: &QList_isize, rhs: &[isize]) -> bool;
     }
@@ -68,6 +68,11 @@ impl Default for QList_isize {
 impl Clone for QList_isize {
     fn clone(&self) -> Self {
         ffi::qlist_clone(self)
+    }
+}
+impl PartialEq for QList_isize {
+    fn eq(&self, other: &Self) -> bool {
+        ffi::qlist_eq(self, other)
     }
 }
 impl crate::QMetaTypeGet for QList_isize {
@@ -126,12 +131,6 @@ impl std::ops::Index<usize> for QList<isize> {
     fn index(&self, index: usize) -> &Self::Output {
         let cpp = ffi::inline_cpp_fn_trait_impl_std_ops_index_usize_for_qlist_isize_index;
         unsafe { cpp(self, index).as_ref() }.expect("Out of bounds access to QList")
-    }
-}
-impl PartialEq for QList<isize> {
-    fn eq(&self, other: &Self) -> bool {
-        let cpp = ffi::inline_cpp_fn_trait_impl_partial_eq_for_qlist_isize_eq;
-        cpp(self, other)
     }
 }
 impl<const N: usize> PartialEq<[isize; N]> for QList<isize> {

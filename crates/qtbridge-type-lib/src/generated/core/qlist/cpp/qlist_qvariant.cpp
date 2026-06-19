@@ -24,6 +24,11 @@ QList_QVariant QList_Clone(const QList_QVariant &src)
     return { src };
 }
 
+bool QList_Eq(const QList_QVariant &lhs, const QList_QVariant &rhs)
+{
+    return lhs == rhs;
+}
+
 void inlineCppFn_append(QList_QVariant &self, QVariant value)
 {
     self.append(value);
@@ -94,12 +99,6 @@ inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QVariant_index(QList_QVarian
                                                                    size_t index)
 {
     return index < static_cast<size_t>(self.size()) ? &self[index] : nullptr;
-}
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_QVariant_eq(QList_QVariant const &lhs,
-                                                           QList_QVariant const &rhs)
-{
-    return lhs == rhs;
 }
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_QVariant_N_for_QList_QVariant_eq(

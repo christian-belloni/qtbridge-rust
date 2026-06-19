@@ -18,6 +18,7 @@ namespace rust::bridge::qlist_usize {
 void QList_Drop(QList_usize &v);
 QList_usize QList_Default();
 QList_usize QList_Clone(const QList_usize &src);
+bool QList_Eq(const QList_usize &lhs, const QList_usize &rhs);
 
 QMetaType QList_QMetaType();
 
@@ -47,9 +48,6 @@ inlineCppFn_TraitImpl_From_ref_QList_usize_for_Vec_usize_from(QList_usize const 
 size_t const *
 inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_usize_index(QList_usize const &self,
                                                                 size_t index);
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_usize_eq(QList_usize const &lhs,
-                                                        QList_usize const &rhs);
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_usize_N_for_QList_usize_eq(
         QList_usize const &self, rust::Slice<size_t const> rhs);

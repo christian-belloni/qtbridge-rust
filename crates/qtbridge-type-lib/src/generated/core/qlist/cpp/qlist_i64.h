@@ -18,6 +18,7 @@ namespace rust::bridge::qlist_i64 {
 void QList_Drop(QList_i64 &v);
 QList_i64 QList_Default();
 QList_i64 QList_Clone(const QList_i64 &src);
+bool QList_Eq(const QList_i64 &lhs, const QList_i64 &rhs);
 
 QMetaType QList_QMetaType();
 
@@ -45,8 +46,6 @@ rust::Vec<int64_t> inlineCppFn_TraitImpl_From_ref_QList_i64_for_Vec_i64_from(QLi
 
 int64_t const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_i64_index(QList_i64 const &self,
                                                                              size_t index);
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_i64_eq(QList_i64 const &lhs, QList_i64 const &rhs);
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_i64_N_for_QList_i64_eq(
         QList_i64 const &self, rust::Slice<int64_t const> rhs);

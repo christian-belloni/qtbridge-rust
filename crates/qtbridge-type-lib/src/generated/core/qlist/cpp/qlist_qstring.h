@@ -18,6 +18,7 @@ namespace rust::bridge::qlist_qstring {
 void QList_Drop(QList_QString &v);
 QList_QString QList_Default();
 QList_QString QList_Clone(const QList_QString &src);
+bool QList_Eq(const QList_QString &lhs, const QList_QString &rhs);
 
 void inlineCppFn_append(QList_QString &self, QString value);
 
@@ -42,9 +43,6 @@ QString const &inlineCppFn_last(QList_QString const &self);
 QString const *
 inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QString_index(QList_QString const &self,
                                                                   size_t index);
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_QString_eq(QList_QString const &lhs,
-                                                          QList_QString const &rhs);
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_QString_N_for_QList_QString_eq(
         QList_QString const &self, rust::Slice<QString const> rhs);

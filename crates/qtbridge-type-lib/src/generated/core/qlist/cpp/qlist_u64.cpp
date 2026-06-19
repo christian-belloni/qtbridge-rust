@@ -22,6 +22,11 @@ QList_u64 QList_Clone(const QList_u64 &src)
     return { src };
 }
 
+bool QList_Eq(const QList_u64 &lhs, const QList_u64 &rhs)
+{
+    return lhs == rhs;
+}
+
 QMetaType QList_QMetaType()
 {
     return QMetaType::fromType<QList_u64>();
@@ -90,11 +95,6 @@ uint64_t const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_u64_index(QL
                                                                               size_t index)
 {
     return index < static_cast<size_t>(self.size()) ? &self[index] : nullptr;
-}
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_u64_eq(QList_u64 const &lhs, QList_u64 const &rhs)
-{
-    return lhs == rhs;
 }
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_u64_N_for_QList_u64_eq(

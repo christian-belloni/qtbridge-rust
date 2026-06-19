@@ -24,6 +24,11 @@ QByteArray QByteArray_Clone(const QByteArray &src)
     return { src };
 }
 
+bool QByteArray_Eq(const QByteArray &lhs, const QByteArray &rhs)
+{
+    return lhs == rhs;
+}
+
 void inlineCppFn_as_bytes(QByteArray const &self, uint8_t const *&ptr, ptrdiff_t &size)
 {
     ptr = reinterpret_cast<const uint8_t *>(self.data());
@@ -50,11 +55,6 @@ uint8_t const *
 inlineCppFn_TraitImpl_std_ops_Index_usize_for_QByteArray_index(QByteArray const &self, size_t index)
 {
     return reinterpret_cast<const uint8_t *>(self.data() + index);
-}
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QByteArray_eq(QByteArray const &lhs, QByteArray const &rhs)
-{
-    return lhs == rhs;
 }
 
 } // namespace rust::bridge::qbytearray

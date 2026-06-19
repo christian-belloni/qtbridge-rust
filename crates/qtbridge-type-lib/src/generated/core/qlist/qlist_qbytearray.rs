@@ -26,6 +26,8 @@ mod ffi {
         fn QList_Default() -> QList_QByteArray;
         # [rust_name = qlist_clone]
         fn QList_Clone(v: &QList_QByteArray) -> QList_QByteArray;
+        # [rust_name = qlist_eq]
+        fn QList_Eq(lhs: &QList_QByteArray, rhs: &QList_QByteArray) -> bool;
         # [rust_name = inline_cpp_fn_append]
         fn inlineCppFn_append(_obj: &mut QList_QByteArray, value: QByteArray);
         # [rust_name = inline_cpp_fn_capacity]
@@ -48,8 +50,6 @@ mod ffi {
         fn inlineCppFn_last(_obj: &QList_QByteArray) -> &QByteArray;
         # [rust_name = inline_cpp_fn_trait_impl_std_ops_index_usize_for_qlist_qbyte_array_index]
         unsafe fn inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QByteArray_index(_obj: &QList_QByteArray, index: usize) -> *const QByteArray;
-        # [rust_name = inline_cpp_fn_trait_impl_partial_eq_for_qlist_qbyte_array_eq]
-        fn inlineCppFn_TraitImpl_PartialEq_for_QList_QByteArray_eq(lhs: &QList_QByteArray, rhs: &QList_QByteArray) -> bool;
         # [rust_name = inline_cpp_fn_trait_impl_partial_eq_array_of_qbyte_array_n_for_qlist_qbyte_array_eq]
         fn inlineCppFn_TraitImpl_PartialEq_array_of_QByteArray_N_for_QList_QByteArray_eq(_obj: &QList_QByteArray, rhs: &[QByteArray]) -> bool;
     }
@@ -66,6 +66,11 @@ impl Default for QList_QByteArray {
 impl Clone for QList_QByteArray {
     fn clone(&self) -> Self {
         ffi::qlist_clone(self)
+    }
+}
+impl PartialEq for QList_QByteArray {
+    fn eq(&self, other: &Self) -> bool {
+        ffi::qlist_eq(self, other)
     }
 }
 impl crate::QMetaTypeGet for QList_QByteArray {
@@ -127,12 +132,6 @@ impl std::ops::Index<usize> for QList<QByteArray> {
     fn index(&self, index: usize) -> &Self::Output {
         let cpp = ffi::inline_cpp_fn_trait_impl_std_ops_index_usize_for_qlist_qbyte_array_index;
         unsafe { cpp(self, index).as_ref() }.expect("Out of bounds access to QList")
-    }
-}
-impl PartialEq for QList<QByteArray> {
-    fn eq(&self, other: &Self) -> bool {
-        let cpp = ffi::inline_cpp_fn_trait_impl_partial_eq_for_qlist_qbyte_array_eq;
-        cpp(self, other)
     }
 }
 impl<const N: usize> PartialEq<[QByteArray; N]> for QList<QByteArray> {

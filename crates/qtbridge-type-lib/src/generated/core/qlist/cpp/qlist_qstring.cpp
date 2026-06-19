@@ -24,6 +24,11 @@ QList_QString QList_Clone(const QList_QString &src)
     return { src };
 }
 
+bool QList_Eq(const QList_QString &lhs, const QList_QString &rhs)
+{
+    return lhs == rhs;
+}
+
 void inlineCppFn_append(QList_QString &self, QString value)
 {
     self.append(value);
@@ -79,12 +84,6 @@ inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QString_index(QList_QString 
                                                                   size_t index)
 {
     return index < static_cast<size_t>(self.size()) ? &self[index] : nullptr;
-}
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_QString_eq(QList_QString const &lhs,
-                                                          QList_QString const &rhs)
-{
-    return lhs == rhs;
 }
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_QString_N_for_QList_QString_eq(

@@ -16,6 +16,7 @@ namespace rust::bridge::qbytearray {
 void QByteArray_Drop(QByteArray &v);
 QByteArray QByteArray_Default();
 QByteArray QByteArray_Clone(const QByteArray &src);
+bool QByteArray_Eq(const QByteArray &lhs, const QByteArray &rhs);
 
 void inlineCppFn_as_bytes(QByteArray const &self, uint8_t const *&ptr, ptrdiff_t &size);
 
@@ -29,9 +30,6 @@ inlineCppFn_TraitImpl_From_ref_slice_of_u8_for_QByteArray_from(rust::Slice<uint8
 uint8_t const *
 inlineCppFn_TraitImpl_std_ops_Index_usize_for_QByteArray_index(QByteArray const &self,
                                                                size_t index);
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QByteArray_eq(QByteArray const &lhs,
-                                                       QByteArray const &rhs);
 
 } // namespace rust::bridge::qbytearray
 

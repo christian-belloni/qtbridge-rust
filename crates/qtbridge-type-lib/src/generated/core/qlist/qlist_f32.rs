@@ -24,6 +24,8 @@ mod ffi {
         fn QList_Default() -> QList_f32;
         # [rust_name = qlist_clone]
         fn QList_Clone(v: &QList_f32) -> QList_f32;
+        # [rust_name = qlist_eq]
+        fn QList_Eq(lhs: &QList_f32, rhs: &QList_f32) -> bool;
         # [rust_name = qlist_qmetatype]
         fn QList_QMetaType() -> QMetaType;
         # [rust_name = inline_cpp_fn_append]
@@ -50,8 +52,6 @@ mod ffi {
         fn inlineCppFn_TraitImpl_From_ref_QList_f32_for_Vec_f32_from(src: &QList_f32) -> Vec<f32>;
         # [rust_name = inline_cpp_fn_trait_impl_std_ops_index_usize_for_qlist_f32_index]
         unsafe fn inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_f32_index(_obj: &QList_f32, index: usize) -> *const f32;
-        # [rust_name = inline_cpp_fn_trait_impl_partial_eq_for_qlist_f32_eq]
-        fn inlineCppFn_TraitImpl_PartialEq_for_QList_f32_eq(lhs: &QList_f32, rhs: &QList_f32) -> bool;
         # [rust_name = inline_cpp_fn_trait_impl_partial_eq_array_of_f32_n_for_qlist_f32_eq]
         fn inlineCppFn_TraitImpl_PartialEq_array_of_f32_N_for_QList_f32_eq(_obj: &QList_f32, rhs: &[f32]) -> bool;
     }
@@ -68,6 +68,11 @@ impl Default for QList_f32 {
 impl Clone for QList_f32 {
     fn clone(&self) -> Self {
         ffi::qlist_clone(self)
+    }
+}
+impl PartialEq for QList_f32 {
+    fn eq(&self, other: &Self) -> bool {
+        ffi::qlist_eq(self, other)
     }
 }
 impl crate::QMetaTypeGet for QList_f32 {
@@ -126,12 +131,6 @@ impl std::ops::Index<usize> for QList<f32> {
     fn index(&self, index: usize) -> &Self::Output {
         let cpp = ffi::inline_cpp_fn_trait_impl_std_ops_index_usize_for_qlist_f32_index;
         unsafe { cpp(self, index).as_ref() }.expect("Out of bounds access to QList")
-    }
-}
-impl PartialEq for QList<f32> {
-    fn eq(&self, other: &Self) -> bool {
-        let cpp = ffi::inline_cpp_fn_trait_impl_partial_eq_for_qlist_f32_eq;
-        cpp(self, other)
     }
 }
 impl<const N: usize> PartialEq<[f32; N]> for QList<f32> {

@@ -22,6 +22,11 @@ QList_f32 QList_Clone(const QList_f32 &src)
     return { src };
 }
 
+bool QList_Eq(const QList_f32 &lhs, const QList_f32 &rhs)
+{
+    return lhs == rhs;
+}
+
 QMetaType QList_QMetaType()
 {
     return QMetaType::fromType<QList_f32>();
@@ -90,11 +95,6 @@ float const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_f32_index(QList
                                                                            size_t index)
 {
     return index < static_cast<size_t>(self.size()) ? &self[index] : nullptr;
-}
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_f32_eq(QList_f32 const &lhs, QList_f32 const &rhs)
-{
-    return lhs == rhs;
 }
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_f32_N_for_QList_f32_eq(QList_f32 const &self,

@@ -18,6 +18,7 @@ namespace rust::bridge::qlist_isize {
 void QList_Drop(QList_isize &v);
 QList_isize QList_Default();
 QList_isize QList_Clone(const QList_isize &src);
+bool QList_Eq(const QList_isize &lhs, const QList_isize &rhs);
 
 QMetaType QList_QMetaType();
 
@@ -47,9 +48,6 @@ inlineCppFn_TraitImpl_From_ref_QList_isize_for_Vec_isize_from(QList_isize const 
 ptrdiff_t const *
 inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_isize_index(QList_isize const &self,
                                                                 size_t index);
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_isize_eq(QList_isize const &lhs,
-                                                        QList_isize const &rhs);
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_isize_N_for_QList_isize_eq(
         QList_isize const &self, rust::Slice<ptrdiff_t const> rhs);

@@ -26,6 +26,8 @@ mod ffi {
         fn QList_Default() -> QList_QString;
         # [rust_name = qlist_clone]
         fn QList_Clone(v: &QList_QString) -> QList_QString;
+        # [rust_name = qlist_eq]
+        fn QList_Eq(lhs: &QList_QString, rhs: &QList_QString) -> bool;
         # [rust_name = inline_cpp_fn_append]
         fn inlineCppFn_append(_obj: &mut QList_QString, value: QString);
         # [rust_name = inline_cpp_fn_capacity]
@@ -48,8 +50,6 @@ mod ffi {
         fn inlineCppFn_last(_obj: &QList_QString) -> &QString;
         # [rust_name = inline_cpp_fn_trait_impl_std_ops_index_usize_for_qlist_qstring_index]
         unsafe fn inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QString_index(_obj: &QList_QString, index: usize) -> *const QString;
-        # [rust_name = inline_cpp_fn_trait_impl_partial_eq_for_qlist_qstring_eq]
-        fn inlineCppFn_TraitImpl_PartialEq_for_QList_QString_eq(lhs: &QList_QString, rhs: &QList_QString) -> bool;
         # [rust_name = inline_cpp_fn_trait_impl_partial_eq_array_of_qstring_n_for_qlist_qstring_eq]
         fn inlineCppFn_TraitImpl_PartialEq_array_of_QString_N_for_QList_QString_eq(_obj: &QList_QString, rhs: &[QString]) -> bool;
     }
@@ -66,6 +66,11 @@ impl Default for QList_QString {
 impl Clone for QList_QString {
     fn clone(&self) -> Self {
         ffi::qlist_clone(self)
+    }
+}
+impl PartialEq for QList_QString {
+    fn eq(&self, other: &Self) -> bool {
+        ffi::qlist_eq(self, other)
     }
 }
 impl crate::QMetaTypeGet for QList_QString {
@@ -156,12 +161,6 @@ impl std::ops::Index<usize> for QList<QString> {
     fn index(&self, index: usize) -> &Self::Output {
         let cpp = ffi::inline_cpp_fn_trait_impl_std_ops_index_usize_for_qlist_qstring_index;
         unsafe { cpp(self, index).as_ref() }.expect("Out of bounds access to QList")
-    }
-}
-impl PartialEq for QList<QString> {
-    fn eq(&self, other: &Self) -> bool {
-        let cpp = ffi::inline_cpp_fn_trait_impl_partial_eq_for_qlist_qstring_eq;
-        cpp(self, other)
     }
 }
 impl<const N: usize> PartialEq<[QString; N]> for QList<QString> {

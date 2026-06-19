@@ -18,6 +18,7 @@ namespace rust::bridge::qlist_i8 {
 void QList_Drop(QList_i8 &v);
 QList_i8 QList_Default();
 QList_i8 QList_Clone(const QList_i8 &src);
+bool QList_Eq(const QList_i8 &lhs, const QList_i8 &rhs);
 
 QMetaType QList_QMetaType();
 
@@ -45,8 +46,6 @@ rust::Vec<int8_t> inlineCppFn_TraitImpl_From_ref_QList_i8_for_Vec_i8_from(QList_
 
 int8_t const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_i8_index(QList_i8 const &self,
                                                                            size_t index);
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_i8_eq(QList_i8 const &lhs, QList_i8 const &rhs);
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_i8_N_for_QList_i8_eq(QList_i8 const &self,
                                                                    rust::Slice<int8_t const> rhs);

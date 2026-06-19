@@ -22,12 +22,12 @@ mod ffi {
         fn QString_Default() -> QString;
         # [rust_name = qstring_clone]
         fn QString_Clone(v: &QString) -> QString;
+        # [rust_name = qstring_eq]
+        fn QString_Eq(lhs: &QString, rhs: &QString) -> bool;
         # [rust_name = inline_cpp_fn_new]
         fn inlineCppFn_new(src: &str) -> QString;
         # [rust_name = inline_cpp_fn_to_utf8]
         fn inlineCppFn_to_utf8(_obj: &QString) -> QByteArray;
-        # [rust_name = inline_cpp_fn_trait_impl_partial_eq_for_qstring_eq]
-        fn inlineCppFn_TraitImpl_PartialEq_for_QString_eq(lhs: &QString, rhs: &QString) -> bool;
     }
 }
 /// The QString struct provides a Unicode character string.
@@ -59,14 +59,14 @@ impl Clone for QString {
         ffi::qstring_clone(self)
     }
 }
+impl PartialEq for QString {
+    fn eq(&self, other: &Self) -> bool {
+        ffi::qstring_eq(self, other)
+    }
+}
 impl crate::QMetaTypeGet for QString {
     fn get_qmetatype() -> crate::QMetaType {
         crate::QMetaType::new(10i32)
-    }
-}
-impl PartialEq for QString {
-    fn eq(&self, other: &Self) -> bool {
-        ffi::inline_cpp_fn_trait_impl_partial_eq_for_qstring_eq(self, other)
     }
 }
 impl QString {

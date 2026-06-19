@@ -24,6 +24,11 @@ QList_QByteArray QList_Clone(const QList_QByteArray &src)
     return { src };
 }
 
+bool QList_Eq(const QList_QByteArray &lhs, const QList_QByteArray &rhs)
+{
+    return lhs == rhs;
+}
+
 void inlineCppFn_append(QList_QByteArray &self, QByteArray value)
 {
     self.append(value);
@@ -79,12 +84,6 @@ inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_QByteArray_index(QList_QByte
                                                                      size_t index)
 {
     return index < static_cast<size_t>(self.size()) ? &self[index] : nullptr;
-}
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_QByteArray_eq(QList_QByteArray const &lhs,
-                                                             QList_QByteArray const &rhs)
-{
-    return lhs == rhs;
 }
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_QByteArray_N_for_QList_QByteArray_eq(

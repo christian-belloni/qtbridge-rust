@@ -18,6 +18,7 @@ namespace rust::bridge::qlist_i32 {
 void QList_Drop(QList_i32 &v);
 QList_i32 QList_Default();
 QList_i32 QList_Clone(const QList_i32 &src);
+bool QList_Eq(const QList_i32 &lhs, const QList_i32 &rhs);
 
 QMetaType QList_QMetaType();
 
@@ -45,8 +46,6 @@ rust::Vec<int32_t> inlineCppFn_TraitImpl_From_ref_QList_i32_for_Vec_i32_from(QLi
 
 int32_t const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_i32_index(QList_i32 const &self,
                                                                              size_t index);
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_i32_eq(QList_i32 const &lhs, QList_i32 const &rhs);
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_i32_N_for_QList_i32_eq(
         QList_i32 const &self, rust::Slice<int32_t const> rhs);

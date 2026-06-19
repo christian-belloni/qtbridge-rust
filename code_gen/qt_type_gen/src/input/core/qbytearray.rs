@@ -8,7 +8,7 @@ mod qbytearray {
     include_in_cpp!(<QByteArray>);
     include_in_cpp!("rustconv.h");
 
-    #[derive_cpp(Default, Clone, Drop)]
+    #[derive_cpp(Default, Clone, Drop, PartialEq)]
     #[derive(Debug)]
     #[qmetatype = 12]
     /// The QByteArray struct provides an array of bytes.
@@ -96,14 +96,6 @@ mod qbytearray {
             unsafe {
                 &*cpp(self, index)
             }
-        }
-    }
-
-    impl PartialEq for QByteArray {
-        fn eq(&self, other: &Self) -> bool {
-            cpp_fn!(|lhs: &Self, rhs: &Self| -> bool {
-                return lhs == rhs;
-            })(self, other)
         }
     }
 

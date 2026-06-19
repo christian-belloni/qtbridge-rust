@@ -22,6 +22,11 @@ QList_bool QList_Clone(const QList_bool &src)
     return { src };
 }
 
+bool QList_Eq(const QList_bool &lhs, const QList_bool &rhs)
+{
+    return lhs == rhs;
+}
+
 QMetaType QList_QMetaType()
 {
     return QMetaType::fromType<QList_bool>();
@@ -90,11 +95,6 @@ bool const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_bool_index(QList
                                                                            size_t index)
 {
     return index < static_cast<size_t>(self.size()) ? &self[index] : nullptr;
-}
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_bool_eq(QList_bool const &lhs, QList_bool const &rhs)
-{
-    return lhs == rhs;
 }
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_bool_N_for_QList_bool_eq(QList_bool const &self,

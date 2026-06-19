@@ -22,6 +22,11 @@ QList_isize QList_Clone(const QList_isize &src)
     return { src };
 }
 
+bool QList_Eq(const QList_isize &lhs, const QList_isize &rhs)
+{
+    return lhs == rhs;
+}
+
 QMetaType QList_QMetaType()
 {
     return QMetaType::fromType<QList_isize>();
@@ -92,12 +97,6 @@ inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_isize_index(QList_isize cons
                                                                 size_t index)
 {
     return index < static_cast<size_t>(self.size()) ? &self[index] : nullptr;
-}
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_isize_eq(QList_isize const &lhs,
-                                                        QList_isize const &rhs)
-{
-    return lhs == rhs;
 }
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_isize_N_for_QList_isize_eq(

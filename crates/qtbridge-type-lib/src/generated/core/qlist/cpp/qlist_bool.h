@@ -18,6 +18,7 @@ namespace rust::bridge::qlist_bool {
 void QList_Drop(QList_bool &v);
 QList_bool QList_Default();
 QList_bool QList_Clone(const QList_bool &src);
+bool QList_Eq(const QList_bool &lhs, const QList_bool &rhs);
 
 QMetaType QList_QMetaType();
 
@@ -45,9 +46,6 @@ rust::Vec<bool> inlineCppFn_TraitImpl_From_ref_QList_bool_for_Vec_bool_from(QLis
 
 bool const *inlineCppFn_TraitImpl_std_ops_Index_usize_for_QList_bool_index(QList_bool const &self,
                                                                            size_t index);
-
-bool inlineCppFn_TraitImpl_PartialEq_for_QList_bool_eq(QList_bool const &lhs,
-                                                       QList_bool const &rhs);
 
 bool inlineCppFn_TraitImpl_PartialEq_array_of_bool_N_for_QList_bool_eq(QList_bool const &self,
                                                                        rust::Slice<bool const> rhs);

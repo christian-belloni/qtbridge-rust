@@ -19,6 +19,8 @@ mod ffi {
         fn QByteArray_Default() -> QByteArray;
         # [rust_name = qbyte_array_clone]
         fn QByteArray_Clone(v: &QByteArray) -> QByteArray;
+        # [rust_name = qbyte_array_eq]
+        fn QByteArray_Eq(lhs: &QByteArray, rhs: &QByteArray) -> bool;
         # [rust_name = inline_cpp_fn_as_bytes]
         fn inlineCppFn_as_bytes(_obj: &QByteArray, ptr: &mut *const u8, size: &mut isize);
         # [rust_name = inline_cpp_fn_size]
@@ -29,8 +31,6 @@ mod ffi {
         fn inlineCppFn_TraitImpl_From_ref_slice_of_u8_for_QByteArray_from(value: &[u8]) -> QByteArray;
         # [rust_name = inline_cpp_fn_trait_impl_std_ops_index_usize_for_qbyte_array_index]
         unsafe fn inlineCppFn_TraitImpl_std_ops_Index_usize_for_QByteArray_index(_obj: &QByteArray, index: usize) -> *const u8;
-        # [rust_name = inline_cpp_fn_trait_impl_partial_eq_for_qbyte_array_eq]
-        fn inlineCppFn_TraitImpl_PartialEq_for_QByteArray_eq(lhs: &QByteArray, rhs: &QByteArray) -> bool;
     }
 }
 /// The QByteArray struct provides an array of bytes.
@@ -58,6 +58,11 @@ impl Default for QByteArray {
 impl Clone for QByteArray {
     fn clone(&self) -> Self {
         ffi::qbyte_array_clone(self)
+    }
+}
+impl PartialEq for QByteArray {
+    fn eq(&self, other: &Self) -> bool {
+        ffi::qbyte_array_eq(self, other)
     }
 }
 impl crate::QMetaTypeGet for QByteArray {
@@ -92,11 +97,6 @@ impl std::ops::Index<usize> for QByteArray {
     fn index(&self, index: usize) -> &u8 {
         let cpp = ffi::inline_cpp_fn_trait_impl_std_ops_index_usize_for_qbyte_array_index;
         unsafe { &*cpp(self, index) }
-    }
-}
-impl PartialEq for QByteArray {
-    fn eq(&self, other: &Self) -> bool {
-        ffi::inline_cpp_fn_trait_impl_partial_eq_for_qbyte_array_eq(self, other)
     }
 }
 impl PartialEq<&str> for QByteArray {
