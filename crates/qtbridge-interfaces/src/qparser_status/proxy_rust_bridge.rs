@@ -24,9 +24,6 @@ pub mod ffi {
         # [cxx_name = writeProperty]
         fn write_property(&mut self, prop_id: u32, value: &QVariant);
 
-        # [cxx_name = getRustObjectRcPtr]
-        fn get_rust_object_rc_ptr(&self) -> *const u8;
-
         fn class_begin(&mut self);
         fn component_complete(&mut self);
     }

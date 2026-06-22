@@ -73,6 +73,10 @@ where
             .try_call_rust_with_handle_mut(|adapter| f(adapter))
             .expect("Failed to access Rust object via mutable handle")
     }
+
+    fn get_rust_object_rc(&self) -> Option<Rc<RefCell<Adapter>>> {
+        self.rust_obj.get_rc()
+    }
 }
 
 impl<CppProxy, Adapter> GenericRustProxy<CppProxy, Adapter>
@@ -107,10 +111,6 @@ where
         call_rust_trait_impl!(mut self, write_property(prop_id, value))
     }
 
-    pub fn get_rust_object_rc_ptr(&self) -> *const u8 {
-        self.rust_obj.get_rc()
-            .map_or(std::ptr::null(), |rc| Rc::into_raw(rc) as *const u8)
-    }
 }
 
 #[macro_export]

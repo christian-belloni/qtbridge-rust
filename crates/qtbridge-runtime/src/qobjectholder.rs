@@ -7,7 +7,7 @@ use std::rc::Rc;
 
 use qtbridge_type_lib::{QObject, QVariant};
 use crate::qproxies::{QRustProxy, ConstructionMode};
-use crate::rustobjectgetter::get_rust_object_rc_ptr;
+use crate::rustobjectgetter::get_rust_proxy;
 use crate::{DispatchMetaCall, QMetaInfo, QmlMethodInvoker};
 use std::collections::HashMap;
 
@@ -76,10 +76,11 @@ pub trait QObjectHolder : DispatchMetaCall + QMetaInfo + Default {
     {
         let qobj_ref = unsafe { qobj_ptr.as_ref() }
             .expect("Input QObject is null");
-        let raw_u8 = get_rust_object_rc_ptr(qobj_ref);
-        if raw_u8.is_null() {
-            panic!("Rust object associated with given QObject was already dropped")
-        }
+        let proxy_ptr = get_rust_proxy(qobj_ref);
+        debug_assert!(!proxy_ptr.is_null());
+
+        // Verify the QObject really is of type `Self` before reinterpreting
+        // its proxy/object as `Self`'s - otherwise the casts below are UB.
         let qobj_meta_obj  = qobj_ref.get_qmeta_object();
         let self_meta_obj  = <Self as QMetaInfo>::get_shared_dynamic_meta_object_data().get_meta_object();
         if qobj_meta_obj != self_meta_obj {
@@ -88,7 +89,18 @@ pub trait QObjectHolder : DispatchMetaCall + QMetaInfo + Default {
             panic!("Value of wrong type is assigned to property: '{qobj_name}' instead of '{self_name}'")
         }
 
-        let raw_ref_cell = raw_u8 as *const RefCell<Self>;
+        let proxy = unsafe { &*(proxy_ptr as *const Self::ProxyRust) };
+        let rc_adapter = proxy.get_rust_object_rc()
+            .expect("Rust object associated with given QObject was already dropped");
+
+        // SAFETY: the metatype check above proves the `QObject` - and therefore
+        // the allocation behind `rc_adapter` - was created as `RefCell<Self>`.
+        // The adapter `Rc` only layers a vtable over that same allocation, so
+        // its data pointer addresses a real `RefCell<Self>` with matching size
+        // and alignment; reinterpreting it back is sound. `into_raw` parks the
+        // `+1` produced by `get_rust_object_rc` and `from_raw` reclaims it, so
+        // the reference count stays balanced.
+        let raw_ref_cell = Rc::into_raw(rc_adapter) as *const u8 as *const RefCell<Self>;
         unsafe { Rc::from_raw(raw_ref_cell) }
     }
 

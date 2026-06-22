@@ -112,4 +112,11 @@ pub trait QRustProxy {
     fn emit_signal(&self, mut_ref: &mut Self::AdapterType, signal_name: &str, argv: &[*const u8]);
     fn with_rust_ref<R, F: FnOnce(&Self::AdapterType) -> R>(&self, f: F) -> R;
     fn with_rust_ref_mut<R, F: FnOnce(&mut Self::AdapterType) -> R>(&self, f: F) -> R;
+
+    /// Returns an owned handle to the Rust object behind this proxy, or `None`
+    /// if it has already been dropped (the proxy may outlive a weakly-held
+    /// object). The handle is typed as the adapter trait object; recovering the
+    /// concrete type requires a checked reinterpret (see
+    /// `QObjectHolder::qobject_to_rc_ref_cell`).
+    fn get_rust_object_rc(&self) -> Option<Rc<RefCell<Self::AdapterType>>>;
 }

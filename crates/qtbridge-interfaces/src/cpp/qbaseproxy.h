@@ -57,11 +57,6 @@ public:
 
 
     // RustObjectGetter implementation
-    const void* getRustObjectRcPtr() const override
-    {
-        return static_cast<const void*>(m_rustProxy->getRustObjectRcPtr());
-    }
-
     const void* getRustProxy() const override
     {
         return static_cast<const void*>(m_rustProxy);
