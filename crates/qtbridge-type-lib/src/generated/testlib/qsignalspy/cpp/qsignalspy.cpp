@@ -12,7 +12,7 @@ std::unique_ptr<QSignalSpy> inlineCppFn_new(QObject const &qobject, rust::Str si
     const QByteArray signalNameBa = RustStrToQByteArray(signal_name);
     const auto *mo = qobject.metaObject();
     const auto methodCount = mo->methodCount();
-    for (int m = mo->methodOffset(); m < methodCount; ++m) {
+    for (int m = 0; m < methodCount; ++m) {
         auto method = mo->method(m);
         if (method.nameView() == signalNameBa) {
             auto sign = method.methodSignature();
