@@ -64,7 +64,7 @@ impl syn::parse::Parse for QObjectMacroParams {
                 input.parse::<keywords::ConvertToCamelCase>()?;
                 params.convert_to_camel_case = true;
             } else {
-                return Err(input.error("Unsupported attribute of qobject or qobject_impl macro"))
+                return Err(input.error("Unsupported attribute of #[qobject] macro"))
             }
             let comma = input.parse::<Option<syn::Token![,]>>()?;
             if comma.is_none() && !input.is_empty() {

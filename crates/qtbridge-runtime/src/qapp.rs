@@ -169,11 +169,11 @@ impl QApp {
     /// Registers `T` with the QML type system, making it instantiable from QML.
     ///
     /// ```rust
-    ///# use qtbridge::{QApp, qobject_impl};
+    ///# use qtbridge::{QApp, qobject};
     /// #[derive(Default)]
     /// pub struct Backend {
     /// }
-    /// #[qobject_impl]
+    /// #[qobject]
     /// impl Backend {
     /// }
     ///

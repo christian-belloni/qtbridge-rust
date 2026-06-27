@@ -6,13 +6,13 @@ code and expose Rust types to QML using simple attribute macros.
 
 Main.rs
 ```rust
-use qtbridge::{qobject_impl, QApp};
+use qtbridge::{qobject, QApp};
 
 #[derive(Default)]
 pub struct Backend {
 }
 
-#[qobject_impl(Singleton)]
+#[qobject(Singleton)]
 impl Backend {
     #[qslot]
     fn say_hello(&self) {
@@ -147,14 +147,14 @@ qtbridge = "*"
 Running QML code and starting any Qt-based application is generally done through the
 [`QApp`] type.
 
-Rust types that should be used in QML must be annotated with either a [`qobject`] or
-[`qobject_impl`] attribute macro. Within those blocks you can use the [`qproperty`],
+Rust types that should be used in QML must be annotated with a [`qobject`]
+attribute macro. Within those blocks you can use the [`qproperty`],
 [`qslot`], and [`qsignal`] attribute macros to define how the Rust types appear in QML.
 
 The library provides some special traits that enable Rust types to fulfill specific
 roles; see [special_traits].
 
-All QObjects in Rust (implemented with [`qobject_impl`]) are held in
+All QObjects in Rust (implemented with [`qobject`]) are held in
 `Rc<RefCell<_>>`. This allows multiple owners to coexist: your Rust code,
 the QML engine, and any number of QML components can all hold a reference
 to the same object. QML references follow ordinary JavaScript copy semantics.

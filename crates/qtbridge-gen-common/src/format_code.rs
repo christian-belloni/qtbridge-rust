@@ -40,7 +40,7 @@ impl VisitMut for StripDocs {
 /// Removes the documentation from the code. Useful for baseline tests and
 /// compare code.
 /// Note that this function does not strip all types of tokens but is
-/// limited to the specific case of testing qobject_impl.
+/// limited to the specific case of testing qobject.
 /// TODO: Strip documentation of all types of tokens.
 pub fn strip_docs(ts: TokenStream) -> TokenStream {
     let mut file: syn::File = syn::parse2(ts).unwrap();

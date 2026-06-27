@@ -202,7 +202,8 @@ impl QPropertyInfo {
         } = self;
 
         let metatype_expr = match self.get_deduced_type() {
-            // Type of property is deduced from getter, setter or member (works for #[qobject] but not for #[qobject_impl] macro)
+            // Type of property is deduced from getter, setter
+            // or member (if struct fields are accessible to the macro).
             Some(ty) => {
                 let t = remove_ref(ty);
                 quote! { <#t as QPropertyMember>::qmetatype() }

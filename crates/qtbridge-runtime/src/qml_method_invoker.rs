@@ -36,12 +36,12 @@ fn on_qobject_destroyed(flag_ptr: usize) {
 ///
 /// ```
 /// use qtbridge::invoke_method;
-/// use qtbridge::{qobject_impl, QObjectHolder};
+/// use qtbridge::{qobject, QObjectHolder};
 ///
 /// #[derive(Default)]
 /// pub struct MyClass { }
 ///
-/// #[qobject_impl]
+/// #[qobject]
 /// impl MyClass {
 ///     #[qslot]
 ///     fn set_value(&mut self, value: i32) { }

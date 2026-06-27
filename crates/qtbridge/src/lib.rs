@@ -22,7 +22,7 @@ pub mod special_traits {
       //! Traits that enable Rust types to fulfill specific QML roles.
       //!
       //! Implement one of these on your struct and pass it as `Base = ...`
-      //! to [`qobject_impl`](crate::qobject_impl) or [`qobject`](crate::qobject).
+      //! to [`qobject`](crate::qobject).
       //!
       //! Note that only one of these traits can be implemented for the same
       //! type.
@@ -32,7 +32,7 @@ pub mod special_traits {
       //! - [`QParserStatus`](crate::QParserStatus) receives notifications during component construction
 }
 
-/// Annotate an `impl` block to make its struct accessible from QML.
+/// Annotate an `impl` or `mod` block to make its struct accessible from QML.
 ///
 /// The macro implements a range of traits that enable bridging from Rust
 /// to QML. The mechanism is based on the implementation of various traits with
@@ -60,13 +60,16 @@ pub mod special_traits {
 ///
 /// # Usage
 ///
-/// The [`qobject_impl`] macro must be applied to a `impl` block of the
+/// The [`qobject`] macro can be applied to a `impl` block of the
 /// target `struct`. Only a single `impl` block can be annotated with this macro and
 /// all applications of [`qsignal`], [`qslot`] and [`qproperty`] have to be limited to
 /// this block.
 ///
+/// Alternatively, it may be applied to the `mod` block that contains the `struct`
+/// definition and its associated `impl` blocks.
+///
 /// In order to communicate with QML, the macro creates bridging objects that are attached
-/// to the respective structs. Therefore, objects created with [`qobject_impl`] should be
+/// to the respective structs. Therefore, objects created with [`qobject`] should be
 /// created with [`default_with_attached_qobject`](QObjectHolder::default_with_attached_qobject)
 /// or expanded with [`attach_qobject`](QObjectHolder::attach_qobject). This is not necessary if
 /// the struct is instantiated in QML.
@@ -88,7 +91,7 @@ pub mod special_traits {
 ///
 /// ## Requirements
 ///
-/// A `struct` annotated with [`qobject_impl`] must implement the [`Default`] trait.
+/// A `struct` using [`qobject`] must implement the [`Default`] trait.
 /// The static function [`register`](QmlRegister::register) has to be called at the start of the
 /// main function to make this `struct` instantiable from QML.
 /// The macro implements [`Drop`] to call [`detach_qobject`](QObjectHolder::detach_qobject),
@@ -98,7 +101,7 @@ pub mod special_traits {
 ///
 /// ## Parameters
 ///
-/// Parameters to adjust the macro behaviour are passed as comma-separated keywords or keyword-value pairs.
+/// Parameters to adjust the macro behavior are passed as comma-separated keywords or keyword-value pairs.
 ///
 /// **Base = BaseTrait**
 ///
@@ -137,14 +140,14 @@ pub mod special_traits {
 /// ## Example
 ///
 /// ```rust
-/// use qtbridge::{QApp, qobject_impl};
+/// use qtbridge::{QApp, qobject};
 ///
 /// #[derive(Default)]
 /// pub struct Counter {
 ///    value: i32,
 /// }
 ///
-/// #[qobject_impl(Singleton)]
+/// #[qobject(Singleton)]
 /// impl Counter {
 ///     qproperty!("value", Member = value, Notify = value_changed);
 ///
@@ -200,93 +203,6 @@ pub mod special_traits {
 /// ```
 ///
 #[doc(inline)]
-pub use qtbridge_gen::qobject_impl;
-
-/// Annotate a `mod` block to make its struct accessible from QML.
-///
-/// The mod block must contain a single `struct` and its `impl` blocks. The
-/// impl blocks are treated as if they had the [`qobject_impl`] annotation.
-///
-/// Similar to [`qobject_impl`], this macro implements the following traits:
-///
-/// * [`QObjectHolder`]
-/// * [`QmlRegister`] (only non-generic types)
-///
-/// and a QML module that fits the package name of your Cargo.toml.
-///
-/// This macro has the same parameters as [`qobject_impl`] and behaves the same way.
-/// In contrast to [`qobject_impl`], this macro tries to identify an existing
-/// [`Drop`] implementation and will inject [`detach_qobject`](QObjectHolder::detach_qobject)
-/// when found. If no [`Drop`] implementation is found, the macro will generate one.
-/// To surpess this injection, you can use the `NoDrop` option.
-///
-/// ## Example
-///
-/// ```rust
-/// use qtbridge::{QApp, qobject};
-///
-/// #[qobject(Singleton)]
-/// pub mod backend {
-///     #[derive(Default)]
-///     pub struct Counter {
-///        value: i32,
-///     }
-///
-///     impl Counter {
-///         qproperty!("value", Member = value, Notify = value_changed);
-///
-///         #[qsignal]
-///         fn value_changed(&mut self);
-///
-///         #[qslot]
-///         fn change_value(&mut self, inc: bool) {
-///             self.value = match inc {
-///                 true => self.value.saturating_add(1),
-///                 false => self.value.saturating_sub(1),
-///             };
-///             self.value_changed();
-///         }
-///     }
-/// }
-///
-/// const QML_CODE: &str =
-/// r#"
-///     import QtQuick
-///     import QtQuick.Controls
-///     import QtQuick.Layouts
-///     import qtbridge // must match your cargo package name
-///
-///     ApplicationWindow {
-///         visible: true
-///         title: qsTr("Counter QML app")
-/// #       Component.onCompleted: closeTimer.start()
-/// #       Timer {
-/// #           id: closeTimer
-/// #           interval: 1
-/// #           onTriggered: Qt.quit()
-/// #       }
-///         RowLayout {
-///             anchors.centerIn: parent
-///             Button {
-///                 text: "-"
-///                 onClicked: Counter.changeValue(false)
-///             }
-///             Button {
-///                 text: "+"
-///                 onClicked: Counter.changeValue(true)
-///             }
-///         }
-///     }
-/// "#;
-///
-/// fn main() {
-///     QApp::new()
-///         .register::<backend::Counter>()
-///         .load_qml(QML_CODE.as_bytes())
-///         .run();
-/// }
-/// ```
-#[doc(inline)]
 pub use qtbridge_gen::qobject;
 
 
@@ -297,19 +213,18 @@ pub use qtbridge_gen::qobject;
 ///
 /// ### Requirements
 ///
-/// - The signal must be defined within a `mod` or `impl` block, annotated with [`qobject`]
-/// or [`qobject_impl`], respectively.
+/// - The signal must be defined within a `mod` or `impl` block, annotated with [`qobject`].
 /// - The first argument of the annotated function must be `&mut self`.
 /// - All other parameter types and the return type must implement [`QMetaCallArg`].
 /// - The function must not have a body (end with a semicolon or empty curly braces `{}`).
 ///
 /// ```rust
-/// # use qtbridge::qobject_impl;
+/// # use qtbridge::qobject;
 /// # #[derive(Default)]
 /// # pub struct Backend {
 /// # }
 /// #
-/// #[qobject_impl]
+/// #[qobject]
 /// impl Backend {
 ///     #[qsignal]
 ///     fn value_changed(&mut self, new_value: i32);
@@ -356,21 +271,20 @@ pub use qtbridge_gen::qsignal;
 ///
 /// ### Requirements
 ///
-/// - Has to be defined within a `mod` or `impl` block, annotated with [`qobject`]
-/// or [`qobject_impl`], respectively.
+/// - Has to be defined within a `mod` or `impl` block, annotated with [`qobject`].
 /// - The annotated function must have a body.
 /// - The first argument of the annotated function must be `&self` or `&mut self`.
 /// - All other parameter types and the return type must implement [`QMetaCallArg`].
 ///
 /// ### Example
 /// ```rust
-/// # use qtbridge::qobject_impl;
+/// # use qtbridge::qobject;
 /// # #[derive(Default)]
 /// # pub struct Backend {
 /// #     value: i32,
 /// # }
 /// #
-/// # #[qobject_impl]
+/// # #[qobject]
 /// # impl Backend {
 /// #[qslot]
 /// fn set_value(&mut self, new_value: i32) {
@@ -392,8 +306,7 @@ pub use qtbridge_gen::qslot;
 ///
 /// ### Requirements
 ///
-/// - The property must be defined within a `mod` or `impl` block, annotated with [`qobject`]
-/// or [`qobject_impl`], respectively.
+/// - The property must be defined within a `mod` or `impl` block, annotated with [`qobject`].
 /// - The first parameter is the property name. It must begin with a lower case letter and
 /// can only contain letters, numbers and underscores.
 /// - The property type must implement [`QPropertyMember`].
@@ -412,13 +325,13 @@ pub use qtbridge_gen::qslot;
 ///
 /// A pure accessor-based property can be declared together with a range of functions:
 /// ```rust
-/// # use qtbridge::qobject_impl;
+/// # use qtbridge::qobject;
 /// # #[derive(Default)]
 /// # pub struct Backend {
 /// #     value: i32,
 /// # }
 /// #
-/// # #[qobject_impl]
+/// # #[qobject]
 /// # impl Backend {
 /// qproperty!("myProperty", Read = get_value, Write = set_value, Notify = my_property_changed);
 ///
@@ -443,13 +356,13 @@ pub use qtbridge_gen::qslot;
 ///
 /// A `struct` containing a member-based property may look like:
 /// ```rust
-/// # use qtbridge::qobject_impl;
+/// # use qtbridge::qobject;
 /// #[derive(Default)]
 /// struct Text {
 ///     msg: String
 /// }
 ///
-/// #[qobject_impl]
+/// #[qobject]
 /// impl Text {
 ///     qproperty!("message", Member = msg, Notify = message_changed);
 ///
@@ -505,15 +418,14 @@ pub use qtbridge_runtime::{QApp, qresource, QmlMethodInvoker};
 
 /// Provides access to the underlying QObject for types exposed to QML.
 ///
-/// Automatically implemented by [`qobject`] and [`qobject_impl`].
-/// Do not implement this trait manually.
+/// Automatically implemented by [`qobject`]. Do not implement this trait manually.
 ///
 #[doc(inline)]
 pub use qtbridge_runtime::QObjectHolder;
 
 /// QmlRegister enables QML to instantiate types of this trait.
 ///
-/// The trait is usually implemented by [`qobject`] and [`qobject_impl`]. If you
+/// The trait is usually implemented by [`qobject`]. If you
 /// want to implement this trait manually, you have to add the `NoQmlElement`
 /// option.
 ///
@@ -526,12 +438,12 @@ pub use qtbridge_runtime::QObjectHolder;
 /// is to register as an element that can be instantiated in QML:
 ///
 /// ```rust
-/// # use qtbridge::qobject_impl;
+/// # use qtbridge::qobject;
 /// # #[derive(Default)]
 /// # pub struct Backend {
 /// # }
 /// #
-/// #[qobject_impl(NoQmlElement)]
+/// #[qobject(NoQmlElement)]
 /// impl Backend {
 ///     #[qslot]
 ///     fn say_hello(&self) {
@@ -565,12 +477,12 @@ pub use qtbridge_runtime::QObjectHolder;
 /// [`ELEMENT_NAME`](QmlRegister::ELEMENT_NAME):
 ///
 /// ```rust
-/// # use qtbridge::qobject_impl;
+/// # use qtbridge::qobject;
 /// # #[derive(Default)]
 /// # pub struct Backend {
 /// # }
 /// #
-/// #[qobject_impl(NoQmlElement)]
+/// #[qobject(NoQmlElement)]
 /// impl Backend {
 ///     #[qslot]
 ///     fn say_hello(&self) {

@@ -13,7 +13,7 @@
 //! Each Qt interface has a corresponding **proxy** in Rust. This proxy has
 //! to implement the [`qtbridge_runtime::qproxies::QRustProxy`] trait and interacts mostly with
 //! the [`qtbridge_runtime::QObjectHolder`] trait, that is automatically implemented for all
-//! user types by the `qobject` and `qobject_impl` macros.
+//! user types by the `qobject` macro.
 //!
 //! The demands on proxies are baked into the [`qtbridge_runtime::qproxies::QRustProxy`] trait.
 //! For example, there
@@ -64,7 +64,7 @@
 //!
 //! ## Memory Ownership and Lifetimes
 //!
-//! Every instance of a user-defined Rust struct annotated with `#[qobject]` or `#[qobject_impl]`
+//! Every instance of a user-defined Rust struct annotated with `#[qobject]`
 //! has two auxiliary parts invisible to the user:
 //!
 //! - **`CppProxy`** - a C++ class derived from`QObject` or `QAbstractItemModel` (or another base

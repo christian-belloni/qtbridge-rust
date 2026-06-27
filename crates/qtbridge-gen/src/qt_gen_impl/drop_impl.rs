@@ -11,7 +11,7 @@ pub fn generate_drop(struct_ident: &syn::Ident, struct_generics: &syn::Generics)
 
     let drop = syn::parse2(quote! {
         /// This is an automatic implementation by qtbridges.
-        /// If you see E0119 about Drop, use #[qobject_impl(NoDrop)] or #[qobject(NoDrop)]
+        /// If you see E0119 about Drop, use #[qobject(NoDrop)]
         /// Remember to call <Self as qtbridge::QObjectHolder>::detach_qobject(self) to
         /// avoid memory leaks
         impl #impl_generics Drop for #struct_ident #type_generics
