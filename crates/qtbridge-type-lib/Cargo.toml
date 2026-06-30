@@ -14,8 +14,8 @@ description = "Qt Bridge: Qt type library"
 [dependencies]
 cxx.workspace = true
 linkme.workspace = true
-qtbridge-gen-common = { path = "../qtbridge-gen-common", version = "0.1.5" }
+qtbridge-gen-common = { workspace = true }
 
 [build-dependencies]
 cxx-build.workspace = true
-qtbridge-build-utils = { path = "../qtbridge-build-utils" }
+qtbridge-build-utils = { workspace = true }

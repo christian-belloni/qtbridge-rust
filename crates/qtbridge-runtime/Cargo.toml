@@ -13,15 +13,15 @@ description = "Qt Bridge: bridging code to be run in applications."
 
 [dependencies]
 cxx.workspace = true
-qtbridge-type-lib = { path = "../qtbridge-type-lib", version = "0.1.5" }
+qtbridge-type-lib = { workspace = true }
 serde_json = { workspace = true, optional = true }
 
 [build-dependencies]
 cxx-build.workspace = true
-qtbridge-build-utils = { path = "../qtbridge-build-utils", version = "0.1.5" }
+qtbridge-build-utils = { workspace = true }
 
 [dev-dependencies]
-qtbridge = { path = "../qtbridge", version = "0.1.5" }
+qtbridge = { path = "../qtbridge" }
 
 [features]
 serde_json = ["dep:serde_json"]

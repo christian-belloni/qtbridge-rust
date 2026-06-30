@@ -14,4 +14,4 @@ description = "Qt Bridge: Common code for macros and code generators"
 proc-macro2.workspace = true
 quote.workspace = true
 syn = { workspace = true, features = ["extra-traits", "full", "visit", "visit-mut"] }
-qtbridge-build-utils = { path = "../qtbridge-build-utils", version = "0.1.5" }
+qtbridge-build-utils = { workspace = true }
