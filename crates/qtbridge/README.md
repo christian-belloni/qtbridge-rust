@@ -122,7 +122,7 @@ On Linux, you need to add the binary path of the targeted Qt installation to
 `PATH` and the library path to `LD_LIBRARY_PATH`:
 ```sh
 export PATH=/home/john_doe/dev/qt_build/qtbase/bin:$PATH
-export LD_LIBRARY_PATH="/home/john_doe/dev/qt_build/lib:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH="/home/john_doe/dev/qt_build/qtbase/lib:$LD_LIBRARY_PATH"
 ```
 
 ##### macOS
@@ -147,9 +147,10 @@ qtbridge = "*"
 Running QML code and starting any Qt-based application is generally done through the
 [`QApp`] type.
 
-Rust types that should be used in QML must be annotated with a [`qobject`]
-attribute macro. Within those blocks you can use the [`qproperty`],
-[`qslot`], and [`qsignal`] attribute macros to define how the Rust types appear in QML.
+Rust types that should be used in QML must either be defined within a `mod`,
+or have an `impl` block, annotated with a [`qobject`] attribute macro. Within
+those you can use the [`qproperty`], [`qslot`], and [`qsignal`] attribute macros
+to define how the Rust types appear in QML.
 
 The library provides some special traits that enable Rust types to fulfill specific
 roles; see [special_traits].
@@ -163,19 +164,22 @@ A Rust object is only borrowed for the duration of a signal, slot or property
 invocation from QML. Outside of those calls the object is not borrowed, so
 Rust code can freely take mutable borrows between QML interactions.
 
-`RefCell` enforces at runtime that only one mutable borrow exists at a time.
-QML requires a mutable borrow to invoke a slot or write a property. When an
-object enters Rust, its borrow is cached and reused for any further calls on
-the same object within that call chain, conforming to a stack-based model.
-A panic occurs only if a second independent borrow of the same object is
-attempted from a different point in the call chain.
+`RefCell` enforces at runtime that a value is either shared by any number of
+readers or held by a single writer, never both. Writing a property or invoking
+a `&mut self` slot takes an exclusive borrow; reading a property or invoking a
+`&self` slot takes only a shared borrow. When QML enters Rust through an object,
+the borrow is cached and reborrowed for further calls on the same object,
+keeping a single borrow on the stack instead of taking a new one. A conflict,
+which surfaces as a panic, occurs when a call takes a fresh, independent borrow
+rather than reborrowing the active one, which happens when the call chain is
+interrupted.
 
 ## Provided examples
 
-Note: In the preliminary version of this repository, the package dependency is given
-as a relative path. With the final release, the package dependency can be resolved
-with cargo and crates.io. Until then you need to adapt the dependency or check out
-the whole repository.
+Note: In this repository the examples depend on `qtbridge` through a relative
+path, since they build against the in-repo crate. In your own project, resolve
+the dependency from crates.io instead, as shown in the [Dependency](#dependency)
+section (`qtbridge = "*"`).
 
 ### [Hello World!](https://github.com/qt/qtbridge-rust/tree/dev/apps/hello_world)
 

@@ -71,7 +71,7 @@ pub trait QCppProxy {
 /// address.
 ///
 /// Destruction is always initiated from the C++ side: the paired `CppProxy` destructor calls
-/// [`GenericRustProxy::drop_self`], which converts the raw pointer back to a `Box`, invokes
+/// `GenericRustProxy::drop_self`, which converts the raw pointer back to a `Box`, invokes
 /// the stored `on_drop` callback, and then drops this instance along with its reference to the
 /// Rust object.
 ///
@@ -102,7 +102,7 @@ pub trait QRustProxy {
     /// Creates a new instance of this struct on the heap and returns a raw pointer to it.
     ///
     /// Initializes the proxy pair by:
-    /// - Creating a [`RustObjAccess`] wrapper for `rust_obj`, holding either a strong or weak
+    /// - Creating a `RustObjAccess` wrapper for `rust_obj`, holding either a strong or weak
     ///   reference depending on `construction` (see [`ConstructionMode`]).
     /// - Constructing the paired C++ proxy and binding it to this Rust-side proxy.
     /// - Storing `on_drop` for invocation when the C++ proxy is eventually destroyed.

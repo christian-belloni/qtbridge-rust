@@ -74,18 +74,18 @@ pub mod special_traits {
 /// or expanded with [`attach_qobject`](QObjectHolder::attach_qobject). This is not necessary if
 /// the struct is instantiated in QML.
 ///
-/// The macro creates, when [`register`](QmlRegister::register) is called a QML module with name
-/// matching your Cargo package name. So for a Cargo.toml with
+/// When [`register`](QmlRegister::register) is called, the macro creates a QML
+/// module whose name matches your Cargo package name. So for a `Cargo.toml` with
 /// ```toml
 /// [package]
-///  name = "hello_world"
+/// name = "hello_world"
 ///
 /// [dependencies]
 /// qtbridge
 /// ```
 /// the QML file has to contain
 ///
-/// ```toml
+/// ```qml
 /// import hello_world
 /// ```
 ///
@@ -105,7 +105,9 @@ pub mod special_traits {
 ///
 /// **Base = BaseTrait**
 ///
-/// Set the 'base' trait. Requires that the specified trait is implemented for the corresponding `struct`.
+/// Set the base trait. Must be one of the [`special_traits`] and must be
+/// implemented for the corresponding `struct`. Only one base trait can be set
+/// per type.
 ///
 /// **ConvertToCamelCase**
 ///
@@ -266,8 +268,9 @@ pub use qtbridge_gen::qsignal;
 
 /// Annotates a function as invokable from QML.
 ///
-/// In addition to being invokable from QML, the function can also act as a slot for
-/// [signal-slot connections](#signals-and-slots) when used in Qt signal bindings.
+/// Such a function is also registered as a Qt slot, so it can be the target of a
+/// [signal-slot connection](https://doc.qt.io/qt-6/signalsandslots.html), or be
+/// invoked by name from Rust through a [`QmlMethodInvoker`].
 ///
 /// ### Requirements
 ///
@@ -319,7 +322,8 @@ pub use qtbridge_gen::qslot;
 /// - Getter and setter methods must be defined within the same `impl` block in which the property
 /// is declared.
 ///
-/// A property may be **accessor-based** or **member-based** or mix of both (see the [syntax](#qproperty-syntax) section for details).
+/// A property may be **accessor-based** or **member-based** or a mix of both (see the
+/// [syntax](#qproperty-syntax) section for details).
 ///
 /// ### Accessor based property
 ///

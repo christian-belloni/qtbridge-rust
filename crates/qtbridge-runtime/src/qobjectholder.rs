@@ -170,7 +170,7 @@ pub trait QObjectHolder : DispatchMetaCall + QMetaInfo + Default {
     ///
     /// The `drop` implementation of `Self` calls `detach_qobject` and thus destroys the associated
     /// `QObject`, which removes it from the QML side as well. If `Self` has a custom [`Drop`]
-    /// implementation, you need to call [`detach_qobject`] manually.
+    /// implementation, you need to call [`Self::detach_qobject`] manually.
     ///
     /// The attached `QObject` is bound to this specific allocation, so the object's identity and
     /// lifetime must both be preserved.
