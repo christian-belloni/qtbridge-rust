@@ -85,7 +85,7 @@ mod some_module {
     impl qtbridge::qtbridge_runtime::QmlRegister for SomeStruct {
         const URI: &str = "qtbridge_gen";
         const ELEMENT_NAME: &str = "SomeStruct";
-        const MINOR_VERSION: u8 = 1u8;
+        const MINOR_VERSION: u8 = 2u8;
         const MAJOR_VERSION: u8 = 0u8;
         const IS_SINGLETON: bool = false;
     }
