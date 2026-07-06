@@ -18,7 +18,7 @@ fn main() {
     println!("cargo:include={}", include_path.display());
     println!("cargo::metadata=include={}", include_path.display());
 
-    let qt = QtInstallation::new();
+    let qt = QtInstallation::default();
     for file in GENERATED_FILES_BRIDGE {
         println!("cargo::rerun-if-changed={file}");
     }

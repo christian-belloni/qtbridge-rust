@@ -125,7 +125,7 @@ fn generate_files<Generator: GenerateFiles>(input_root: &Path, out_root: &Path, 
 
     // Remove folder with all the files if it already exists
     if out_root.is_dir() {
-        remove_dir_all(&out_root)?;
+        remove_dir_all(out_root)?;
     }
 
     // Create directory for files with code
@@ -174,7 +174,7 @@ fn generate_files<Generator: GenerateFiles>(input_root: &Path, out_root: &Path, 
     let mut files_bridge = String::new();
     let mut files_cpp = String::new();
     if generate_lists_for_build_rs {
-        (files_bridge, files_cpp) = generate_generated_files_lists(&out_root, &generated_files)?;
+        (files_bridge, files_cpp) = generate_generated_files_lists(out_root, &generated_files)?;
     }
 
     Ok(GenerateFilesOutput {

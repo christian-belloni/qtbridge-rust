@@ -52,7 +52,7 @@ fn main() {
         cpp_files.push(cpp_file);
     }
 
-    let qt = QtInstallation::new();
+    let qt = QtInstallation::default();
     let out_dir = PathBuf::from(std::env::var("OUT_DIR")
         .expect("Failed to get OUT_DIR"));
     for moc_file in &moc_files {

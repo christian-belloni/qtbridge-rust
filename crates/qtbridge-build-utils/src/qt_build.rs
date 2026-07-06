@@ -13,14 +13,17 @@ pub struct QtInstallation {
 }
 
 #[doc(hidden)]
-impl QtInstallation {
-    pub fn new() -> Self {
+impl Default for QtInstallation {
+    fn default() -> Self {
         let qt = QtBuild::new(vec!["Core".to_owned()])
             .expect("Could not find Qt installation");
         let qt_paths = qt.qtpaths();
         Self { qt_paths, qt_build: qt }
     }
+}
 
+#[doc(hidden)]
+impl QtInstallation {
     pub fn include_dirs(&self, modules: impl IntoIterator<Item: Display>, add_private: bool) -> Vec<String> {
         let qtbase_include_dir = PathBuf::from(self.qt_paths.query("QT_INSTALL_HEADERS").expect("qtpaths failed to query QT_INSTALL_HEADERS"));
         let qt_version = self.qt_paths.query("QT_VERSION").expect("qtpaths failed to query QT_VERSION");

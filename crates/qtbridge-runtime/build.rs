@@ -63,7 +63,7 @@ fn main() {
     let type_lib_include = std::env::var("DEP_QTBRIDGE_TYPE_LIB_INCLUDE")
     .expect("DEP_QTBRIDGE_TYPE_LIB_INCLUDE not set. This variable should have been set by qtbridge-type-lib");
 
-    let qt = QtInstallation::new();
+    let qt = QtInstallation::default();
     let mut builder = cxx_build::bridges(rust_bridge_files);
     builder
         .std("c++17")
