@@ -142,6 +142,16 @@ QtBridge has a single crate with all public APIs:
 qtbridge = "*"
 ```
 
+## Building the documentation
+
+You can rely on cargo to generate the documentation of the project,
+but make sure to include the features the project currently have. You can
+achieve that by running:
+
+```bash
+cargo doc --features serde_json --no-deps
+```
+
 ## API overview
 
 Running QML code and starting any Qt-based application is generally done through the
