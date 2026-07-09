@@ -73,10 +73,9 @@ pub mod node {
         fn build_dynamic_meta_type(
             mut meta_obj: std::pin::Pin<&mut qtbridge::qtbridge_runtime::DynamicMetaObjectBuilder>,
         ) {
-            use qtbridge::qtbridge_runtime::QMetaCallArg;
-            use qtbridge::qtbridge_runtime::QPropertyMember;
+            use qtbridge::qtbridge_runtime::{QMetaCallArg, QMetaTypeGet, QPropertyMember};
             use qtbridge::qtbridge_type_lib;
-            use qtbridge_type_lib::{QMetaType, QMetaTypeGet};
+            use qtbridge_type_lib::QMetaType;
             meta_obj.as_mut().register_signal(
                 "signal_with_nested_type_in_argument_by_value",
                 &[<Rc<RefCell<SomeNestedType>> as QMetaCallArg>::wire_metatype()],
@@ -99,7 +98,7 @@ pub mod node {
             })
         }
     }
-    impl qtbridge::qtbridge_type_lib::QMetaTypeGet for Node {
+    impl qtbridge::qtbridge_runtime::QMetaTypeGet for Node {
         fn get_qmetatype() -> qtbridge::qtbridge_type_lib::QMetaType {
             use std::sync::OnceLock;
             static META_TYPE_INTERFACE: OnceLock<qtbridge::qtbridge_type_lib::QMetaTypeInterface> =

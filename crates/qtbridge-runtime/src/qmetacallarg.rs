@@ -5,7 +5,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use qtbridge_type_lib::{
-    QMetaType, QMetaTypeGet, QObject, QString, QObjectList,
+    QMetaType, QObject, QString, QObjectList,
     QList_bool, QList_i8, QList_u8, QList_i16, QList_u16,
     QList_i32, QList_u32, QList_i64, QList_u64, QList_isize, QList_usize,
     QList_f32, QList_f64, QList_QString,
@@ -14,7 +14,7 @@ use qtbridge_type_lib::{
 #[cfg(feature = "serde_json")]
 use qtbridge_type_lib::{QJsonArray, QJsonValue};
 
-use crate::{QObjectHolder, QmlRegister};
+use crate::{QMetaTypeGet, QObjectHolder, QmlRegister};
 
 /// Enables a type to be used as a signal or slot argument.
 ///

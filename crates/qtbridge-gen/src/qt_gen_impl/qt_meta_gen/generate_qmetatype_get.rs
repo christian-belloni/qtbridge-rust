@@ -18,7 +18,7 @@ pub fn generate_qmeta_type_get(struct_ident: &syn::Ident, generics: &syn::Generi
     };
 
     let code = quote! {
-        impl #impl_generics qtbridge::qtbridge_type_lib::QMetaTypeGet for #struct_ident #type_generics #where_clause {
+        impl #impl_generics qtbridge::qtbridge_runtime::QMetaTypeGet for #struct_ident #type_generics #where_clause {
             fn get_qmetatype() -> qtbridge::qtbridge_type_lib::QMetaType {
                 #body
                 qtbridge::qtbridge_type_lib::QMetaType::new_with_interface(iface as *const _)

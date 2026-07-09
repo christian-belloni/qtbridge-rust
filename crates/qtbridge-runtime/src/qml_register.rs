@@ -4,6 +4,7 @@
 use std::rc::Rc;
 use std::cell::RefCell;
 
+use crate::QMetaTypeGet;
 use crate::QObjectHolder;
 use crate::QMetaInfo;
 use crate::qqmllistproperty::{list_append, list_count, list_at, list_clear};
@@ -11,7 +12,6 @@ use crate::qproxies::QCppProxy;
 use crate::qproxies::ConstructionMode;
 use qtbridge_type_lib::QObject;
 use qtbridge_type_lib::QMetaType;
-use qtbridge_type_lib::QMetaTypeGet;
 use qtbridge_type_lib::QMetaTypeInterface;
 use qtbridge_type_lib::{QVariant, list_property_to_qvariant};
 

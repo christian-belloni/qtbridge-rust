@@ -7,10 +7,9 @@ impl qtbridge::qtbridge_runtime::QMetaInfo for SomeStruct {
     fn build_dynamic_meta_type(
         mut meta_obj: std::pin::Pin<&mut qtbridge::qtbridge_runtime::DynamicMetaObjectBuilder>,
     ) {
-        use qtbridge::qtbridge_runtime::QMetaCallArg;
-        use qtbridge::qtbridge_runtime::QPropertyMember;
+        use qtbridge::qtbridge_runtime::{QMetaCallArg, QMetaTypeGet, QPropertyMember};
         use qtbridge::qtbridge_type_lib;
-        use qtbridge_type_lib::{QMetaType, QMetaTypeGet};
+        use qtbridge_type_lib::QMetaType;
         meta_obj.as_mut().register_signal(
             "thisValueChanged",
             &[<String as QMetaCallArg>::wire_metatype()],

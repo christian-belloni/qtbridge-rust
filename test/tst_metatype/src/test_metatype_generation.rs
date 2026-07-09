@@ -1,8 +1,11 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
+#![cfg(not(miri))]
 #![cfg(test)]
 use qtbridge::qobject;
+use qtbridge::qtbridge_runtime::{QMetaInfo, QMetaTypeGet};
+use qtbridge::qtbridge_runtime::qproxies::QCppProxy;
 
 #[qobject]
 mod generic_trivial {
@@ -28,39 +31,29 @@ mod trivial2 {
 }
 
 #[test]
-#[cfg(not(miri))]
 fn test_structs_have_unique_metatype() {
-    use qtbridge::qtbridge_type_lib::QMetaTypeGet;
     let a = <trivial1::Backend1 as QMetaTypeGet>::get_qmetatype();
     let b = <trivial2::Backend2 as QMetaTypeGet>::get_qmetatype();
     assert_ne!(a, b, "QMetaTypes are not unique for 2 different types");
 }
 
 #[test]
-#[cfg(not(miri))]
 fn test_generics_have_unique_metatype() {
-    use qtbridge::qtbridge_type_lib::QMetaTypeGet;
     let a = <generic_trivial::Backend<i32> as QMetaTypeGet>::get_qmetatype();
     let b = <generic_trivial::Backend<String> as QMetaTypeGet>::get_qmetatype();
     assert_ne!(a, b, "QMetaTypes are not unique for 2 generic instantiations");
 }
 
 #[test]
-#[cfg(not(miri))]
 fn test_structs_have_same_meta_object() {
-    use qtbridge::qtbridge_runtime::QMetaInfo;
-    use qtbridge::qtbridge_runtime::qproxies::QCppProxy;
     let a = <<trivial1::Backend1 as QMetaInfo>::CppProxy as QCppProxy>::get_static_meta_object();
     let b = <<trivial2::Backend2 as QMetaInfo>::CppProxy as QCppProxy>::get_static_meta_object();
     assert!(::core::ptr::eq(a, b), "Static meta objects from the same base (QObject) are different");
 }
 
 #[test]
-#[cfg(not(miri))]
 fn test_structs_have_unique_dynamic_meta_object() {
-    use qtbridge::qtbridge_runtime::QMetaInfo;
     let a = <trivial1::Backend1 as QMetaInfo>::get_shared_dynamic_meta_object_data();
     let b = <trivial2::Backend2 as QMetaInfo>::get_shared_dynamic_meta_object_data();
     assert!(!::core::ptr::eq(a, b), "Dynamic meta objects are not unique for 2 different types");
 }
-

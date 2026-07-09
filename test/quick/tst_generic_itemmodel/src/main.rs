@@ -5,6 +5,7 @@ use std::rc::Rc;
 
 use qtbridge::QApp;
 use qtbridge::QObjectHolder;
+use qtbridge::qtbridge_runtime::QMetaTypeGet;
 
 use tst_generic_itemmodel::Backend;
 
@@ -17,7 +18,6 @@ fn main() {
     let backend2 = Rc::new(RefCell::new(Backend::<String>::new(data2)));
     Backend::attach_qobject(&backend2);
 
-    use qtbridge::qtbridge_type_lib::QMetaTypeGet;
     let a = <Backend<i32> as QMetaTypeGet>::get_qmetatype();
     let b = <Backend<String> as QMetaTypeGet>::get_qmetatype();
     assert_ne!(a, b, "QMetaTypes are not unique");
