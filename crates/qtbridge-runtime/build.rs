@@ -16,6 +16,7 @@ fn main() {
     let bridge_files = [
         "dynamicmetaobjectbuilder",
         "dynamicmetaobjectdata",
+        "qmetatypeget",
         "qresource",
         "rustobjectgetter",
         "qml_method_invoker",

@@ -4,6 +4,7 @@
 pub mod dispatchmetacall;
 pub mod dynamicmetaobjectbuilder;
 pub mod dynamicmetaobjectdata;
+pub mod qmetatypeget;
 pub mod qml_method_invoker;
 pub mod qapp;
 pub mod qmetainfo;
@@ -24,6 +25,7 @@ pub use dynamicmetaobjectbuilder::{DynamicMetaObjectBuilder, create_dynamic_meta
 pub use dynamicmetaobjectdata::DynamicMetaObjectData;
 pub use qapp::QApp;
 pub use qmetainfo::QMetaInfo;
+pub use qmetatypeget::QMetaTypeGet;
 pub use qml_register::QmlRegister;
 pub use qobjectholder::QObjectHolder;
 pub use qml_method_invoker::QmlMethodInvoker;
