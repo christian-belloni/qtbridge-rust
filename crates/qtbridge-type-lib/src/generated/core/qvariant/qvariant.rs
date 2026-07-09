@@ -1194,9 +1194,3 @@ impl QVariant {
         cpp(self)
     }
 }
-/// Returns `true` if the variant currently holds a value of Qt metatype `T`.
-impl QVariant {
-    pub fn is_type<T: QMetaTypeGet>(&self) -> bool {
-        self.meta_type() == T::get_qmetatype()
-    }
-}

@@ -6,34 +6,35 @@ use qtbridge_type_lib::{
     QJsonArray, QJsonObject, QJsonValue,
     QVariant, QVariantList, QVariantMap, QString,
 };
+use crate::QMetaTypeGet;
 
 pub(crate) fn qvariant_to_serde(v: &QVariant) -> Result<serde_json::Value, ()> {
-    if v.is_type::<bool>() {
+    if is_qvariant_type::<bool>(v) {
         return bool::try_from(v).map(serde_json::Value::Bool);
     }
-    if v.is_type::<i8>() || v.is_type::<i16>() || v.is_type::<i32>() || v.is_type::<i64>() || v.is_type::<isize>() {
+    if is_qvariant_type::<i8>(v) || is_qvariant_type::<i16>(v) || is_qvariant_type::<i32>(v) || is_qvariant_type::<i64>(v) || is_qvariant_type::<isize>(v) {
         return i64::try_from(v).map(|n| serde_json::Value::Number(n.into()));
     }
-    if v.is_type::<u8>() || v.is_type::<u16>() || v.is_type::<u32>() || v.is_type::<u64>() || v.is_type::<usize>() {
+    if is_qvariant_type::<u8>(v) || is_qvariant_type::<u16>(v) || is_qvariant_type::<u32>(v) || is_qvariant_type::<u64>(v) || is_qvariant_type::<usize>(v) {
         return u64::try_from(v).map(|n| serde_json::Value::Number(n.into()));
     }
-    if v.is_type::<f32>() || v.is_type::<f64>() {
+    if is_qvariant_type::<f32>(v) || is_qvariant_type::<f64>(v) {
         return f64::try_from(v).map(|n| {
             serde_json::Number::from_f64(n)
                 .map(serde_json::Value::Number)
                 .unwrap_or(serde_json::Value::Null)
         });
     }
-    if v.is_type::<QString>() {
+    if is_qvariant_type::<QString>(v) {
         return String::try_from(v).map(serde_json::Value::String);
     }
-    if v.is_type::<QJsonValue>() {
+    if is_qvariant_type::<QJsonValue>(v) {
         return v.try_into().map(|jv: QJsonValue| qjsonvalue_to_serde(&jv));
     }
-    if v.is_type::<QJsonObject>() {
+    if is_qvariant_type::<QJsonObject>(v) {
         return v.try_into().map(|obj: QJsonObject| qjsonobject_to_serde(&obj));
     }
-    if v.is_type::<QJsonArray>() {
+    if is_qvariant_type::<QJsonArray>(v) {
         return v.try_into().map(|arr: QJsonArray| qjsonarray_to_serde(&arr));
     }
     // QML passes JS objects/arrays wrapped as QJSValue; QVariantMap/List use canConvert<T>()
@@ -84,6 +85,10 @@ pub(crate) fn qjsonvalue_to_serde(v: &QJsonValue) -> serde_json::Value {
     if v.is_array() { return qjsonarray_to_serde(&v.to_array()); }
     if v.is_object() { return qjsonobject_to_serde(&v.to_object()); }
     serde_json::Value::Null
+}
+
+fn is_qvariant_type<T: QMetaTypeGet>(var: &QVariant) -> bool {
+    var.meta_type() == T::get_qmetatype()
 }
 
 fn qjsonarray_to_serde(v: &QJsonArray) -> serde_json::Value {
