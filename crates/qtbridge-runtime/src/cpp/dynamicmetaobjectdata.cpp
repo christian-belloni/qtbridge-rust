@@ -35,11 +35,10 @@ void DynamicMetaObjectData::emitSignal(QObject& obj, rust::Str name, rust::Slice
 
 std::optional<int> DynamicMetaObjectData::getSignalIndex(const QByteArray& name) const
 {
-    const size_t size = static_cast<size_t>(m_signals.size());
-    for (size_t index = 0u; index < size; ++index)
+    for (qsizetype index = 0; index < m_signals.size(); ++index)
     {
         if (m_signals[index].m_name == name)
-            return index;
+            return static_cast<int>(index);
     }
 
     return std::nullopt;
