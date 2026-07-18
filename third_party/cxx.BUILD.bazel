@@ -1,0 +1,16 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+    name = "core",
+    hdrs = ["include/cxx.h"],
+    include_prefix = "rust",
+    strip_include_prefix = "include",
+)
+
+cc_library(
+    name = "core-lib",
+    srcs = ["src/cxx.cc"],
+    hdrs = ["include/cxx.h"],
+    linkstatic = True,
+    visibility = ["//visibility:public"],
+)

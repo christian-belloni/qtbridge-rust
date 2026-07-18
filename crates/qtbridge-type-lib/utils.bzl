@@ -1,0 +1,108 @@
+load("@cxx.rs//tools/bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+def path_to_name(bridge_file):
+  return bridge_file.split("/").pop().replace(".rs", "")
+
+
+def rust_bridge(bridge_file):
+  cc_library(
+    name = path_to_name(bridge_file),
+    srcs = [
+        "_%s-bridge/generated" % path_to_name(bridge_file),
+    ],
+    visibility = ["//visibility:public"],
+    deps = ["shared-include"],
+  )
+
+  rust_cxx_bridge(
+    name = "_%s-bridge" % path_to_name(bridge_file),
+    src = bridge_file,
+  )
+
+GENERATED_FILES_BRIDGE = [
+  "src/generated/core/itemdatarole/itemdatarole.rs",
+  "src/generated/core/qbytearray/qbytearray.rs",
+  "src/generated/core/qhash/qhash_i32_qbytearray.rs",
+  "src/generated/core/qhash/qhash_qbytearray_qvariant.rs",
+  "src/generated/core/qhash/qhash_qstring_qvariant.rs",
+  "src/generated/core/qjsonarray/qjsonarray.rs",
+  "src/generated/core/qjsonobject/qjsonobject.rs",
+  "src/generated/core/qjsonvalue/qjsonvalue.rs",
+  "src/generated/core/qlist/qlist_bool.rs",
+  "src/generated/core/qlist/qlist_f32.rs",
+  "src/generated/core/qlist/qlist_f64.rs",
+  "src/generated/core/qlist/qlist_i16.rs",
+  "src/generated/core/qlist/qlist_i32.rs",
+  "src/generated/core/qlist/qlist_i64.rs",
+  "src/generated/core/qlist/qlist_i8.rs",
+  "src/generated/core/qlist/qlist_isize.rs",
+  "src/generated/core/qlist/qlist_ptr_mut_qobject.rs",
+  "src/generated/core/qlist/qlist_qbytearray.rs",
+  "src/generated/core/qlist/qlist_qstring.rs",
+  "src/generated/core/qlist/qlist_qvariant.rs",
+  "src/generated/core/qlist/qlist_u16.rs",
+  "src/generated/core/qlist/qlist_u32.rs",
+  "src/generated/core/qlist/qlist_u64.rs",
+  "src/generated/core/qlist/qlist_u8.rs",
+  "src/generated/core/qlist/qlist_usize.rs",
+  "src/generated/core/qmap/qmap_i32_qstring.rs",
+  "src/generated/core/qmap/qmap_qstring_qvariant.rs",
+  "src/generated/core/qmetaobject/qmetaobject.rs",
+  "src/generated/core/qmetatype/qmetatype.rs",
+  "src/generated/core/qmetatypeinterface/qmetatypeinterface.rs",
+  "src/generated/core/qmodelindex/qmodelindex.rs",
+  "src/generated/core/qobject/qobject.rs",
+  "src/generated/core/qqmllistproperty/qqmllistproperty.rs",
+  "src/generated/core/qsignalblocker/qsignalblocker.rs",
+  "src/generated/core/qstring/qstring.rs",
+  "src/generated/core/qutf8stringview/qutf8stringview.rs",
+  "src/generated/core/qvariant/qvariant.rs",
+  "src/generated/gui/qguiapplication/qguiapplication.rs",
+  "src/generated/qml/qmlprivate/qmlprivate.rs",
+  "src/generated/qml/qqmlapplicationengine/qqmlapplicationengine.rs",
+  "src/generated/testlib/qsignalspy/qsignalspy.rs",
+]
+
+GENERATED_FILES_CPP = [
+  "src/generated/core/qbytearray/cpp/qbytearray.cpp",
+  "src/generated/core/qhash/cpp/qhash_i32_qbytearray.cpp",
+  "src/generated/core/qhash/cpp/qhash_qbytearray_qvariant.cpp",
+  "src/generated/core/qhash/cpp/qhash_qstring_qvariant.cpp",
+  "src/generated/core/qjsonarray/cpp/qjsonarray.cpp",
+  "src/generated/core/qjsonobject/cpp/qjsonobject.cpp",
+  "src/generated/core/qjsonvalue/cpp/qjsonvalue.cpp",
+  "src/generated/core/qlist/cpp/qlist_bool.cpp",
+  "src/generated/core/qlist/cpp/qlist_f32.cpp",
+  "src/generated/core/qlist/cpp/qlist_f64.cpp",
+  "src/generated/core/qlist/cpp/qlist_i16.cpp",
+  "src/generated/core/qlist/cpp/qlist_i32.cpp",
+  "src/generated/core/qlist/cpp/qlist_i64.cpp",
+  "src/generated/core/qlist/cpp/qlist_i8.cpp",
+  "src/generated/core/qlist/cpp/qlist_isize.cpp",
+  "src/generated/core/qlist/cpp/qlist_ptr_mut_qobject.cpp",
+  "src/generated/core/qlist/cpp/qlist_qbytearray.cpp",
+  "src/generated/core/qlist/cpp/qlist_qstring.cpp",
+  "src/generated/core/qlist/cpp/qlist_qvariant.cpp",
+  "src/generated/core/qlist/cpp/qlist_u16.cpp",
+  "src/generated/core/qlist/cpp/qlist_u32.cpp",
+  "src/generated/core/qlist/cpp/qlist_u64.cpp",
+  "src/generated/core/qlist/cpp/qlist_u8.cpp",
+  "src/generated/core/qlist/cpp/qlist_usize.cpp",
+  "src/generated/core/qmap/cpp/qmap_i32_qstring.cpp",
+  "src/generated/core/qmap/cpp/qmap_qstring_qvariant.cpp",
+  "src/generated/core/qmetaobject/cpp/qmetaobject.cpp",
+  "src/generated/core/qmetatype/cpp/qmetatype.cpp",
+  "src/generated/core/qmetatypeinterface/cpp/qmetatypeinterface.cpp",
+  "src/generated/core/qmodelindex/cpp/qmodelindex.cpp",
+  "src/generated/core/qobject/cpp/qobject.cpp",
+  "src/generated/core/qqmllistproperty/cpp/qqmllistproperty.cpp",
+  "src/generated/core/qsignalblocker/cpp/qsignalblocker.cpp",
+  "src/generated/core/qstring/cpp/qstring.cpp",
+  "src/generated/core/qutf8stringview/cpp/qutf8stringview.cpp",
+  "src/generated/core/qvariant/cpp/qvariant.cpp",
+  "src/generated/gui/qguiapplication/cpp/qguiapplication.cpp",
+  "src/generated/qml/qmlprivate/cpp/qmlprivate.cpp",
+  "src/generated/qml/qqmlapplicationengine/cpp/qqmlapplicationengine.cpp",
+  "src/generated/testlib/qsignalspy/cpp/qsignalspy.cpp",
+]

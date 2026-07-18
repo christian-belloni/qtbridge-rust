@@ -17,14 +17,14 @@ proc-macro2 = "1.0.95"
 quote = "1.0.40"
 syn = { version = "2.0.103", features = ["extra-traits", "full"] }
 qt-build-utils = ">=0.9"
-qt-version = { version = "0.1.4", features = ["qt_version_at_least_6_10"] }
-qtbridge-build-utils = { path = "crates/qtbridge-build-utils", version = "0.2.0" }
-qtbridge-gen-common = { path = "crates/qtbridge-gen-common", version = "0.2.0" }
-qtbridge-gen = { path = "crates/qtbridge-gen", version = "0.2.0" }
-qtbridge-type-lib = { path = "crates/qtbridge-type-lib", version = "0.2.0" }
-qtbridge-interfaces = { path = "crates/qtbridge-interfaces", version = "0.2.0" }
-qtbridge-runtime = { path = "crates/qtbridge-runtime", version = "0.2.0" }
-qtbridge = { path = "crates/qtbridge", version = "0.2.0" }
+qt-version = { path = "crates/qt-version", features = ["qt_version_at_least_6_10"] }
+qtbridge-build-utils = { path = "crates/qtbridge-build-utils" }
+qtbridge-gen-common = { path = "crates/qtbridge-gen-common" }
+qtbridge-gen = { path = "crates/qtbridge-gen" }
+qtbridge-type-lib = { path = "crates/qtbridge-type-lib" }
+qtbridge-interfaces = { path = "crates/qtbridge-interfaces" }
+qtbridge-runtime = { path = "crates/qtbridge-runtime" }
+qtbridge = { path = "crates/qtbridge" }
 
 [workspace]
 resolver = "2"
@@ -63,7 +63,6 @@ members = [
     "test/quick/tst_qresource",
     "test/quick/tst_qlistmodel",
     "test/quick/tst_qtablemodel",
-    "test/quick/tst_qml_element",
 ]
 
 # only core code and lightweight tests

@@ -1,0 +1,74 @@
+module(name = "qtbridge")
+
+bazel_dep(name = "apple_support", version = "2.7.0")
+bazel_dep(name = "rules_rs", version = "0.0.96")
+bazel_dep(name = "platforms", version = "1.1.0")
+bazel_dep(name = "cxx.rs", version = "1.0.197")
+bazel_dep(name = "rules_cc", version = "0.2.22")
+bazel_dep(name = "rules_foreign_cc", version = "0.15.1")
+bazel_dep(name = "bazel_lib", version = "3.5.0")
+bazel_dep(name = "bazel_skylib", version = "1.9.0")
+bazel_dep(name = "pcre2", version = "10.47")
+bazel_dep(name = "rules_apple", version = "4.5.3", repo_name = "rules_apple")
+bazel_dep(name = "zlib", version = "1.3.2")
+bazel_dep(name = "libpng", version = "1.6.54")
+bazel_dep(name = "harfbuzz", version = "11.0.1")
+bazel_dep(name = "glib", version = "2.82.2.bcr.8")
+bazel_dep(name = "freetype", version = "2.14.1")
+
+toolchains = use_extension("@rules_rs//rs/toolchains:module_extension.bzl", "toolchains")
+toolchains.toolchain(
+    edition = "2024",
+    version = "1.97.0",
+)
+use_repo(toolchains, "default_rust_toolchains")
+
+# This extension is optional but can help keep existing `@rules_rust` references working.
+rules_rust = use_extension("@rules_rs//rs:rules_rust.bzl", "rules_rust")
+use_repo(rules_rust, "rules_rust")
+
+register_toolchains(
+    "@default_rust_toolchains//:all",
+)
+
+crate = use_extension("@rules_rs//rs:extensions.bzl", "crate")
+crate.from_cargo(
+    name = "crates",
+    cargo_lock = "//:Cargo.lock",
+    cargo_toml = "//:Cargo.toml",
+    platform_triples = [
+        "aarch64-apple-darwin",
+        "aarch64-pc-windows-gnullvm",
+        "aarch64-unknown-linux-gnu",
+        "x86_64-apple-darwin",
+        "x86_64-pc-windows-gnullvm",
+        "x86_64-unknown-linux-gnu",
+    ],
+)
+use_repo(crate, "crates")
+
+crate.annotation(
+  crate = "cxx",
+  gen_build_script = "off",
+  additive_build_file = "//third_party:cxx.BUILD.bazel",
+  extra_aliased_targets = {
+    "core-lib":"core-lib"
+  },
+  deps = ["@crates//:core-lib"]
+)
+
+http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+new_local_repository = use_repo_rule("@bazel_tools//tools/build_defs/repo:local.bzl", "new_local_repository")
+
+http_archive(
+  name = "qtosx",
+  url = "file:///Users/christianbelloni/vendored/qtosx.tar.gz",
+  build_file = "//third_party:qtosx.BUILD.bazel",
+  integrity = "sha256-f6MG6kErzFM+efMWccU82fKpntAYgLcahg/KR49PUN0="
+)
+
+# new_local_repository(
+#   name = "qtosx",
+#   path = "/Users/christianbelloni/vendored/qtosx",
+#   build_file = "//third_party:qt_osx.BUILD.bazel",
+# )

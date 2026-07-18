@@ -1,0 +1,10 @@
+[package]
+name = "qtbridge-type-lib-test"
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+

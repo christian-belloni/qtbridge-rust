@@ -1,0 +1,10 @@
+[package]
+name = "hello_world_test"
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+

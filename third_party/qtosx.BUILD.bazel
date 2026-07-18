@@ -1,0 +1,113 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@bazel_skylib//rules/directory:directory.bzl", "directory")
+load("@bazel_skylib//rules/directory:subdirectory.bzl", "subdirectory")
+
+version = "6.11.1"
+modules = [
+  ("QtCore", "libQt6Core.6.dylib"),
+  ("QtQml", "libQt6Qml.6.dylib"),
+  ("QtQmlIntegration", "libQt6QmlIntegration.6.dylib"),
+  ("QtGui", "libQt6Gui.6.dylib"),
+  ("QtTest", "libQt6Test.6.dylib"),
+  ("QtNetwork", "libQt6Network.6.dylib"),
+]
+
+[
+  cc_library(
+    name = name,
+    srcs = glob(["lib/%s" % library_name], allow_empty = True),
+    hdrs = glob(["include/%s/**" % name]),
+    includes = ["include", "include/%s" % name, "include/%s/6.11.1/" % name,"include/%s/6.11.1/%s" % (name, name)],
+    visibility = ["//visibility:public"],
+    target_compatible_with = [
+      "@platforms//os:macos"
+    ],
+    alwayslink = True,
+    linkstatic = True,
+    defines = {
+    },
+    # copts = [
+    #   "-DZ_PREFIX", 
+    # ],
+    # cxxopts = [
+    #   "-I/opt/homebrew/opt/harfbuzz/include",
+    #   "-I/opt/homebrew/opt/pcre2/include",
+    #   "-I/opt/homebrew/opt/libpng/include/libpng16", 
+    #   "-I/opt/homebrew/opt/zstd/include",
+    #   "-I/opt/homebrew/opt/zlib/include",
+    #   "-UZ_SOLO",
+    # ],
+    linkopts= [
+      "-framework IOKit", 
+      "-framework CFNetwork", 
+      "-framework CoreGraphics", 
+      "-framework AppKit", 
+      "-framework QuartzCore", 
+      "-framework Foundation",
+      "-framework Security",
+      "-framework GSS",
+      "-framework UniformTypeIdentifiers",
+      "-L/opt/homebrew/opt/harfbuzz/lib",
+      "-lharfbuzz",
+    #   # "-L/opt/homebrew/opt/pcre2/lib",
+    #   # "-lpcre2-16",
+    #   # "-L/opt/homebrew/opt/libpng/lib", 
+    #   # "-lpng16",
+    #   # "-L/opt/homebrew/opt/zstd/lib",
+    ],
+    deps = ["@pcre2", "@libpng", "@freetype", "@zlib"]
+  )
+  for name, library_name in modules
+]
+
+cc_library(
+  name = "qt",
+  deps = [ name for name, _ in modules ],
+  visibility = ["//visibility:public"],
+)
+
+cc_library(
+  name = "cocoa_plugin",
+  srcs = ["plugins/platforms/libqcocoa.dylib"]
+)
+
+directory(
+  name = "files",
+  srcs = glob(["**"]),
+  visibility = ["//visibility:public"],
+)
+
+subdirectory(
+  name = "include",
+  parent = ":files",
+  path = "include",
+  visibility = ["//visibility:public"],
+)
+
+subdirectory(
+  name = "bin",
+  parent = ":files",
+  path = "bin",
+  visibility = ["//visibility:public"],
+)
+
+subdirectory(
+  name = "lib",
+  parent = ":files",
+  path = "lib",
+  visibility = ["//visibility:public"],
+)
+
+subdirectory(
+  name = "libexec",
+  parent = ":files",
+  path = "libexec",
+  visibility = ["//visibility:public"],
+)
+
+subdirectory(
+  name = "plugins",
+  parent = ":files",
+  path = "plugins",
+  visibility = ["//visibility:public"],
+)
