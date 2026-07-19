@@ -8,6 +8,7 @@ rust_library(
   srcs = glob(["src/**/*.rs"]),
   deps = all_crate_deps() + ["qtbridge-interfaces-cc"],
   visibility = ["//visibility:public"],
+  alwayslink = True
 )
 
 FILES_BRIDGE = [

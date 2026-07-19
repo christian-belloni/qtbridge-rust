@@ -9,6 +9,7 @@ rust_library(
   srcs = glob(["src/**/*.rs"]),
   deps = all_crate_deps() + [":qtbridge-runtime-cc"],
   visibility = ["//visibility:public"],
+  alwayslink = True
 )
 
 rust_static_library(

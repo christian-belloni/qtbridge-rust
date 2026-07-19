@@ -9,7 +9,10 @@ ApplicationWindow {
 
     Button {
         anchors.centerIn: parent
-        text: "Hello World!"
-        onClicked: Backend.say_hello()
+        text: Backend.counter
+    }
+
+    Component.onCompleted: {
+      Backend.startup()
     }
 }
