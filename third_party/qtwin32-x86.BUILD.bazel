@@ -1,0 +1,177 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@bazel_skylib//rules/directory:directory.bzl", "directory")
+load("@bazel_skylib//rules/directory:subdirectory.bzl", "subdirectory")
+
+version = "6.11.1"
+modules = [
+  ("QtCore", "libQt6Core.dll.a"),
+  ("QtQml", "libQt6Qml.dll.a"),
+  ("QtQmlIntegration", "libQt6QmlIntegration.dll.a"),
+  ("QtGui", "libQt6Gui.dll.a"),
+  ("QtTest", "libQt6Test.dll.a"),
+  ("QtNetwork", "libQt6Network.dll.a"),
+]
+
+[
+  cc_library(
+    name = name,
+    srcs = glob(["lib/%s" % library_name], allow_empty = True),
+    hdrs = glob(["include/qt6/%s/**" % name]),
+    includes = ["include/qt6", "include/qt6/%s" % name, "include/qt6/%s/6.11.1/" % name,"include/qt6/%s/6.11.1/%s" % (name, name)],
+    visibility = ["//visibility:public"],
+  )
+  for name, library_name in modules
+]
+
+filegroup(
+  name = "shared_libraries",
+  srcs = glob(["bin/*.dll"]),
+  visibility = ["//visibility:public"]
+)
+
+cc_library(
+  name = "qt",
+  deps = [ name for name, _ in modules ],
+  visibility = ["//visibility:public"],
+  target_compatible_with = [
+    "@platforms//cpu:x86_64",
+    "@platforms//os:windows",
+  ],
+)
+
+directory(
+  name = "files",
+  srcs = glob(["**"]),
+  visibility = ["//visibility:public"],
+)
+
+subdirectory(
+  name = "include",
+  parent = ":files",
+  path = "include",
+  visibility = ["//visibility:public"],
+)
+
+subdirectory(
+  name = "bin",
+  parent = ":files",
+  path = "bin",
+  visibility = ["//visibility:public"],
+)
+
+subdirectory(
+  name = "lib",
+  parent = ":files",
+  path = "lib",
+  visibility = ["//visibility:public"],
+)
+
+subdirectory(
+  name = "libexec",
+  parent = ":files",
+  path = "libexec",
+  visibility = ["//visibility:public"],
+)
+
+subdirectory(
+  name = "plugins",
+  parent = ":files",
+  path = "share/qt6/plugins",
+  visibility = ["//visibility:public"],
+)
+
+subdirectory(
+  name = "qml",
+  parent = ":files",
+  path = "share/qt6/qml",
+  visibility = ["//visibility:public"],
+)
+
+# load("@rules_cc//cc:defs.bzl", "cc_library")
+# load("@bazel_skylib//rules/directory:directory.bzl", "directory")
+# load("@bazel_skylib//rules/directory:subdirectory.bzl", "subdirectory")
+# 
+# version = "6.11.1"
+# modules = [
+#   ("QtCore", "libQt6Core.a"),
+#   ("QtQml", "libQt6Qml.a"),
+#   ("QtQmlIntegration", "libQt6QmlIntegration.a"),
+#   ("QtGui", "libQt6Gui.a"),
+#   ("QtTest", "libQt6Test.a"),
+#   ("QtNetwork", "libQt6Network.a"),
+# ]
+# 
+# [
+#   cc_library(
+#     name = name,
+#     srcs = glob(["lib/%s" % library_name], allow_empty = True),
+#     hdrs = glob(["include/%s/**" % name]),
+#     includes = ["include", "include/%s" % name, "include/%s/6.11.1/" % name,"include/%s/6.11.1/%s" % (name, name)],
+#     visibility = ["//visibility:public"],
+#   )
+#   for name, library_name in modules
+# ]
+# 
+# filegroup(
+#   name = "shared_libraries",
+#   srcs = glob(["bin/*.dll"]),
+#   visibility = ["//visibility:public"]
+# )
+# 
+# cc_library(
+#   name = "qt",
+#   deps = [ name for name, _ in modules ],
+#   visibility = ["//visibility:public"],
+#   target_compatible_with = [
+#     "@platforms//cpu:x86_64",
+#     "@platforms//os:windows",
+#   ],
+# )
+# 
+# directory(
+#   name = "files",
+#   srcs = glob(["**"]),
+#   visibility = ["//visibility:public"],
+# )
+# 
+# subdirectory(
+#   name = "include",
+#   parent = ":files",
+#   path = "include",
+#   visibility = ["//visibility:public"],
+# )
+# 
+# subdirectory(
+#   name = "bin",
+#   parent = ":files",
+#   path = "bin",
+#   visibility = ["//visibility:public"],
+# )
+# 
+# subdirectory(
+#   name = "lib",
+#   parent = ":files",
+#   path = "lib",
+#   visibility = ["//visibility:public"],
+# )
+# 
+# subdirectory(
+#   name = "libexec",
+#   parent = ":files",
+#   path = "libexec",
+#   visibility = ["//visibility:public"],
+# )
+# 
+# subdirectory(
+#   name = "plugins",
+#   parent = ":files",
+#   path = "plugins",
+#   visibility = ["//visibility:public"],
+# )
+# 
+# subdirectory(
+#   name = "qml",
+#   parent = ":files",
+#   path = "share/qt6/qml",
+#   visibility = ["//visibility:public"],
+# )

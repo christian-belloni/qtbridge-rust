@@ -28,5 +28,5 @@ def rust_bridge(name):
       "%s/header" % cpp_bridge,
     ],
     deps = ["shared-include"],
-    include_prefix = "qtbridge-interfaces"
+    include_prefix = "qtbridge-interfaces",
   )

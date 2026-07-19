@@ -7,7 +7,7 @@ rust_library(
   name = "qtbridge-interfaces",
   srcs = glob(["src/**/*.rs"]),
   deps = all_crate_deps(),
-  visibility = ["//crates:__subpackages__"],
+  visibility = ["//visibility:public"],
   link_deps = ["qtbridge-interfaces-cc"]
 )
 
@@ -20,6 +20,24 @@ FILES_BRIDGE = [
 ]
 
 [ rust_bridge(name) for name in FILES_BRIDGE ]
+
+cc_library(
+  name = "shared-include",
+  hdrs = glob(["src/**/*.h"]),
+  deps = [
+    "//:qt", 
+    ":generated_includes", 
+    "//crates/qtbridge-type-lib:qtbridge-type-lib-cc",
+    "//crates/qtbridge-runtime:qtbridge-runtime-cc",
+  ],
+  includes = ["src"]
+)
+
+cc_library(
+  name = "generated_includes",
+  hdrs = glob(["src/**/*.h"]),
+  include_prefix = "qtbridge-interfaces",
+)
 
 cc_library(
   name = "qtbridge-interfaces-cc",
@@ -40,22 +58,4 @@ cc_library(
   deps = FILES_BRIDGE + [
     "@cxx.rs//:core", 
   ],
-)
-
-cc_library(
-  name = "shared-include",
-  hdrs = glob(["src/**/*.h"]),
-  deps = [
-    "@qtosx//:qt", 
-    ":generated_includes", 
-    "//crates/qtbridge-type-lib:qtbridge-type-lib-cc",
-    "//crates/qtbridge-runtime:qtbridge-runtime-cc",
-  ],
-  includes = ["src"]
-)
-
-cc_library(
-  name = "generated_includes",
-  hdrs = glob(["src/**/*.h"]),
-  include_prefix = "qtbridge-interfaces",
 )

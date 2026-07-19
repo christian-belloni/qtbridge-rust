@@ -8,7 +8,7 @@ rust_library(
   deps = all_crate_deps(),
   visibility = ["//visibility:public"],
   compile_data = ["README.md"],
-  data = ["@qtosx//:plugins", "@qtosx//:qt"]
+  data = ["//:qt_shared", "//:plugins"]
 )
 
 rust_static_library(

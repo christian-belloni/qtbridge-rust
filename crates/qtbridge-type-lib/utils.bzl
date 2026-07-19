@@ -13,6 +13,9 @@ def rust_bridge(bridge_file):
     ],
     visibility = ["//visibility:public"],
     deps = ["shared-include"],
+    linkstatic = True,
+    alwayslink = True,
+    linkopts = ["-std=c++17"],
   )
 
   rust_cxx_bridge(

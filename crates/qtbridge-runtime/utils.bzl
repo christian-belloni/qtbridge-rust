@@ -16,7 +16,6 @@ def rust_bridge(name):
     srcs = native.glob([cpp_file], allow_empty = True) + ["_%s-bridge/generated" % name, h_file],
     deps = ["shared-include"],
     includes = ["."],
-    # strip_include_prefix = "src",
   )
   
 

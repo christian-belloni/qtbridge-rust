@@ -8,13 +8,10 @@ bazel_dep(name = "rules_cc", version = "0.2.22")
 bazel_dep(name = "rules_foreign_cc", version = "0.15.1")
 bazel_dep(name = "bazel_lib", version = "3.5.0")
 bazel_dep(name = "bazel_skylib", version = "1.9.0")
-bazel_dep(name = "pcre2", version = "10.47")
 bazel_dep(name = "rules_apple", version = "4.5.3", repo_name = "rules_apple")
-bazel_dep(name = "zlib", version = "1.3.2")
-bazel_dep(name = "libpng", version = "1.6.54")
-bazel_dep(name = "harfbuzz", version = "11.0.1")
-bazel_dep(name = "glib", version = "2.82.2.bcr.8")
-bazel_dep(name = "freetype", version = "2.14.1")
+bazel_dep(name = "llvm", version = "0.8.11")
+
+
 
 toolchains = use_extension("@rules_rs//rs/toolchains:module_extension.bzl", "toolchains")
 toolchains.toolchain(
@@ -42,6 +39,7 @@ crate.from_cargo(
         "aarch64-unknown-linux-gnu",
         "x86_64-apple-darwin",
         "x86_64-pc-windows-gnullvm",
+        "x86_64-pc-windows-gnu",
         "x86_64-unknown-linux-gnu",
     ],
 )
@@ -67,8 +65,6 @@ http_archive(
   integrity = "sha256-f6MG6kErzFM+efMWccU82fKpntAYgLcahg/KR49PUN0="
 )
 
-# new_local_repository(
-#   name = "qtosx",
-#   path = "/Users/christianbelloni/vendored/qtosx",
-#   build_file = "//third_party:qt_osx.BUILD.bazel",
-# )
+msys2 = use_extension("//third_party:extension.bzl", "msys2qt")
+
+use_repo(msys2, "qtwin32-x86", "qtwin32-arm")

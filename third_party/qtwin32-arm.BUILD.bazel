@@ -4,20 +4,20 @@ load("@bazel_skylib//rules/directory:subdirectory.bzl", "subdirectory")
 
 version = "6.11.1"
 modules = [
-  ("QtCore", "libQt6Core.6.dylib"),
-  ("QtQml", "libQt6Qml.6.dylib"),
-  ("QtQmlIntegration", "libQt6QmlIntegration.6.dylib"),
-  ("QtGui", "libQt6Gui.6.dylib"),
-  ("QtTest", "libQt6Test.6.dylib"),
-  ("QtNetwork", "libQt6Network.6.dylib"),
+  ("QtCore", "libQt6Core.dll.a"),
+  ("QtQml", "libQt6Qml.dll.a"),
+  ("QtQmlIntegration", "libQt6QmlIntegration.dll.a"),
+  ("QtGui", "libQt6Gui.dll.a"),
+  ("QtTest", "libQt6Test.dll.a"),
+  ("QtNetwork", "libQt6Network.dll.a"),
 ]
 
 [
   cc_library(
     name = name,
     srcs = glob(["lib/%s" % library_name], allow_empty = True),
-    hdrs = glob(["include/%s/**" % name]),
-    includes = ["include", "include/%s" % name, "include/%s/6.11.1/" % name,"include/%s/6.11.1/%s" % (name, name)],
+    hdrs = glob(["include/qt6/%s/**" % name]),
+    includes = ["include/qt6", "include/qt6/%s" % name, "include/qt6/%s/6.11.1/" % name,"include/qt6/%s/6.11.1/%s" % (name, name)],
     visibility = ["//visibility:public"],
   )
   for name, library_name in modules
@@ -25,7 +25,7 @@ modules = [
 
 filegroup(
   name = "shared_libraries",
-  srcs = [],
+  srcs = glob(["bin/*.dll"]),
   visibility = ["//visibility:public"]
 )
 
@@ -35,7 +35,7 @@ cc_library(
   visibility = ["//visibility:public"],
   target_compatible_with = [
     "@platforms//cpu:aarch64",
-    "@platforms//os:osx",
+    "@platforms//os:windows",
   ],
 )
 
@@ -76,7 +76,7 @@ subdirectory(
 subdirectory(
   name = "plugins",
   parent = ":files",
-  path = "plugins",
+  path = "share/qt6/plugins",
   visibility = ["//visibility:public"],
 )
 

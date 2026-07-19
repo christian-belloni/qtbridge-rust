@@ -8,7 +8,7 @@ rust_library(
   name = "qtbridge-runtime",
   srcs = glob(["src/**/*.rs"]),
   deps = all_crate_deps(),
-  visibility = ["//crates:__subpackages__"],
+  visibility = ["//visibility:public"],
   link_deps = [":qtbridge-runtime-cc"],
 )
 
@@ -35,7 +35,7 @@ BRIDGE_FILES = [
 cc_library(
   name = "shared-include",
   hdrs = glob(["src/**/*.h"]),
-  deps = ["@qtosx//:qt", "@cxx.rs//:core", ":generated_includes", "//crates/qtbridge-type-lib:qtbridge-type-lib-cc"],
+  deps = ["//:qt", "@cxx.rs//:core", ":generated_includes", "//crates/qtbridge-type-lib:qtbridge-type-lib-cc"],
   includes = ["src"],
 )
 

@@ -1,5 +1,2 @@
 # common --@rules_cc//cc/toolchains/args/archiver_flags:use_libtool_on_macos=False
-
-build --copt="-DPCRE2_CODE_UNIT_WIDTH=16"
-build --copt="-DZ_PREFIX"
-
+build:windows_x86 --platforms=//platforms:windows_x86 --extra_toolchains=@llvm//toolchain:macos_aarch64_to_windows_x86_64
