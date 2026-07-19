@@ -17,7 +17,7 @@ config_setting(
 alias(
   name = "qt",
   actual = select({
-    "@platforms//os:osx": "@qtosx//:qt",
+    "@platforms//os:osx": "@qtosx-arm//:qt",
     ":windows_x86": "@qtwin32-x86//:qt",
     ":windows_arm": "@qtwin32-arm//:qt",
   }),
@@ -27,7 +27,7 @@ alias(
 alias(
   name = "qt_shared",
   actual = select({
-    "@platforms//os:osx": "@qtosx//:shared_libraries",
+    "@platforms//os:osx": "@qtosx-arm//:shared_libraries",
     ":windows_x86": "@qtwin32-x86//:shared_libraries",
     ":windows_arm": "@qtwin32-arm//:shared_libraries",
   }),
@@ -38,7 +38,7 @@ alias(
 alias(
   name = "plugins",
   actual = select({
-    "@platforms//os:osx": "@qtosx//:plugins",
+    "@platforms//os:osx": "@qtosx-arm//:plugins",
     ":windows_x86": "@qtwin32-x86//:plugins",
     ":windows_arm": "@qtwin32-arm//:plugins",
   }),
@@ -48,7 +48,7 @@ alias(
 alias(
   name = "qml",
   actual = select({
-    "@platforms//os:osx": "@qtosx//:qml",
+    "@platforms//os:osx": "@qtosx-arm//:qml",
     ":windows_x86": "@qtwin32-x86//:qml",
     ":windows_arm": "@qtwin32-arm//:qml",
   }),

@@ -9,13 +9,10 @@ rust_binary(
   srcs = glob(["src/**/*.rs"]),
   compile_data = glob(["qml/**/*.qml"]),
   visibility = ["//visibility:public"],
-  data = ["@qtbridge//:qt_shared"]
+  # data = ["@qtbridge//:qt_shared"]
 )
 
 package_win32_qt(
   name = "hello_world_test_tar",
   app = ":hello_world_test",
-  shared_libraries = "@qtbridge//:qt_shared",
-  plugins = "@qtbridge//:plugins",
-  qml = "@qtbridge//:qml",
 )

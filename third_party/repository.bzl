@@ -1,11 +1,13 @@
 def _download_package(rctx):
-  if rctx.attr.arch == "x86":
-    _download_x86(rctx)
-  elif rctx.attr.arch == "arm":
-    _download_arm(rctx)
+  if rctx.attr.os == "windows":
+    if rctx.attr.arch == "x86":
+      _download_x86(rctx)
+    elif rctx.attr.arch == "arm":
+      _download_arm(rctx)
+  elif rctx.attr.os == "osx":
+    _download_osx(rctx, rctx.attr.url)
 
-
-_msys_urls = [
+_win_urls = [
   "https://mirror.msys2.org/mingw/{prefix}/mingw-w64-{arch}-qt6-base-6.11.1-1-any.pkg.tar.zst",
   "https://mirror.msys2.org/mingw/{prefix}/mingw-w64-{arch}-qt6-declarative-6.11.1-1-any.pkg.tar.zst",
   "https://mirror.msys2.org/mingw/{prefix}/mingw-w64-{arch}-brotli-1.2.0-1-any.pkg.tar.zst",
@@ -38,42 +40,36 @@ _msys_urls = [
   "https://mirror.msys2.org/mingw/{prefix}/mingw-w64-{arch}-libiconv-1.19-1-any.pkg.tar.zst",
 ]
 
+def _download_osx(rctx, url):
+  rctx.download_and_extract(
+    url = url
+  )
+  rctx.template("BUILD.bazel", rctx.attr.tpl)
+
 def _download_arm(rctx):
-  for url in _msys_urls:
+  for url in _win_urls:
     rctx.download_and_extract(
       url = url.format(arch = "clang-aarch64", prefix = "clangarm64"),
       strip_prefix = "clangarm64"
     )
 
-  rctx.template("BUILD.bazel", rctx.attr._tpl_arm)
+  rctx.template("BUILD.bazel", rctx.attr.tpl)
 
 def _download_x86(rctx):
-  for url in _msys_urls:
+  for url in _win_urls:
     rctx.download_and_extract(
       url = url.format(arch = "clang-x86_64", prefix = "clang64"),
       strip_prefix = "clang64"
     )
-  # rctx.download_and_extract(
-  #   url = "https://download.qt.io/online/qtsdkrepository/windows_x86/desktop/qt6_6111/qt6_6111_llvm_mingw/qt.qt6.6111.win64_llvm_mingw/6.11.1-0-202605090529qtbase-Windows-Windows_11_24H2-Clang-Windows-Windows_11_24H2-X86_64.7z",
 
-  # )
-  # rctx.download_and_extract(
-  #   url = "https://download.qt.io/online/qtsdkrepository/windows_x86/desktop/qt6_6111/qt6_6111_llvm_mingw/qt.qt6.6111.win64_llvm_mingw/6.11.1-0-202605090529qtdeclarative-Windows-Windows_11_24H2-Clang-Windows-Windows_11_24H2-X86_64.7z",
-
-  # )
-
-  # rctx.download_and_extract(
-  #   url = "https://download.qt.io/online/qtsdkrepository/windows_x86/desktop/qt6_6111/qt6_6111_llvm_mingw/qt.qt6.6111.win64_llvm_mingw/6.11.1-0-202605090529llvm-mingw-20231128-ucrt-x86_64-runtime.7z",
-  #   output = "bin"
-  # )
-
-  rctx.template("BUILD.bazel", rctx.attr._tpl_x86)
+  rctx.template("BUILD.bazel", rctx.attr.tpl)
 
 download_package = repository_rule(
   implementation = _download_package,
   attrs = {
+    "os": attr.string(values = ["osx", "windows"]),
     "arch": attr.string(values = ["arm", "x86"]),
-    "_tpl_x86": attr.label(allow_single_file = True, default = Label("qtwin32-x86.BUILD.bazel")),
-    "_tpl_arm": attr.label(allow_single_file = True, default = Label("qtwin32-arm.BUILD.bazel")),
+    "tpl": attr.label(allow_single_file = True),
+    "url": attr.string()
   }
 )

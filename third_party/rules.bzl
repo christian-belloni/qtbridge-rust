@@ -51,14 +51,12 @@ def _package_win32_qt(ctx):
   return DefaultInfo(files = depset([tar]))
 
 
-
-
 package_win32_qt = rule(
   implementation = _package_win32_qt,
   attrs = {
     "app": attr.label(allow_single_file = True, mandatory = True),
-    "shared_libraries": attr.label(allow_files = True, mandatory = True),
-    "plugins": attr.label(allow_files = True),
-    "qml": attr.label(allow_files = True),
+    "shared_libraries": attr.label(allow_files = True, default = Label("//:qt_shared")),
+    "plugins": attr.label(allow_files = True, default = Label("//:plugins")),
+    "qml": attr.label(allow_files = True, default = Label("//:qml")),
   }
 )

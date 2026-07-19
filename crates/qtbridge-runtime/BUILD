@@ -7,9 +7,8 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 rust_library(
   name = "qtbridge-runtime",
   srcs = glob(["src/**/*.rs"]),
-  deps = all_crate_deps(),
+  deps = all_crate_deps() + [":qtbridge-runtime-cc"],
   visibility = ["//visibility:public"],
-  link_deps = [":qtbridge-runtime-cc"],
 )
 
 rust_static_library(
@@ -48,5 +47,5 @@ cc_library(
 cc_library(
   name = "qtbridge-runtime-cc",
   deps = [name for name in BRIDGE_FILES],
-  visibility = ["//crates:__subpackages__"],
+  visibility = ["//visibility:public"],
 )

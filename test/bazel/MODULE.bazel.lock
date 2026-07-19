@@ -271,22 +271,35 @@
         }
       }
     },
-    "@@qtbridge+//third_party:extension.bzl%msys2qt": {
+    "@@qtbridge+//third_party:extension.bzl%qt": {
       "general": {
-        "bzlTransitiveDigest": "om9VRqpog+CMWbtjO2i3SV7yTybRAmSg5fqOzkAlK5c=",
-        "usagesDigest": "2zb94ujc9S0IO0oYLKygtAvZUyqLh5vARfwheeyTg+8=",
+        "bzlTransitiveDigest": "rPJ4lErmyoVJv8TwNBppjphLSiQxU9RKbTLihqZUfuQ=",
+        "usagesDigest": "uEEJ4BedIdSuK0sUI2HXMBc1SZfqGZSPlSngE4Aid3I=",
         "recordedInputs": [],
         "generatedRepoSpecs": {
           "qtwin32-x86": {
             "repoRuleId": "@@qtbridge+//third_party:repository.bzl%download_package",
             "attributes": {
-              "arch": "x86"
+              "os": "windows",
+              "arch": "x86",
+              "tpl": "@@qtbridge+//third_party:qtwin32-x86.BUILD.bazel"
             }
           },
           "qtwin32-arm": {
             "repoRuleId": "@@qtbridge+//third_party:repository.bzl%download_package",
             "attributes": {
-              "arch": "arm"
+              "os": "windows",
+              "arch": "arm",
+              "tpl": "@@qtbridge+//third_party:qtwin32-arm.BUILD.bazel"
+            }
+          },
+          "qtosx-arm": {
+            "repoRuleId": "@@qtbridge+//third_party:repository.bzl%download_package",
+            "attributes": {
+              "os": "osx",
+              "arch": "arm",
+              "tpl": "@@qtbridge+//third_party:qtosx-arm.BUILD.bazel",
+              "url": "file:///Users/christianbelloni/vendored/qtosx.tar.gz"
             }
           }
         }

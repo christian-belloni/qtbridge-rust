@@ -41,7 +41,7 @@ cc_library(
   name = "qtbridge-type-lib-cc",
   srcs = GENERATED_FILES_CPP,
   deps = [ path_to_name(bridge_file) for bridge_file in GENERATED_FILES_BRIDGE ] + ["shared-include"],
-  visibility = ["//crates:__subpackages__"],
+  visibility = ["//visibility:public"],
 )
 
 cc_library(

@@ -58,13 +58,8 @@ crate.annotation(
 http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 new_local_repository = use_repo_rule("@bazel_tools//tools/build_defs/repo:local.bzl", "new_local_repository")
 
-http_archive(
-  name = "qtosx",
-  url = "file:///Users/christianbelloni/vendored/qtosx.tar.gz",
-  build_file = "//third_party:qtosx.BUILD.bazel",
-  integrity = "sha256-f6MG6kErzFM+efMWccU82fKpntAYgLcahg/KR49PUN0="
-)
+qt = use_extension("//third_party:extension.bzl", "qt")
 
-msys2 = use_extension("//third_party:extension.bzl", "msys2qt")
+qt.osx(url = "file:///Users/christianbelloni/vendored/qtosx.tar.gz")
 
-use_repo(msys2, "qtwin32-x86", "qtwin32-arm")
+use_repo(qt, "qtwin32-x86", "qtwin32-arm", "qtosx-arm")

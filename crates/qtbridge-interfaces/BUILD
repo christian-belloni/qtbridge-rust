@@ -6,9 +6,8 @@ load(":utils.bzl", "rust_bridge")
 rust_library(
   name = "qtbridge-interfaces",
   srcs = glob(["src/**/*.rs"]),
-  deps = all_crate_deps(),
+  deps = all_crate_deps() + ["qtbridge-interfaces-cc"],
   visibility = ["//visibility:public"],
-  link_deps = ["qtbridge-interfaces-cc"]
 )
 
 FILES_BRIDGE = [
@@ -58,4 +57,5 @@ cc_library(
   deps = FILES_BRIDGE + [
     "@cxx.rs//:core", 
   ],
+  visibility = ["//visibility:public"],
 )
