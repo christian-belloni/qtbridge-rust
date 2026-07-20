@@ -135,7 +135,7 @@ def qt_resource(*, name, srcs, qrc = None, qmldir = None, **kwargs):
     srcs = ["@qtbridge//third_party:lib.rs"],
     compile_data = [name],
     rustc_env = {
-      "PREFIX": "/qt/qml",
+      "PREFIX": "/qt/qml/%s" %name,
       "RCC_FILE": "$(location %s)" % name
     },
     deps = ["@qtbridge//crates/qtbridge"]
