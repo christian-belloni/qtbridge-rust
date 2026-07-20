@@ -67,11 +67,22 @@ QtResource = provider(doc = "", fields = ["name", "binary", "qrc", "qmldir"])
 
 def _qt_resource_impl(ctx):
   out_bin = ctx.actions.declare_file("%s.rcc" % ctx.attr.name)
+  srcs = [ f for f in ctx.files.srcs if (not f.path.endswith("qrc") and not f.path.endswith("qmldir")) ]
+  
+  if ctx.attr.qmldir != None:
+    qmldir = ctx.file.qmldir
+  else:
+    qmldir = [ f for f in ctx.files.srcs if f.path.endswith("qmldir") ][0]
+
+  if ctx.attr.qrc != None:
+    qrc = ctx.file.qrc
+  else:
+    qrc = [ f for f in ctx.files.srcs if f.path.endswith("qrc") ][0]
 
   ctx.actions.run(
     executable = ctx.executable._rcc,
-    arguments = [ctx.file.qrc.path, "--binary", "-o", out_bin.path],
-    inputs = ctx.files.srcs + [ ctx.file.qrc, ctx.file.qmldir ],
+    arguments = [qrc.path, "--binary", "-o", out_bin.path],
+    inputs = srcs + [ qrc, qmldir ],
     outputs = [out_bin]
   )
 
@@ -83,7 +94,7 @@ _qt_resource = rule(
   implementation = _qt_resource_impl,
   attrs = {
     "qrc": attr.label(allow_single_file = True),
-    "qmldir": attr.label(allow_single_file = True, mandatory = True),
+    "qmldir": attr.label(allow_single_file = True),
     "srcs": attr.label_list(allow_files = True),
     "_rcc": attr.label(allow_single_file = True, executable = True, cfg = "exec", default = Label("//:rcc")),
   }
@@ -109,7 +120,7 @@ _binary_resource = rule(
   }
 )
 
-def qt_resource(*, name, qrc, srcs, qmldir, **kwargs):
+def qt_resource(*, name, srcs, qrc = None, qmldir = None, **kwargs):
   _qt_resource(
     name = name,
     qrc = qrc,
