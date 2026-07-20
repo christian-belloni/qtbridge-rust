@@ -1,1 +1,1 @@
-exports_files(["copy.sh"])
+exports_files(["copy.sh", "lib.rs"])

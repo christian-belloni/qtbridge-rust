@@ -122,13 +122,24 @@ _binary_resource = rule(
 
 def qt_resource(*, name, srcs, qrc = None, qmldir = None, **kwargs):
   _qt_resource(
-    name = name,
+    name = "%s" % name,
     qrc = qrc,
     srcs = srcs,
     qmldir = qmldir,
     **kwargs,
   )
 
+  rust_library(
+    name = "%s_rs" % name,
+    crate_name = name,
+    srcs = ["@qtbridge//third_party:lib.rs"],
+    compile_data = [name],
+    rustc_env = {
+      "PREFIX": "/qt/qml",
+      "RCC_FILE": "$(location %s)" % name
+    },
+    deps = ["@qtbridge//crates/qtbridge"]
+  )
 
 def _qt_resource_package_impl(ctx):
   pass
