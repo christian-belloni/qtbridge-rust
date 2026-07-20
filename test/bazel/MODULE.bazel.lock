@@ -160,8 +160,6 @@
     "https://bcr.bazel.build/modules/rules_cc/0.2.22/source.json": "b2d6d6f9c332ce269ad75b89c6f3168d809a66173c9040210fb9bcc733ab42fa",
     "https://bcr.bazel.build/modules/rules_cc/0.2.4/MODULE.bazel": "1ff1223dfd24f3ecf8f028446d4a27608aa43c3f41e346d22838a4223980b8cc",
     "https://bcr.bazel.build/modules/rules_cc/0.2.8/MODULE.bazel": "f1df20f0bf22c28192a794f29b501ee2018fa37a3862a1a2132ae2940a23a642",
-    "https://bcr.bazel.build/modules/rules_foreign_cc/0.15.1/MODULE.bazel": "c2c60d26c79fda484acb95cdbec46e89d6b28b4845cb277160ce1e0c8622bb88",
-    "https://bcr.bazel.build/modules/rules_foreign_cc/0.15.1/source.json": "a161811a63ba8a859086da3b7ff3ad04f2e9c255d7727b41087103fc0eb22f55",
     "https://bcr.bazel.build/modules/rules_foreign_cc/0.9.0/MODULE.bazel": "c9e8c682bf75b0e7c704166d79b599f93b72cfca5ad7477df596947891feeef6",
     "https://bcr.bazel.build/modules/rules_fuzzing/0.5.2/MODULE.bazel": "40c97d1144356f52905566c55811f13b299453a14ac7769dfba2ac38192337a8",
     "https://bcr.bazel.build/modules/rules_java/4.0.0/MODULE.bazel": "5a78a7ae82cd1a33cef56dc578c7d2a46ed0dca12643ee45edbb8417899e6f74",
@@ -205,7 +203,6 @@
     "https://bcr.bazel.build/modules/rules_python/0.31.0/MODULE.bazel": "93a43dc47ee570e6ec9f5779b2e64c1476a6ce921c48cc9a1678a91dd5f8fd58",
     "https://bcr.bazel.build/modules/rules_python/0.33.2/MODULE.bazel": "3e036c4ad8d804a4dad897d333d8dce200d943df4827cb849840055be8d2e937",
     "https://bcr.bazel.build/modules/rules_python/0.4.0/MODULE.bazel": "9208ee05fd48bf09ac60ed269791cf17fb343db56c8226a720fbb1cdf467166c",
-    "https://bcr.bazel.build/modules/rules_python/1.2.0/MODULE.bazel": "5aeeb48b2a6c19d668b48adf2b8a2b209a6310c230db0ce77450f148a89846e4",
     "https://bcr.bazel.build/modules/rules_python/1.3.0/MODULE.bazel": "8361d57eafb67c09b75bf4bbe6be360e1b8f4f18118ab48037f2bd50aa2ccb13",
     "https://bcr.bazel.build/modules/rules_python/1.4.1/MODULE.bazel": "8991ad45bdc25018301d6b7e1d3626afc3c8af8aaf4bc04f23d0b99c938b73a6",
     "https://bcr.bazel.build/modules/rules_python/1.6.0/MODULE.bazel": "7e04ad8f8d5bea40451cf80b1bd8262552aa73f841415d20db96b7241bd027d8",
@@ -220,7 +217,8 @@
     "https://bcr.bazel.build/modules/rules_shell/0.3.0/MODULE.bazel": "de4402cd12f4cc8fda2354fce179fdb068c0b9ca1ec2d2b17b3e21b24c1a937b",
     "https://bcr.bazel.build/modules/rules_shell/0.4.1/MODULE.bazel": "00e501db01bbf4e3e1dd1595959092c2fadf2087b2852d3f553b5370f5633592",
     "https://bcr.bazel.build/modules/rules_shell/0.6.1/MODULE.bazel": "72e76b0eea4e81611ef5452aa82b3da34caca0c8b7b5c0c9584338aa93bae26b",
-    "https://bcr.bazel.build/modules/rules_shell/0.6.1/source.json": "20ec05cd5e592055e214b2da8ccb283c7f2a421ea0dc2acbf1aa792e11c03d0c",
+    "https://bcr.bazel.build/modules/rules_shell/0.8.0/MODULE.bazel": "f6a89f1d6a669a26f28fe814503857055d76306b79cfc11d12399af08d0b80ae",
+    "https://bcr.bazel.build/modules/rules_shell/0.8.0/source.json": "eb53cc815bc503c6683c5fe12d943f98883f81fc22f51403ec8a95610cba4195",
     "https://bcr.bazel.build/modules/rules_swift/1.16.0/MODULE.bazel": "4a09f199545a60d09895e8281362b1ff3bb08bbde69c6fc87aff5b92fcc916ca",
     "https://bcr.bazel.build/modules/rules_swift/2.1.1/MODULE.bazel": "494900a80f944fc7aa61500c2073d9729dff0b764f0e89b824eb746959bc1046",
     "https://bcr.bazel.build/modules/rules_swift/2.4.0/MODULE.bazel": "1639617eb1ede28d774d967a738b4a68b0accb40650beadb57c21846beab5efd",
@@ -274,7 +272,7 @@
     "@@qtbridge+//third_party:extension.bzl%qt": {
       "general": {
         "bzlTransitiveDigest": "rPJ4lErmyoVJv8TwNBppjphLSiQxU9RKbTLihqZUfuQ=",
-        "usagesDigest": "uEEJ4BedIdSuK0sUI2HXMBc1SZfqGZSPlSngE4Aid3I=",
+        "usagesDigest": "XC4pXAvft83sKCXGaojgwDjQAZ5KeF+IfIfvzudFDBE=",
         "recordedInputs": [],
         "generatedRepoSpecs": {
           "qtwin32-x86": {
@@ -291,15 +289,6 @@
               "os": "windows",
               "arch": "arm",
               "tpl": "@@qtbridge+//third_party:qtwin32-arm.BUILD.bazel"
-            }
-          },
-          "qtosx-arm": {
-            "repoRuleId": "@@qtbridge+//third_party:repository.bzl%download_package",
-            "attributes": {
-              "os": "osx",
-              "arch": "arm",
-              "tpl": "@@qtbridge+//third_party:qtosx-arm.BUILD.bazel",
-              "url": "file:///Users/christianbelloni/vendored/qtosx.tar.gz"
             }
           }
         }
@@ -592,6 +581,7 @@
       "brotli-decompressor_4.0.3": "{\"dependencies\":[{\"name\":\"alloc-no-stdlib\",\"req\":\"~2.0\"},{\"name\":\"alloc-stdlib\",\"optional\":true,\"req\":\"~0.2\"}],\"features\":{\"benchmark\":[],\"default\":[\"std\"],\"disable-timer\":[],\"ffi-api\":[],\"pass-through-ffi-panics\":[],\"seccomp\":[],\"std\":[\"alloc-stdlib\"],\"unsafe\":[\"alloc-no-stdlib/unsafe\",\"alloc-stdlib/unsafe\"]}}",
       "bstr_1.13.0": "{\"dependencies\":[{\"default_features\":false,\"name\":\"memchr\",\"req\":\"^2.7.1\"},{\"default_features\":false,\"kind\":\"dev\",\"name\":\"quickcheck\",\"req\":\"^1\"},{\"default_features\":false,\"features\":[\"dfa-search\"],\"name\":\"regex-automata\",\"optional\":true,\"req\":\"^0.4.1\"},{\"default_features\":false,\"name\":\"serde_core\",\"optional\":true,\"req\":\"^1.0.85\"},{\"kind\":\"dev\",\"name\":\"ucd-parse\",\"req\":\"^0.1.3\"},{\"kind\":\"dev\",\"name\":\"unicode-segmentation\",\"req\":\"^1.2.1\"}],\"features\":{\"alloc\":[\"memchr/alloc\",\"serde_core?/alloc\"],\"default\":[\"std\",\"unicode\"],\"serde\":[\"dep:serde_core\"],\"std\":[\"alloc\",\"memchr/std\",\"serde_core?/std\"],\"unicode\":[\"dep:regex-automata\"]}}",
       "buf_redux_0.8.4": "{\"dependencies\":[{\"name\":\"memchr\",\"req\":\"^2.0\"},{\"name\":\"safemem\",\"req\":\"^0.3\"},{\"name\":\"slice-deque\",\"optional\":true,\"req\":\"^0.2\",\"target\":\"cfg(any(unix, windows))\"}],\"features\":{\"default\":[\"slice-deque\"],\"nightly\":[\"slice-deque/unstable\"]}}",
+      "build-print_1.0.1": "{\"dependencies\":[],\"features\":{}}",
       "bumpalo_3.20.2": "{\"dependencies\":[{\"default_features\":false,\"name\":\"allocator-api2\",\"optional\":true,\"req\":\"^0.2.8\"},{\"kind\":\"dev\",\"name\":\"blink-alloc\",\"req\":\"=0.4.0\"},{\"kind\":\"dev\",\"name\":\"criterion\",\"req\":\"^0.3.6\"},{\"kind\":\"dev\",\"name\":\"quickcheck\",\"req\":\"=1.0.3\"},{\"kind\":\"dev\",\"name\":\"rand\",\"req\":\"^0.8.5\"},{\"kind\":\"dev\",\"name\":\"rayon\",\"req\":\"=1.10.0\"},{\"kind\":\"dev\",\"name\":\"rayon-core\",\"req\":\"=1.12.1\"},{\"name\":\"serde\",\"optional\":true,\"req\":\"^1.0.171\"},{\"features\":[\"derive\"],\"kind\":\"dev\",\"name\":\"serde\",\"req\":\"^1.0.197\"},{\"kind\":\"dev\",\"name\":\"serde_json\",\"req\":\"^1.0.115\"}],\"features\":{\"allocator_api\":[],\"bench_allocator_api\":[\"allocator_api\",\"blink-alloc/nightly\"],\"boxed\":[],\"collections\":[],\"default\":[],\"serde\":[\"dep:serde\"],\"std\":[]}}",
       "bumpalo_3.20.3": "{\"dependencies\":[{\"default_features\":false,\"name\":\"allocator-api2\",\"optional\":true,\"req\":\"^0.2.8\"},{\"kind\":\"dev\",\"name\":\"blink-alloc\",\"req\":\"=0.4.0\"},{\"kind\":\"dev\",\"name\":\"criterion\",\"req\":\"^0.3.6\"},{\"kind\":\"dev\",\"name\":\"quickcheck\",\"req\":\"=1.0.3\"},{\"kind\":\"dev\",\"name\":\"rand\",\"req\":\"^0.8.5\"},{\"kind\":\"dev\",\"name\":\"rayon\",\"req\":\"=1.10.0\"},{\"kind\":\"dev\",\"name\":\"rayon-core\",\"req\":\"=1.12.1\"},{\"name\":\"serde\",\"optional\":true,\"req\":\"^1.0.171\"},{\"features\":[\"derive\"],\"kind\":\"dev\",\"name\":\"serde\",\"req\":\"^1.0.197\"},{\"kind\":\"dev\",\"name\":\"serde_json\",\"req\":\"^1.0.115\"}],\"features\":{\"allocator_api\":[],\"bench_allocator_api\":[\"allocator_api\",\"blink-alloc/nightly\"],\"boxed\":[],\"collections\":[],\"default\":[],\"serde\":[\"dep:serde\"],\"std\":[]}}",
       "bytes_1.11.1": "{\"dependencies\":[{\"default_features\":false,\"features\":[\"require-cas\"],\"name\":\"extra-platforms\",\"optional\":true,\"package\":\"portable-atomic\",\"req\":\"^1.3\"},{\"kind\":\"dev\",\"name\":\"loom\",\"req\":\"^0.7\",\"target\":\"cfg(loom)\"},{\"default_features\":false,\"features\":[\"alloc\"],\"name\":\"serde\",\"optional\":true,\"req\":\"^1.0.60\"},{\"kind\":\"dev\",\"name\":\"serde_test\",\"req\":\"^1.0\"}],\"features\":{\"default\":[\"std\"],\"std\":[]}}",

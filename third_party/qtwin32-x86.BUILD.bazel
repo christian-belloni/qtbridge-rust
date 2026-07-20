@@ -1,6 +1,7 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("@bazel_skylib//rules/directory:directory.bzl", "directory")
 load("@bazel_skylib//rules/directory:subdirectory.bzl", "subdirectory")
+load("@bazel_skylib//rules:native_binary.bzl", "native_binary")
 
 version = "6.11.1"
 modules = [
@@ -22,6 +23,12 @@ modules = [
   )
   for name, library_name in modules
 ]
+
+native_binary(
+  name = "rcc",
+  src = "libexec/rcc.exec",
+  visibility = ["//visibility:public"],
+)
 
 filegroup(
   name = "shared_libraries",

@@ -5,11 +5,11 @@ bazel_dep(name = "rules_rs", version = "0.0.96")
 bazel_dep(name = "platforms", version = "1.1.0")
 bazel_dep(name = "cxx.rs", version = "1.0.197")
 bazel_dep(name = "rules_cc", version = "0.2.22")
-bazel_dep(name = "rules_foreign_cc", version = "0.15.1")
 bazel_dep(name = "bazel_lib", version = "3.5.0")
 bazel_dep(name = "bazel_skylib", version = "1.9.0")
 bazel_dep(name = "rules_apple", version = "4.5.3", repo_name = "rules_apple")
 bazel_dep(name = "llvm", version = "0.8.11")
+bazel_dep(name = "rules_shell", version = "0.8.0")
 
 
 
@@ -59,7 +59,12 @@ http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "ht
 new_local_repository = use_repo_rule("@bazel_tools//tools/build_defs/repo:local.bzl", "new_local_repository")
 
 qt = use_extension("//third_party:extension.bzl", "qt")
+new_local_repository(
+  name = "qtosx-arm",
+  path = "/opt/homebrew/Cellar/qt/6.11.1",
+  build_file = "//third_party:qtosx-arm.BUILD.bazel",
+)
 
-qt.osx(url = "file:///Users/christianbelloni/vendored/qtosx.tar.gz")
+# qt.osx(url = "file:///Users/christianbelloni/vendored/qtosx.tar.gz")
 
-use_repo(qt, "qtwin32-x86", "qtwin32-arm", "qtosx-arm")
+use_repo(qt, "qtwin32-x86", "qtwin32-arm")# , "qtosx-arm")

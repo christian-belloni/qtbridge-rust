@@ -1,0 +1,6 @@
+<RCC>
+  <qresource>
+    <file>Colors.qml</file>
+    <file>qmldir</file>
+  </qresource>
+</RCC>

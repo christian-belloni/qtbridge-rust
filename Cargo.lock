@@ -85,6 +85,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "build-print"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d8e6738dfb11354886f890621b4a34c0b177f75538023f7100b608ab9adbd66b"
+
+[[package]]
 name = "bumpalo"
 version = "3.20.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -517,6 +523,14 @@ checksum = "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a"
 name = "hello_world"
 version = "0.1.0"
 dependencies = [
+ "qtbridge",
+]
+
+[[package]]
+name = "hello_world_test"
+version = "0.2.0"
+dependencies = [
+ "build-print",
  "qtbridge",
 ]
 

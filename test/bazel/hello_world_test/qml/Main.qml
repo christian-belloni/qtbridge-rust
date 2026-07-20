@@ -1,15 +1,21 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Controls.Fusion
 import hello_world_test
+// import 'qrc:/qt/qml/CustomColor'
+import CustomColor
 
 ApplicationWindow {
-
     visible: true
     title: qsTr("Minimal QML app")
+    color: Colors.brandColor
 
     Button {
-        anchors.centerIn: parent
-        text: Backend.counter
+      anchors.centerIn: parent
+      text: Backend.counter
+      onClicked: {
+        Backend.reset()
+      }
     }
 
     Component.onCompleted: {

@@ -54,3 +54,15 @@ alias(
   }),
   visibility = ["//visibility:public"]
 )
+
+alias(
+  name = "rcc",
+  actual = select({
+    "@platforms//os:osx": "@qtosx-arm//:rcc",
+    ":windows_x86": "@qtwin32-x86//:rcc",
+    ":windows_arm": "@qtwin32-arm//:rcc",
+  }),
+  visibility = ["//visibility:public"]
+)
+
+

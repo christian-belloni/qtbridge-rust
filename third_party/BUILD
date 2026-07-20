@@ -1,1 +1,1 @@
-
+exports_files(["copy.sh"])

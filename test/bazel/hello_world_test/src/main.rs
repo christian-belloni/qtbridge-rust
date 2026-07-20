@@ -4,14 +4,32 @@ use qtbridge::{QApp, qobject, QObjectHolder, invoke_method};
 
 #[derive(Default)]
 pub struct Backend {
-    counter: u64,
-    text: String
+    counter: u64
+}
+
+#[derive(Default)]
+pub struct StyleOverrides {
+    
 }
 
 #[qobject(Singleton)]
 impl Backend {
     qproperty!("counter", Member = counter, Notify = counter_changed);
-    qproperty!("text", Member = text);
+
+    #[qslot]
+    fn increment(&mut self) {
+        self.counter += 1;
+        self.counter_changed();
+    }
+
+    #[qslot]
+    fn reset(&mut self) {
+        self.counter = 0;
+        self.counter_changed();
+    }
+    
+    #[qsignal]
+    fn counter_changed(&mut self);
 
     #[qslot]
     fn startup(&self) {
@@ -20,26 +38,20 @@ impl Backend {
             loop {
                 std::thread::sleep(std::time::Duration::from_secs(1));
                 invoke_method!(invoker, "increment");
-                println!("increment");
             }
         });
     }
-
-    #[qslot]
-    fn increment(&mut self) {
-        self.counter += 1;
-        self.counter_changed();
-    }
-
-    #[qsignal]
-    fn counter_changed(&mut self);
 }
 
 fn main() {
     println!("starting qml app");
+    qtbridge::qresource::register_bytes_with_prefix(include_bytes!("../CustomColor/CustomColor_res.rcc"), "/qt/qml/CustomColor");
+    qtbridge::qresource::register_bytes_with_prefix(include_bytes!("../qml/qml_res.rcc"), "/qt/qml/Main");
     QApp::new()
         .register::<Backend>()
-        .load_qml(include_bytes!("../qml/Main.qml"))
+        .add_import_path("qrc:/qt/qml")
+        .add_import_path("qrc:/qt/qml/CustomColor")
+        .load_qml_from_file("qrc:/qt/qml/Main/Main.qml")
         .run();
 }
 

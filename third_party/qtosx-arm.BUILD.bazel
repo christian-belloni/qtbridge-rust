@@ -1,27 +1,77 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("@bazel_skylib//rules/directory:directory.bzl", "directory")
 load("@bazel_skylib//rules/directory:subdirectory.bzl", "subdirectory")
+load("@bazel_skylib//rules:native_binary.bzl", "native_binary")
 
 version = "6.11.1"
 modules = [
   ("QtCore", "libQt6Core.6.dylib"),
   ("QtQml", "libQt6Qml.6.dylib"),
-  ("QtQmlIntegration", "libQt6QmlIntegration.6.dylib"),
   ("QtGui", "libQt6Gui.6.dylib"),
   ("QtTest", "libQt6Test.6.dylib"),
   ("QtNetwork", "libQt6Network.6.dylib"),
 ]
 
+
+# [
+#   cc_library(
+#     name = name,
+#     srcs = glob(["lib/%s" % library_name], allow_empty = True),
+#     hdrs = glob(["include/%s/**" % name], allow_empty = True),
+#     includes = ["include", "include/%s" % name, "include/%s/6.11.1/" % name,"include/%s/6.11.1/%s" % (name, name)],
+#     visibility = ["//visibility:public"],
+#   )
+#   for name, library_name in modules
+# ]
+
 [
   cc_library(
     name = name,
-    srcs = glob(["lib/%s" % library_name], allow_empty = True),
-    hdrs = glob(["include/%s/**" % name]),
-    includes = ["include", "include/%s" % name, "include/%s/6.11.1/" % name,"include/%s/6.11.1/%s" % (name, name)],
-    visibility = ["//visibility:public"],
+    hdrs = glob(["lib/%s.framework/Headers/**/*" % name]),
+      # glob(["lib/%s.framework/Headers/**/6.11.1/%s/**/*.h" % (name, name)]),
+    additional_linker_inputs = [":Frameworks"],
+    linkopts = [
+      "-framework %s" % name,
+      "-F $(location :Frameworks)",
+      "-rpath $(location :Frameworks)",
+    ],
+    include_prefix = name,
+    strip_include_prefix = "lib/%s.framework/Headers" % name,
+    includes = [
+      #"lib/%s.framework/" % name, 
+      "lib/%s.framework/Headers" % name, 
+      "lib/%s.framework/Headers/6.11.1" % name, 
+      "lib/%s.framework/Headers/6.11.1/%s" % (name, name), 
+      "lib/%s.framework/Headers/6.11.1/%s/private" % (name, name), 
+    ],
   )
-  for name, library_name in modules
+  for name, _ in modules
 ]
+
+cc_library(
+  name = "QtQmlIntegration",
+  hdrs = glob(["include/QtQmlIntegration/**/*.h"]),
+  additional_linker_inputs = [":lib"],
+  linkopts = [
+    
+  ],
+  strip_include_prefix = "include",
+  includes = ["include"],
+)
+
+exports_files(["lib", "Frameworks"])
+
+# subdirectory(
+#   name = "Frameworks",
+#   parent = ":files",
+#   path = "Frameworks"
+# )
+
+native_binary(
+  name = "rcc",
+  src = "share/qt/libexec/rcc",
+  visibility = ["//visibility:public"],
+)
 
 filegroup(
   name = "shared_libraries",
@@ -31,7 +81,7 @@ filegroup(
 
 cc_library(
   name = "qt",
-  deps = [ name for name, _ in modules ],
+  deps = [ name for name, _ in modules ] + ["QtQmlIntegration"],
   visibility = ["//visibility:public"],
   target_compatible_with = [
     "@platforms//cpu:aarch64",
@@ -59,12 +109,12 @@ subdirectory(
   visibility = ["//visibility:public"],
 )
 
-subdirectory(
-  name = "lib",
-  parent = ":files",
-  path = "lib",
-  visibility = ["//visibility:public"],
-)
+# subdirectory(
+#   name = "lib",
+#   parent = ":files",
+#   path = "lib",
+#   visibility = ["//visibility:public"],
+# )
 
 subdirectory(
   name = "libexec",

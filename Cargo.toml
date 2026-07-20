@@ -63,6 +63,7 @@ members = [
     "test/quick/tst_qresource",
     "test/quick/tst_qlistmodel",
     "test/quick/tst_qtablemodel",
+    "test/bazel/hello_world_test",
 ]
 
 # only core code and lightweight tests
