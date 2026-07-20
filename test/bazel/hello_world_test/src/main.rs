@@ -1,16 +1,14 @@
 #![windows_subsystem = "windows"]
 
-use qtbridge::{QApp, qobject, QObjectHolder, invoke_method};
+use qtbridge::{QApp, QObjectHolder, invoke_method, qobject};
 
 #[derive(Default)]
 pub struct Backend {
-    counter: u64
+    counter: u64,
 }
 
 #[derive(Default)]
-pub struct StyleOverrides {
-    
-}
+pub struct StyleOverrides {}
 
 #[qobject(Singleton)]
 impl Backend {
@@ -27,7 +25,7 @@ impl Backend {
         self.counter = 0;
         self.counter_changed();
     }
-    
+
     #[qsignal]
     fn counter_changed(&mut self);
 
@@ -45,8 +43,14 @@ impl Backend {
 
 fn main() {
     println!("starting qml app");
-    qtbridge::qresource::register_bytes_with_prefix(include_bytes!("../CustomColor/CustomColor_res.rcc"), "/qt/qml/CustomColor");
-    qtbridge::qresource::register_bytes_with_prefix(include_bytes!("../qml/qml_res.rcc"), "/qt/qml/Main");
+    qtbridge::qresource::register_bytes_with_prefix(
+        include_bytes!("../CustomColor/CustomColor.rcc"),
+        "/qt/qml/CustomColor",
+    );
+    qtbridge::qresource::register_bytes_with_prefix(
+        include_bytes!("../qml/qml.rcc"),
+        "/qt/qml/Main",
+    );
     QApp::new()
         .register::<Backend>()
         .add_import_path("qrc:/qt/qml")
@@ -54,4 +58,3 @@ fn main() {
         .load_qml_from_file("qrc:/qt/qml/Main/Main.qml")
         .run();
 }
-

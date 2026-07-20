@@ -7,7 +7,7 @@ rust_binary(
     "@qtbridge//crates/qtbridge",
   ],
   srcs = glob(["src/**/*.rs"]),
-  compile_data = ["//hello_world_test/CustomColor:CustomColor_bin", "//hello_world_test/qml:qml_bin" ],
+  compile_data = ["//hello_world_test/CustomColor:CustomColor", "//hello_world_test/qml:qml" ],
   visibility = ["//visibility:public"],
 )
 

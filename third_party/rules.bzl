@@ -63,7 +63,7 @@ package_win32_qt = rule(
   }
 )
 
-QtResource = provider(doc = "", fields = ["name", "cpp", "binary", "qrc", "qmldir"])
+QtResource = provider(doc = "", fields = ["name", "binary", "qrc", "qmldir"])
 
 def _qt_resource_impl(ctx):
   out_bin = ctx.actions.declare_file("%s.rcc" % ctx.attr.name)
@@ -75,16 +75,7 @@ def _qt_resource_impl(ctx):
     outputs = [out_bin]
   )
 
-  out_cpp = ctx.actions.declare_file("%s.cpp" % ctx.attr.name)
-
-  ctx.actions.run(
-    executable = ctx.executable._rcc,
-    arguments = [ctx.file.qrc.path, "-o", out_cpp.path],
-    inputs = ctx.files.srcs + [ ctx.file.qrc, ctx.file.qmldir ],
-    outputs = [out_cpp]
-  )
-
-  return QtResource(name = ctx.attr.name, cpp = out_cpp, binary = out_bin, qmldir = ctx.file.qmldir)
+  return [DefaultInfo(files = depset([out_bin])), QtResource(name = ctx.attr.name, binary = out_bin, qmldir = ctx.file.qmldir)]
 
   
 
@@ -125,24 +116,6 @@ def qt_resource(*, name, qrc, srcs, qmldir, **kwargs):
     srcs = srcs,
     qmldir = qmldir,
     **kwargs,
-  )
-
-  _cpp_resource(
-    name = "%s_cpp" % name,
-    res = name,
-  )
-
-  _binary_resource(
-    name = "%s_bin" % name,
-    res = name,
-    **kwargs
-  )
-
-  cc_library(
-    name = "%s_cc" % name,
-    srcs = [":%s_cpp" % name],
-    linkstatic = True,
-    **kwargs
   )
 
 
