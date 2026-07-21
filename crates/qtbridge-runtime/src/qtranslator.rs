@@ -18,4 +18,8 @@ impl QTranslator {
     pub(crate) fn install(&mut self, application: &QGuiApplication) {
         self.translator.pin_mut().install(application);
     }
+
+    pub fn translate(&self, context: &str, source: &str) -> String {
+        self.translator.translate(context, source)
+    }
 }
