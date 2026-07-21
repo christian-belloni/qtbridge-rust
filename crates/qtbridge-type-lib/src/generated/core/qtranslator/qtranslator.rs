@@ -19,6 +19,8 @@ mod ffi {
         fn inlineCppFn_new() -> UniquePtr<QTranslator>;
         # [rust_name = inline_cpp_fn_load]
         fn inlineCppFn_load(_obj: Pin<&mut QTranslator>, path: &str) -> bool;
+        # [rust_name = inline_cpp_fn_translate]
+        fn inlineCppFn_translate(_obj: &QTranslator, context: &str, source: &str) -> String;
         # [rust_name = inline_cpp_fn_install]
         fn inlineCppFn_install(_obj: Pin<&mut QTranslator>, application: &QGuiApplication);
     }
@@ -36,6 +38,11 @@ impl QTranslator {
     pub fn load(self: Pin<&mut Self>, path: &str) -> bool {
         let cpp = ffi::inline_cpp_fn_load;
         cpp(self, path)
+    }
+    #[allow(dead_code)]
+    pub fn translate(&self, context: &str, source: &str) -> String {
+        let cpp = ffi::inline_cpp_fn_translate;
+        unsafe { cpp(self, context, source) }
     }
     #[allow(dead_code)]
     pub fn install(mut self: Pin<&mut Self>, application: &QGuiApplication) {

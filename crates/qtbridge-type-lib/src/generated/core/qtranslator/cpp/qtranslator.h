@@ -18,6 +18,8 @@ std::unique_ptr<QTranslator> inlineCppFn_new();
 
 bool inlineCppFn_load(QTranslator &self, rust::Str path);
 
+rust::String inlineCppFn_translate(QTranslator const &self, rust::Str context, rust::Str source);
+
 void inlineCppFn_install(QTranslator &self, QGuiApplication const &application);
 
 } // namespace rust::bridge::qtranslator

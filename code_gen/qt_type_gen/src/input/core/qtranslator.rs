@@ -23,6 +23,14 @@ mod qtranslator {
         cpp(self, path)
     }
 
+    pub fn translate(&self, context: &str, source: &str) -> String {
+        let cpp = cpp_fn!(|&self, context: &str, source: &str| -> String {
+            return QStringToRustString(self.translate(RustStrToQString(context).toLocal8Bit(), RustStrToQString(source).toLocal8Bit()));
+        });
+
+        cpp(self, context, source)
+    }
+
     pub fn install(mut self: Pin<&mut Self>, application: &QGuiApplication) {
         let cpp = cpp_fn!(|&mut self, application: &QGuiApplication| {
             QGuiApplication::installTranslator(&self);

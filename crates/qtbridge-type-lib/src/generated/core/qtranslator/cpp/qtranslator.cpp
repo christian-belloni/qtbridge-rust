@@ -17,6 +17,12 @@ bool inlineCppFn_load(QTranslator &self, rust::Str path)
     return self.load(RustStrToQString(path));
 }
 
+rust::String inlineCppFn_translate(QTranslator const &self, rust::Str context, rust::Str source)
+{
+    return QStringToRustString(self.translate(RustStrToQString(context).toLocal8Bit(),
+                                              RustStrToQString(source).toLocal8Bit()));
+}
+
 void inlineCppFn_install(QTranslator &self, QGuiApplication const &application)
 {
     QGuiApplication::installTranslator(&self);
