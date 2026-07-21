@@ -18,5 +18,6 @@ pub mod qobject;
 pub mod qqmllistproperty;
 pub mod qsignalblocker;
 pub mod qstring;
+pub mod qtranslator;
 pub mod qutf8stringview;
 pub mod qvariant;

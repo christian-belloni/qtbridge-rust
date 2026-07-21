@@ -4,32 +4,32 @@
 #![doc = include_str!("../README.md")]
 
 #[doc(hidden)]
-pub use qtbridge_runtime;
-pub use qtbridge_runtime::QModelItem;
-pub use qtbridge_runtime::invoke_method;
-pub use qtbridge_runtime::QMetaCallArg;
-pub use qtbridge_runtime::QPropertyMember;
+pub use qtbridge_build_utils;
 #[doc(hidden)]
 pub use qtbridge_gen;
 #[doc(hidden)]
 pub use qtbridge_interfaces;
 #[doc(hidden)]
-pub use qtbridge_type_lib;
+pub use qtbridge_runtime;
+pub use qtbridge_runtime::QMetaCallArg;
+pub use qtbridge_runtime::QModelItem;
+pub use qtbridge_runtime::QPropertyMember;
+pub use qtbridge_runtime::invoke_method;
 #[doc(hidden)]
-pub use qtbridge_build_utils;
+pub use qtbridge_type_lib;
 
 pub mod special_traits {
-      //! Traits that enable Rust types to fulfill specific QML roles.
-      //!
-      //! Implement one of these on your struct and pass it as `Base = ...`
-      //! to [`qobject`](crate::qobject).
-      //!
-      //! Note that only one of these traits can be implemented for the same
-      //! type.
-      //!
-      //! - [`QListModel`](crate::QListModel) exposes a list to QML ListView / Repeater
-      //! - [`QTableModel`](crate::QTableModel) exposes a table to QML TableView
-      //! - [`QParserStatus`](crate::QParserStatus) receives notifications during component construction
+    //! Traits that enable Rust types to fulfill specific QML roles.
+    //!
+    //! Implement one of these on your struct and pass it as `Base = ...`
+    //! to [`qobject`](crate::qobject).
+    //!
+    //! Note that only one of these traits can be implemented for the same
+    //! type.
+    //!
+    //! - [`QListModel`](crate::QListModel) exposes a list to QML ListView / Repeater
+    //! - [`QTableModel`](crate::QTableModel) exposes a table to QML TableView
+    //! - [`QParserStatus`](crate::QParserStatus) receives notifications during component construction
 }
 
 /// Annotate an `impl` or `mod` block to make its struct accessible from QML.
@@ -206,7 +206,6 @@ pub mod special_traits {
 ///
 #[doc(inline)]
 pub use qtbridge_gen::qobject;
-
 
 /// Annotates a function as a signal that can be handled in QML.
 ///
@@ -418,7 +417,7 @@ pub use qtbridge_gen::qslot;
 #[doc(inline)]
 pub use qtbridge_gen::qproperty;
 
-pub use qtbridge_runtime::{QApp, qresource, QmlMethodInvoker};
+pub use qtbridge_runtime::{QApp, QTranslator, QmlMethodInvoker, qresource};
 
 /// Provides access to the underlying QObject for types exposed to QML.
 ///

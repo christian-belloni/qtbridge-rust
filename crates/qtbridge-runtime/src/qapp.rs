@@ -1,9 +1,9 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
+use crate::{qml_register::QmlRegister, qtranslator::QTranslator};
 use cxx::UniquePtr;
 use qtbridge_type_lib::{QGuiApplication, QQmlApplicationEngine, QString, QVariant, QVariantMap};
-use crate::qml_register::QmlRegister;
 
 /// Entry point for a Qt QML application.
 ///
@@ -123,7 +123,9 @@ impl QApp {
     ///     .run();
     /// ```
     pub fn with_initial_properties(&mut self, properties: &[(&str, QVariant)]) -> &mut Self {
-        self.engine.pin_mut().set_initial_properties(&properties.into());
+        self.engine
+            .pin_mut()
+            .set_initial_properties(&properties.into());
         self
     }
 
@@ -133,7 +135,9 @@ impl QApp {
     /// before loading.
     pub fn load_qml(&mut self, code: &[u8]) -> &mut Self {
         if !self.initial_properties.is_empty() {
-            self.engine.pin_mut().set_initial_properties(&self.initial_properties);
+            self.engine
+                .pin_mut()
+                .set_initial_properties(&self.initial_properties);
         }
         self.engine.pin_mut().load_data(code);
         self
@@ -150,7 +154,9 @@ impl QApp {
     /// [`add_import_path`](QApp::add_import_path) before this call.
     pub fn load_qml_from_file(&mut self, url: &str) -> &mut Self {
         if !self.initial_properties.is_empty() {
-            self.engine.pin_mut().set_initial_properties(&self.initial_properties);
+            self.engine
+                .pin_mut()
+                .set_initial_properties(&self.initial_properties);
         }
         self.engine.pin_mut().load(url);
         self
@@ -203,5 +209,9 @@ impl QApp {
     pub fn application_name(&mut self, name: &str) -> &mut Self {
         QGuiApplication::set_application_name(name);
         self
+    }
+
+    pub fn install_translator(&self, translator: &mut QTranslator) {
+        translator.install(&self.app);
     }
 }

@@ -1,6 +1,7 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only
 
+use crate::QTranslator;
 use std::env::args_os;
 use std::sync::LazyLock;
 
@@ -14,9 +15,7 @@ static ARGC_ARGV: LazyLock<(Vec<u8>, Vec<usize>, i32)> = LazyLock::new(|| {
         args_joined.extend(arg.to_string_lossy().to_string().as_bytes());
         args_joined.push(0);
     }
-    let arg_ptrs: Vec<usize> = arg_offsets.iter()
-        .map(|offset| (args_joined.as_ptr() as usize) + *offset)
-        .collect();
+    let arg_ptrs: Vec<usize> = arg_offsets.iter().map(|offset| (args_joined.as_ptr() as usize) + *offset).collect();
     (args_joined, arg_ptrs, arg_count as i32)
 });
 
@@ -51,7 +50,7 @@ mod qguiapplication {
     /// It is necessary to call this function to start event handling.
     /// The main event loop receives events from the window system and dispatches these to the application components.
     /// See also: [QGuiApplication::exec()](https://doc.qt.io/qt-6/qguiapplication.html#exec).
-    pub fn exec() -> i32{
+    pub fn exec() -> i32 {
         let cpp = cpp_fn!(|| -> i32 {
             return QGuiApplication::exec();
         });

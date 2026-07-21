@@ -1,6 +1,6 @@
 #![windows_subsystem = "windows"]
 
-use qtbridge::{QApp, QObjectHolder, invoke_method, qobject};
+use qtbridge::{QApp, QObjectHolder, QTranslator, invoke_method, qobject};
 
 #[derive(Default)]
 pub struct Backend {
@@ -46,8 +46,12 @@ fn main() {
     qml::register();
     CustomColor::register();
 
+    let mut translator = QTranslator::new();
+
     println!("starting qml app");
     let mut app = QApp::new();
+
+    app.install_translator(&mut translator);
 
     let app = app
         .register::<Backend>()
