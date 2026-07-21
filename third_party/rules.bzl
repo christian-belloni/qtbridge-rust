@@ -120,7 +120,8 @@ _binary_resource = rule(
   }
 )
 
-def qt_resource(*, name, module_name, srcs, qrc = None, qmldir = None, **kwargs):
+
+def qt_resource(*, name, module_name, srcs, qrc = None, qmldir = None, prefix = None, **kwargs):
   _qt_resource(
     name = "%s" % name,
     qrc = qrc,
@@ -129,31 +130,82 @@ def qt_resource(*, name, module_name, srcs, qrc = None, qmldir = None, **kwargs)
     **kwargs,
   )
 
+  _define_rust_lib(name, module_name, prefix, **kwargs)
+
+def _define_rust_lib(name, module_name, prefix = None, **kwargs):
+  if prefix == None:
+    prefix = "/qt/qml/"
+
   rust_library(
     name = "%s_rs" % name,
     crate_name = name,
     srcs = ["@qtbridge//third_party:lib.rs"],
     compile_data = [name],
     rustc_env = {
-      "PREFIX": "/qt/qml/%s" % module_name,
+      "PREFIX": prefix + module_name,
       "RCC_FILE": "$(location %s)" % name
     },
-    deps = ["@qtbridge//crates/qtbridge"]
+    deps = ["@qtbridge//crates/qtbridge"],
+    **kwargs
   )
 
-def _qt_resource_package_impl(ctx):
-  pass
+_QRC_TPL = """
+<RCC>
+  <qresource>
+{files}
+  </qresource>
+</RCC>
+"""
 
+def _qt_localizations_impl(ctx):
+  locales = ctx.files.locales
 
-_qt_resource_package = rule(
-  implementation = _qt_resource_package_impl
+  qms = []
+  
+  files = []
+
+  for l in locales:
+    f_name = l.basename
+    qm = ctx.actions.declare_file(f_name.split(".")[0] + ".qm")
+    ctx.actions.run(
+      executable = ctx.executable._lconvert,
+      inputs = [l],
+      outputs = [qm],
+      arguments = [
+        l.path,
+        "-qm",
+        qm.path
+      ]
+    )
+
+    files.append("    <file>{file}</file>".format(file = qm.basename))
+
+    qms.append(qm)
+  qrc = ctx.actions.declare_file("res.qrc")
+  ctx.actions.write(
+    output = qrc,
+    content = _QRC_TPL.format(files = "\n".join(files))
+  )
+
+  out_bin = ctx.actions.declare_file(ctx.attr.name + ".rcc")
+  ctx.actions.run(
+    executable = ctx.executable._rcc,
+    inputs = [qrc] + qms,
+    arguments = [qrc.path, "--binary", "-o", out_bin.path],
+    outputs = [out_bin]
+  )
+
+  return DefaultInfo(files = depset([out_bin]))
+
+_qt_localizations = rule(
+  implementation = _qt_localizations_impl,
+  attrs = {
+    "locales": attr.label_list(allow_files = True),
+    "_lconvert": attr.label(allow_single_file = True, executable = True, cfg = "exec", default = Label("//:lconvert")),
+    "_rcc": attr.label(allow_single_file = True, executable = True, cfg = "exec", default = Label("//:rcc")),
+  }
 )
 
-def qt_resource_package(*, name, deps, **kwargs):
-  _qt_resource_package(
-    name = name
-  )
-
-  for dep in deps:
-    pass
-  pass
+def qt_localizations(*, name, locales, **kwargs):
+  _qt_localizations(name = name, locales = locales, **kwargs)
+  _define_rust_lib(name, module_name = name, **kwargs)

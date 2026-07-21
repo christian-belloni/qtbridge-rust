@@ -42,19 +42,19 @@ impl Backend {
 }
 
 fn main() {
+    translations::register();
+    qml::register();
+    CustomColor::register();
+
     println!("starting qml app");
-    qtbridge::qresource::register_bytes_with_prefix(
-        include_bytes!("../CustomColor/CustomColor.rcc"),
-        "/qt/qml/CustomColor",
-    );
-    qtbridge::qresource::register_bytes_with_prefix(
-        include_bytes!("../qml/qml.rcc"),
-        "/qt/qml/Main",
-    );
-    QApp::new()
+    let mut app = QApp::new();
+
+    let app = app
         .register::<Backend>()
         .add_import_path("qrc:/qt/qml")
+        .add_import_path("qrc:/resource")
         .add_import_path("qrc:/qt/qml/CustomColor")
-        .load_qml_from_file("qrc:/qt/qml/Main/Main.qml")
-        .run();
+        .load_qml_from_file("qrc:/qt/qml/Main/Main.qml");
+
+    app.run();
 }

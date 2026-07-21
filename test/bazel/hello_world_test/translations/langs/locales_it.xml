@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
+<TS version="2.1" language="it_IT">
+  <context>
+  <name>AllLocalizations</name>
+  <message id="main_window">
+    <source>main_window</source>
+    <translation>Il mio testo</translation>
+  </message>
+</context>
+</TS>

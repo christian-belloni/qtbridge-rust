@@ -8,15 +8,15 @@ fn main() {
 
 fn gen_rcc(name: &str) {
     build_print::info!("gen {name}");
-    
-    let dest = std::path::PathBuf::from(std::env::var("OUT_DIR").unwrap())
-            .join(format!("{name}_res.rcc"));
+
+    let dest =
+        std::path::PathBuf::from(std::env::var("OUT_DIR").unwrap()).join(format!("{name}_res.rcc"));
 
     let stdout = std::process::Command::new("bazel")
         .args(&[
-            "run", 
-            &format!("//hello_world_test/{name}:export_{name}"), 
-            &dest.display().to_string()
+            "run",
+            &format!("//hello_world_test/{name}:export_{name}"),
+            &dest.display().to_string(),
         ])
         .output()
         .unwrap();

@@ -30,6 +30,12 @@ native_binary(
   visibility = ["//visibility:public"],
 )
 
+native_binary(
+  name = "lconvert",
+  src = "bin/lconvert.exec",
+  visibility = ["//visibility:public"],
+)
+
 filegroup(
   name = "shared_libraries",
   srcs = glob(["bin/*.dll"]),

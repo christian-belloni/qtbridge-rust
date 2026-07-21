@@ -6,19 +6,19 @@ import hello_world_test
 import CustomColor
 
 ApplicationWindow {
-    visible: true
-    title: qsTr("Minimal QML app")
-    color: Colors.brandColor
+  visible: true
+  title: qsTr("main_window")
+  color: Colors.brandColor
 
-    Button {
-      anchors.centerIn: parent
-      text: Backend.counter
-      onClicked: {
-        Backend.reset()
-      }
+  Button {
+    anchors.centerIn: parent
+    text: Backend.counter
+    onClicked: {
+      Backend.reset()
     }
+  }
 
-    Component.onCompleted: {
-      Backend.startup()
-    }
+  Component.onCompleted: {
+    Backend.startup()
+  }
 }

@@ -65,4 +65,12 @@ alias(
   visibility = ["//visibility:public"]
 )
 
-
+alias(
+  name = "lconvert",
+  actual = select({
+    "@platforms//os:osx": "@qtosx-arm//:lconvert",
+    ":windows_x86": "@qtwin32-x86//:lconvert",
+    ":windows_arm": "@qtwin32-arm//:lconvert",
+  }),
+  visibility = ["//visibility:public"]
+)
