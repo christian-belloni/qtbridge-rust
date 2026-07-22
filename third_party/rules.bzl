@@ -68,7 +68,7 @@ QtResource = provider(doc = "", fields = ["name", "binary", "qrc", "qmldir"])
 def _qt_resource_impl(ctx):
   out_bin = ctx.actions.declare_file("%s.rcc" % ctx.attr.name)
   srcs = [ f for f in ctx.files.srcs if (not f.path.endswith("qrc") and not f.path.endswith("qmldir")) ]
-  
+  print(srcs)
   if ctx.attr.qmldir != None:
     qmldir = ctx.file.qmldir
   else:
@@ -88,8 +88,6 @@ def _qt_resource_impl(ctx):
 
   return [DefaultInfo(files = depset([out_bin])), QtResource(name = ctx.attr.name, binary = out_bin, qmldir = ctx.file.qmldir)]
 
-  
-
 _qt_resource = rule(
   implementation = _qt_resource_impl,
   attrs = {
@@ -99,27 +97,6 @@ _qt_resource = rule(
     "_rcc": attr.label(allow_single_file = True, executable = True, cfg = "exec", default = Label("//:rcc")),
   }
 )
-
-def _qt_cpp_resource_impl(ctx):
-  return DefaultInfo(files = ctx.attr.res[QtResource].cpp)
-
-_cpp_resource = rule(
-  implementation = _qt_cpp_resource_impl,
-  attrs = {
-    "res": attr.label(providers = [QtResource])
-  }
-)
-
-def _qt_binary_resource_impl(ctx):
-  return DefaultInfo(files = ctx.attr.res[QtResource].binary)
-
-_binary_resource = rule(
-  implementation = _qt_binary_resource_impl,
-  attrs = {
-    "res": attr.label(providers = [QtResource])
-  }
-)
-
 
 def qt_resource(*, name, module_name, srcs, qrc = None, qmldir = None, prefix = None, **kwargs):
   _qt_resource(
