@@ -38,7 +38,6 @@ _win_urls = [
   "https://mirror.msys2.org/mingw/{prefix}/mingw-w64-{arch}-zlib-1.3.2-2-any.pkg.tar.zst",
   "https://mirror.msys2.org/mingw/{prefix}/mingw-w64-{arch}-zstd-1.5.7-2-any.pkg.tar.zst",
   "https://mirror.msys2.org/mingw/{prefix}/mingw-w64-{arch}-libiconv-1.19-1-any.pkg.tar.zst",
- # https://mirror.msys2.org/mingw/clang64/mingw-w64-clang-x86_64-qt6-5compat-6.11.1-1-any.pkg.tar.zst
   "https://mirror.msys2.org/mingw/{prefix}/mingw-w64-{arch}-qt6-5compat-6.11.1-1-any.pkg.tar.zst"
 ]
 
