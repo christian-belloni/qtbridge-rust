@@ -62,7 +62,7 @@ new_local_repository = use_repo_rule("@bazel_tools//tools/build_defs/repo:local.
 qt = use_extension("//third_party:extension.bzl", "qt")
 new_local_repository(
   name = "qtosx-arm",
-  path = "/opt/homebrew/Cellar/qt/6.11.1",
+  path = "/opt/homebrew/Cellar/qt/6.11.2",
   build_file = "//third_party:qtosx-arm.BUILD.bazel",
 )
 
