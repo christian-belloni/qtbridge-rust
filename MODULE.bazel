@@ -16,7 +16,7 @@ toolchains.toolchain(
     edition = "2024",
     version = "1.97.0",
 )
-# use_repo(toolchains, "default_rust_toolchains")
+use_repo(toolchains, "default_rust_toolchains")
 
 # This extension is optional but can help keep existing `@rules_rust` references working.
 rules_rust = use_extension("@rules_rs//rs:rules_rust.bzl", "rules_rust")
