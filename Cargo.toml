@@ -9,8 +9,8 @@ repository = "https://code.qt.io/cgit/qt/qtbridge-rust.git/"
 license = "LicenseRef-Qt-Commercial OR LGPL-3.0-only"
 
 [workspace.dependencies]
-cxx = { version = "1.0.158", features = ["c++17", "std"] }
-cxx-build = { version = "1.0.158", features = [ "parallel" ] }
+cxx = { version = "1.0.202", features = ["c++17", "std"] }
+cxx-build = { version = "1.0.202", features = [ "parallel" ] }
 linkme = "0.3"
 serde_json = "1"
 proc-macro2 = "1.0.95"
