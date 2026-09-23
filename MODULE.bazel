@@ -4,6 +4,13 @@ bazel_dep(name = "apple_support", version = "2.7.0")
 bazel_dep(name = "rules_rs", version = "0.0.111")
 bazel_dep(name = "platforms", version = "1.1.0")
 bazel_dep(name = "cxx.rs", version = "1.0.202")
+
+git_override(
+  module_name = "cxx.rs",
+  remote = "https://github.com/christian-belloni/cxx.git",
+  commit = "884f35f04465d14f5a86c69638e4355f248b73e4"
+)
+
 bazel_dep(name = "rules_cc", version = "0.2.22")
 bazel_dep(name = "bazel_lib", version = "3.5.0")
 bazel_dep(name = "bazel_skylib", version = "1.9.0")
