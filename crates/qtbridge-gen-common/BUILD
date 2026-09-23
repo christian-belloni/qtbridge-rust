@@ -1,5 +1,5 @@
 load("@rules_rs//rs:rust_library.bzl", "rust_library")
-load("@crates//:defs.bzl", "all_crate_deps")
+load("@qt_crates//:defs.bzl", "all_crate_deps")
 
 rust_library(
   name = "qtbridge-gen-common",

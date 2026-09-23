@@ -1,6 +1,6 @@
 load("@rules_rs//rs:rust_library.bzl", "rust_library")
 load("@rules_rs//rs:rust_static_library.bzl", "rust_static_library")
-load("@crates//:defs.bzl", "all_crate_deps")
+load("@qt_crates//:defs.bzl", "all_crate_deps")
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_binary")
 load(":utils.bzl", "rust_bridge", "path_to_name", "GENERATED_FILES_BRIDGE", "GENERATED_FILES_CPP")
 

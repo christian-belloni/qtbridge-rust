@@ -32,7 +32,7 @@ register_toolchains(
 
 crate = use_extension("@rules_rs//rs:extensions.bzl", "crate")
 crate.from_cargo(
-    name = "crates",
+    name = "qt_crates",
     cargo_lock = "//:Cargo.lock",
     cargo_toml = "//:Cargo.toml",
     platform_triples = [
@@ -45,7 +45,7 @@ crate.from_cargo(
         "x86_64-unknown-linux-gnu",
     ],
 )
-use_repo(crate, "crates")
+use_repo(crate, "qt_crates")
 
 crate.annotation(
   crate = "cxx",
@@ -54,7 +54,7 @@ crate.annotation(
   extra_aliased_targets = {
     "core-lib":"core-lib"
   },
-  deps = ["@crates//:core-lib"]
+  deps = ["@qt_crates//:core-lib"]
 )
 
 http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
