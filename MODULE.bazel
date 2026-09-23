@@ -8,12 +8,12 @@ bazel_dep(name = "rules_cc", version = "0.2.22")
 bazel_dep(name = "bazel_lib", version = "3.5.0")
 bazel_dep(name = "bazel_skylib", version = "1.9.0")
 bazel_dep(name = "rules_apple", version = "4.5.3", repo_name = "rules_apple")
-bazel_dep(name = "llvm", version = "0.8.18")
+bazel_dep(name = "llvm", version = "0.8.18", dev_dependency = True)
 bazel_dep(name = "rules_shell", version = "0.8.0")
 
 
 
-toolchains = use_extension("@rules_rs//rs/toolchains:module_extension.bzl", "toolchains", dev_dependency = True)
+toolchains = use_extension("@rules_rs//rs/toolchains:module_extension.bzl", "toolchains")
 toolchains.toolchain(
     edition = "2024",
     version = "1.97.0",
