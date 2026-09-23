@@ -19,8 +19,8 @@ toolchains.toolchain(
 # use_repo(toolchains, "default_rust_toolchains")
 
 # This extension is optional but can help keep existing `@rules_rust` references working.
-# rules_rust = use_extension("@rules_rs//rs:rules_rust.bzl", "rules_rust")
-# use_repo(rules_rust, "rules_rust")
+rules_rust = use_extension("@rules_rs//rs:rules_rust.bzl", "rules_rust")
+override_repo(rules_rust, "rules_rust")
 # override_repo(rules_rust, "rules_rust")
 
 register_toolchains(
