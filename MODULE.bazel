@@ -13,7 +13,7 @@ bazel_dep(name = "rules_shell", version = "0.8.0")
 
 
 
-toolchains = use_extension("@rules_rs//rs/toolchains:module_extension.bzl", "toolchains")
+toolchains = use_extension("@rules_rs//rs/toolchains:module_extension.bzl", "toolchains", dev_dependency = True)
 toolchains.toolchain(
     edition = "2024",
     version = "1.97.0",
@@ -21,9 +21,9 @@ toolchains.toolchain(
 use_repo(toolchains, "default_rust_toolchains")
 
 # This extension is optional but can help keep existing `@rules_rust` references working.
-rules_rust = use_extension("@rules_rs//rs:rules_rust.bzl", "rules_rust")
-use_repo(rules_rust, "rules_rust")
-override_repo(rules_rust, "rules_rust")
+# rules_rust = use_extension("@rules_rs//rs:rules_rust.bzl", "rules_rust")
+# use_repo(rules_rust, "rules_rust")
+# override_repo(rules_rust, "rules_rust")
 
 register_toolchains(
     "@default_rust_toolchains//...",
