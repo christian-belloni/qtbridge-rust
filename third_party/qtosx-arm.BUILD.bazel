@@ -42,7 +42,7 @@ modules = [
       "lib/%s.framework/Headers" % name, 
       "lib/%s.framework/Headers/6.11.1" % name, 
       "lib/%s.framework/Headers/6.11.1/%s" % (name, name), 
-      "lib/%s.framework/Headers/6.11.1/%s/private" % (name, name), 
+      # "lib/%s.framework/Headers/6.11.1/%s/private" % (name, name), 
     ],
   )
   for name, _ in modules
