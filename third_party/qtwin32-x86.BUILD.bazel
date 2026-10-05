@@ -5,12 +5,12 @@ load("@bazel_skylib//rules:native_binary.bzl", "native_binary")
 
 version = "6.11.1"
 modules = [
-  ("QtCore", "libQt6Core.dll.a"),
-  ("QtQml", "libQt6Qml.dll.a"),
-  ("QtQmlIntegration", "libQt6QmlIntegration.dll.a"),
-  ("QtGui", "libQt6Gui.dll.a"),
-  ("QtTest", "libQt6Test.dll.a"),
-  ("QtNetwork", "libQt6Network.dll.a"),
+  ("QtCore", "libQt6Core.dll"),
+  ("QtQml", "libQt6Qml.dll"),
+  ("QtQmlIntegration", "libQt6QmlIntegration.dll"),
+  ("QtGui", "libQt6Gui.dll"),
+  ("QtTest", "libQt6Test.dll"),
+  ("QtNetwork", "libQt6Network.dll"),
 ]
 
 [
