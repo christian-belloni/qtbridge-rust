@@ -61,11 +61,11 @@ cc_library(
 
 exports_files(["lib", "Frameworks"])
 
-# subdirectory(
-#   name = "Frameworks",
-#   parent = ":files",
-#   path = "Frameworks"
-# )
+subdirectory(
+  name = "Frameworks",
+  parent = ":files",
+  path = "Frameworks"
+)
 
 native_binary(
   name = "rcc",
