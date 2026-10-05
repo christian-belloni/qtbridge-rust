@@ -38,7 +38,7 @@ modules = [
     include_prefix = name,
     strip_include_prefix = "lib/%s.framework/Headers" % name,
     includes = [
-      #"lib/%s.framework/" % name, 
+      "lib/%s.framework/" % name, 
       "lib/%s.framework/Headers" % name, 
       "lib/%s.framework/Headers/6.11.1" % name, 
       "lib/%s.framework/Headers/6.11.1/%s" % (name, name), 
